@@ -1,5 +1,6 @@
+-- migrate:up
 CREATE TABLE categories (
-    tableaux_id CHAR NOT NULL PRIMARY KEY,
+    category_id CHAR NOT NULL PRIMARY KEY,
     color VARCHAR(7),
     min_points INT DEFAULT 0,
     max_points INT DEFAULT 4000,
@@ -9,13 +10,14 @@ CREATE TABLE categories (
     reward_first INT NOT NULL,
     reward_second INT NOT NULL,
     reward_semi INT NOT NULL,
-    reward_quarter INT DEFAULT 0,
+    reward_quarter INT,
     max_players INT NOT NULL,
-    overbooking_percentage INT DEFAULT 0
+    overbooking_percentage INT NOT NULL DEFAULT 0
     );
 
 CREATE TABLE players (
-    licence_no INT NOT NULL,
+    licence_no INT PRIMARY KEY NOT NULL,
+    bib_no INT NOT NULL,
     first_name VARCHAR(32) NOT NULL,
     last_name VARCHAR(32) NOT NULL,
     email VARCHAR(255) NOT NULL,
@@ -28,13 +30,18 @@ CREATE TABLE players (
 
 CREATE TABLE inscriptions (
     inscription_id serial NOT NULL PRIMARY KEY,
-    tableaux_id INT NOT NULL,
+    category_id CHAR NOT NULL,
     licence_no INT NOT NULL,
     inscription_time TIMESTAMP NOT NULL,
     paid BOOL DEFAULT FALSE,
     showed_up BOOL DEFAULT FALSE,
-    FOREIGN KEY(tableaux_id)
-        REFERENCES tableaux(tableaux_id),
+    FOREIGN KEY(category_id)
+        REFERENCES categories(category_id),
     FOREIGN KEY(licence_no)
         REFERENCES players(licence_no)
     );
+
+-- migrate:down
+DROP TABLE inscriptions;
+DROP TABLE players;
+DROP TABLE categories;
