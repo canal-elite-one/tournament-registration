@@ -1,2 +1,7 @@
 /venv
 /.idea
+**/__pycache__/
+/tests/.pytest_cache
+/tests/temp_parse_data.py
+/tests/temp_correct_sample_data.py
+/.pytest_cache

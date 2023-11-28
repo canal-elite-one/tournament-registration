@@ -16,8 +16,8 @@ class TestCategories:
         assert cat.__repr__() == correct_category_dicts[2].__repr__()
 
     def test_select_unique(self):
-        result = session.scalar(select(Categories).where(Categories.category_id == "a"))
-        assert result.category_id == "a"
+        result = session.scalar(select(Categories).where(Categories.category_id == "A"))
+        assert result.category_id == "A"
 
     def test_select_multiple(self):
         result = session.scalars(select(Categories).order_by(Categories.start_time)).all()
