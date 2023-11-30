@@ -5,13 +5,12 @@ from flask import Blueprint, request, jsonify
 from flaskr.db import session, Categories, Players, CategorySchema, PlayerSchema, EntrySchema, Entries
 from sqlalchemy import delete, select, text
 from sqlalchemy.exc import DBAPIError
-import sqlalchemy.dialects.postgresql as psql
 
 bp = Blueprint("api", __name__, url_prefix="/api")
 
 
 @bp.route("/categories", methods=["POST"])
-def api_set_categories():
+def api_admin_set_categories():
     """
     Expects a jsonified list of dicts in the "categories" field of the json that can be passed unpacked to the
     category constructor. Don't forget to cast datetime types to some parsable string.
@@ -39,6 +38,60 @@ def api_set_categories():
         session.rollback()
         return jsonify(
             error=f"At least two categories have the same name. Categories were not set. {e}"), HTTPStatus.BAD_REQUEST
+
+
+@bp.route('/pay', methods=['PUT'])
+def api_admin_make_payment():
+    if 'licenceNo' not in request.json or 'categoryIDs' not in request.json:
+        return jsonify(error="Missing either 'licenceNo' or 'categoryIDs' field in json."), HTTPStatus.BAD_REQUEST
+    licence_no = request.json['licenceNo']
+    if session.scalar(select(Players).filter_by(licence_no=licence_no)) is None:
+        return jsonify(
+            error=f"No player with licence number {licence_no} exists in the database."), HTTPStatus.BAD_REQUEST
+    player_entries = session.execute(
+        select(Categories.entry_fee, Categories.category_id, Entries.paid).join_from(Categories, Entries).where(
+            Entries.licence_no == licence_no))
+
+    to_pay = set(request.json['categoryIDs'])
+    all_entries = {'amount': 0, 'categoryIDs': []}
+    previously_paid = {'amount': 0, 'categoryIDs': []}
+    paid_now = {'amount': 0, 'categoryIDs': []}
+    left_to_pay = {'amount': 0, 'categoryIDs': []}
+    duplicates = []
+
+    for entry_fee, category_id, paid in player_entries:
+        all_entries['amount'] += entry_fee
+        all_entries['categoryIDs'].append(category_id)
+        if paid:
+            if category_id in to_pay:
+                duplicates.append(category_id)
+            previously_paid['amount'] += entry_fee
+            previously_paid['categoryIDs'].append(category_id)
+        elif category_id in to_pay:
+            paid_now['amount'] += entry_fee
+            paid_now['categoryIDs'].append(category_id)
+            to_pay.remove(category_id)
+        else:
+            left_to_pay['amount'] += entry_fee
+            left_to_pay['categoryIDs'].append(category_id)
+
+    if duplicates:
+        return jsonify(
+            error=f'Tried to make payment for some entries which were already paid for: {duplicates}'), HTTPStatus.BAD_REQUEST
+
+    if to_pay:
+        return jsonify(
+            error=f"Tried to pay the fee for some categories which did not exist, "
+                  f"or to which the player was not registered: {to_pay}"), HTTPStatus.BAD_REQUEST
+
+    for category_id in paid_now['categoryIDs']:
+        entry = session.scalar(
+            select(Entries).where(Entries.licence_no == licence_no, Entries.category_id == category_id))
+        entry.paid = True
+    session.commit()
+    recap = {'allEntries': all_entries, 'previouslyPaid': previously_paid, 'paidNow': paid_now,
+             'leftToPay': left_to_pay}
+    return jsonify(recap=recap), HTTPStatus.OK
 
 
 @bp.route('/categories', methods=['GET'])
@@ -124,28 +177,25 @@ def api_register_entries():
             error=f"No categories with the following categoryIDs {a} exist in the database"), HTTPStatus.BAD_REQUEST
 
     schema = EntrySchema(many=True)
-    temp_dicts = [{'categoryID': category_id, 'licenceNo': licence_no,
-                   'registrationTime': datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")}
-                  for category_id in category_ids]
-    # TODO: change validate to load and temp_dict to .dump() in psql.insert().values(...) ?
+    temp_dicts = [{'categoryID': category_id, 'licenceNo': licence_no} for category_id in category_ids]
+
     if errors := schema.validate(temp_dicts):
         return jsonify(error=f"Invalid registration data: {errors}"), HTTPStatus.BAD_REQUEST
 
     query_str = \
         ("INSERT INTO entries (category_id, licence_no, registration_time, color) "
-         "VALUES (:categoryID, :licenceNo, :registrationTime, "
-                                    "(SELECT color FROM categories WHERE category_id = :categoryID))"
-         "ON CONFLICT (category_id, licence_no) DO NOTHING ;")
+         "VALUES (:categoryID, :licenceNo, NOW(), "
+         "(SELECT color FROM categories WHERE category_id = :categoryID))"
+         "ON CONFLICT (category_id, licence_no) DO NOTHING;")
     stmt = text(query_str)
 
-    # stmt = psql.insert(Entries).values([entry.__dict__ for entry in entries])
-    # stmt = stmt.on_conflict_do_nothing(index_elements=['category_id', 'licence_no'])
     try:
         session.execute(stmt, temp_dicts)
         session.commit()
-        # Est-ce que c'est ça qu'il faut faire comme réponse ? comment éviter les problèmes de commit
         return jsonify(entries=schema.dump(
-            session.scalars(select(Entries).where(Entries.licence_no == licence_no).order_by(Entries.category_id)))), HTTPStatus.OK
+            session.scalars(
+                select(Entries).where(Entries.licence_no == licence_no).order_by(
+                    Entries.category_id)))), HTTPStatus.CREATED
     except DBAPIError as e:
         session.rollback()
         return jsonify(error=f"One or several potential entries violate color constraint. {e}"), HTTPStatus.BAD_REQUEST

@@ -97,6 +97,34 @@ incorrect_categories_duplicate = {'categories': [{
      "rewardSemi": 50,
      "maxPlayers": 40, }]}
 
+correct_payment_pay_all = {'licenceNo': 4526124, 'categoryIDs': ['B', 'F']}
+correct_payment_pay_all_response = {'allEntries': {'amount': 14, 'categoryIDs': ['B', 'F']},
+                                    'leftToPay': {'amount': 0, 'categoryIDs': []},
+                                    'paidNow': {'amount': 14, 'categoryIDs': ['B', 'F']},
+                                    'previouslyPaid': {'amount': 0, 'categoryIDs': []}}
+
+correct_payment_pay_partial = {'licenceNo': 4526124, 'categoryIDs': ['B']}
+correct_payment_pay_partial_response = {'allEntries': {'amount': 14, 'categoryIDs': ['B', 'F']},
+                                        'leftToPay': {'amount': 7, 'categoryIDs': ['F']},
+                                        'paidNow': {'amount': 7, 'categoryIDs': ['B']},
+                                        'previouslyPaid': {'amount': 0, 'categoryIDs': []}}
+
+correct_payment_previously_paid = {'licenceNo': 5326002, 'categoryIDs': ['B']}
+correct_payment_previously_paid_response = {'allEntries': {'amount': 14, 'categoryIDs': ['B', 'G']},
+                                            'leftToPay': {'amount': 0, 'categoryIDs': []},
+                                            'paidNow': {'amount': 7, 'categoryIDs': ['B']},
+                                            'previouslyPaid': {'amount': 7, 'categoryIDs': ['G']}}
+
+correct_payment_all_recap_positive = {'licenceNo': 722370, 'categoryIDs': ['7']}
+correct_payment_all_recap_positive_response = {'allEntries': {'amount': 21, 'categoryIDs': ['A', '5', '7']},
+                                               'leftToPay': {'amount': 7, 'categoryIDs': ['5']},
+                                               'paidNow': {'amount': 7, 'categoryIDs': ['7']},
+                                               'previouslyPaid': {'amount': 7, 'categoryIDs': ['A']}}
+
+incorrect_payment_duplicate_payment = {'licenceNo': 5326002, 'categoryIDs': ['G']}
+
+incorrect_payment_without_registration = {'licenceNo': 5326002, 'categoryIDs': ['A']}
+
 correct_get_categories_response = [
     {'categoryID': 'A', 'color': '000000', 'entryFee': 7, 'maxPlayers': 72, 'maxPoints': 900, 'minPoints': 0,
      'overbookingPercentage': 20, 'rewardFirst': 70, 'rewardQuarter': None, 'rewardSecond': 35, 'rewardSemi': 20,

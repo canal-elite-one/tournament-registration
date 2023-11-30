@@ -30,6 +30,45 @@ class TestAPISetCategories(BaseTest):
         assert "At least two categories have the same name. Categories were not set." in r.json['error'], r.json
 
 
+class TestAPIMakePayment(BaseTest):
+    def test_correct_pay_all(self, client, reset_db, populate):
+        r = client.put("/api/pay", json=correct_payment_pay_all)
+        assert r.status_code == HTTPStatus.OK, r.json
+        assert 'recap' in r.json, r.json
+        assert r.json['recap'] == correct_payment_pay_all_response
+
+    def test_correct_pay_partial(self, client, reset_db, populate):
+        r = client.put("/api/pay", json=correct_payment_pay_partial)
+        assert r.status_code == HTTPStatus.OK, r.json
+        assert 'recap' in r.json, r.json
+        assert r.json['recap'] == correct_payment_pay_partial_response
+
+    def test_correct_previously_paid(self, client, reset_db, populate):
+        r = client.put("/api/pay", json=correct_payment_previously_paid)
+        assert r.status_code == HTTPStatus.OK, r.json
+        assert 'recap' in r.json, r.json
+        assert r.json['recap'] == correct_payment_previously_paid_response
+
+    def test_correct_all_recap_positive(self, client, reset_db, populate):
+        r = client.put("/api/pay", json=correct_payment_all_recap_positive)
+        assert r.status_code == HTTPStatus.OK, r.json
+        assert 'recap' in r.json, r.json
+        print(r.json['recap'])
+        assert r.json['recap'] == correct_payment_all_recap_positive_response
+
+    def test_incorrect_duplicate_payment(self, client, reset_db, populate):
+        r = client.put("/api/pay", json=incorrect_payment_duplicate_payment)
+        assert r.status_code == HTTPStatus.BAD_REQUEST, r.json
+        assert 'error' in r.json, r.json
+        assert "Tried to make payment for some entries which were already paid for" in r.json['error'], r.json
+
+    def test_incorrect_without_registration(self, client, reset_db, populate):
+        r = client.put("/api/pay", json=incorrect_payment_without_registration)
+        assert r.status_code == HTTPStatus.BAD_REQUEST, r.json
+        assert 'error' in r.json, r.json
+        assert "Tried to pay the fee for some categories which did not exist," in r.json['error'], r.json
+
+
 class TestAPIGetCategories(BaseTest):
     def test_get(self, client, reset_db, populate):
         r = client.get("/api/categories")
@@ -91,7 +130,7 @@ class TestGetPlayerInfo(BaseTest):
 class TestRegisterEntry(BaseTest):
     def test_correct(self, client, reset_db, populate):
         r = client.post("/api/register", json=correct_registration)
-        assert r.status_code == HTTPStatus.OK, r.json
+        assert r.status_code == HTTPStatus.CREATED, r.json
         assert 'entries' in r.json, r.json
         for entry1, entry2 in zip(r.json['entries'], correct_registration_response):
             for key in entry1:
@@ -99,7 +138,7 @@ class TestRegisterEntry(BaseTest):
 
     def test_correct_with_duplicates(self, client, reset_db, populate):
         r = client.post("/api/register", json=correct_registration_with_duplicates)
-        assert r.status_code == HTTPStatus.OK, r.json
+        assert r.status_code == HTTPStatus.CREATED, r.json
         assert 'entries' in r.json, r.json
         for entry1, entry2 in zip(r.json['entries'], correct_registration_with_duplicates_response):
             for key in entry1:
