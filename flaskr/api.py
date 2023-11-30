@@ -41,12 +41,25 @@ def api_admin_set_categories():
 
 @bp.route('/pay', methods=['PUT'])
 def api_admin_make_payment():
-    if 'licenceNo' not in request.json or 'categoryIDs' not in request.json:
-        return jsonify(error="Missing either 'licenceNo' or 'categoryIDs' field in json."), HTTPStatus.BAD_REQUEST
-    licence_no = request.json['licenceNo']
-    if session.scalar(select(Players).filter_by(licence_no=licence_no)) is None:
-        return jsonify(
-            error=f"No player with licence number {licence_no} exists in the database."), HTTPStatus.BAD_REQUEST
+    if ('licenceNo' not in request.json and (
+            'firstName' not in request.json or 'lastName' not in request.json)) or 'categoryIDs' not in request.json:
+        return jsonify(error="Missing either 'licenceNo' and ('firstName' or 'lastName'), and/or 'categoryIDs' field "
+                             "in json."), HTTPStatus.BAD_REQUEST
+    licence_no = request.json.get('licenceNo', None)
+    if licence_no is not None:
+        if session.scalar(select(Players).filter_by(licence_no=licence_no)) is None:
+            return jsonify(
+                error=f"No player with licence number {licence_no} exists in the database."), HTTPStatus.BAD_REQUEST
+    else:
+        first_name, last_name = request.json['firstName'], request.json['lastName']
+        player = session.scalar(select(Players).where(Players.first_name == first_name,
+                                                      Players.last_name == last_name))
+        if player is None:
+            return jsonify(
+                error=f"No player named {first_name} {last_name} exists in the database."), HTTPStatus.BAD_REQUEST
+        else:
+            licence_no = player.licence_no
+
     player_entries = session.execute(
         select(Categories.entry_fee, Categories.category_id, Entries.paid).join_from(Categories, Entries).where(
             Entries.licence_no == licence_no))
@@ -115,6 +128,22 @@ def api_admin_delete_entries():
         # TODO: (cf db.PlayerSchema) make it so that p_schema.dump(player automatically generates all the data
         return jsonify(remainingEntries=e_schema.dump(
             session.scalars(select(Entries).where(Entries.licence_no == licence_no)))), HTTPStatus.OK
+    except DBAPIError as e:
+        session.rollback()
+        return jsonify(error=str(e)), HTTPStatus.BAD_REQUEST
+
+
+@bp.route('/players', methods=['DELETE'])
+def api_admin_delete_player():
+    licence_no = request.json['licenceNo']
+    if session.scalar(select(Players).filter_by(licence_no=licence_no)) is None:
+        return jsonify(
+            f"No player with licence number {licence_no} exists in the database: could not delete."), HTTPStatus.BAD_REQUEST
+    try:
+        session.execute(delete(Entries).filter_by(licence_no=licence_no))
+        session.execute(delete(Players).filter_by(licence_no=licence_no))
+        session.commit()
+        return HTTPStatus.NO_CONTENT
     except DBAPIError as e:
         session.rollback()
         return jsonify(error=str(e)), HTTPStatus.BAD_REQUEST

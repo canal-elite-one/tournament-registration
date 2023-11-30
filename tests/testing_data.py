@@ -1,10 +1,8 @@
 from datetime import datetime
 
-
 """
 For api_admin_set_categories
 """
-
 
 correct_categories = {'categories': [{
     "categoryID": "a",
@@ -49,18 +47,18 @@ correct_categories = {'categories': [{
 ]}
 
 correct_categories_response = [
-    {'categoryID': 'a', 'color': '#FF0000', 'entryFee': 10, 'maxPlayers': 40, 'maxPoints': 1500, 'minPoints': 0,
-     'overbookingPercentage': 0, 'rewardFirst': 200, 'rewardQuarter': None, 'rewardSecond': 100, 'rewardSemi': 50,
-     'startTime': '2023-12-20T10:00:00', 'womenOnly': False},
-    {'categoryID': 'b', 'color': '#FFFF00', 'entryFee': 20, 'maxPlayers': 40, 'maxPoints': 4000, 'minPoints': 800,
-     'overbookingPercentage': 0, 'rewardFirst': 200, 'rewardQuarter': None, 'rewardSecond': 100, 'rewardSemi': 50,
-     'startTime': '2023-12-20T10:00:00', 'womenOnly': False},
-    {'categoryID': 'c', 'color': '#FFFFFF', 'entryFee': 20, 'maxPlayers': 40, 'maxPoints': 2000, 'minPoints': 800,
-     'overbookingPercentage': 10, 'rewardFirst': 200, 'rewardQuarter': None, 'rewardSecond': 100, 'rewardSemi': 50,
-     'startTime': '2023-12-20T10:00:00', 'womenOnly': True},
-    {'categoryID': 'd', 'color': None, 'entryFee': 10, 'maxPlayers': 40, 'maxPoints': 1500, 'minPoints': 0,
-     'overbookingPercentage': 0, 'rewardFirst': 200, 'rewardQuarter': None, 'rewardSecond': 100, 'rewardSemi': 50,
-     'startTime': '2023-12-20T10:00:00', 'womenOnly': False}]
+    {'categoryID': 'a', 'color': '#FF0000', 'entryCount': 0, 'entryFee': 10, 'maxPlayers': 40, 'maxPoints': 1500,
+     'minPoints': 0, 'overbookingPercentage': 0, 'rewardFirst': 200, 'rewardQuarter': None, 'rewardSecond': 100,
+     'rewardSemi': 50, 'startTime': '2023-12-20T10:00:00', 'womenOnly': False},
+    {'categoryID': 'b', 'color': '#FFFF00', 'entryCount': 0, 'entryFee': 20, 'maxPlayers': 40, 'maxPoints': 4000,
+     'minPoints': 800, 'overbookingPercentage': 0, 'rewardFirst': 200, 'rewardQuarter': None, 'rewardSecond': 100,
+     'rewardSemi': 50, 'startTime': '2023-12-20T10:00:00', 'womenOnly': False},
+    {'categoryID': 'c', 'color': '#FFFFFF', 'entryCount': 0, 'entryFee': 20, 'maxPlayers': 40, 'maxPoints': 2000,
+     'minPoints': 800, 'overbookingPercentage': 10, 'rewardFirst': 200, 'rewardQuarter': None, 'rewardSecond': 100,
+     'rewardSemi': 50, 'startTime': '2023-12-20T10:00:00', 'womenOnly': True},
+    {'categoryID': 'd', 'color': None, 'entryCount': 0, 'entryFee': 10, 'maxPlayers': 40, 'maxPoints': 1500,
+     'minPoints': 0, 'overbookingPercentage': 0, 'rewardFirst': 200, 'rewardQuarter': None, 'rewardSecond': 100,
+     'rewardSemi': 50, 'startTime': '2023-12-20T10:00:00', 'womenOnly': False}]
 
 incorrect_categories_missing_categories_field = {}
 
@@ -103,17 +101,21 @@ incorrect_categories_duplicate = {'categories': [{
      "rewardSemi": 50,
      "maxPlayers": 40, }]}
 
-
 """
 For api_admin_make_payment
 """
-
 
 correct_payment_pay_all = {'licenceNo': 4526124, 'categoryIDs': ['B', 'F']}
 correct_payment_pay_all_response = {'allEntries': {'amount': 14, 'categoryIDs': ['B', 'F']},
                                     'leftToPay': {'amount': 0, 'categoryIDs': []},
                                     'paidNow': {'amount': 14, 'categoryIDs': ['B', 'F']},
                                     'previouslyPaid': {'amount': 0, 'categoryIDs': []}}
+
+correct_payment_pay_all_by_name = {'firstName': 'Wihelbl', 'lastName': 'EZWLKRWE', 'categoryIDs': ['B', 'F']}
+correct_payment_pay_all_by_name_response = {'allEntries': {'amount': 14, 'categoryIDs': ['B', 'F']},
+                                            'leftToPay': {'amount': 0, 'categoryIDs': []},
+                                            'paidNow': {'amount': 14, 'categoryIDs': ['B', 'F']},
+                                            'previouslyPaid': {'amount': 0, 'categoryIDs': []}}
 
 correct_payment_pay_partial = {'licenceNo': 4526124, 'categoryIDs': ['B']}
 correct_payment_pay_partial_response = {'allEntries': {'amount': 14, 'categoryIDs': ['B', 'F']},
@@ -139,11 +141,9 @@ incorrect_payment_duplicate_payment = {'licenceNo': 5326002, 'categoryIDs': ['G'
 
 incorrect_payment_without_registration = {'licenceNo': 5326002, 'categoryIDs': ['A']}
 
-
 """
 For api_admin_delete_entries
 """
-
 
 correct_delete_entries_all = {'licenceNo': 722370, 'categoryIDs': ['A', '5', '7']}
 correct_delete_entries_all_response = []
@@ -161,11 +161,9 @@ incorrect_delete_entries_nonexisting_categories = {'licenceNo': 722370, 'categor
 
 incorrect_delete_entries_nonexisting_entries = {'licenceNo': 722370, 'categoryIDs': ['B', '5']}
 
-
 """
 For api_get_categories
 """
-
 
 correct_get_categories_response = [
     {'categoryID': 'A', 'color': '000000', 'entryCount': 30, 'entryFee': 7, 'maxPlayers': 72, 'maxPoints': 900,
@@ -211,11 +209,9 @@ correct_get_categories_response = [
      'minPoints': 0, 'overbookingPercentage': 10, 'rewardFirst': 60, 'rewardQuarter': None, 'rewardSecond': 30,
      'rewardSemi': 15, 'startTime': '2024-01-07T16:00:00', 'womenOnly': False}]
 
-
 """
 For api_add_player
 """
-
 
 correct_player = {'player': {"licenceNo": 555555,
                              "firstName": "Fjhgzg",
@@ -253,7 +249,6 @@ incorrect_player_duplicate = {'player': {"licenceNo": 4526124,
 For api_get_player
 """
 
-
 correct_get_player_existing = {'licenceNo': 4526124}
 correct_get_player_existing_response = {
     'player': {'bibNo': 94, 'club': 'USM OLIVET TENNIS DE TABLE', 'email': 'nvzhltrsqr@mochsf.com',
@@ -269,11 +264,9 @@ correct_get_player_nonexisting_response = {'player': None, 'registeredEntries': 
 
 incorrect_get_player_missing_licenceNo_json_field = {}
 
-
 """
 For api_register_entries
 """
-
 
 correct_registration = {'licenceNo': 4526124, 'categoryIDs': ['1']}
 correct_registration_response = [

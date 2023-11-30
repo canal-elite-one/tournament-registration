@@ -6,7 +6,6 @@ from http import HTTPStatus
 class TestAPISetCategories(BaseTest):
     def test_correct(self, client, reset_db):
         r = client.post("/api/categories", json=correct_categories)
-        print(r.json['categories'])
         assert r.status_code == HTTPStatus.CREATED, r.json['error']
         assert 'categories' in r.json
         assert r.json['categories'] == correct_categories_response
@@ -36,6 +35,12 @@ class TestAPIMakePayment(BaseTest):
         assert r.status_code == HTTPStatus.OK, r.json
         assert 'recap' in r.json, r.json
         assert r.json['recap'] == correct_payment_pay_all_response
+
+    def test_correct_pay_all_by_name(self, client, reset_db, populate):
+        r = client.put("/api/pay", json=correct_payment_pay_all_by_name)
+        assert r.status_code == HTTPStatus.OK, r.json
+        assert 'recap' in r.json, r.json
+        assert r.json['recap'] == correct_payment_pay_all_by_name_response
 
     def test_correct_pay_partial(self, client, reset_db, populate):
         r = client.put("/api/pay", json=correct_payment_pay_partial)
