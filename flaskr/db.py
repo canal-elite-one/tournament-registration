@@ -1,8 +1,8 @@
 import os
 import subprocess
-from sqlalchemy import create_engine, Table
+from sqlalchemy import create_engine, Table, func, select
 from sqlalchemy.orm import DeclarativeBase, Session
-from marshmallow import Schema, fields, post_load
+from marshmallow import Schema, fields, post_load, post_dump
 
 db_url = os.environ.get("DATABASE_URL", None) or "postgresql+psycopg2://postgres:postgres@localhost:5432/tournois"
 subprocess.run(["dbmate", "-d", os.environ.get("MIGRATION_DIR"), "--no-dump-schema", "--url", db_url, "up"])
@@ -54,6 +54,12 @@ class CategorySchema(Schema):
     @post_load
     def make_field(self, data, **kwargs):
         return Categories(**data)
+
+    @post_dump
+    def add_entry_count(self, data, **kwargs):
+        data['entryCount'] = session.scalar(
+            select(func.count(Entries.entry_id)).where(Entries.category_id == data['categoryID']))
+        return data
 
 
 class PlayerSchema(Schema):

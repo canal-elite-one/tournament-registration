@@ -18,6 +18,7 @@ def execute_dbmate(command, database_url=None):
 class BaseTest:
     @fixture(scope="session")
     def app(self):
+        execute_dbmate("down", os.environ.get("DATABASE_URL"))
         return create_app()
 
     @fixture(scope='session')
