@@ -56,6 +56,12 @@ class TestAPIMakePayment(BaseTest):
         print(r.json['recap'])
         assert r.json['recap'] == correct_payment_all_recap_positive_response
 
+    def test_incorrect_missing_json_field(self, client, reset_db, populate):
+        r = client.put("/api/pay", json=incorrect_payment_missing_json_field)
+        assert r.status_code == HTTPStatus.BAD_REQUEST, r.json
+        assert 'error' in r.json, r.json
+        assert "Missing either 'licenceNo' or 'categoryIDs' field in json." in r.json['error'], r.json
+
     def test_incorrect_duplicate_payment(self, client, reset_db, populate):
         r = client.put("/api/pay", json=incorrect_payment_duplicate_payment)
         assert r.status_code == HTTPStatus.BAD_REQUEST, r.json
@@ -155,6 +161,12 @@ class TestRegisterEntry(BaseTest):
         assert r.status_code == HTTPStatus.BAD_REQUEST
         assert 'error' in r.json, r.json
         assert 'One or several potential entries violate color constraint.' in r.json['error'], r.json
+
+    def test_gender_points_violation(self, client, reset_db, populate):
+        r = client.post("/api/register", json=incorrect_registration_gender_points_violation)
+        assert r.status_code == HTTPStatus.BAD_REQUEST
+        assert 'error' in r.json, r.json
+        assert 'Tried to register some entries violating either gender or points conditions:' in r.json['error'], r.json
 
     def test_missing_fields(self, client, reset_db, populate):
         for incorrect_json in incorrect_registrations_missing_json_fields:

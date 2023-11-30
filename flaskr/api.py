@@ -1,4 +1,3 @@
-import datetime
 from http import HTTPStatus
 from marshmallow import ValidationError
 from flask import Blueprint, request, jsonify
@@ -96,6 +95,7 @@ def api_admin_make_payment():
 
 @bp.route('/categories', methods=['GET'])
 def api_get_categories():
+    # TODO add number of players already registered
     return jsonify(categories=CategorySchema(many=True).dump(
         session.scalars(select(Categories).order_by(Categories.start_time)))), HTTPStatus.OK
 
@@ -165,16 +165,29 @@ def api_register_entries():
         return jsonify(
             error=f"Missing either 'licenceNo' or 'categoryIDs' field in json. {e}"), HTTPStatus.BAD_REQUEST
 
-    if session.scalar(select(Players).where(Players.licence_no == licence_no)) is None:
+    player = session.scalar(select(Players).filter_by(licence_no=licence_no))
+    if player is None:
         return (jsonify(
             error=f"No player with licence number {licence_no} exists in the database. Entry was not registered."),
                 HTTPStatus.BAD_REQUEST)
     if not category_ids:
         return jsonify(error="No categories to register entries in were sent."), HTTPStatus.BAD_REQUEST
-    existing_categories = set(session.scalars(select(Categories.category_id)))
-    if a := set(category_ids).difference(set(existing_categories)):
+
+    existing_category_ids = set(session.scalars(select(Categories.category_id)))
+    if a := set(category_ids).difference(set(existing_category_ids)):
         return jsonify(
             error=f"No categories with the following categoryIDs {a} exist in the database"), HTTPStatus.BAD_REQUEST
+
+    potential_categories = session.scalars(select(Categories).where(Categories.category_id.in_(category_ids)))
+
+    violations = []
+    for category in potential_categories:
+        if (category.women_only and player.gender != 'F') or (player.nb_points > category.max_points) or (
+                player.nb_points < category.min_points):
+            violations.append(category.category_id)
+    if violations:
+        return jsonify(
+            error=f"Tried to register some entries violating either gender or points conditions: {violations}"), HTTPStatus.BAD_REQUEST
 
     schema = EntrySchema(many=True)
     temp_dicts = [{'categoryID': category_id, 'licenceNo': licence_no} for category_id in category_ids]
@@ -185,14 +198,16 @@ def api_register_entries():
     query_str = \
         ("INSERT INTO entries (category_id, licence_no, registration_time, color) "
          "VALUES (:categoryID, :licenceNo, NOW(), "
-         "(SELECT color FROM categories WHERE category_id = :categoryID))"
+         "(SELECT color FROM categories WHERE category_id = :categoryID)) "
          "ON CONFLICT (category_id, licence_no) DO NOTHING;")
     stmt = text(query_str)
 
     try:
         session.execute(stmt, temp_dicts)
         session.commit()
-        return jsonify(entries=schema.dump(
+        e_schema = EntrySchema(many=True)
+        # TODO: (cf db.PlayerSchema) make it so that p_schema.dump(player automatically generates all the data
+        return jsonify(entries=e_schema.dump(
             session.scalars(
                 select(Entries).where(Entries.licence_no == licence_no).order_by(
                     Entries.category_id)))), HTTPStatus.CREATED

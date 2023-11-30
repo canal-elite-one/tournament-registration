@@ -121,6 +121,8 @@ correct_payment_all_recap_positive_response = {'allEntries': {'amount': 21, 'cat
                                                'paidNow': {'amount': 7, 'categoryIDs': ['7']},
                                                'previouslyPaid': {'amount': 7, 'categoryIDs': ['A']}}
 
+incorrect_payment_missing_json_field = {}
+
 incorrect_payment_duplicate_payment = {'licenceNo': 5326002, 'categoryIDs': ['G']}
 
 incorrect_payment_without_registration = {'licenceNo': 5326002, 'categoryIDs': ['A']}
@@ -234,7 +236,8 @@ correct_registration_with_duplicates_response = [
     {'categoryID': 'F', 'color': 'FF0000', 'entryID': 64, 'licenceNo': 4526124, 'paid': False,
      'registrationTime': '2023-11-25T21:56:50', 'showedUp': False}]
 
-incorrect_registration_color_violation = {'licenceNo': 4526124, 'categoryIDs': ['A']}
+incorrect_registration_color_violation = {'licenceNo': 7886249, 'categoryIDs': ['1']}
+incorrect_registration_gender_points_violation = {'licenceNo': 4526124, 'categoryIDs': ['A']}
 incorrect_registration_missing_player = {'licenceNo': 55555, 'categoryIDs': ['A']}
 incorrect_registrations_missing_json_fields = [{'categoryIDs': ['A']}, {'licenceNo': 4526124}]
 incorrect_registration_empty_categories = {'licenceNo': 4526124, 'categoryIDs': []}
