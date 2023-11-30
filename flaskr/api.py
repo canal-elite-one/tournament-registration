@@ -93,9 +93,35 @@ def api_admin_make_payment():
     return jsonify(recap=recap), HTTPStatus.OK
 
 
+@bp.route('/entries', methods=['DELETE'])
+def api_admin_delete_entries():
+    if ('licenceNo' not in request.json) or ('categoryIDs' not in request.json):
+        return jsonify(error="Missing 'licenceNo' and/or 'categoryIDs' field in json payload."), HTTPStatus.BAD_REQUEST
+    licence_no = request.json['licenceNo']
+    category_ids = request.json['categoryIDs']
+    if session.scalar(select(Players).where(Players.licence_no == licence_no)) is None:
+        return jsonify(
+            error=f"No player with licence number {licence_no} exists in the database."), HTTPStatus.BAD_REQUEST
+    if a := set(category_ids).difference(
+            session.scalars(select(Entries.category_id).where(Entries.licence_no == licence_no))):
+        return jsonify(
+            error=f"Tried to delete some entries which were not registered or even for nonexisting categories: {a}."), HTTPStatus.BAD_REQUEST
+
+    try:
+        session.execute(delete(Entries).where(Entries.licence_no == licence_no,
+                                              Entries.category_id.in_(category_ids)))
+        session.commit()
+        e_schema = EntrySchema(many=True)
+        # TODO: (cf db.PlayerSchema) make it so that p_schema.dump(player automatically generates all the data
+        return jsonify(remainingEntries=e_schema.dump(
+            session.scalars(select(Entries).where(Entries.licence_no == licence_no)))), HTTPStatus.OK
+    except DBAPIError as e:
+        session.rollback()
+        return jsonify(error=str(e)), HTTPStatus.BAD_REQUEST
+
+
 @bp.route('/categories', methods=['GET'])
 def api_get_categories():
-    # TODO add number of players already registered
     return jsonify(categories=CategorySchema(many=True).dump(
         session.scalars(select(Categories).order_by(Categories.start_time)))), HTTPStatus.OK
 
@@ -139,7 +165,7 @@ def api_add_player():
 
 
 @bp.route('/players', methods=['GET'])
-def api_get_player_info():
+def api_get_player():
     try:
         licence_no = request.json['licenceNo']
     except KeyError:
@@ -147,16 +173,16 @@ def api_get_player_info():
             error="json was missing 'licenceNo' field. Could not retrieve player info."), HTTPStatus.BAD_REQUEST
     player = session.scalar(select(Players).where(Players.licence_no == licence_no))
     if player is None:
-        return jsonify(player=None, registeredCategories=[]), HTTPStatus.OK
+        return jsonify(player=None, registeredEntries=[]), HTTPStatus.OK
     p_schema = PlayerSchema()
     e_schema = EntrySchema(many=True)
     # TODO: (cf db.PlayerSchema) make it so that p_schema.dump(player automatically generates all the data
     return jsonify(player=p_schema.dump(player),
-                   registeredCategories=e_schema.dump(
+                   registeredEntries=e_schema.dump(
                        session.scalars(select(Entries).where(Entries.licence_no == licence_no)))), HTTPStatus.OK
 
 
-@bp.route('/register', methods=['POST'])
+@bp.route('/entries', methods=['POST'])
 def api_register_entries():
     try:
         licence_no = request.json['licenceNo']

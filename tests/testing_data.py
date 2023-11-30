@@ -1,5 +1,11 @@
 from datetime import datetime
 
+
+"""
+For api_admin_set_categories
+"""
+
+
 correct_categories = {'categories': [{
     "categoryID": "a",
     "color": "#FF0000",
@@ -97,6 +103,12 @@ incorrect_categories_duplicate = {'categories': [{
      "rewardSemi": 50,
      "maxPlayers": 40, }]}
 
+
+"""
+For api_admin_make_payment
+"""
+
+
 correct_payment_pay_all = {'licenceNo': 4526124, 'categoryIDs': ['B', 'F']}
 correct_payment_pay_all_response = {'allEntries': {'amount': 14, 'categoryIDs': ['B', 'F']},
                                     'leftToPay': {'amount': 0, 'categoryIDs': []},
@@ -127,48 +139,83 @@ incorrect_payment_duplicate_payment = {'licenceNo': 5326002, 'categoryIDs': ['G'
 
 incorrect_payment_without_registration = {'licenceNo': 5326002, 'categoryIDs': ['A']}
 
-correct_get_categories_response = [{'categoryID': 'A', 'color': '000000', 'entryCount': 30, 'entryFee': 7, 'maxPlayers': 72, 'maxPoints': 900,
-          'minPoints': 0, 'overbookingPercentage': 20, 'rewardFirst': 70, 'rewardQuarter': None, 'rewardSecond': 35,
-          'rewardSemi': 20, 'startTime': '2024-01-06T09:00:00', 'womenOnly': False},
-         {'categoryID': 'B', 'color': '000000', 'entryCount': 46, 'entryFee': 7, 'maxPlayers': 72, 'maxPoints': 1500,
-          'minPoints': 0, 'overbookingPercentage': 15, 'rewardFirst': 140, 'rewardQuarter': None, 'rewardSecond': 70,
-          'rewardSemi': 35, 'startTime': '2024-01-06T10:15:00', 'womenOnly': False},
-         {'categoryID': 'C', 'color': '00FF00', 'entryCount': 8, 'entryFee': 10, 'maxPlayers': 36, 'maxPoints': 4000,
-          'minPoints': 1300, 'overbookingPercentage': 10, 'rewardFirst': 300, 'rewardQuarter': None,
-          'rewardSecond': 150, 'rewardSemi': 75, 'startTime': '2024-01-06T11:30:00', 'womenOnly': True},
-         {'categoryID': 'D', 'color': '00FF00', 'entryCount': 41, 'entryFee': 7, 'maxPlayers': 72, 'maxPoints': 1100,
-          'minPoints': 0, 'overbookingPercentage': 20, 'rewardFirst': 100, 'rewardQuarter': None, 'rewardSecond': 50,
-          'rewardSemi': 25, 'startTime': '2024-01-06T12:45:00', 'womenOnly': False},
-         {'categoryID': 'E', 'color': 'FF0000', 'entryCount': 29, 'entryFee': 10, 'maxPlayers': 72, 'maxPoints': 4000,
-          'minPoints': 1500, 'overbookingPercentage': 0, 'rewardFirst': 300, 'rewardQuarter': None, 'rewardSecond': 150,
-          'rewardSemi': 75, 'startTime': '2024-01-06T14:00:00', 'womenOnly': False},
-         {'categoryID': 'F', 'color': 'FF0000', 'entryCount': 36, 'entryFee': 7, 'maxPlayers': 72, 'maxPoints': 1300,
-          'minPoints': 0, 'overbookingPercentage': 10, 'rewardFirst': 120, 'rewardQuarter': None, 'rewardSecond': 60,
-          'rewardSemi': 30, 'startTime': '2024-01-06T15:00:00', 'womenOnly': False},
-         {'categoryID': 'G', 'color': None, 'entryCount': 48, 'entryFee': 7, 'maxPlayers': 72, 'maxPoints': 1900,
-          'minPoints': 0, 'overbookingPercentage': 15, 'rewardFirst': 180, 'rewardQuarter': None, 'rewardSecond': 90,
-          'rewardSemi': 45, 'startTime': '2024-01-06T16:00:00', 'womenOnly': False},
-         {'categoryID': '1', 'color': '0000FF', 'entryCount': 28, 'entryFee': 7, 'maxPlayers': 72, 'maxPoints': 1700,
-          'minPoints': 0, 'overbookingPercentage': 20, 'rewardFirst': 170, 'rewardQuarter': None, 'rewardSecond': 85,
-          'rewardSemi': 45, 'startTime': '2024-01-07T09:00:00', 'womenOnly': False},
-         {'categoryID': '2', 'color': '0000FF', 'entryCount': 20, 'entryFee': 7, 'maxPlayers': 72, 'maxPoints': 1400,
-          'minPoints': 0, 'overbookingPercentage': 0, 'rewardFirst': 130, 'rewardQuarter': None, 'rewardSecond': 65,
-          'rewardSemi': 35, 'startTime': '2024-01-07T10:15:00', 'womenOnly': False},
-         {'categoryID': '3', 'color': 'FFFF00', 'entryCount': 23, 'entryFee': 7, 'maxPlayers': 72, 'maxPoints': 2100,
-          'minPoints': 0, 'overbookingPercentage': 30, 'rewardFirst': 200, 'rewardQuarter': None, 'rewardSecond': 100,
-          'rewardSemi': 50, 'startTime': '2024-01-07T11:30:00', 'womenOnly': False},
-         {'categoryID': '4', 'color': 'FFFF00', 'entryCount': 13, 'entryFee': 7, 'maxPlayers': 72, 'maxPoints': 1000,
-          'minPoints': 0, 'overbookingPercentage': 20, 'rewardFirst': 90, 'rewardQuarter': None, 'rewardSecond': 45,
-          'rewardSemi': 25, 'startTime': '2024-01-07T12:45:00', 'womenOnly': False},
-         {'categoryID': '5', 'color': None, 'entryCount': 5, 'entryFee': 7, 'maxPlayers': 36, 'maxPoints': 1600,
-          'minPoints': 0, 'overbookingPercentage': 20, 'rewardFirst': 150, 'rewardQuarter': None, 'rewardSecond': 75,
-          'rewardSemi': 40, 'startTime': '2024-01-07T14:00:00', 'womenOnly': True},
-         {'categoryID': '6', 'color': '00FFFF', 'entryCount': 15, 'entryFee': 7, 'maxPlayers': 72, 'maxPoints': 1200,
-          'minPoints': 0, 'overbookingPercentage': 15, 'rewardFirst': 110, 'rewardQuarter': None, 'rewardSecond': 55,
-          'rewardSemi': 30, 'startTime': '2024-01-07T15:00:00', 'womenOnly': False},
-         {'categoryID': '7', 'color': '00FFFF', 'entryCount': 10, 'entryFee': 7, 'maxPlayers': 72, 'maxPoints': 800,
-          'minPoints': 0, 'overbookingPercentage': 10, 'rewardFirst': 60, 'rewardQuarter': None, 'rewardSecond': 30,
-          'rewardSemi': 15, 'startTime': '2024-01-07T16:00:00', 'womenOnly': False}]
+
+"""
+For api_admin_delete_entries
+"""
+
+
+correct_delete_entries_all = {'licenceNo': 722370, 'categoryIDs': ['A', '5', '7']}
+correct_delete_entries_all_response = []
+
+correct_delete_entries_partial = {'licenceNo': 722370, 'categoryIDs': ['A', '5']}
+correct_delete_entries_partial_response = [
+    {'categoryID': '7', 'color': '00FFFF', 'entryID': 320, 'licenceNo': 722370, 'paid': False,
+     'registrationTime': '2023-09-17T05:10:51', 'showedUp': False}]
+
+incorrect_delete_entries_missing_json_field = {'categoryIDs': ['A', '5']}
+
+incorrect_delete_entries_nonexisting_player = {'licenceNo': 55555, 'categoryIDs': ['A', '5']}
+
+incorrect_delete_entries_nonexisting_categories = {'licenceNo': 722370, 'categoryIDs': ['P', '5']}
+
+incorrect_delete_entries_nonexisting_entries = {'licenceNo': 722370, 'categoryIDs': ['B', '5']}
+
+
+"""
+For api_get_categories
+"""
+
+
+correct_get_categories_response = [
+    {'categoryID': 'A', 'color': '000000', 'entryCount': 30, 'entryFee': 7, 'maxPlayers': 72, 'maxPoints': 900,
+     'minPoints': 0, 'overbookingPercentage': 20, 'rewardFirst': 70, 'rewardQuarter': None, 'rewardSecond': 35,
+     'rewardSemi': 20, 'startTime': '2024-01-06T09:00:00', 'womenOnly': False},
+    {'categoryID': 'B', 'color': '000000', 'entryCount': 46, 'entryFee': 7, 'maxPlayers': 72, 'maxPoints': 1500,
+     'minPoints': 0, 'overbookingPercentage': 15, 'rewardFirst': 140, 'rewardQuarter': None, 'rewardSecond': 70,
+     'rewardSemi': 35, 'startTime': '2024-01-06T10:15:00', 'womenOnly': False},
+    {'categoryID': 'C', 'color': '00FF00', 'entryCount': 8, 'entryFee': 10, 'maxPlayers': 36, 'maxPoints': 4000,
+     'minPoints': 1300, 'overbookingPercentage': 10, 'rewardFirst': 300, 'rewardQuarter': None,
+     'rewardSecond': 150, 'rewardSemi': 75, 'startTime': '2024-01-06T11:30:00', 'womenOnly': True},
+    {'categoryID': 'D', 'color': '00FF00', 'entryCount': 41, 'entryFee': 7, 'maxPlayers': 72, 'maxPoints': 1100,
+     'minPoints': 0, 'overbookingPercentage': 20, 'rewardFirst': 100, 'rewardQuarter': None, 'rewardSecond': 50,
+     'rewardSemi': 25, 'startTime': '2024-01-06T12:45:00', 'womenOnly': False},
+    {'categoryID': 'E', 'color': 'FF0000', 'entryCount': 29, 'entryFee': 10, 'maxPlayers': 72, 'maxPoints': 4000,
+     'minPoints': 1500, 'overbookingPercentage': 0, 'rewardFirst': 300, 'rewardQuarter': None, 'rewardSecond': 150,
+     'rewardSemi': 75, 'startTime': '2024-01-06T14:00:00', 'womenOnly': False},
+    {'categoryID': 'F', 'color': 'FF0000', 'entryCount': 36, 'entryFee': 7, 'maxPlayers': 72, 'maxPoints': 1300,
+     'minPoints': 0, 'overbookingPercentage': 10, 'rewardFirst': 120, 'rewardQuarter': None, 'rewardSecond': 60,
+     'rewardSemi': 30, 'startTime': '2024-01-06T15:00:00', 'womenOnly': False},
+    {'categoryID': 'G', 'color': None, 'entryCount': 48, 'entryFee': 7, 'maxPlayers': 72, 'maxPoints': 1900,
+     'minPoints': 0, 'overbookingPercentage': 15, 'rewardFirst': 180, 'rewardQuarter': None, 'rewardSecond': 90,
+     'rewardSemi': 45, 'startTime': '2024-01-06T16:00:00', 'womenOnly': False},
+    {'categoryID': '1', 'color': '0000FF', 'entryCount': 28, 'entryFee': 7, 'maxPlayers': 72, 'maxPoints': 1700,
+     'minPoints': 0, 'overbookingPercentage': 20, 'rewardFirst': 170, 'rewardQuarter': None, 'rewardSecond': 85,
+     'rewardSemi': 45, 'startTime': '2024-01-07T09:00:00', 'womenOnly': False},
+    {'categoryID': '2', 'color': '0000FF', 'entryCount': 20, 'entryFee': 7, 'maxPlayers': 72, 'maxPoints': 1400,
+     'minPoints': 0, 'overbookingPercentage': 0, 'rewardFirst': 130, 'rewardQuarter': None, 'rewardSecond': 65,
+     'rewardSemi': 35, 'startTime': '2024-01-07T10:15:00', 'womenOnly': False},
+    {'categoryID': '3', 'color': 'FFFF00', 'entryCount': 23, 'entryFee': 7, 'maxPlayers': 72, 'maxPoints': 2100,
+     'minPoints': 0, 'overbookingPercentage': 30, 'rewardFirst': 200, 'rewardQuarter': None, 'rewardSecond': 100,
+     'rewardSemi': 50, 'startTime': '2024-01-07T11:30:00', 'womenOnly': False},
+    {'categoryID': '4', 'color': 'FFFF00', 'entryCount': 13, 'entryFee': 7, 'maxPlayers': 72, 'maxPoints': 1000,
+     'minPoints': 0, 'overbookingPercentage': 20, 'rewardFirst': 90, 'rewardQuarter': None, 'rewardSecond': 45,
+     'rewardSemi': 25, 'startTime': '2024-01-07T12:45:00', 'womenOnly': False},
+    {'categoryID': '5', 'color': None, 'entryCount': 5, 'entryFee': 7, 'maxPlayers': 36, 'maxPoints': 1600,
+     'minPoints': 0, 'overbookingPercentage': 20, 'rewardFirst': 150, 'rewardQuarter': None, 'rewardSecond': 75,
+     'rewardSemi': 40, 'startTime': '2024-01-07T14:00:00', 'womenOnly': True},
+    {'categoryID': '6', 'color': '00FFFF', 'entryCount': 15, 'entryFee': 7, 'maxPlayers': 72, 'maxPoints': 1200,
+     'minPoints': 0, 'overbookingPercentage': 15, 'rewardFirst': 110, 'rewardQuarter': None, 'rewardSecond': 55,
+     'rewardSemi': 30, 'startTime': '2024-01-07T15:00:00', 'womenOnly': False},
+    {'categoryID': '7', 'color': '00FFFF', 'entryCount': 10, 'entryFee': 7, 'maxPlayers': 72, 'maxPoints': 800,
+     'minPoints': 0, 'overbookingPercentage': 10, 'rewardFirst': 60, 'rewardQuarter': None, 'rewardSecond': 30,
+     'rewardSemi': 15, 'startTime': '2024-01-07T16:00:00', 'womenOnly': False}]
+
+
+"""
+For api_add_player
+"""
+
 
 correct_player = {'player': {"licenceNo": 555555,
                              "firstName": "Fjhgzg",
@@ -202,20 +249,31 @@ incorrect_player_duplicate = {'player': {"licenceNo": 4526124,
                                          "nbPoints": 1149,
                                          "club": 'USM OLIVET TENNIS DE TABLE'}}
 
+"""
+For api_get_player
+"""
+
+
 correct_get_player_existing = {'licenceNo': 4526124}
 correct_get_player_existing_response = {
     'player': {'bibNo': 94, 'club': 'USM OLIVET TENNIS DE TABLE', 'email': 'nvzhltrsqr@mochsf.com',
                'firstName': 'Wihelbl', 'gender': 'F', 'lastName': 'EZWLKRWE', 'licenceNo': 4526124, 'nbPoints': 1149,
-               'phone': '+336919756238'}, 'registeredCategories': [
+               'phone': '+336919756238'}, 'registeredEntries': [
         {'categoryID': 'B', 'color': '000000', 'entryID': 59, 'licenceNo': 4526124, 'paid': False,
          'registrationTime': '2023-11-17T18:01:20', 'showedUp': False},
         {'categoryID': 'F', 'color': 'FF0000', 'entryID': 64, 'licenceNo': 4526124, 'paid': False,
          'registrationTime': '2023-11-25T21:56:50', 'showedUp': False}]}
 
 correct_get_player_nonexisting = {'licenceNo': 555555}
-correct_get_player_nonexisting_response = {'player': None, 'registeredCategories': []}
+correct_get_player_nonexisting_response = {'player': None, 'registeredEntries': []}
 
 incorrect_get_player_missing_licenceNo_json_field = {}
+
+
+"""
+For api_register_entries
+"""
+
 
 correct_registration = {'licenceNo': 4526124, 'categoryIDs': ['1']}
 correct_registration_response = [

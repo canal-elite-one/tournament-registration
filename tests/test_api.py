@@ -75,6 +75,44 @@ class TestAPIMakePayment(BaseTest):
         assert "Tried to pay the fee for some categories which did not exist," in r.json['error'], r.json
 
 
+class TestAPIDeleteEntries(BaseTest):
+    def test_correct_delete_all(self, client, reset_db, populate):
+        r = client.delete("/api/entries", json=correct_delete_entries_all)
+        assert r.status_code == HTTPStatus.OK, r.json
+        assert 'remainingEntries' in r.json, r.json
+        assert r.json['remainingEntries'] == correct_delete_entries_all_response, r.json
+
+    def test_correct_delete_partial(self, client, reset_db, populate):
+        r = client.delete("/api/entries", json=correct_delete_entries_partial)
+        assert r.status_code == HTTPStatus.OK, r.json
+        assert 'remainingEntries' in r.json, r.json
+        assert r.json['remainingEntries'] == correct_delete_entries_partial_response, r.json
+
+    def test_incorrect_missing_json_field(self, client, reset_db, populate):
+        r = client.delete("/api/entries", json=incorrect_delete_entries_missing_json_field)
+        assert r.status_code == HTTPStatus.BAD_REQUEST, r.json
+        assert 'error' in r.json, r.json
+        assert "Missing 'licenceNo' and/or 'categoryIDs' field in json payload." in r.json['error'], r.json
+
+    def test_incorrect_nonexisting_player(self, client, reset_db, populate):
+        r = client.delete("/api/entries", json=incorrect_delete_entries_nonexisting_player)
+        assert r.status_code == HTTPStatus.BAD_REQUEST, r.json
+        assert 'error' in r.json, r.json
+        assert "No player with licence number" in r.json['error'], r.json
+
+    def test_incorrect_nonexisting_categories(self, client, reset_db, populate):
+        r = client.delete("/api/entries", json=incorrect_delete_entries_nonexisting_categories)
+        assert r.status_code == HTTPStatus.BAD_REQUEST, r.json
+        assert 'error' in r.json, r.json
+        assert "Tried to delete some entries which were not registered" in r.json['error'], r.json
+
+    def test_incorrect_nonexisting_entries(self, client, reset_db, populate):
+        r = client.delete("/api/entries", json=incorrect_delete_entries_nonexisting_entries)
+        assert r.status_code == HTTPStatus.BAD_REQUEST, r.json
+        assert 'error' in r.json, r.json
+        assert "Tried to delete some entries which were not registered" in r.json['error'], r.json
+
+
 class TestAPIGetCategories(BaseTest):
     def test_get(self, client, reset_db, populate):
         r = client.get("/api/categories")
@@ -115,16 +153,16 @@ class TestGetPlayerInfo(BaseTest):
         assert r.status_code == HTTPStatus.OK, r.json
         assert 'player' in r.json, r.json
         assert r.json['player'] == correct_get_player_existing_response['player'], r.json
-        assert 'registeredCategories' in r.json, r.json
-        assert r.json['registeredCategories'] == correct_get_player_existing_response['registeredCategories'], r.json
+        assert 'registeredEntries' in r.json, r.json
+        assert r.json['registeredEntries'] == correct_get_player_existing_response['registeredEntries'], r.json
 
     def test_correct_nonexisting_player(self, client, reset_db, populate):
         r = client.get("/api/players", json=correct_get_player_nonexisting)
         assert r.status_code == HTTPStatus.OK, r.json
         assert 'player' in r.json, r.json
         assert r.json['player'] == correct_get_player_nonexisting_response['player'], r.json
-        assert 'registeredCategories' in r.json, r.json
-        assert r.json['registeredCategories'] == correct_get_player_nonexisting_response['registeredCategories'], r.json
+        assert 'registeredEntries' in r.json, r.json
+        assert r.json['registeredEntries'] == correct_get_player_nonexisting_response['registeredEntries'], r.json
 
     def test_incorrect_missing_field(self, client, reset_db, populate):
         r = client.get("/api/players", json=incorrect_get_player_missing_licenceNo_json_field)
@@ -135,7 +173,7 @@ class TestGetPlayerInfo(BaseTest):
 
 class TestRegisterEntry(BaseTest):
     def test_correct(self, client, reset_db, populate):
-        r = client.post("/api/register", json=correct_registration)
+        r = client.post("/api/entries", json=correct_registration)
         assert r.status_code == HTTPStatus.CREATED, r.json
         assert 'entries' in r.json, r.json
         for entry1, entry2 in zip(r.json['entries'], correct_registration_response):
@@ -143,7 +181,7 @@ class TestRegisterEntry(BaseTest):
                 assert entry1[key] == entry2[key] or (key == 'registrationTime' and entry1['categoryID'] == '1'), r.json
 
     def test_correct_with_duplicates(self, client, reset_db, populate):
-        r = client.post("/api/register", json=correct_registration_with_duplicates)
+        r = client.post("/api/entries", json=correct_registration_with_duplicates)
         assert r.status_code == HTTPStatus.CREATED, r.json
         assert 'entries' in r.json, r.json
         for entry1, entry2 in zip(r.json['entries'], correct_registration_with_duplicates_response):
@@ -151,38 +189,38 @@ class TestRegisterEntry(BaseTest):
                 assert entry1[key] == entry2[key] or (key == 'registrationTime' and entry1['categoryID'] == '1'), r.json
 
     def test_missing_player(self, client, reset_db, populate):
-        r = client.post("/api/register", json=incorrect_registration_missing_player)
+        r = client.post("/api/entries", json=incorrect_registration_missing_player)
         assert r.status_code == HTTPStatus.BAD_REQUEST, r.json
         assert 'error' in r.json, r.json
         assert 'No player with licence number' in r.json['error'], r.json
 
     def test_color_violation(self, client, reset_db, populate):
-        r = client.post("/api/register", json=incorrect_registration_color_violation)
+        r = client.post("/api/entries", json=incorrect_registration_color_violation)
         assert r.status_code == HTTPStatus.BAD_REQUEST
         assert 'error' in r.json, r.json
         assert 'One or several potential entries violate color constraint.' in r.json['error'], r.json
 
     def test_gender_points_violation(self, client, reset_db, populate):
-        r = client.post("/api/register", json=incorrect_registration_gender_points_violation)
+        r = client.post("/api/entries", json=incorrect_registration_gender_points_violation)
         assert r.status_code == HTTPStatus.BAD_REQUEST
         assert 'error' in r.json, r.json
         assert 'Tried to register some entries violating either gender or points conditions:' in r.json['error'], r.json
 
     def test_missing_fields(self, client, reset_db, populate):
         for incorrect_json in incorrect_registrations_missing_json_fields:
-            r = client.post("/api/register", json=incorrect_json)
+            r = client.post("/api/entries", json=incorrect_json)
             assert r.status_code == HTTPStatus.BAD_REQUEST
             assert 'error' in r.json, r.json
             assert "Missing either 'licenceNo' or 'categoryIDs' field in json." in r.json['error'], r.json
 
     def test_empty_categories(self, client, reset_db, populate):
-        r = client.post("/api/register", json=incorrect_registration_empty_categories)
+        r = client.post("/api/entries", json=incorrect_registration_empty_categories)
         assert r.status_code == HTTPStatus.BAD_REQUEST, r.json
         assert 'error' in r.json, r.json
         assert 'No categories to register entries in were sent.' in r.json['error'], r.json
 
     def test_nonexisting_categories(self, client, reset_db, populate):
-        r = client.post("/api/register", json=incorrect_registration_nonexisting_categories)
+        r = client.post("/api/entries", json=incorrect_registration_nonexisting_categories)
         assert r.status_code == HTTPStatus.BAD_REQUEST, r.json
         assert 'error' in r.json, r.json
         assert 'No categories with the following categoryIDs' in r.json['error'], r.json
