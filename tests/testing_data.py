@@ -242,7 +242,7 @@ correct_player = {'player': {"licenceNo": 555555,
                              "nbPoints": 1500,
                              "club": "USKB", }}
 
-correct_player_response = {'bibNo': 135, 'club': 'USKB', 'email': 'dfqkjqpoe@aieop.com', 'firstName': 'Fjhgzg',
+correct_player_response = {'bibNo': None, 'club': 'USKB', 'email': 'dfqkjqpoe@aieop.com', 'firstName': 'Fjhgzg',
                            'gender': 'F',
                            'lastName': 'MHIHOBB', 'licenceNo': 555555, 'nbPoints': 1500, 'phone': '33489653754'}
 

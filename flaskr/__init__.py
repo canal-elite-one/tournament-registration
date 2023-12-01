@@ -2,9 +2,8 @@ from flask import Flask
 from flaskr import api
 
 
-def create_app(cfg_filename=None):
+def create_app():
     app = Flask(__name__)
-    # app.config.from_pyfile(cfg_filename)
     app.register_blueprint(api.bp)
     return app
 

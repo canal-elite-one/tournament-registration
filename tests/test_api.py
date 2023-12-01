@@ -169,8 +169,7 @@ class TestAPIAddPlayer(BaseTest):
     def test_add_correct_player(self, client, reset_db, populate):
         r = client.post("/api/players", json=correct_player)
         assert r.status_code == HTTPStatus.CREATED, r.json
-        assert 'player' in r.json, r.json
-        assert r.json['player'] == correct_player_response, r.json
+        assert r.json == correct_player_response, r.json
 
     def test_add_incorrect_missing_player_json_field(self, client, reset_db, populate):
         r = client.post("/api/players", json=incorrect_player_missing_player_json_field)

@@ -17,12 +17,12 @@ CREATE TABLE categories (
 
 CREATE TABLE players (
     licence_no INT PRIMARY KEY NOT NULL,
-    bib_no INT UNIQUE NOT NULL,
+    bib_no INT UNIQUE DEFAULT NULL,
     first_name VARCHAR(64) NOT NULL,
     last_name VARCHAR(64) NOT NULL,
     email VARCHAR(255) NOT NULL,
     phone VARCHAR(15) NOT NULL,
-    gender CHAR,
+    gender CHAR NOT NULL,
     nb_points INT NOT NULL,
     club VARCHAR(255) NOT NULL
     );
@@ -32,7 +32,7 @@ CREATE TABLE entries (
     category_id CHAR NOT NULL,
     licence_no INT NOT NULL,
     color VARCHAR(7),
-    registration_time TIMESTAMP NOT NULL,
+    registration_time TIMESTAMP NOT NULL DEFAULT NOW(),
     paid BOOL DEFAULT FALSE,
     showed_up BOOL DEFAULT FALSE,
     UNIQUE(category_id, licence_no),

@@ -20,7 +20,7 @@ def find_player_by_name_or_licence(json_payload):
     else:
         first_name, last_name = json_payload['firstName'], json_payload['lastName']
         player = session.scalar(select(Player).where(Player.first_name == first_name,
-                                                      Player.last_name == last_name))
+                                                     Player.last_name == last_name))
         if player is None:
             return {"is_valid": False,
                     "error": f"No player named {first_name} {last_name} exists in the database."}
@@ -130,15 +130,14 @@ def api_admin_delete_entries():
     else:
         return jsonify(error=player_search['error']), HTTPStatus.BAD_REQUEST
 
-    if a := set(category_ids).difference(
+    if unregistered_categories := set(category_ids).difference(
             session.scalars(select(Entry.category_id).where(Entry.licence_no == licence_no))):
         return jsonify(
-            error=f"Tried to delete some entries which were not registered "
-                  f"or even for nonexisting categories: {a}."), HTTPStatus.BAD_REQUEST
+            error=f"Tried to delete some entries which were not registered or even for nonexisting categories: {unregistered_categories}."), HTTPStatus.BAD_REQUEST
 
     try:
         session.execute(delete(Entry).where(Entry.licence_no == licence_no,
-                                              Entry.category_id.in_(category_ids)))
+                                            Entry.category_id.in_(category_ids)))
         session.commit()
         e_schema = EntrySchema(many=True)
         # TODO: (cf db.PlayerSchema) make it so that p_schema.dump(player automatically generates all the data
@@ -182,30 +181,16 @@ def api_add_player():
     try:
         player = schema.load(request.json['player'])
     except ValidationError as e:
-        # also triggers if 'bibNo' field is None instead of just not there
         return jsonify(
             error=f"Some player data was missing or wrongly formatted. Player was not added. {e}"), HTTPStatus.BAD_REQUEST
     # TODO: try to do this as a subquery of an insert statement?
 
-    # query_str = \
-    #     ("INSERT INTO players (category_id, licence_no, registration_time) "
-    #      "VALUES (:categoryId, :licenceNo, :registrationTime, "
-    #      "(SELECT min(a) "
-    #      "FROM generate_series(1, (SELECT max(bib_no) + 1 FROM players)) AS a "
-    #      "WHERE a NOT IN (SELECT bib_no FROM players)))"
-    #      "ON CONFLICT (category_id, licence_no) DO NOTHING ;")
-    # stmt = text(query_str)
-
-    existing_bib_nos = session.scalars(select(Player.bib_no)).all()
-    max_bib_no = max(existing_bib_nos or [0])
-    next_bib_no = max_bib_no + 1 if max_bib_no == len(existing_bib_nos) else (
-        min(set(range(1, max_bib_no + 1)) - set(existing_bib_nos)))
-    player.bib_no = next_bib_no
+    player.bib_no = None
 
     try:
         session.add(player)
         session.commit()
-        return jsonify(player=schema.dump(player)), HTTPStatus.CREATED
+        return schema.dump(player), HTTPStatus.CREATED
     except DBAPIError as e:
         session.rollback()
         return jsonify(
@@ -215,7 +200,8 @@ def api_add_player():
 @bp.route('/players', methods=['GET'])
 def api_get_player():
     if 'licenceNo' not in request.json:
-        return jsonify(error="json was missing 'licenceNo' field. Could not retrieve player info."), HTTPStatus.BAD_REQUEST
+        return jsonify(
+            error="json was missing 'licenceNo' field. Could not retrieve player info."), HTTPStatus.BAD_REQUEST
 
     licence_no = request.json['licenceNo']
 
@@ -239,18 +225,18 @@ def api_register_entries():
     licence_no = request.json['licenceNo']
     category_ids = request.json['categoryIds']
 
+    if not category_ids:
+        return jsonify(error="No categories to register entries in were sent."), HTTPStatus.BAD_REQUEST
+
     player = session.scalar(select(Player).filter_by(licence_no=licence_no))
     if player is None:
         return (jsonify(
             error=f"No player with licence number {licence_no} exists in the database. Entry was not registered."),
                 HTTPStatus.BAD_REQUEST)
-    if not category_ids:
-        return jsonify(error="No categories to register entries in were sent."), HTTPStatus.BAD_REQUEST
 
-    existing_category_ids = set(session.scalars(select(Category.category_id)))
-    if a := set(category_ids).difference(set(existing_category_ids)):
+    if nonexisting_category_ids := set(category_ids).difference(session.scalars(select(Category.category_id))):
         return jsonify(
-            error=f"No categories with the following categoryIds {a} exist in the database"), HTTPStatus.BAD_REQUEST
+            error=f"No categories with the following categoryIds {nonexisting_category_ids} exist in the database"), HTTPStatus.BAD_REQUEST
 
     potential_categories = session.scalars(select(Category).where(Category.category_id.in_(category_ids)))
 
@@ -263,15 +249,11 @@ def api_register_entries():
         return jsonify(
             error=f"Tried to register some entries violating either gender or points conditions: {violations}"), HTTPStatus.BAD_REQUEST
 
-    schema = EntrySchema(many=True)
     temp_dicts = [{'categoryId': category_id, 'licenceNo': licence_no} for category_id in category_ids]
 
-    if errors := schema.validate(temp_dicts):
-        return jsonify(error=f"Invalid registration data: {errors}"), HTTPStatus.BAD_REQUEST
-
     query_str = \
-        ("INSERT INTO entries (category_id, licence_no, registration_time, color) "
-         "VALUES (:categoryId, :licenceNo, NOW(), "
+        ("INSERT INTO entries (category_id, licence_no, color) "
+         "VALUES (:categoryId, :licenceNo, "
          "(SELECT color FROM categories WHERE category_id = :categoryId)) "
          "ON CONFLICT (category_id, licence_no) DO NOTHING;")
     stmt = text(query_str)
