@@ -1,0 +1,5 @@
+[sqlfluff]
+tab_space_size = 4
+indent_unit = space
+exclude_rules = L031, L014
+comma_style = trailing
