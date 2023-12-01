@@ -5,7 +5,15 @@ from sqlalchemy.orm import DeclarativeBase, Session
 from marshmallow import Schema, fields, post_load, post_dump
 
 db_url = os.environ.get("DATABASE_URL")
-subprocess.run(["dbmate", "-d", os.environ.get("MIGRATION_DIR"), "--no-dump-schema", "--url", db_url, "up"])
+migration_directory = os.environ.get("MIGRATION_DIR")
+
+
+def execute_dbmate(command):
+    subprocess.run(["dbmate", "-d", migration_directory, "--no-dump-schema", "--url", db_url, command],
+                   env=os.environ.copy(), )
+
+
+execute_dbmate('up')
 engine = create_engine(db_url)
 
 session = Session(engine)
