@@ -13,7 +13,7 @@ CREATE TABLE categories (
     reward_quarter INT,
     max_players INT NOT NULL,
     overbooking_percentage INT NOT NULL DEFAULT 0
-    );
+);
 
 CREATE TABLE players (
     licence_no INT PRIMARY KEY NOT NULL,
@@ -25,7 +25,7 @@ CREATE TABLE players (
     gender CHAR NOT NULL,
     nb_points INT NOT NULL,
     club VARCHAR(255) NOT NULL
-    );
+);
 
 CREATE TABLE entries (
     entry_id SERIAL NOT NULL PRIMARY KEY,
@@ -35,13 +35,13 @@ CREATE TABLE entries (
     registration_time TIMESTAMP NOT NULL DEFAULT NOW(),
     paid BOOL DEFAULT FALSE,
     showed_up BOOL DEFAULT FALSE,
-    UNIQUE(category_id, licence_no),
-    UNIQUE(color, licence_no),
-    FOREIGN KEY(category_id)
-        REFERENCES categories(category_id),
-    FOREIGN KEY(licence_no)
-        REFERENCES players(licence_no)
-    );
+    UNIQUE (category_id, licence_no),
+    UNIQUE (color, licence_no),
+    FOREIGN KEY (category_id)
+    REFERENCES categories (category_id),
+    FOREIGN KEY (licence_no)
+    REFERENCES players (licence_no)
+);
 
 -- migrate:down
 DROP TABLE IF EXISTS entries;
