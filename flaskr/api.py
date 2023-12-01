@@ -1,11 +1,32 @@
 from http import HTTPStatus
 from marshmallow import ValidationError
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, Response
 from flaskr.db import session, Categories, Players, CategorySchema, PlayerSchema, EntrySchema, Entries
 from sqlalchemy import delete, select, text
 from sqlalchemy.exc import DBAPIError
 
 bp = Blueprint("api", __name__, url_prefix="/api")
+
+
+def find_player_by_name_or_licence(json_payload):
+    if 'licenceNo' not in json_payload and ('firstName' not in json_payload or 'lastName' not in json_payload):
+        return {"is_valid": False,
+                "error": "Missing 'licenceNo' and ('firstName' or 'lastName') fields in json."}
+    licence_no = json_payload.get('licenceNo', None)
+    if licence_no is not None:
+        if session.scalar(select(Players).filter_by(licence_no=licence_no)) is None:
+            return {"is_valid": False,
+                    "error": f"No player with licence number {licence_no} exists in the database. Search by name was not done as there was a non-null 'licenceNo' field in json."}
+    else:
+        first_name, last_name = json_payload['firstName'], json_payload['lastName']
+        player = session.scalar(select(Players).where(Players.first_name == first_name,
+                                                      Players.last_name == last_name))
+        if player is None:
+            return {"is_valid": False,
+                    "error": f"No player named {first_name} {last_name} exists in the database."}
+        else:
+            licence_no = player.licence_no
+    return {"is_valid": True, "licence_no": licence_no}
 
 
 @bp.route("/categories", methods=["POST"])
@@ -41,24 +62,14 @@ def api_admin_set_categories():
 
 @bp.route('/pay', methods=['PUT'])
 def api_admin_make_payment():
-    if ('licenceNo' not in request.json and (
-            'firstName' not in request.json or 'lastName' not in request.json)) or 'categoryIDs' not in request.json:
-        return jsonify(error="Missing either 'licenceNo' and ('firstName' or 'lastName'), and/or 'categoryIDs' field "
-                             "in json."), HTTPStatus.BAD_REQUEST
-    licence_no = request.json.get('licenceNo', None)
-    if licence_no is not None:
-        if session.scalar(select(Players).filter_by(licence_no=licence_no)) is None:
-            return jsonify(
-                error=f"No player with licence number {licence_no} exists in the database."), HTTPStatus.BAD_REQUEST
+    if 'categoryIDs' not in request.json:
+        return jsonify(error="Missing 'categoryIDs' field in json."), HTTPStatus.BAD_REQUEST
+
+    player_search = find_player_by_name_or_licence(request.json)
+    if player_search['is_valid']:
+        licence_no = player_search['licence_no']
     else:
-        first_name, last_name = request.json['firstName'], request.json['lastName']
-        player = session.scalar(select(Players).where(Players.first_name == first_name,
-                                                      Players.last_name == last_name))
-        if player is None:
-            return jsonify(
-                error=f"No player named {first_name} {last_name} exists in the database."), HTTPStatus.BAD_REQUEST
-        else:
-            licence_no = player.licence_no
+        return jsonify(error=player_search['error']), HTTPStatus.BAD_REQUEST
 
     player_entries = session.execute(
         select(Categories.entry_fee, Categories.category_id, Entries.paid).join_from(Categories, Entries).where(
@@ -108,17 +119,21 @@ def api_admin_make_payment():
 
 @bp.route('/entries', methods=['DELETE'])
 def api_admin_delete_entries():
-    if ('licenceNo' not in request.json) or ('categoryIDs' not in request.json):
-        return jsonify(error="Missing 'licenceNo' and/or 'categoryIDs' field in json payload."), HTTPStatus.BAD_REQUEST
-    licence_no = request.json['licenceNo']
+    if 'categoryIDs' not in request.json:
+        return jsonify(error="Missing 'categoryIDs' field in json."), HTTPStatus.BAD_REQUEST
     category_ids = request.json['categoryIDs']
-    if session.scalar(select(Players).where(Players.licence_no == licence_no)) is None:
-        return jsonify(
-            error=f"No player with licence number {licence_no} exists in the database."), HTTPStatus.BAD_REQUEST
+
+    player_search = find_player_by_name_or_licence(request.json)
+    if player_search['is_valid']:
+        licence_no = player_search['licence_no']
+    else:
+        return jsonify(error=player_search['error']), HTTPStatus.BAD_REQUEST
+
     if a := set(category_ids).difference(
             session.scalars(select(Entries.category_id).where(Entries.licence_no == licence_no))):
         return jsonify(
-            error=f"Tried to delete some entries which were not registered or even for nonexisting categories: {a}."), HTTPStatus.BAD_REQUEST
+            error=f"Tried to delete some entries which were not registered "
+                  f"or even for nonexisting categories: {a}."), HTTPStatus.BAD_REQUEST
 
     try:
         session.execute(delete(Entries).where(Entries.licence_no == licence_no,
@@ -135,15 +150,17 @@ def api_admin_delete_entries():
 
 @bp.route('/players', methods=['DELETE'])
 def api_admin_delete_player():
-    licence_no = request.json['licenceNo']
-    if session.scalar(select(Players).filter_by(licence_no=licence_no)) is None:
-        return jsonify(
-            f"No player with licence number {licence_no} exists in the database: could not delete."), HTTPStatus.BAD_REQUEST
+    player_search = find_player_by_name_or_licence(request.json)
+    if player_search['is_valid']:
+        licence_no = player_search['licence_no']
+    else:
+        return jsonify(error=player_search['error']), HTTPStatus.BAD_REQUEST
+
     try:
         session.execute(delete(Entries).filter_by(licence_no=licence_no))
         session.execute(delete(Players).filter_by(licence_no=licence_no))
         session.commit()
-        return HTTPStatus.NO_CONTENT
+        return Response(status=HTTPStatus.NO_CONTENT)
     except DBAPIError as e:
         session.rollback()
         return jsonify(error=str(e)), HTTPStatus.BAD_REQUEST

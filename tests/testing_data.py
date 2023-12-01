@@ -135,7 +135,9 @@ correct_payment_all_recap_positive_response = {'allEntries': {'amount': 21, 'cat
                                                'paidNow': {'amount': 7, 'categoryIDs': ['7']},
                                                'previouslyPaid': {'amount': 7, 'categoryIDs': ['A']}}
 
-incorrect_payment_missing_json_field = {}
+incorrect_payment_missing_player_identifier_json_field = {'firstName': 'Dqdjfklm', 'categoryIDs': ['G']}
+
+incorrect_payment_missing_categories_json_field = {'licenceNo': 5326002}
 
 incorrect_payment_duplicate_payment = {'licenceNo': 5326002, 'categoryIDs': ['G']}
 
@@ -153,7 +155,9 @@ correct_delete_entries_partial_response = [
     {'categoryID': '7', 'color': '00FFFF', 'entryID': 320, 'licenceNo': 722370, 'paid': False,
      'registrationTime': '2023-09-17T05:10:51', 'showedUp': False}]
 
-incorrect_delete_entries_missing_json_field = {'categoryIDs': ['A', '5']}
+incorrect_delete_entries_missing_player_identifier_json_field = {'firstName': 'Fjhgzg', 'categoryIDs': ['A', '5']}
+
+incorrect_delete_entries_missing_categories_json_field = {'firstName': 'Fjhgzg', 'lastname': 'DFJQKL'}
 
 incorrect_delete_entries_nonexisting_player = {'licenceNo': 55555, 'categoryIDs': ['A', '5']}
 
@@ -161,9 +165,25 @@ incorrect_delete_entries_nonexisting_categories = {'licenceNo': 722370, 'categor
 
 incorrect_delete_entries_nonexisting_entries = {'licenceNo': 722370, 'categoryIDs': ['B', '5']}
 
+
+"""
+For api_admin_delete_player
+"""
+
+correct_delete_player_by_licence = {'licenceNo': 722370}
+
+correct_delete_player_by_name = {'firstName': 'Wihelbl', 'lastName': 'EZWLKRWE'}
+
+incorrect_delete_player_missing_json_field = {'firstName': 'Wihelbl'}
+
+incorrect_delete_player_nonexisting_player_by_name = {'firstName': 'Wfdjklbl', 'lastName': 'IDODLJSDLWE'}
+
+incorrect_delete_player_nonexisting_player_by_licence = {'licenceNo': 55555}
+
 """
 For api_get_categories
 """
+
 
 correct_get_categories_response = [
     {'categoryID': 'A', 'color': '000000', 'entryCount': 30, 'entryFee': 7, 'maxPlayers': 72, 'maxPoints': 900,

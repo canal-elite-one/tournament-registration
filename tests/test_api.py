@@ -58,14 +58,19 @@ class TestAPIMakePayment(BaseTest):
         r = client.put("/api/pay", json=correct_payment_all_recap_positive)
         assert r.status_code == HTTPStatus.OK, r.json
         assert 'recap' in r.json, r.json
-        print(r.json['recap'])
         assert r.json['recap'] == correct_payment_all_recap_positive_response
 
-    def test_incorrect_missing_json_field(self, client, reset_db, populate):
-        r = client.put("/api/pay", json=incorrect_payment_missing_json_field)
+    def test_incorrect_missing_player_identifier_json_field(self, client, reset_db, populate):
+        r = client.put("/api/pay", json=incorrect_payment_missing_player_identifier_json_field)
         assert r.status_code == HTTPStatus.BAD_REQUEST, r.json
         assert 'error' in r.json, r.json
-        assert "Missing either 'licenceNo' or 'categoryIDs' field in json." in r.json['error'], r.json
+        assert "Missing 'licenceNo' and ('firstName' or 'lastName') fields in json." in r.json['error'], r.json
+
+    def test_incorrect_missing_categories_json_field(self, client, reset_db, populate):
+        r = client.put("/api/pay", json=incorrect_payment_missing_categories_json_field)
+        assert r.status_code == HTTPStatus.BAD_REQUEST, r.json
+        assert 'error' in r.json, r.json
+        assert "Missing 'categoryIDs' field in json." in r.json['error'], r.json
 
     def test_incorrect_duplicate_payment(self, client, reset_db, populate):
         r = client.put("/api/pay", json=incorrect_payment_duplicate_payment)
@@ -93,11 +98,17 @@ class TestAPIDeleteEntries(BaseTest):
         assert 'remainingEntries' in r.json, r.json
         assert r.json['remainingEntries'] == correct_delete_entries_partial_response, r.json
 
-    def test_incorrect_missing_json_field(self, client, reset_db, populate):
-        r = client.delete("/api/entries", json=incorrect_delete_entries_missing_json_field)
+    def test_incorrect_missing_player_identifier_json_field(self, client, reset_db, populate):
+        r = client.delete("/api/entries", json=incorrect_delete_entries_missing_player_identifier_json_field)
         assert r.status_code == HTTPStatus.BAD_REQUEST, r.json
         assert 'error' in r.json, r.json
-        assert "Missing 'licenceNo' and/or 'categoryIDs' field in json payload." in r.json['error'], r.json
+        assert "Missing 'licenceNo' and ('firstName' or 'lastName') fields in json." in r.json['error'], r.json
+
+    def test_incorrect_missing_categories_json_field(self, client, reset_db, populate):
+        r = client.delete("/api/entries", json=incorrect_delete_entries_missing_categories_json_field)
+        assert r.status_code == HTTPStatus.BAD_REQUEST, r.json
+        assert 'error' in r.json, r.json
+        assert "Missing 'categoryIDs' field in json." in r.json['error'], r.json
 
     def test_incorrect_nonexisting_player(self, client, reset_db, populate):
         r = client.delete("/api/entries", json=incorrect_delete_entries_nonexisting_player)
@@ -116,6 +127,34 @@ class TestAPIDeleteEntries(BaseTest):
         assert r.status_code == HTTPStatus.BAD_REQUEST, r.json
         assert 'error' in r.json, r.json
         assert "Tried to delete some entries which were not registered" in r.json['error'], r.json
+
+
+class TestAPIDeletePlayer(BaseTest):
+    def test_correct_by_licence(self, client, reset_db, populate):
+        r = client.delete("/api/players", json=correct_delete_player_by_licence)
+        assert r.status_code == HTTPStatus.NO_CONTENT, r.json
+
+    def test_correct_by_name(self, client, reset_db, populate):
+        r = client.delete("/api/players", json=correct_delete_player_by_name)
+        assert r.status_code == HTTPStatus.NO_CONTENT, r.json
+
+    def test_incorrect_missing_json_field(self, client, reset_db, populate):
+        r = client.delete("/api/players", json=incorrect_delete_player_missing_json_field)
+        assert r.status_code == HTTPStatus.BAD_REQUEST, r.json
+        assert 'error' in r.json, r.json
+        assert "Missing 'licenceNo' and ('firstName' or 'lastName') fields in json." in r.json['error'], r.json
+
+    def test_incorrect_nonexisting_player_by_name(self, client, reset_db, populate):
+        r = client.delete("/api/players", json=incorrect_delete_player_nonexisting_player_by_name)
+        assert r.status_code == HTTPStatus.BAD_REQUEST, r.json
+        assert 'error' in r.json, r.json
+        assert "No player named " in r.json['error'], r.json
+
+    def test_incorrect_nonexisting_player_by_licence(self, client, reset_db, populate):
+        r = client.delete("/api/players", json=incorrect_delete_player_nonexisting_player_by_licence)
+        assert r.status_code == HTTPStatus.BAD_REQUEST, r.json
+        assert 'error' in r.json, r.json
+        assert "No player with licence number " in r.json['error'], r.json
 
 
 class TestAPIGetCategories(BaseTest):
