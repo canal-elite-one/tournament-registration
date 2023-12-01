@@ -1,0 +1,3 @@
+# for available rules, use ruff documentation
+# https://github.com/charliermarsh/ruff#supported-rules
+select = ["E", "W", "F", "N", "UP", "A", "COM", "C4", "T20", "Q", "RET", "SIM", "TID"]
