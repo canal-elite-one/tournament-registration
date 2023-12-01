@@ -10,7 +10,6 @@ SAMPLE_DATA_PATH = "./tests/sample_data.sql"
 class BaseTest:
     @fixture(scope="session")
     def app(self):
-        execute_dbmate("down")
         return create_app()
 
     @fixture(scope="session")
