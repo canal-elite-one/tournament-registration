@@ -79,7 +79,7 @@ class PlayerSchema(Schema):
 
 
 class EntrySchema(Schema):
-    entry_id = fields.Int(data_key='entryID')
+    entry_id = fields.Int(data_key='entryId')
     category_id = fields.Str(data_key='categoryId')
     licence_no = fields.Int(data_key='licenceNo')
     color = fields.Str()

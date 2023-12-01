@@ -6,7 +6,7 @@ from http import HTTPStatus
 class TestAPISetCategories(BaseTest):
     def test_correct(self, client, reset_db):
         r = client.post("/api/categories", json=correct_categories)
-        assert r.status_code == HTTPStatus.CREATED, r.json['error']
+        assert r.status_code == HTTPStatus.CREATED, r.json
         assert 'categories' in r.json
         assert r.json['categories'] == correct_categories_response
 

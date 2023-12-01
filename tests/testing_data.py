@@ -152,7 +152,7 @@ correct_delete_entries_all_response = []
 
 correct_delete_entries_partial = {'licenceNo': 722370, 'categoryIds': ['A', '5']}
 correct_delete_entries_partial_response = [
-    {'categoryId': '7', 'color': '00FFFF', 'entryID': 320, 'licenceNo': 722370, 'paid': False,
+    {'categoryId': '7', 'color': '00FFFF', 'entryId': 320, 'licenceNo': 722370, 'paid': False,
      'registrationTime': '2023-09-17T05:10:51', 'showedUp': False}]
 
 incorrect_delete_entries_missing_player_identifier_json_field = {'firstName': 'Fjhgzg', 'categoryIds': ['A', '5']}
@@ -274,9 +274,9 @@ correct_get_player_existing_response = {
     'player': {'bibNo': 94, 'club': 'USM OLIVET TENNIS DE TABLE', 'email': 'nvzhltrsqr@mochsf.com',
                'firstName': 'Wihelbl', 'gender': 'F', 'lastName': 'EZWLKRWE', 'licenceNo': 4526124, 'nbPoints': 1149,
                'phone': '+336919756238'}, 'registeredEntries': [
-        {'categoryId': 'B', 'color': '000000', 'entryID': 59, 'licenceNo': 4526124, 'paid': False,
+        {'categoryId': 'B', 'color': '000000', 'entryId': 59, 'licenceNo': 4526124, 'paid': False,
          'registrationTime': '2023-11-17T18:01:20', 'showedUp': False},
-        {'categoryId': 'F', 'color': 'FF0000', 'entryID': 64, 'licenceNo': 4526124, 'paid': False,
+        {'categoryId': 'F', 'color': 'FF0000', 'entryId': 64, 'licenceNo': 4526124, 'paid': False,
          'registrationTime': '2023-11-25T21:56:50', 'showedUp': False}]}
 
 correct_get_player_nonexisting = {'licenceNo': 555555}
@@ -290,20 +290,20 @@ For api_register_entries
 
 correct_registration = {'licenceNo': 4526124, 'categoryIds': ['1']}
 correct_registration_response = [
-    {'categoryId': '1', 'color': '0000FF', 'entryID': 353, 'licenceNo': 4526124, 'paid': False,
+    {'categoryId': '1', 'color': '0000FF', 'entryId': 353, 'licenceNo': 4526124, 'paid': False,
      'registrationTime': '2023-11-30T12:18:21', 'showedUp': False},
-    {'categoryId': 'B', 'color': '000000', 'entryID': 59, 'licenceNo': 4526124, 'paid': False,
+    {'categoryId': 'B', 'color': '000000', 'entryId': 59, 'licenceNo': 4526124, 'paid': False,
      'registrationTime': '2023-11-17T18:01:20', 'showedUp': False},
-    {'categoryId': 'F', 'color': 'FF0000', 'entryID': 64, 'licenceNo': 4526124, 'paid': False,
+    {'categoryId': 'F', 'color': 'FF0000', 'entryId': 64, 'licenceNo': 4526124, 'paid': False,
      'registrationTime': '2023-11-25T21:56:50', 'showedUp': False}]
 
 correct_registration_with_duplicates = {'licenceNo': 4526124, 'categoryIds': ['1', 'B', 'F']}
 correct_registration_with_duplicates_response = [
-    {'categoryId': '1', 'color': '0000FF', 'entryID': 353, 'licenceNo': 4526124, 'paid': False,
+    {'categoryId': '1', 'color': '0000FF', 'entryId': 353, 'licenceNo': 4526124, 'paid': False,
      'registrationTime': '2023-11-30T12:18:21', 'showedUp': False},
-    {'categoryId': 'B', 'color': '000000', 'entryID': 59, 'licenceNo': 4526124, 'paid': False,
+    {'categoryId': 'B', 'color': '000000', 'entryId': 59, 'licenceNo': 4526124, 'paid': False,
      'registrationTime': '2023-11-17T18:01:20', 'showedUp': False},
-    {'categoryId': 'F', 'color': 'FF0000', 'entryID': 64, 'licenceNo': 4526124, 'paid': False,
+    {'categoryId': 'F', 'color': 'FF0000', 'entryId': 64, 'licenceNo': 4526124, 'paid': False,
      'registrationTime': '2023-11-25T21:56:50', 'showedUp': False}]
 
 incorrect_registration_color_violation = {'licenceNo': 7886249, 'categoryIds': ['1']}
