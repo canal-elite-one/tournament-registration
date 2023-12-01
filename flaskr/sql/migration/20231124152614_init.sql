@@ -18,8 +18,8 @@ CREATE TABLE categories (
 CREATE TABLE players (
     licence_no INT PRIMARY KEY NOT NULL,
     bib_no INT UNIQUE NOT NULL,
-    first_name VARCHAR(32) NOT NULL,
-    last_name VARCHAR(32) NOT NULL,
+    first_name VARCHAR(64) NOT NULL,
+    last_name VARCHAR(64) NOT NULL,
     email VARCHAR(255) NOT NULL,
     phone VARCHAR(15) NOT NULL,
     gender CHAR,

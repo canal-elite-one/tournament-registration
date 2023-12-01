@@ -70,7 +70,7 @@ class TestAPIMakePayment(BaseTest):
         r = client.put("/api/pay", json=incorrect_payment_missing_categories_json_field)
         assert r.status_code == HTTPStatus.BAD_REQUEST, r.json
         assert 'error' in r.json, r.json
-        assert "Missing 'categoryIDs' field in json." in r.json['error'], r.json
+        assert "Missing 'categoryIds' field in json." in r.json['error'], r.json
 
     def test_incorrect_duplicate_payment(self, client, reset_db, populate):
         r = client.put("/api/pay", json=incorrect_payment_duplicate_payment)
@@ -108,7 +108,7 @@ class TestAPIDeleteEntries(BaseTest):
         r = client.delete("/api/entries", json=incorrect_delete_entries_missing_categories_json_field)
         assert r.status_code == HTTPStatus.BAD_REQUEST, r.json
         assert 'error' in r.json, r.json
-        assert "Missing 'categoryIDs' field in json." in r.json['error'], r.json
+        assert "Missing 'categoryIds' field in json." in r.json['error'], r.json
 
     def test_incorrect_nonexisting_player(self, client, reset_db, populate):
         r = client.delete("/api/entries", json=incorrect_delete_entries_nonexisting_player)
@@ -222,7 +222,7 @@ class TestRegisterEntry(BaseTest):
         assert 'entries' in r.json, r.json
         for entry1, entry2 in zip(r.json['entries'], correct_registration_response):
             for key in entry1:
-                assert entry1[key] == entry2[key] or (key == 'registrationTime' and entry1['categoryID'] == '1'), r.json
+                assert entry1[key] == entry2[key] or (key == 'registrationTime' and entry1['categoryId'] == '1'), r.json
 
     def test_correct_with_duplicates(self, client, reset_db, populate):
         r = client.post("/api/entries", json=correct_registration_with_duplicates)
@@ -230,7 +230,7 @@ class TestRegisterEntry(BaseTest):
         assert 'entries' in r.json, r.json
         for entry1, entry2 in zip(r.json['entries'], correct_registration_with_duplicates_response):
             for key in entry1:
-                assert entry1[key] == entry2[key] or (key == 'registrationTime' and entry1['categoryID'] == '1'), r.json
+                assert entry1[key] == entry2[key] or (key == 'registrationTime' and entry1['categoryId'] == '1'), r.json
 
     def test_missing_player(self, client, reset_db, populate):
         r = client.post("/api/entries", json=incorrect_registration_missing_player)
@@ -255,7 +255,7 @@ class TestRegisterEntry(BaseTest):
             r = client.post("/api/entries", json=incorrect_json)
             assert r.status_code == HTTPStatus.BAD_REQUEST
             assert 'error' in r.json, r.json
-            assert "Missing either 'licenceNo' or 'categoryIDs' field in json." in r.json['error'], r.json
+            assert "Missing either 'licenceNo' or 'categoryIds' field in json." in r.json['error'], r.json
 
     def test_empty_categories(self, client, reset_db, populate):
         r = client.post("/api/entries", json=incorrect_registration_empty_categories)
@@ -267,4 +267,4 @@ class TestRegisterEntry(BaseTest):
         r = client.post("/api/entries", json=incorrect_registration_nonexisting_categories)
         assert r.status_code == HTTPStatus.BAD_REQUEST, r.json
         assert 'error' in r.json, r.json
-        assert 'No categories with the following categoryIDs' in r.json['error'], r.json
+        assert 'No categories with the following categoryIds' in r.json['error'], r.json
