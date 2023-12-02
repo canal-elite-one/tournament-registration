@@ -199,10 +199,13 @@ For api_admin_make_payment
 
 correct_payment_pay_all = {"licenceNo": 4526124, "categoryIds": ["B", "F"]}
 correct_payment_pay_all_response = {
+    "actualPaidNow": 14,
+    "actualRemaining": 0,
     "allEntries": {"amount": 14, "categoryIds": ["B", "F"]},
     "leftToPay": {"amount": 0, "categoryIds": []},
-    "paidNow": {"amount": 14, "categoryIds": ["B", "F"]},
-    "previouslyPaid": {"amount": 0, "categoryIds": []},
+    "paymentDiff": 0,
+    "settledNow": {"amount": 14, "categoryIds": ["B", "F"]},
+    "settledPreviously": {"amount": 0, "categoryIds": []},
 }
 
 correct_payment_pay_all_by_name = {
@@ -210,35 +213,104 @@ correct_payment_pay_all_by_name = {
     "lastName": "EZWLKRWE",
     "categoryIds": ["B", "F"],
 }
+
 correct_payment_pay_all_by_name_response = {
+    "actualPaidNow": 14,
+    "actualRemaining": 0,
     "allEntries": {"amount": 14, "categoryIds": ["B", "F"]},
     "leftToPay": {"amount": 0, "categoryIds": []},
-    "paidNow": {"amount": 14, "categoryIds": ["B", "F"]},
-    "previouslyPaid": {"amount": 0, "categoryIds": []},
+    "paymentDiff": 0,
+    "settledNow": {"amount": 14, "categoryIds": ["B", "F"]},
+    "settledPreviously": {"amount": 0, "categoryIds": []},
 }
 
 correct_payment_pay_partial = {"licenceNo": 4526124, "categoryIds": ["B"]}
 correct_payment_pay_partial_response = {
+    "actualPaidNow": 7,
+    "actualRemaining": 7,
     "allEntries": {"amount": 14, "categoryIds": ["B", "F"]},
     "leftToPay": {"amount": 7, "categoryIds": ["F"]},
-    "paidNow": {"amount": 7, "categoryIds": ["B"]},
-    "previouslyPaid": {"amount": 0, "categoryIds": []},
+    "paymentDiff": 0,
+    "settledNow": {"amount": 7, "categoryIds": ["B"]},
+    "settledPreviously": {"amount": 0, "categoryIds": []},
 }
 
 correct_payment_previously_paid = {"licenceNo": 5326002, "categoryIds": ["B"]}
 correct_payment_previously_paid_response = {
+    "actualPaidNow": 7,
+    "actualRemaining": 0,
     "allEntries": {"amount": 14, "categoryIds": ["B", "G"]},
     "leftToPay": {"amount": 0, "categoryIds": []},
-    "paidNow": {"amount": 7, "categoryIds": ["B"]},
-    "previouslyPaid": {"amount": 7, "categoryIds": ["G"]},
+    "paymentDiff": 0,
+    "settledNow": {"amount": 7, "categoryIds": ["B"]},
+    "settledPreviously": {"amount": 7, "categoryIds": ["G"]},
 }
 
 correct_payment_all_recap_positive = {"licenceNo": 722370, "categoryIds": ["7"]}
 correct_payment_all_recap_positive_response = {
+    "actualPaidNow": 7,
+    "actualRemaining": 7,
     "allEntries": {"amount": 21, "categoryIds": ["A", "5", "7"]},
     "leftToPay": {"amount": 7, "categoryIds": ["5"]},
-    "paidNow": {"amount": 7, "categoryIds": ["7"]},
-    "previouslyPaid": {"amount": 7, "categoryIds": ["A"]},
+    "paymentDiff": 0,
+    "settledNow": {"amount": 7, "categoryIds": ["7"]},
+    "settledPreviously": {"amount": 7, "categoryIds": ["A"]},
+}
+
+correct_payment_default_actual = {
+    "licenceNo": 722370,
+    "categoryIds": ["7"],
+    "actualPaid": 7,
+}
+correct_payment_default_actual_response = {
+    "actualPaidNow": 7,
+    "actualRemaining": 7,
+    "allEntries": {"amount": 21, "categoryIds": ["A", "5", "7"]},
+    "leftToPay": {"amount": 7, "categoryIds": ["5"]},
+    "paymentDiff": 0,
+    "settledNow": {"amount": 7, "categoryIds": ["7"]},
+    "settledPreviously": {"amount": 7, "categoryIds": ["A"]},
+}
+
+correct_payment_nondefault_actual = {
+    "licenceNo": 722370,
+    "categoryIds": ["7"],
+    "actualPaid": 8,
+}
+correct_payment_nondefault_actual_response = {
+    "actualPaidNow": 8,
+    "actualRemaining": 6,
+    "allEntries": {"amount": 21, "categoryIds": ["A", "5", "7"]},
+    "leftToPay": {"amount": 7, "categoryIds": ["5"]},
+    "paymentDiff": 1,
+    "settledNow": {"amount": 7, "categoryIds": ["7"]},
+    "settledPreviously": {"amount": 7, "categoryIds": ["A"]},
+}
+
+correct_payment_nonzero_diff = {"licenceNo": 9426636, "categoryIds": ["2"]}
+correct_payment_nonzero_diff_response = {
+    "actualPaidNow": 6,
+    "actualRemaining": 7,
+    "allEntries": {"amount": 28, "categoryIds": ["D", "F", "2", "6"]},
+    "leftToPay": {"amount": 7, "categoryIds": ["6"]},
+    "paymentDiff": 0,
+    "settledNow": {"amount": 7, "categoryIds": ["2"]},
+    "settledPreviously": {"amount": 14, "categoryIds": ["D", "F"]},
+}
+
+correct_payment_nonzero_diff_nondefault_actual = {
+    "licenceNo": 9426636,
+    "categoryIds": ["2"],
+    "actualPaid": 5,
+}
+correct_payment_nonzero_diff_nondefault_actual_response = {
+    "actualPaidNow": 5,
+    "actualRemaining": 8,
+    "allEntries": {"amount": 28, "categoryIds": ["D", "F", "2", "6"]},
+    "leftToPay": {"amount": 7, "categoryIds": ["6"]},
+    "paymentDiff": -1,
+    "settledNow": {"amount": 7, "categoryIds": ["2"]},
+    "settledPreviously": {"amount": 14, "categoryIds": ["D", "F"]},
 }
 
 incorrect_payment_missing_player_identifier_json_field = {
@@ -266,7 +338,7 @@ correct_delete_entries_partial_response = [
         "color": "00FFFF",
         "entryId": 320,
         "licenceNo": 722370,
-        "paid": False,
+        "markedAsPaid": False,
         "registrationTime": "2023-09-17T05:10:51",
         "showedUp": False,
     },
@@ -297,7 +369,6 @@ incorrect_delete_entries_nonexisting_entries = {
     "categoryIds": ["B", "5"],
 }
 
-
 """
 For api_admin_delete_player
 """
@@ -318,7 +389,6 @@ incorrect_delete_player_nonexisting_player_by_licence = {"licenceNo": 55555}
 """
 For api_get_categories
 """
-
 
 correct_get_categories_response = [
     {
@@ -574,6 +644,7 @@ correct_player_response = {
     "licenceNo": 555555,
     "nbPoints": 1500,
     "phone": "33489653754",
+    "paymentDiff": 0,
 }
 
 incorrect_player_missing_player_json_field = {}
@@ -619,6 +690,7 @@ correct_get_player_existing_response = {
         "licenceNo": 4526124,
         "nbPoints": 1149,
         "phone": "+336919756238",
+        "paymentDiff": 0,
     },
     "registeredEntries": [
         {
@@ -626,7 +698,7 @@ correct_get_player_existing_response = {
             "color": "000000",
             "entryId": 59,
             "licenceNo": 4526124,
-            "paid": False,
+            "markedAsPaid": False,
             "registrationTime": "2023-11-17T18:01:20",
             "showedUp": False,
         },
@@ -635,7 +707,7 @@ correct_get_player_existing_response = {
             "color": "FF0000",
             "entryId": 64,
             "licenceNo": 4526124,
-            "paid": False,
+            "markedAsPaid": False,
             "registrationTime": "2023-11-25T21:56:50",
             "showedUp": False,
         },
@@ -658,7 +730,7 @@ correct_registration_response = [
         "color": "0000FF",
         "entryId": 353,
         "licenceNo": 4526124,
-        "paid": False,
+        "markedAsPaid": False,
         "registrationTime": "2023-11-30T12:18:21",
         "showedUp": False,
     },
@@ -667,7 +739,7 @@ correct_registration_response = [
         "color": "000000",
         "entryId": 59,
         "licenceNo": 4526124,
-        "paid": False,
+        "markedAsPaid": False,
         "registrationTime": "2023-11-17T18:01:20",
         "showedUp": False,
     },
@@ -676,7 +748,7 @@ correct_registration_response = [
         "color": "FF0000",
         "entryId": 64,
         "licenceNo": 4526124,
-        "paid": False,
+        "markedAsPaid": False,
         "registrationTime": "2023-11-25T21:56:50",
         "showedUp": False,
     },
@@ -692,7 +764,7 @@ correct_registration_with_duplicates_response = [
         "color": "0000FF",
         "entryId": 353,
         "licenceNo": 4526124,
-        "paid": False,
+        "markedAsPaid": False,
         "registrationTime": "2023-11-30T12:18:21",
         "showedUp": False,
     },
@@ -701,7 +773,7 @@ correct_registration_with_duplicates_response = [
         "color": "000000",
         "entryId": 59,
         "licenceNo": 4526124,
-        "paid": False,
+        "markedAsPaid": False,
         "registrationTime": "2023-11-17T18:01:20",
         "showedUp": False,
     },
@@ -710,7 +782,7 @@ correct_registration_with_duplicates_response = [
         "color": "FF0000",
         "entryId": 64,
         "licenceNo": 4526124,
-        "paid": False,
+        "markedAsPaid": False,
         "registrationTime": "2023-11-25T21:56:50",
         "showedUp": False,
     },

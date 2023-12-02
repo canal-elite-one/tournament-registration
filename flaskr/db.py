@@ -82,9 +82,10 @@ class PlayerSchema(Schema):
     last_name = fields.Str(data_key="lastName", required=True)
     email = fields.Email(required=True)
     phone = fields.Str(required=True)
-    gender = fields.Str()
+    gender = fields.Str(required=True)
     nb_points = fields.Int(data_key="nbPoints", required=True)
     club = fields.Str(required=True)
+    payment_diff = fields.Int(data_key="paymentDiff")
 
     @post_load
     def make_field(self, data, **kwargs):
@@ -97,7 +98,7 @@ class EntrySchema(Schema):
     licence_no = fields.Int(data_key="licenceNo")
     color = fields.Str()
     registration_time = fields.DateTime(data_key="registrationTime")
-    paid = fields.Bool()
+    marked_as_paid = fields.Bool(data_key="markedAsPaid")
     showed_up = fields.Bool(data_key="showedUp")
 
     @post_load

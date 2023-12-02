@@ -2,10 +2,10 @@
 CREATE TABLE categories (
     category_id CHAR NOT NULL PRIMARY KEY,
     color VARCHAR(7),
-    min_points INT DEFAULT 0,
-    max_points INT DEFAULT 4000,
+    min_points INT NOT NULL DEFAULT 0,
+    max_points INT NOT NULL DEFAULT 4000,
     start_time TIMESTAMP NOT NULL,
-    women_only BOOL DEFAULT FALSE,
+    women_only BOOL NOT NULL DEFAULT FALSE,
     entry_fee INT NOT NULL,
     reward_first INT NOT NULL,
     reward_second INT NOT NULL,
@@ -24,7 +24,8 @@ CREATE TABLE players (
     phone VARCHAR(15) NOT NULL,
     gender CHAR NOT NULL,
     nb_points INT NOT NULL,
-    club VARCHAR(255) NOT NULL
+    club VARCHAR(255) NOT NULL,
+    payment_diff INT NOT NULL DEFAULT 0
 );
 
 CREATE TABLE entries (
@@ -33,8 +34,8 @@ CREATE TABLE entries (
     licence_no INT NOT NULL,
     color VARCHAR(7),
     registration_time TIMESTAMP NOT NULL DEFAULT NOW(),
-    paid BOOL DEFAULT FALSE,
-    showed_up BOOL DEFAULT FALSE,
+    marked_as_paid BOOL NOT NULL DEFAULT FALSE,
+    showed_up BOOL NOT NULL DEFAULT FALSE,
     UNIQUE (category_id, licence_no),
     UNIQUE (color, licence_no),
     FOREIGN KEY (category_id)

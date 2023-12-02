@@ -27,7 +27,8 @@ def find_player_by_name_or_licence(json_payload):
         }
     licence_no = json_payload.get("licenceNo", None)
     if licence_no is not None:
-        if session.scalar(select(Player).filter_by(licence_no=licence_no)) is None:
+        player = session.scalar(select(Player).filter_by(licence_no=licence_no))
+        if player is None:
             return {
                 "is_valid": False,
                 "error": f"No player with licence number {licence_no} exists in the "
@@ -48,8 +49,7 @@ def find_player_by_name_or_licence(json_payload):
                 "error": f"No player named {first_name} {last_name} exists in "
                 f"the database.",
             }
-        licence_no = player.licence_no
-    return {"is_valid": True, "licence_no": licence_no}
+    return {"is_valid": True, "player": player}
 
 
 @bp.route("/categories", methods=["POST"])
@@ -109,6 +109,32 @@ def api_admin_set_categories():
 
 @bp.route("/pay", methods=["PUT"])
 def api_admin_make_payment():
+    """
+    This endpoint allows admin user to registered payments
+    made by players, specifically:\n
+    * For which categories did they pay
+    * How much did they actually pay if they did not pay the exact amount
+    to settle all entries marked as paid, both for this
+    transaction and for the previous ones.
+
+    It requires some attached json in the request,
+     with the following fields:\n
+    * For paying player identification, either a ``'licenceNo'``
+    or both a ``'firstName'`` and ``'lastName'`` str fields.
+     Will prioritise using ``'licenceNo'`` if present.\n
+    * A ``'categoryIds'`` array field\n
+    * Optionally, an ``'actualPaid'`` int field, representing
+    the actual amount of money that has just changed hands.
+
+    WARNING: If the ``'actualPaid'`` field is not present, the default
+    behaviour is to assume the current payment was
+    exactly enough to settle ALL entries marked as paid,
+    including those in previous transactions, as opposed to only
+    those for this transaction. In other words, the value of
+    ``player.payment_diff`` will be reset to ``0``,
+    with the actual amount paid this transaction assumed to be:
+    ``settled_now['amount'] - player.payment_diff`` instead of just ``settled_now``
+    """
     if "categoryIds" not in request.json:
         return (
             jsonify(error="Missing 'categoryIds' field in json."),
@@ -117,21 +143,21 @@ def api_admin_make_payment():
 
     player_search = find_player_by_name_or_licence(request.json)
     if player_search["is_valid"]:
-        licence_no = player_search["licence_no"]
+        player = player_search["player"]
     else:
         return jsonify(error=player_search["error"]), HTTPStatus.BAD_REQUEST
 
     player_entries = session.execute(
-        select(Category.entry_fee, Category.category_id, Entry.paid)
+        select(Category.entry_fee, Category.category_id, Entry.marked_as_paid)
         .join_from(Category, Entry)
-        .where(Entry.licence_no == licence_no),
+        .where(Entry.licence_no == player.licence_no),
     )
 
     to_pay = set(request.json["categoryIds"])
     all_entries = {"amount": 0, "categoryIds": []}
-    previously_paid = {"amount": 0, "categoryIds": []}
-    paid_now = {"amount": 0, "categoryIds": []}
-    left_to_pay = {"amount": 0, "categoryIds": []}
+    settled_previously = {"amount": 0, "categoryIds": []}
+    settled_now = {"amount": 0, "categoryIds": []}
+    left_to_settle = {"amount": 0, "categoryIds": []}
     duplicates = []
 
     for entry_fee, category_id, paid in player_entries:
@@ -140,15 +166,15 @@ def api_admin_make_payment():
         if paid:
             if category_id in to_pay:
                 duplicates.append(category_id)
-            previously_paid["amount"] += entry_fee
-            previously_paid["categoryIds"].append(category_id)
+            settled_previously["amount"] += entry_fee
+            settled_previously["categoryIds"].append(category_id)
         elif category_id in to_pay:
-            paid_now["amount"] += entry_fee
-            paid_now["categoryIds"].append(category_id)
+            settled_now["amount"] += entry_fee
+            settled_now["categoryIds"].append(category_id)
             to_pay.remove(category_id)
         else:
-            left_to_pay["amount"] += entry_fee
-            left_to_pay["categoryIds"].append(category_id)
+            left_to_settle["amount"] += entry_fee
+            left_to_settle["categoryIds"].append(category_id)
 
     if duplicates:
         return (
@@ -168,22 +194,34 @@ def api_admin_make_payment():
             HTTPStatus.BAD_REQUEST,
         )
 
-    for category_id in paid_now["categoryIds"]:
+    actual_paid_now = request.json.get("actualPaid", None)
+    if actual_paid_now is None:
+        actual_paid_now = settled_now["amount"] - player.payment_diff
+        player.payment_diff = 0
+    else:
+        player.payment_diff = (
+            actual_paid_now - settled_now["amount"] + player.payment_diff
+        )
+
+    for category_id in settled_now["categoryIds"]:
         entry = session.scalar(
             select(Entry).where(
-                Entry.licence_no == licence_no,
+                Entry.licence_no == player.licence_no,
                 Entry.category_id == category_id,
             ),
         )
         entry.paid = True
     session.commit()
     recap = {
+        "actualPaidNow": actual_paid_now,
+        "paymentDiff": player.payment_diff,
+        "actualRemaining": left_to_settle["amount"] - player.payment_diff,
         "allEntries": all_entries,
-        "previouslyPaid": previously_paid,
-        "paidNow": paid_now,
-        "leftToPay": left_to_pay,
+        "settledPreviously": settled_previously,
+        "settledNow": settled_now,
+        "leftToPay": left_to_settle,
     }
-    return jsonify(recap=recap), HTTPStatus.OK
+    return jsonify(recap), HTTPStatus.OK
 
 
 @bp.route("/entries", methods=["DELETE"])
@@ -197,7 +235,7 @@ def api_admin_delete_entries():
 
     player_search = find_player_by_name_or_licence(request.json)
     if player_search["is_valid"]:
-        licence_no = player_search["licence_no"]
+        licence_no = player_search["player"].licence_no
     else:
         return jsonify(error=player_search["error"]), HTTPStatus.BAD_REQUEST
 
@@ -244,7 +282,7 @@ def api_admin_delete_entries():
 def api_admin_delete_player():
     player_search = find_player_by_name_or_licence(request.json)
     if player_search["is_valid"]:
-        licence_no = player_search["licence_no"]
+        licence_no = player_search["player"].licence_no
     else:
         return jsonify(error=player_search["error"]), HTTPStatus.BAD_REQUEST
 
