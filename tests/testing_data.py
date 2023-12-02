@@ -130,7 +130,12 @@ correct_categories_response = [
     },
 ]
 
+correct_admin_set_categories = [(correct_categories, correct_categories_response)]
+
 incorrect_categories_missing_categories_field = {}
+incorrect_categories_missing_categories_field_error = (
+    "json was missing 'categories' field. Categories were not set"
+)
 
 incorrect_categories_missing_badly_formatted_data = {
     "categories": [
@@ -161,6 +166,9 @@ incorrect_categories_missing_badly_formatted_data = {
         },
     ],
 }
+incorrect_categories_missing_badly_formatted_data_error = (
+    "Some category data was missing or wrongly formatted. Categories "
+)
 
 incorrect_categories_duplicate = {
     "categories": [
@@ -192,6 +200,21 @@ incorrect_categories_duplicate = {
         },
     ],
 }
+incorrect_categories_duplicate_error = (
+    "At least two categories have the same name. Categories were not set."
+)
+
+incorrect_admin_set_categories = [
+    (
+        incorrect_categories_missing_categories_field,
+        incorrect_categories_missing_categories_field_error,
+    ),
+    (
+        incorrect_categories_missing_badly_formatted_data,
+        incorrect_categories_missing_badly_formatted_data_error,
+    ),
+    (incorrect_categories_duplicate, incorrect_categories_duplicate_error),
+]
 
 """
 For api_admin_make_payment
@@ -213,7 +236,6 @@ correct_payment_pay_all_by_name = {
     "lastName": "EZWLKRWE",
     "categoryIds": ["B", "F"],
 }
-
 correct_payment_pay_all_by_name_response = {
     "actualPaidNow": 14,
     "actualRemaining": 0,
@@ -313,16 +335,59 @@ correct_payment_nonzero_diff_nondefault_actual_response = {
     "settledPreviously": {"amount": 14, "categoryIds": ["D", "F"]},
 }
 
+correct_admin_make_payment = [
+    (correct_payment_pay_all, correct_payment_pay_all_response),
+    (correct_payment_pay_all_by_name, correct_payment_pay_all_by_name_response),
+    (correct_payment_pay_partial, correct_payment_pay_partial_response),
+    (correct_payment_previously_paid, correct_payment_previously_paid_response),
+    (correct_payment_all_recap_positive, correct_payment_all_recap_positive_response),
+    (correct_payment_default_actual, correct_payment_default_actual_response),
+    (correct_payment_nondefault_actual, correct_payment_nondefault_actual_response),
+    (correct_payment_nonzero_diff, correct_payment_nonzero_diff_response),
+    (
+        correct_payment_nonzero_diff_nondefault_actual,
+        correct_payment_nonzero_diff_nondefault_actual_response,
+    ),
+]
+
 incorrect_payment_missing_player_identifier_json_field = {
     "firstName": "Dqdjfklm",
     "categoryIds": ["G"],
 }
+incorrect_payment_missing_player_identifier_json_field_error = (
+    "Missing 'licenceNo' and ('firstName' or 'lastName') fields in json."
+)
 
 incorrect_payment_missing_categories_json_field = {"licenceNo": 5326002}
+incorrect_payment_missing_categories_json_field_error = (
+    "Missing 'categoryIds' field in json."
+)
 
 incorrect_payment_duplicate_payment = {"licenceNo": 5326002, "categoryIds": ["G"]}
+incorrect_payment_duplicate_payment_error = (
+    "Tried to make payment for some entries which were already paid for"
+)
 
 incorrect_payment_without_registration = {"licenceNo": 5326002, "categoryIds": ["A"]}
+incorrect_payment_without_registration_error = (
+    "Tried to pay the fee for some categories which did not exist,"
+)
+
+incorrect_admin_make_payment = [
+    (
+        incorrect_payment_missing_player_identifier_json_field,
+        incorrect_payment_missing_player_identifier_json_field_error,
+    ),
+    (
+        incorrect_payment_missing_categories_json_field,
+        incorrect_payment_missing_categories_json_field_error,
+    ),
+    (incorrect_payment_duplicate_payment, incorrect_payment_duplicate_payment_error),
+    (
+        incorrect_payment_without_registration,
+        incorrect_payment_without_registration_error,
+    ),
+]
 
 """
 For api_admin_delete_entries
@@ -344,30 +409,71 @@ correct_delete_entries_partial_response = [
     },
 ]
 
+correct_admin_delete_entries = [
+    (correct_delete_entries_all, correct_delete_entries_all_response),
+    (correct_delete_entries_partial, correct_delete_entries_partial_response),
+]
+
 incorrect_delete_entries_missing_player_identifier_json_field = {
     "firstName": "Fjhgzg",
     "categoryIds": ["A", "5"],
 }
+incorrect_delete_entries_missing_player_identifier_json_field_error = (
+    "Missing 'licenceNo' and ('firstName' or 'lastName') fields in json."
+)
 
 incorrect_delete_entries_missing_categories_json_field = {
     "firstName": "Fjhgzg",
     "lastname": "DFJQKL",
 }
+incorrect_delete_entries_missing_categories_json_field_error = (
+    "Missing 'categoryIds' field in json."
+)
 
 incorrect_delete_entries_nonexisting_player = {
     "licenceNo": 55555,
     "categoryIds": ["A", "5"],
 }
+incorrect_delete_entries_nonexisting_player_error = "No player with licence number"
 
 incorrect_delete_entries_nonexisting_categories = {
     "licenceNo": 722370,
     "categoryIds": ["P", "5"],
 }
+incorrect_delete_entries_nonexisting_categories_error = (
+    "Tried to delete some entries which were not registered"
+)
 
 incorrect_delete_entries_nonexisting_entries = {
     "licenceNo": 722370,
     "categoryIds": ["B", "5"],
 }
+incorrect_delete_entries_nonexisting_entries_error = (
+    "Tried to delete some entries which were not registered"
+)
+
+incorrect_admin_delete_entries = [
+    (
+        incorrect_delete_entries_missing_player_identifier_json_field,
+        incorrect_delete_entries_missing_player_identifier_json_field_error,
+    ),
+    (
+        incorrect_delete_entries_missing_categories_json_field,
+        incorrect_delete_entries_missing_categories_json_field_error,
+    ),
+    (
+        incorrect_delete_entries_nonexisting_player,
+        incorrect_delete_entries_nonexisting_player_error,
+    ),
+    (
+        incorrect_delete_entries_nonexisting_categories,
+        incorrect_delete_entries_nonexisting_categories_error,
+    ),
+    (
+        incorrect_delete_entries_nonexisting_entries,
+        incorrect_delete_entries_nonexisting_entries_error,
+    ),
+]
 
 """
 For api_admin_delete_player
@@ -377,14 +483,41 @@ correct_delete_player_by_licence = {"licenceNo": 722370}
 
 correct_delete_player_by_name = {"firstName": "Wihelbl", "lastName": "EZWLKRWE"}
 
+correct_admin_delete_player = [
+    correct_delete_player_by_licence,
+    correct_delete_player_by_name,
+]
+
 incorrect_delete_player_missing_json_field = {"firstName": "Wihelbl"}
+incorrect_delete_player_missing_json_field_error = (
+    "Missing 'licenceNo' and ('firstName' or 'lastName') fields in json."
+)
 
 incorrect_delete_player_nonexisting_player_by_name = {
     "firstName": "Wfdjklbl",
     "lastName": "IDODLJSDLWE",
 }
+incorrect_delete_player_nonexisting_player_by_name_error = "No player named "
 
 incorrect_delete_player_nonexisting_player_by_licence = {"licenceNo": 55555}
+incorrect_delete_player_nonexisting_player_by_licence_error = (
+    "No player with licence number "
+)
+
+incorrect_admin_delete_player = [
+    (
+        incorrect_delete_player_missing_json_field,
+        incorrect_delete_player_missing_json_field_error,
+    ),
+    (
+        incorrect_delete_player_nonexisting_player_by_name,
+        incorrect_delete_player_nonexisting_player_by_name_error,
+    ),
+    (
+        incorrect_delete_player_nonexisting_player_by_licence,
+        incorrect_delete_player_nonexisting_player_by_licence_error,
+    ),
+]
 
 """
 For api_get_categories
@@ -633,7 +766,6 @@ correct_player = {
         "club": "USKB",
     },
 }
-
 correct_player_response = {
     "bibNo": None,
     "club": "USKB",
@@ -647,7 +779,12 @@ correct_player_response = {
     "paymentDiff": 0,
 }
 
+correct_add_player = [(correct_player, correct_player_response)]
+
 incorrect_player_missing_player_json_field = {}
+incorrect_player_missing_player_json_field_error = (
+    "json was missing 'player' field. Player was not added."
+)
 
 incorrect_player_missing_badly_formatted_data = {
     "player": {
@@ -660,6 +797,9 @@ incorrect_player_missing_badly_formatted_data = {
         "club": "USKB",
     },
 }
+incorrect_player_missing_badly_formatted_data_error = (
+    "Some player data was missing or wrongly formatted. Player was not added."
+)
 
 incorrect_player_duplicate = {
     "player": {
@@ -673,6 +813,21 @@ incorrect_player_duplicate = {
         "club": "USM OLIVET TENNIS DE TABLE",
     },
 }
+incorrect_player_duplicate_error = (
+    "A player with this licence already exists in the database. Player "
+)
+
+incorrect_add_player = [
+    (
+        incorrect_player_missing_player_json_field,
+        incorrect_player_missing_player_json_field_error,
+    ),
+    (
+        incorrect_player_missing_badly_formatted_data,
+        incorrect_player_missing_badly_formatted_data_error,
+    ),
+    (incorrect_player_duplicate, incorrect_player_duplicate_error),
+]
 
 """
 For api_get_player
@@ -717,7 +872,22 @@ correct_get_player_existing_response = {
 correct_get_player_nonexisting = {"licenceNo": 555555}
 correct_get_player_nonexisting_response = {"player": None, "registeredEntries": []}
 
+correct_get_player = [
+    (correct_get_player_existing, correct_get_player_existing_response),
+    (correct_get_player_nonexisting, correct_get_player_nonexisting_response),
+]
+
 incorrect_get_player_missing_licence_no_json_field = {}
+incorrect_get_player_missing_licence_no_json_field_error = (
+    "json was missing 'licenceNo' field. Could not retrieve player info."
+)
+
+incorrect_get_player = [
+    (
+        incorrect_get_player_missing_licence_no_json_field,
+        incorrect_get_player_missing_licence_no_json_field_error,
+    ),
+]
 
 """
 For api_register_entries
@@ -788,18 +958,80 @@ correct_registration_with_duplicates_response = [
     },
 ]
 
+correct_register_entries = [
+    (correct_registration, correct_registration_response),
+    (
+        correct_registration_with_duplicates,
+        correct_registration_with_duplicates_response,
+    ),
+]
+
 incorrect_registration_color_violation = {"licenceNo": 7886249, "categoryIds": ["1"]}
+incorrect_registration_color_violation_error = (
+    "One or several potential entries violate color constraint."
+)
+
 incorrect_registration_gender_points_violation = {
     "licenceNo": 4526124,
     "categoryIds": ["A"],
 }
+incorrect_registration_gender_points_violation_error = (
+    "Tried to register some entries violating either gender or "
+)
+
 incorrect_registration_missing_player = {"licenceNo": 55555, "categoryIds": ["A"]}
-incorrect_registrations_missing_json_fields = [
-    {"categoryIds": ["A"]},
-    {"licenceNo": 4526124},
-]
+incorrect_registration_missing_player_error = "No player with licence number"
+
+incorrect_registrations_missing_licenceno_json_fields = {"categoryIds": ["A"]}
+incorrect_registrations_missing_licenceno_json_fields_error = (
+    "Missing either 'licenceNo' or 'categoryIds' field in json."
+)
+
+incorrect_registrations_missing_categoryids_json_fields = {"licenceNo": 4526124}
+incorrect_registrations_missing_categoryids_json_fields_error = (
+    "Missing either 'licenceNo' or 'categoryIds' field in json."
+)
+
 incorrect_registration_empty_categories = {"licenceNo": 4526124, "categoryIds": []}
+incorrect_registration_empty_categories_error = (
+    "No categories to register entries in were sent."
+)
+
 incorrect_registration_nonexisting_categories = {
     "licenceNo": 4526124,
     "categoryIds": ["A", "a", "b"],
 }
+incorrect_registration_nonexisting_categories_error = (
+    "No categories with the following categoryIds"
+)
+
+incorrect_register_entries = [
+    (
+        incorrect_registration_color_violation,
+        incorrect_registration_color_violation_error,
+    ),
+    (
+        incorrect_registration_gender_points_violation,
+        incorrect_registration_gender_points_violation_error,
+    ),
+    (
+        incorrect_registration_missing_player,
+        incorrect_registration_missing_player_error,
+    ),
+    (
+        incorrect_registrations_missing_licenceno_json_fields,
+        incorrect_registrations_missing_licenceno_json_fields_error,
+    ),
+    (
+        incorrect_registrations_missing_categoryids_json_fields,
+        incorrect_registrations_missing_categoryids_json_fields_error,
+    ),
+    (
+        incorrect_registration_empty_categories,
+        incorrect_registration_empty_categories_error,
+    ),
+    (
+        incorrect_registration_nonexisting_categories,
+        incorrect_registration_nonexisting_categories_error,
+    ),
+]
