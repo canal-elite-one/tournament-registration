@@ -99,7 +99,7 @@ class EntrySchema(Schema):
     color = fields.Str()
     registration_time = fields.DateTime(data_key="registrationTime")
     marked_as_paid = fields.Bool(data_key="markedAsPaid")
-    showed_up = fields.Bool(data_key="showedUp")
+    present = fields.Bool()
 
     @post_load
     def make_field(self, data, **kwargs):
