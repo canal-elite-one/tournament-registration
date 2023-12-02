@@ -110,7 +110,7 @@ def api_admin_set_categories():
 @bp.route("/pay", methods=["PUT"])
 def api_admin_make_payment():
     """
-    This endpoint allows admin user to registered payments
+    This endpoint allows admin user to register payments
     made by players, specifically:\n
     * For which categories did they pay
     * How much did they actually pay if they did not pay the exact amount
