@@ -56,6 +56,14 @@ from tests.testing_data import (
     incorrect_registration_missing_player,
     incorrect_registration_nonexisting_categories,
     incorrect_registrations_missing_json_fields,
+    correct_payment_default_actual,
+    correct_payment_default_actual_response,
+    correct_payment_nondefault_actual,
+    correct_payment_nondefault_actual_response,
+    correct_payment_nonzero_diff,
+    correct_payment_nonzero_diff_response,
+    correct_payment_nonzero_diff_nondefault_actual,
+    correct_payment_nonzero_diff_nondefault_actual_response,
 )
 
 
@@ -104,32 +112,47 @@ class TestAPIMakePayment(BaseTest):
     def test_correct_pay_all(self, client, reset_db, populate):
         r = client.put("/api/pay", json=correct_payment_pay_all)
         assert r.status_code == HTTPStatus.OK, r.json
-        assert "recap" in r.json, r.json
-        assert r.json["recap"] == correct_payment_pay_all_response
+        assert r.json == correct_payment_pay_all_response, r.json
 
     def test_correct_pay_all_by_name(self, client, reset_db, populate):
         r = client.put("/api/pay", json=correct_payment_pay_all_by_name)
         assert r.status_code == HTTPStatus.OK, r.json
-        assert "recap" in r.json, r.json
-        assert r.json["recap"] == correct_payment_pay_all_by_name_response
+        assert r.json == correct_payment_pay_all_by_name_response, r.json
 
     def test_correct_pay_partial(self, client, reset_db, populate):
         r = client.put("/api/pay", json=correct_payment_pay_partial)
         assert r.status_code == HTTPStatus.OK, r.json
-        assert "recap" in r.json, r.json
-        assert r.json["recap"] == correct_payment_pay_partial_response
+        assert r.json == correct_payment_pay_partial_response, r.json
 
     def test_correct_previously_paid(self, client, reset_db, populate):
         r = client.put("/api/pay", json=correct_payment_previously_paid)
         assert r.status_code == HTTPStatus.OK, r.json
-        assert "recap" in r.json, r.json
-        assert r.json["recap"] == correct_payment_previously_paid_response
+        assert r.json == correct_payment_previously_paid_response, r.json
 
     def test_correct_all_recap_positive(self, client, reset_db, populate):
         r = client.put("/api/pay", json=correct_payment_all_recap_positive)
         assert r.status_code == HTTPStatus.OK, r.json
-        assert "recap" in r.json, r.json
-        assert r.json["recap"] == correct_payment_all_recap_positive_response
+        assert r.json == correct_payment_all_recap_positive_response, r.json
+
+    def test_correct_with_default_actual(self, client, reset_db, populate):
+        r = client.put("/api/pay", json=correct_payment_default_actual)
+        assert r.status_code == HTTPStatus.OK, r.json
+        assert r.json == correct_payment_default_actual_response, r.json
+
+    def test_correct_with_nondefault_actual(self, client, reset_db, populate):
+        r = client.put("/api/pay", json=correct_payment_nondefault_actual)
+        assert r.status_code == HTTPStatus.OK, r.json
+        assert r.json == correct_payment_nondefault_actual_response, r.json
+
+    def test_correct_nonzero_diff(self, client, reset_db, populate):
+        r = client.put("/api/pay", json=correct_payment_nonzero_diff)
+        assert r.status_code == HTTPStatus.OK, r.json
+        assert r.json == correct_payment_nonzero_diff_response, r.json
+
+    def test_correct_nonzero_diff_nondefault_actual(self, client, reset_db, populate):
+        r = client.put("/api/pay", json=correct_payment_nonzero_diff_nondefault_actual)
+        assert r.status_code == HTTPStatus.OK, r.json
+        assert r.json == correct_payment_nonzero_diff_nondefault_actual_response, r.json
 
     def test_incorrect_missing_player_identifier_json_field(
         self,
