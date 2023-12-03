@@ -610,7 +610,6 @@ correct_unmark_present_response = {
     "unmarked": ["E"],
 }
 
-
 correct_mark_unmark_present = {
     "licenceNo": 608834,
     "categoryIdsToMark": ["3"],
@@ -650,12 +649,50 @@ correct_mark_unmark_present_response = {
     "unmarked": ["E"],
 }
 
+correct_mark_present_idempotent = {
+    "licenceNo": 608834,
+    "categoryIdsToMark": ["3", "E"],
+}
+correct_mark_present_idempotent_response = {
+    "allEntries": [
+        {
+            "categoryId": "3",
+            "color": "#FFFF00",
+            "entryId": 100,
+            "licenceNo": 608834,
+            "markedAsPaid": False,
+            "markedAsPresent": True,
+            "registrationTime": "2023-03-20T00:24:12",
+        },
+        {
+            "categoryId": "E",
+            "color": "#FF0000",
+            "entryId": 70,
+            "licenceNo": 608834,
+            "markedAsPaid": False,
+            "markedAsPresent": True,
+            "registrationTime": "2023-11-02T18:50:24",
+        },
+        {
+            "categoryId": "G",
+            "color": None,
+            "entryId": 286,
+            "licenceNo": 608834,
+            "markedAsPaid": False,
+            "markedAsPresent": False,
+            "registrationTime": "2023-08-23T06:56:51",
+        },
+    ],
+    "marked": ["3"],
+    "unmarked": [],
+}
 
 correct_admin_mark_present = [
     (correct_mark_present_default, correct_mark_present_default_response),
     (correct_mark_present_nondefault, correct_mark_present_nondefault_response),
     (correct_unmark_present, correct_unmark_present_response),
     (correct_mark_unmark_present, correct_mark_unmark_present_response),
+    (correct_mark_present_idempotent, correct_mark_present_idempotent_response),
 ]
 
 incorrect_mark_present_missing_player_identifier_json_field = {"firstName": "Wihelbl"}

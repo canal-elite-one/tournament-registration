@@ -10,7 +10,7 @@ from flaskr.db import (
     EntrySchema,
     Entry,
 )
-from sqlalchemy import delete, select, text, func
+from sqlalchemy import delete, select, text, func, not_
 from sqlalchemy.exc import DBAPIError
 from datetime import date
 
@@ -341,6 +341,7 @@ def api_admin_mark_present():
                 .where(
                     Entry.licence_no == licence_no,
                     func.date(Category.start_time) == date.today(),
+                    not_(Entry.marked_as_present),
                 )
                 .order_by(Entry.category_id),
             ),
@@ -352,6 +353,7 @@ def api_admin_mark_present():
                 .where(
                     Entry.licence_no == licence_no,
                     Entry.category_id.in_(ids_to_mark),
+                    not_(Entry.marked_as_present),
                 )
                 .order_by(Entry.category_id),
             ),
@@ -368,6 +370,7 @@ def api_admin_mark_present():
             .where(
                 Entry.licence_no == licence_no,
                 Entry.category_id.in_(ids_to_unmark),
+                Entry.marked_as_present,
             )
             .order_by(Entry.category_id),
         )
