@@ -400,12 +400,12 @@ correct_delete_entries_partial = {"licenceNo": 722370, "categoryIds": ["A", "5"]
 correct_delete_entries_partial_response = [
     {
         "categoryId": "7",
-        "color": "00FFFF",
+        "color": "#00FFFF",
         "entryId": 320,
         "licenceNo": 722370,
         "markedAsPaid": False,
         "registrationTime": "2023-09-17T05:10:51",
-        "showedUp": False,
+        "markedAsPresent": False,
     },
 ]
 
@@ -520,13 +520,221 @@ incorrect_admin_delete_player = [
 ]
 
 """
+For api_admin_mark_present
+"""
+
+correct_mark_present_default = {"licenceNo": 4526124}
+correct_mark_present_default_response = {
+    "allEntries": [
+        {
+            "categoryId": "B",
+            "color": "#000000",
+            "entryId": 59,
+            "licenceNo": 4526124,
+            "markedAsPaid": False,
+            "markedAsPresent": False,
+            "registrationTime": "2023-11-17T18:01:20",
+        },
+        {
+            "categoryId": "F",
+            "color": "#FF0000",
+            "entryId": 64,
+            "licenceNo": 4526124,
+            "markedAsPaid": False,
+            "markedAsPresent": False,
+            "registrationTime": "2023-11-25T21:56:50",
+        },
+    ],
+    "marked": [],
+    "unmarked": [],
+}
+
+correct_mark_present_nondefault = {"licenceNo": 4526124, "categoryIdsToMark": ["B"]}
+correct_mark_present_nondefault_response = {
+    "allEntries": [
+        {
+            "categoryId": "B",
+            "color": "#000000",
+            "entryId": 59,
+            "licenceNo": 4526124,
+            "markedAsPaid": False,
+            "markedAsPresent": True,
+            "registrationTime": "2023-11-17T18:01:20",
+        },
+        {
+            "categoryId": "F",
+            "color": "#FF0000",
+            "entryId": 64,
+            "licenceNo": 4526124,
+            "markedAsPaid": False,
+            "markedAsPresent": False,
+            "registrationTime": "2023-11-25T21:56:50",
+        },
+    ],
+    "marked": ["B"],
+    "unmarked": [],
+}
+
+correct_unmark_present = {"licenceNo": 608834, "categoryIdsToUnmark": ["E"]}
+correct_unmark_present_response = {
+    "allEntries": [
+        {
+            "categoryId": "3",
+            "color": "#FFFF00",
+            "entryId": 100,
+            "licenceNo": 608834,
+            "markedAsPaid": False,
+            "markedAsPresent": False,
+            "registrationTime": "2023-03-20T00:24:12",
+        },
+        {
+            "categoryId": "E",
+            "color": "#FF0000",
+            "entryId": 70,
+            "licenceNo": 608834,
+            "markedAsPaid": False,
+            "markedAsPresent": False,
+            "registrationTime": "2023-11-02T18:50:24",
+        },
+        {
+            "categoryId": "G",
+            "color": None,
+            "entryId": 286,
+            "licenceNo": 608834,
+            "markedAsPaid": False,
+            "markedAsPresent": False,
+            "registrationTime": "2023-08-23T06:56:51",
+        },
+    ],
+    "marked": [],
+    "unmarked": ["E"],
+}
+
+correct_mark_unmark_present = {
+    "licenceNo": 608834,
+    "categoryIdsToMark": ["3"],
+    "categoryIdsToUnmark": ["E"],
+}
+correct_mark_unmark_present_response = {
+    "allEntries": [
+        {
+            "categoryId": "3",
+            "color": "#FFFF00",
+            "entryId": 100,
+            "licenceNo": 608834,
+            "markedAsPaid": False,
+            "markedAsPresent": True,
+            "registrationTime": "2023-03-20T00:24:12",
+        },
+        {
+            "categoryId": "E",
+            "color": "#FF0000",
+            "entryId": 70,
+            "licenceNo": 608834,
+            "markedAsPaid": False,
+            "markedAsPresent": False,
+            "registrationTime": "2023-11-02T18:50:24",
+        },
+        {
+            "categoryId": "G",
+            "color": None,
+            "entryId": 286,
+            "licenceNo": 608834,
+            "markedAsPaid": False,
+            "markedAsPresent": False,
+            "registrationTime": "2023-08-23T06:56:51",
+        },
+    ],
+    "marked": ["3"],
+    "unmarked": ["E"],
+}
+
+correct_mark_present_idempotent = {
+    "licenceNo": 608834,
+    "categoryIdsToMark": ["3", "E"],
+}
+correct_mark_present_idempotent_response = {
+    "allEntries": [
+        {
+            "categoryId": "3",
+            "color": "#FFFF00",
+            "entryId": 100,
+            "licenceNo": 608834,
+            "markedAsPaid": False,
+            "markedAsPresent": True,
+            "registrationTime": "2023-03-20T00:24:12",
+        },
+        {
+            "categoryId": "E",
+            "color": "#FF0000",
+            "entryId": 70,
+            "licenceNo": 608834,
+            "markedAsPaid": False,
+            "markedAsPresent": True,
+            "registrationTime": "2023-11-02T18:50:24",
+        },
+        {
+            "categoryId": "G",
+            "color": None,
+            "entryId": 286,
+            "licenceNo": 608834,
+            "markedAsPaid": False,
+            "markedAsPresent": False,
+            "registrationTime": "2023-08-23T06:56:51",
+        },
+    ],
+    "marked": ["3"],
+    "unmarked": [],
+}
+
+correct_admin_mark_present = [
+    (correct_mark_present_default, correct_mark_present_default_response),
+    (correct_mark_present_nondefault, correct_mark_present_nondefault_response),
+    (correct_unmark_present, correct_unmark_present_response),
+    (correct_mark_unmark_present, correct_mark_unmark_present_response),
+    (correct_mark_present_idempotent, correct_mark_present_idempotent_response),
+]
+
+incorrect_mark_present_missing_player_identifier_json_field = {"firstName": "Wihelbl"}
+incorrect_mark_present_missing_player_identifier_json_field_error = (
+    "Missing 'licenceNo' and ('firstName' or 'lastName') "
+)
+
+incorrect_mark_present_nonexisting_player = {"licenceNo": 55555}
+incorrect_mark_present_nonexisting_player_error = "No player with licence number "
+
+incorrect_mark_present_mark_unmark_same_id = {
+    "licenceNo": 608834,
+    "categoryIdsToMark": ["E"],
+    "categoryIdsToUnmark": ["E"],
+}
+incorrect_mark_present_mark_unmark_same_id_error = (
+    "Tried to mark and unmark player as present for same categories:"
+)
+
+incorrect_admin_mark_present = [
+    (
+        incorrect_mark_present_missing_player_identifier_json_field,
+        incorrect_mark_present_missing_player_identifier_json_field_error,
+    ),
+    (
+        incorrect_mark_present_nonexisting_player,
+        incorrect_mark_present_nonexisting_player_error,
+    ),
+    (
+        incorrect_mark_present_mark_unmark_same_id,
+        incorrect_mark_present_mark_unmark_same_id_error,
+    ),
+]
+
+"""
 For api_get_categories
 """
 
 correct_get_categories_response = [
     {
         "categoryId": "A",
-        "color": "000000",
+        "color": "#000000",
         "entryCount": 30,
         "entryFee": 7,
         "maxPlayers": 72,
@@ -542,7 +750,7 @@ correct_get_categories_response = [
     },
     {
         "categoryId": "B",
-        "color": "000000",
+        "color": "#000000",
         "entryCount": 46,
         "entryFee": 7,
         "maxPlayers": 72,
@@ -558,7 +766,7 @@ correct_get_categories_response = [
     },
     {
         "categoryId": "C",
-        "color": "00FF00",
+        "color": "#00FF00",
         "entryCount": 8,
         "entryFee": 10,
         "maxPlayers": 36,
@@ -574,7 +782,7 @@ correct_get_categories_response = [
     },
     {
         "categoryId": "D",
-        "color": "00FF00",
+        "color": "#00FF00",
         "entryCount": 41,
         "entryFee": 7,
         "maxPlayers": 72,
@@ -590,7 +798,7 @@ correct_get_categories_response = [
     },
     {
         "categoryId": "E",
-        "color": "FF0000",
+        "color": "#FF0000",
         "entryCount": 29,
         "entryFee": 10,
         "maxPlayers": 72,
@@ -606,7 +814,7 @@ correct_get_categories_response = [
     },
     {
         "categoryId": "F",
-        "color": "FF0000",
+        "color": "#FF0000",
         "entryCount": 36,
         "entryFee": 7,
         "maxPlayers": 72,
@@ -638,7 +846,7 @@ correct_get_categories_response = [
     },
     {
         "categoryId": "1",
-        "color": "0000FF",
+        "color": "#0000FF",
         "entryCount": 28,
         "entryFee": 7,
         "maxPlayers": 72,
@@ -654,7 +862,7 @@ correct_get_categories_response = [
     },
     {
         "categoryId": "2",
-        "color": "0000FF",
+        "color": "#0000FF",
         "entryCount": 20,
         "entryFee": 7,
         "maxPlayers": 72,
@@ -670,7 +878,7 @@ correct_get_categories_response = [
     },
     {
         "categoryId": "3",
-        "color": "FFFF00",
+        "color": "#FFFF00",
         "entryCount": 23,
         "entryFee": 7,
         "maxPlayers": 72,
@@ -686,7 +894,7 @@ correct_get_categories_response = [
     },
     {
         "categoryId": "4",
-        "color": "FFFF00",
+        "color": "#FFFF00",
         "entryCount": 13,
         "entryFee": 7,
         "maxPlayers": 72,
@@ -718,7 +926,7 @@ correct_get_categories_response = [
     },
     {
         "categoryId": "6",
-        "color": "00FFFF",
+        "color": "#00FFFF",
         "entryCount": 15,
         "entryFee": 7,
         "maxPlayers": 72,
@@ -734,7 +942,7 @@ correct_get_categories_response = [
     },
     {
         "categoryId": "7",
-        "color": "00FFFF",
+        "color": "#00FFFF",
         "entryCount": 10,
         "entryFee": 7,
         "maxPlayers": 72,
@@ -850,21 +1058,21 @@ correct_get_player_existing_response = {
     "registeredEntries": [
         {
             "categoryId": "B",
-            "color": "000000",
+            "color": "#000000",
             "entryId": 59,
             "licenceNo": 4526124,
             "markedAsPaid": False,
             "registrationTime": "2023-11-17T18:01:20",
-            "showedUp": False,
+            "markedAsPresent": False,
         },
         {
             "categoryId": "F",
-            "color": "FF0000",
+            "color": "#FF0000",
             "entryId": 64,
             "licenceNo": 4526124,
             "markedAsPaid": False,
             "registrationTime": "2023-11-25T21:56:50",
-            "showedUp": False,
+            "markedAsPresent": False,
         },
     ],
 }
@@ -897,30 +1105,30 @@ correct_registration = {"licenceNo": 4526124, "categoryIds": ["1"]}
 correct_registration_response = [
     {
         "categoryId": "1",
-        "color": "0000FF",
+        "color": "#0000FF",
         "entryId": 353,
         "licenceNo": 4526124,
         "markedAsPaid": False,
         "registrationTime": "2023-11-30T12:18:21",
-        "showedUp": False,
+        "markedAsPresent": False,
     },
     {
         "categoryId": "B",
-        "color": "000000",
+        "color": "#000000",
         "entryId": 59,
         "licenceNo": 4526124,
         "markedAsPaid": False,
         "registrationTime": "2023-11-17T18:01:20",
-        "showedUp": False,
+        "markedAsPresent": False,
     },
     {
         "categoryId": "F",
-        "color": "FF0000",
+        "color": "#FF0000",
         "entryId": 64,
         "licenceNo": 4526124,
         "markedAsPaid": False,
         "registrationTime": "2023-11-25T21:56:50",
-        "showedUp": False,
+        "markedAsPresent": False,
     },
 ]
 
@@ -931,30 +1139,30 @@ correct_registration_with_duplicates = {
 correct_registration_with_duplicates_response = [
     {
         "categoryId": "1",
-        "color": "0000FF",
+        "color": "#0000FF",
         "entryId": 353,
         "licenceNo": 4526124,
         "markedAsPaid": False,
         "registrationTime": "2023-11-30T12:18:21",
-        "showedUp": False,
+        "markedAsPresent": False,
     },
     {
         "categoryId": "B",
-        "color": "000000",
+        "color": "#000000",
         "entryId": 59,
         "licenceNo": 4526124,
         "markedAsPaid": False,
         "registrationTime": "2023-11-17T18:01:20",
-        "showedUp": False,
+        "markedAsPresent": False,
     },
     {
         "categoryId": "F",
-        "color": "FF0000",
+        "color": "#FF0000",
         "entryId": 64,
         "licenceNo": 4526124,
         "markedAsPaid": False,
         "registrationTime": "2023-11-25T21:56:50",
-        "showedUp": False,
+        "markedAsPresent": False,
     },
 ]
 
