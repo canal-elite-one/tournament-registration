@@ -400,7 +400,7 @@ correct_delete_entries_partial = {"licenceNo": 722370, "categoryIds": ["A", "5"]
 correct_delete_entries_partial_response = [
     {
         "categoryId": "7",
-        "color": "00FFFF",
+        "color": "#00FFFF",
         "entryId": 320,
         "licenceNo": 722370,
         "markedAsPaid": False,
@@ -528,7 +528,7 @@ correct_mark_present_default_response = {
     "allEntries": [
         {
             "categoryId": "B",
-            "color": "000000",
+            "color": "#000000",
             "entryId": 59,
             "licenceNo": 4526124,
             "markedAsPaid": False,
@@ -537,7 +537,7 @@ correct_mark_present_default_response = {
         },
         {
             "categoryId": "F",
-            "color": "FF0000",
+            "color": "#FF0000",
             "entryId": 64,
             "licenceNo": 4526124,
             "markedAsPaid": False,
@@ -554,7 +554,7 @@ correct_mark_present_nondefault_response = {
     "allEntries": [
         {
             "categoryId": "B",
-            "color": "000000",
+            "color": "#000000",
             "entryId": 59,
             "licenceNo": 4526124,
             "markedAsPaid": False,
@@ -563,7 +563,7 @@ correct_mark_present_nondefault_response = {
         },
         {
             "categoryId": "F",
-            "color": "FF0000",
+            "color": "#FF0000",
             "entryId": 64,
             "licenceNo": 4526124,
             "markedAsPaid": False,
@@ -580,7 +580,7 @@ correct_unmark_present_response = {
     "allEntries": [
         {
             "categoryId": "3",
-            "color": "FFFF00",
+            "color": "#FFFF00",
             "entryId": 100,
             "licenceNo": 608834,
             "markedAsPaid": False,
@@ -589,7 +589,7 @@ correct_unmark_present_response = {
         },
         {
             "categoryId": "E",
-            "color": "FF0000",
+            "color": "#FF0000",
             "entryId": 70,
             "licenceNo": 608834,
             "markedAsPaid": False,
@@ -620,7 +620,7 @@ correct_mark_unmark_present_response = {
     "allEntries": [
         {
             "categoryId": "3",
-            "color": "FFFF00",
+            "color": "#FFFF00",
             "entryId": 100,
             "licenceNo": 608834,
             "markedAsPaid": False,
@@ -629,7 +629,7 @@ correct_mark_unmark_present_response = {
         },
         {
             "categoryId": "E",
-            "color": "FF0000",
+            "color": "#FF0000",
             "entryId": 70,
             "licenceNo": 608834,
             "markedAsPaid": False,
@@ -697,7 +697,7 @@ For api_get_categories
 correct_get_categories_response = [
     {
         "categoryId": "A",
-        "color": "000000",
+        "color": "#000000",
         "entryCount": 30,
         "entryFee": 7,
         "maxPlayers": 72,
@@ -713,7 +713,7 @@ correct_get_categories_response = [
     },
     {
         "categoryId": "B",
-        "color": "000000",
+        "color": "#000000",
         "entryCount": 46,
         "entryFee": 7,
         "maxPlayers": 72,
@@ -729,7 +729,7 @@ correct_get_categories_response = [
     },
     {
         "categoryId": "C",
-        "color": "00FF00",
+        "color": "#00FF00",
         "entryCount": 8,
         "entryFee": 10,
         "maxPlayers": 36,
@@ -745,7 +745,7 @@ correct_get_categories_response = [
     },
     {
         "categoryId": "D",
-        "color": "00FF00",
+        "color": "#00FF00",
         "entryCount": 41,
         "entryFee": 7,
         "maxPlayers": 72,
@@ -761,7 +761,7 @@ correct_get_categories_response = [
     },
     {
         "categoryId": "E",
-        "color": "FF0000",
+        "color": "#FF0000",
         "entryCount": 29,
         "entryFee": 10,
         "maxPlayers": 72,
@@ -777,7 +777,7 @@ correct_get_categories_response = [
     },
     {
         "categoryId": "F",
-        "color": "FF0000",
+        "color": "#FF0000",
         "entryCount": 36,
         "entryFee": 7,
         "maxPlayers": 72,
@@ -809,7 +809,7 @@ correct_get_categories_response = [
     },
     {
         "categoryId": "1",
-        "color": "0000FF",
+        "color": "#0000FF",
         "entryCount": 28,
         "entryFee": 7,
         "maxPlayers": 72,
@@ -825,7 +825,7 @@ correct_get_categories_response = [
     },
     {
         "categoryId": "2",
-        "color": "0000FF",
+        "color": "#0000FF",
         "entryCount": 20,
         "entryFee": 7,
         "maxPlayers": 72,
@@ -841,7 +841,7 @@ correct_get_categories_response = [
     },
     {
         "categoryId": "3",
-        "color": "FFFF00",
+        "color": "#FFFF00",
         "entryCount": 23,
         "entryFee": 7,
         "maxPlayers": 72,
@@ -857,7 +857,7 @@ correct_get_categories_response = [
     },
     {
         "categoryId": "4",
-        "color": "FFFF00",
+        "color": "#FFFF00",
         "entryCount": 13,
         "entryFee": 7,
         "maxPlayers": 72,
@@ -889,7 +889,7 @@ correct_get_categories_response = [
     },
     {
         "categoryId": "6",
-        "color": "00FFFF",
+        "color": "#00FFFF",
         "entryCount": 15,
         "entryFee": 7,
         "maxPlayers": 72,
@@ -905,7 +905,7 @@ correct_get_categories_response = [
     },
     {
         "categoryId": "7",
-        "color": "00FFFF",
+        "color": "#00FFFF",
         "entryCount": 10,
         "entryFee": 7,
         "maxPlayers": 72,
@@ -1021,7 +1021,7 @@ correct_get_player_existing_response = {
     "registeredEntries": [
         {
             "categoryId": "B",
-            "color": "000000",
+            "color": "#000000",
             "entryId": 59,
             "licenceNo": 4526124,
             "markedAsPaid": False,
@@ -1030,7 +1030,7 @@ correct_get_player_existing_response = {
         },
         {
             "categoryId": "F",
-            "color": "FF0000",
+            "color": "#FF0000",
             "entryId": 64,
             "licenceNo": 4526124,
             "markedAsPaid": False,
@@ -1068,7 +1068,7 @@ correct_registration = {"licenceNo": 4526124, "categoryIds": ["1"]}
 correct_registration_response = [
     {
         "categoryId": "1",
-        "color": "0000FF",
+        "color": "#0000FF",
         "entryId": 353,
         "licenceNo": 4526124,
         "markedAsPaid": False,
@@ -1077,7 +1077,7 @@ correct_registration_response = [
     },
     {
         "categoryId": "B",
-        "color": "000000",
+        "color": "#000000",
         "entryId": 59,
         "licenceNo": 4526124,
         "markedAsPaid": False,
@@ -1086,7 +1086,7 @@ correct_registration_response = [
     },
     {
         "categoryId": "F",
-        "color": "FF0000",
+        "color": "#FF0000",
         "entryId": 64,
         "licenceNo": 4526124,
         "markedAsPaid": False,
@@ -1102,7 +1102,7 @@ correct_registration_with_duplicates = {
 correct_registration_with_duplicates_response = [
     {
         "categoryId": "1",
-        "color": "0000FF",
+        "color": "#0000FF",
         "entryId": 353,
         "licenceNo": 4526124,
         "markedAsPaid": False,
@@ -1111,7 +1111,7 @@ correct_registration_with_duplicates_response = [
     },
     {
         "categoryId": "B",
-        "color": "000000",
+        "color": "#000000",
         "entryId": 59,
         "licenceNo": 4526124,
         "markedAsPaid": False,
@@ -1120,7 +1120,7 @@ correct_registration_with_duplicates_response = [
     },
     {
         "categoryId": "F",
-        "color": "FF0000",
+        "color": "#FF0000",
         "entryId": 64,
         "licenceNo": 4526124,
         "markedAsPaid": False,
