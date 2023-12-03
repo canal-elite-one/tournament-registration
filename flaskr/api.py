@@ -310,7 +310,7 @@ def api_admin_mark_present():
     the endpoint changes the ``marked_as_present`` column for
     each relevant entries accordingly,
     except if the intersection of both array is nonempty,
-    it which case it return a BAD_REQUEST.\n
+    in which case it return a BAD_REQUEST.\n
     If none is present, the default behaviour is to set the
     ``marked_as_present`` column to ``True``
     for entries which correspond to categories with a
