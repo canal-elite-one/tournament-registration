@@ -35,7 +35,7 @@ CREATE TABLE entries (
     color VARCHAR(7),
     registration_time TIMESTAMP NOT NULL DEFAULT NOW(),
     marked_as_paid BOOL NOT NULL DEFAULT FALSE,
-    present BOOL NOT NULL DEFAULT FALSE,
+    marked_as_present BOOL NOT NULL DEFAULT FALSE,
     UNIQUE (category_id, licence_no),
     UNIQUE (color, licence_no),
     FOREIGN KEY (category_id)

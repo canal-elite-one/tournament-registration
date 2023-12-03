@@ -100,6 +100,35 @@ class TestAPIDeletePlayer(BaseTest):
         assert error in r.json["error"], r.json
 
 
+class TestAPIMarkPresent(BaseTest):
+    @pytest.mark.parametrize("payload,response", td.correct_admin_mark_present)
+    def test_correct_admin_mark_present(
+        self,
+        client,
+        reset_db,
+        populate,
+        payload,
+        response,
+    ):
+        r = client.put("/api/present", json=payload)
+        assert r.status_code == HTTPStatus.OK, r.json
+        assert r.json == response, r.json
+
+    @pytest.mark.parametrize("payload,error", td.incorrect_admin_mark_present)
+    def test_incorrect_admin_mark_present(
+        self,
+        client,
+        reset_db,
+        populate,
+        payload,
+        error,
+    ):
+        r = client.put("/api/present", json=payload)
+        assert r.status_code == HTTPStatus.BAD_REQUEST, r.json
+        assert "error" in r.json, r.json
+        assert error in r.json["error"], r.json
+
+
 class TestAPIGetCategories(BaseTest):
     def test_get(self, client, reset_db, populate):
         r = client.get("/api/categories")

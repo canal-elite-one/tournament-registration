@@ -10,7 +10,7 @@ from flaskr.db import (
     EntrySchema,
     Entry,
 )
-from sqlalchemy import delete, select, text
+from sqlalchemy import delete, select, text, func
 from sqlalchemy.exc import DBAPIError
 from datetime import date
 
@@ -307,12 +307,12 @@ def api_admin_mark_present():
     * either a ``categoryIdsToMark``, a ``categoryIdsToUnmark``
     array fields, both, or none\n
     If either or both of the categoryIds field are present,
-    the endpoint change the ``present`` column for
+    the endpoint changes the ``marked_as_present`` column for
     each relevant entries accordingly,
     except if the intersection of both array is nonempty,
     it which case it return a BAD_REQUEST.\n
     If none is present, the default behaviour is to set the
-    ``present`` column to ``True``
+    ``marked_as_present`` column to ``True``
     for entries which correspond to categories with a
     ``start_time`` of today .
     """
@@ -323,7 +323,7 @@ def api_admin_mark_present():
         return jsonify(error=player_search["error"]), HTTPStatus.BAD_REQUEST
 
     ids_to_mark = request.json.get("categoryIdsToMark", [])
-    ids_to_unmark = request.json.get("categoryIdsToMark", [])
+    ids_to_unmark = request.json.get("categoryIdsToUnmark", [])
     if present_in_both := set(ids_to_mark).intersection(ids_to_unmark):
         return (
             jsonify(
@@ -334,48 +334,62 @@ def api_admin_mark_present():
         )
 
     if not ids_to_mark and not ids_to_unmark:
-        entries_to_mark = session.scalars(
-            select(Entry)
-            .join_from(Entry, Category)
-            .where(
-                Entry.licence_no == licence_no,
-                date(Category.start_time) == date.today(),
+        entries_to_mark = list(
+            session.scalars(
+                select(Entry)
+                .join_from(Entry, Category)
+                .where(
+                    Entry.licence_no == licence_no,
+                    func.date(Category.start_time) == date.today(),
+                )
+                .order_by(Entry.category_id),
             ),
         )
     elif ids_to_mark:
-        entries_to_mark = session.scalars(
-            select(Entry).where(
-                Entry.licence_no == licence_no,
-                Entry.category_id.in_(request.json[ids_to_mark]),
+        entries_to_mark = list(
+            session.scalars(
+                select(Entry)
+                .where(
+                    Entry.licence_no == licence_no,
+                    Entry.category_id.in_(ids_to_mark),
+                )
+                .order_by(Entry.category_id),
             ),
         )
     else:
         entries_to_mark = []
 
     for entry_to_mark in entries_to_mark:
-        entry_to_mark.present = True
+        entry_to_mark.marked_as_present = True
 
-    entries_to_unmark = (
+    entries_to_unmark = list(
         session.scalars(
-            select(Entry).where(
+            select(Entry)
+            .where(
                 Entry.licence_no == licence_no,
-                Entry.category_id.in_(request.json["categoryIdsToUnmark"]),
-            ),
+                Entry.category_id.in_(ids_to_unmark),
+            )
+            .order_by(Entry.category_id),
         )
         if ids_to_unmark
-        else []
+        else [],
     )
     for entry_to_unmark in entries_to_unmark:
-        entry_to_unmark.present = False
+        entry_to_unmark.marked_as_present = False
+
+    session.commit()
 
     schema = EntrySchema(many=True)
-
     return (
         jsonify(
             marked=[entry.category_id for entry in entries_to_mark],
             unmarked=[entry.category_id for entry in entries_to_unmark],
             allEntries=schema.dump(
-                session.scalars(select(Entry).where(Entry.licence_no == licence_no)),
+                session.scalars(
+                    select(Entry)
+                    .where(Entry.licence_no == licence_no)
+                    .order_by(Entry.category_id),
+                ),
             ),
         ),
         HTTPStatus.OK,

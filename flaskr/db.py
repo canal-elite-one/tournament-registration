@@ -36,13 +36,25 @@ class Base(DeclarativeBase):
 class Category(Base):
     __table__ = Table("categories", Base.metadata, autoload_with=engine)
 
+    def __repr__(self):
+        schema = CategorySchema()
+        return str(schema.dump(self))
+
 
 class Player(Base):
     __table__ = Table("players", Base.metadata, autoload_with=engine)
 
+    def __repr__(self):
+        schema = PlayerSchema()
+        return str(schema.dump(self))
+
 
 class Entry(Base):
     __table__ = Table("entries", Base.metadata, autoload_with=engine)
+
+    def __repr__(self):
+        schema = EntrySchema()
+        return str(schema.dump(self))
 
 
 class CategorySchema(Schema):
@@ -99,7 +111,7 @@ class EntrySchema(Schema):
     color = fields.Str()
     registration_time = fields.DateTime(data_key="registrationTime")
     marked_as_paid = fields.Bool(data_key="markedAsPaid")
-    present = fields.Bool()
+    marked_as_present = fields.Bool(data_key="markedAsPresent")
 
     @post_load
     def make_field(self, data, **kwargs):
