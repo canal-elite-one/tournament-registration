@@ -10,7 +10,7 @@ from flaskr.db import (
     EntrySchema,
     Entry,
 )
-from sqlalchemy import delete, select, text, func, not_, update
+from sqlalchemy import delete, select, text, func, not_, update, distinct
 from sqlalchemy.exc import DBAPIError
 from datetime import date
 
@@ -401,10 +401,7 @@ def api_admin_mark_present():
 
 @bp.route("/bibs", methods=["POST"])
 def api_admin_assign_all_bibs():
-    existing_bib_nos = session.scalars(
-        select(Player.bib_no).group_by(Player.bib_no),
-    ).all()
-    if existing_bib_nos != [None]:
+    if session.scalars(select(distinct(Player.bib_no))).all() != [None]:
         return (
             jsonify(
                 error="Some bib numbers are already assigned. Either "
@@ -443,10 +440,7 @@ def api_admin_assign_one_bib():
             HTTPStatus.CONFLICT,
         )
 
-    existing_bib_nos = session.scalars(
-        select(Player.bib_no).group_by(Player.bib_no),
-    ).all()
-    if existing_bib_nos == [None]:
+    if session.scalars(select(distinct(Player.bib_no))).all() == [None]:
         return (
             jsonify(
                 error="Cannot assign bib numbers manually "
@@ -512,9 +506,6 @@ def api_add_player():
             ),
             HTTPStatus.BAD_REQUEST,
         )
-    # TODO: try to do this as a subquery of an insert statement?
-
-    player.bib_no = None
 
     try:
         session.add(player)
