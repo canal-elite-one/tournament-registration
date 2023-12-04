@@ -181,6 +181,16 @@ class TestAPIAssignOneBibNo(BaseTest):
         assert error in r.json["error"], r.json
 
 
+class TestAPIResetBibNos(BaseTest):
+    def test_correct_reset_all_bibs(self, client, reset_db, populate, set_a_few_bibs):
+        r = client.delete("/api/bibs", json=td.correct_admin_reset_all_bibs)
+        assert r.status_code == HTTPStatus.NO_CONTENT
+
+    def test_incorrect_reset_all_bibs(self, client, reset_db, populate, set_a_few_bibs):
+        r = client.delete("/api/bibs", json={"confirmation": ""})
+        assert r.status_code == HTTPStatus.FORBIDDEN
+
+
 class TestAPIGetCategories(BaseTest):
     def test_get(self, client, reset_db, populate):
         r = client.get("/api/categories")

@@ -921,6 +921,13 @@ incorrect_admin_assign_one = [
 ]
 
 """
+For api_admin_reset_all_bibs
+"""
+
+correct_admin_reset_all_bibs = {"confirmation": "Je suis sur! J'ai appelé Céline!"}
+
+
+"""
 For api_get_categories
 """
 

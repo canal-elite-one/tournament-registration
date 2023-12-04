@@ -468,6 +468,19 @@ def api_admin_assign_one_bib():
     return jsonify(schema.dump(player)), HTTPStatus.OK
 
 
+@bp.route("/bibs", methods=["DELETE"])
+def api_admin_reset_bibs():
+    confirmation = request.json.get("confirmation", None)
+    if confirmation != "Je suis sur! J'ai appelé Céline!":
+        return (
+            jsonify(error="Missing or incorrect confirmation message."),
+            HTTPStatus.FORBIDDEN,
+        )
+    session.execute(update(Player).values(bib_no=None))
+    session.commit()
+    return Response(status=HTTPStatus.NO_CONTENT)
+
+
 @bp.route("/categories", methods=["GET"])
 def api_get_categories():
     return (
