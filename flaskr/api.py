@@ -475,6 +475,40 @@ def api_admin_reset_bibs():
     return Response(status=HTTPStatus.NO_CONTENT)
 
 
+@bp.route("/by_category", methods=["GET"])
+def api_admin_get_players_by_category():
+    present_only = request.args.get("present_only", None) == "true"
+    schema = PlayerSchema(many=True)
+
+    result = {}
+    for cat_id in session.scalars(select(Category.category_id)):
+        query = select(Player).join(Entry).where(Entry.category_id == cat_id)
+        if present_only:
+            query = query.where(Entry.marked_as_present.is_(True))
+        result[cat_id] = schema.dump(session.scalars(query))
+
+    return jsonify(result), HTTPStatus.OK
+
+
+@bp.route("/all_players", methods=["GET"])
+def api_admin_get_all_players():
+    present_only = request.args.get("present_only", None) == "true"
+    schema = PlayerSchema(many=True)
+    schema.context["with_entries_info"] = True
+
+    if present_only:
+        query = (
+            select(Player)
+            .distinct()
+            .join(Entry)
+            .where(Entry.marked_as_present.is_(True))
+        )
+    else:
+        query = select(Player)
+
+    return jsonify(players=schema.dump(session.scalars(query))), HTTPStatus.OK
+
+
 @bp.route("/categories", methods=["GET"])
 def api_get_categories():
     return (
@@ -540,18 +574,10 @@ def api_get_player():
         return jsonify(player=None, registeredEntries=[]), HTTPStatus.OK
 
     p_schema = PlayerSchema()
-    e_schema = EntrySchema(many=True)
+    p_schema.context["with_entries_info"] = True
     # TODO: (cf db.PlayerSchema) make it so that p_schema.dump(player
     #  automatically generates all the data
-    return (
-        jsonify(
-            player=p_schema.dump(player),
-            registeredEntries=e_schema.dump(
-                session.scalars(select(Entry).where(Entry.licence_no == licence_no)),
-            ),
-        ),
-        HTTPStatus.OK,
-    )
+    return jsonify(p_schema.dump(player)), HTTPStatus.OK
 
 
 @bp.route("/entries", methods=["POST"])
