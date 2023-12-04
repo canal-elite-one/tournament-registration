@@ -31,3 +31,10 @@ class BaseTest:
         with open(SAMPLE_DATA_PATH) as sql:
             session.execute(text(sql.read()))
             session.commit()
+
+    @fixture
+    def set_one_bib(self):
+        session.execute(
+            text("UPDATE players " "SET bib_no = 1 WHERE licence_no = 722370;"),
+        )
+        session.commit()

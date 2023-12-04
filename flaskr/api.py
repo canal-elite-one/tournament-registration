@@ -10,7 +10,7 @@ from flaskr.db import (
     EntrySchema,
     Entry,
 )
-from sqlalchemy import delete, select, text, func, not_
+from sqlalchemy import delete, select, text, func, not_, update
 from sqlalchemy.exc import DBAPIError
 from datetime import date
 
@@ -397,6 +397,35 @@ def api_admin_mark_present():
         ),
         HTTPStatus.OK,
     )
+
+
+@bp.route("/bibs", methods=["POST"])
+def api_admin_assign_all_bibs():
+    existing_bib_nos = session.scalars(
+        select(Player.bib_no).group_by(Player.bib_no),
+    ).all()
+    if existing_bib_nos != [None]:
+        return (
+            jsonify(
+                error="Some bib numbers are already assigned. Either "
+                "assign remaining bib_nos one by one, or reset bib_nos.",
+            ),
+            HTTPStatus.CONFLICT,
+        )
+    licence_nos = session.scalars(
+        select(Player.licence_no)
+        .join_from(Player, Entry)
+        .join(Category)
+        .group_by(Player.licence_no)
+        .order_by(func.min(Category.start_time), Player.licence_no),
+    )
+    assigned_bib_nos = [
+        {"licence_no": licence_no, "bib_no": (i + 1)}
+        for i, licence_no in enumerate(licence_nos)
+    ]
+    session.execute(update(Player), assigned_bib_nos)
+    session.commit()
+    return jsonify(assignedBibs=assigned_bib_nos), HTTPStatus.OK
 
 
 @bp.route("/categories", methods=["GET"])

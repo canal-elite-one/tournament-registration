@@ -129,6 +129,20 @@ class TestAPIMarkPresent(BaseTest):
         assert error in r.json["error"], r.json
 
 
+class TestAPIAssignBibNos(BaseTest):
+    def test_correct_assign_bibno(self, client, reset_db, populate):
+        r = client.post("/api/bibs")
+        assert r.status_code == HTTPStatus.OK, r.json
+        assert "assignedBibs" in r.json, r.json
+        assert r.json["assignedBibs"] == td.correct_assign_all_response
+
+    def test_incorrect_assign_bibno(self, client, reset_db, populate, set_one_bib):
+        r = client.post("/api/bibs")
+        assert r.status_code == HTTPStatus.CONFLICT, r.json
+        assert "error" in r.json, r.json
+        assert td.incorrect_assign_all_already_assigned_error in r.json["error"], r.json
+
+
 class TestAPIGetCategories(BaseTest):
     def test_get(self, client, reset_db, populate):
         r = client.get("/api/categories")
