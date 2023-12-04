@@ -1,4 +1,5 @@
 from datetime import datetime
+from http import HTTPStatus
 
 """
 For api_admin_set_categories
@@ -728,6 +729,205 @@ incorrect_admin_mark_present = [
 ]
 
 """
+For api_admin_assign_all_bibs
+"""
+
+correct_admin_assign_all_response = [
+    {"bib_no": 1, "licence_no": 722370},
+    {"bib_no": 2, "licence_no": 4527982},
+    {"bib_no": 3, "licence_no": 4529052},
+    {"bib_no": 4, "licence_no": 4529894},
+    {"bib_no": 5, "licence_no": 4530487},
+    {"bib_no": 6, "licence_no": 4530898},
+    {"bib_no": 7, "licence_no": 4531022},
+    {"bib_no": 8, "licence_no": 5326610},
+    {"bib_no": 9, "licence_no": 5327529},
+    {"bib_no": 10, "licence_no": 5328103},
+    {"bib_no": 11, "licence_no": 5328211},
+    {"bib_no": 12, "licence_no": 7216286},
+    {"bib_no": 13, "licence_no": 7216475},
+    {"bib_no": 14, "licence_no": 7218408},
+    {"bib_no": 15, "licence_no": 7219314},
+    {"bib_no": 16, "licence_no": 7222777},
+    {"bib_no": 17, "licence_no": 7223406},
+    {"bib_no": 18, "licence_no": 7224166},
+    {"bib_no": 19, "licence_no": 7225053},
+    {"bib_no": 20, "licence_no": 7225133},
+    {"bib_no": 21, "licence_no": 7225209},
+    {"bib_no": 22, "licence_no": 9239990},
+    {"bib_no": 23, "licence_no": 9240480},
+    {"bib_no": 24, "licence_no": 9245676},
+    {"bib_no": 25, "licence_no": 9256721},
+    {"bib_no": 26, "licence_no": 9321954},
+    {"bib_no": 27, "licence_no": 9322263},
+    {"bib_no": 28, "licence_no": 9323439},
+    {"bib_no": 29, "licence_no": 9324241},
+    {"bib_no": 30, "licence_no": 9538603},
+    {"bib_no": 31, "licence_no": 723342},
+    {"bib_no": 32, "licence_no": 725492},
+    {"bib_no": 33, "licence_no": 2814398},
+    {"bib_no": 34, "licence_no": 3525635},
+    {"bib_no": 35, "licence_no": 3712439},
+    {"bib_no": 36, "licence_no": 3714960},
+    {"bib_no": 37, "licence_no": 3726270},
+    {"bib_no": 38, "licence_no": 3727700},
+    {"bib_no": 39, "licence_no": 3727799},
+    {"bib_no": 40, "licence_no": 3731597},
+    {"bib_no": 41, "licence_no": 3731932},
+    {"bib_no": 42, "licence_no": 4111546},
+    {"bib_no": 43, "licence_no": 4422906},
+    {"bib_no": 44, "licence_no": 4435747},
+    {"bib_no": 45, "licence_no": 4451551},
+    {"bib_no": 46, "licence_no": 4462320},
+    {"bib_no": 47, "licence_no": 4519318},
+    {"bib_no": 48, "licence_no": 4526124},
+    {"bib_no": 49, "licence_no": 4527177},
+    {"bib_no": 50, "licence_no": 4527511},
+    {"bib_no": 51, "licence_no": 4529851},
+    {"bib_no": 52, "licence_no": 4532589},
+    {"bib_no": 53, "licence_no": 4935234},
+    {"bib_no": 54, "licence_no": 4939159},
+    {"bib_no": 55, "licence_no": 5324235},
+    {"bib_no": 56, "licence_no": 5324871},
+    {"bib_no": 57, "licence_no": 5325321},
+    {"bib_no": 58, "licence_no": 5326002},
+    {"bib_no": 59, "licence_no": 5326543},
+    {"bib_no": 60, "licence_no": 5327528},
+    {"bib_no": 61, "licence_no": 5327901},
+    {"bib_no": 62, "licence_no": 7213526},
+    {"bib_no": 63, "licence_no": 7217048},
+    {"bib_no": 64, "licence_no": 7217573},
+    {"bib_no": 65, "licence_no": 7219370},
+    {"bib_no": 66, "licence_no": 7219491},
+    {"bib_no": 67, "licence_no": 7512693},
+    {"bib_no": 68, "licence_no": 7874062},
+    {"bib_no": 69, "licence_no": 7884741},
+    {"bib_no": 70, "licence_no": 9137160},
+    {"bib_no": 71, "licence_no": 9145837},
+    {"bib_no": 72, "licence_no": 9221871},
+    {"bib_no": 73, "licence_no": 9241901},
+    {"bib_no": 74, "licence_no": 9247952},
+    {"bib_no": 75, "licence_no": 9256846},
+    {"bib_no": 76, "licence_no": 9311764},
+    {"bib_no": 77, "licence_no": 798720},
+    {"bib_no": 78, "licence_no": 1425307},
+    {"bib_no": 79, "licence_no": 4529838},
+    {"bib_no": 80, "licence_no": 7216648},
+    {"bib_no": 81, "licence_no": 7527624},
+    {"bib_no": 82, "licence_no": 9536504},
+    {"bib_no": 83, "licence_no": 1420954},
+    {"bib_no": 84, "licence_no": 4528713},
+    {"bib_no": 85, "licence_no": 4529053},
+    {"bib_no": 86, "licence_no": 4530477},
+    {"bib_no": 87, "licence_no": 5327437},
+    {"bib_no": 88, "licence_no": 7218763},
+    {"bib_no": 89, "licence_no": 7223032},
+    {"bib_no": 90, "licence_no": 7224029},
+    {"bib_no": 91, "licence_no": 7525173},
+    {"bib_no": 92, "licence_no": 7886249},
+    {"bib_no": 93, "licence_no": 7887928},
+    {"bib_no": 94, "licence_no": 9242977},
+    {"bib_no": 95, "licence_no": 9252435},
+    {"bib_no": 96, "licence_no": 9257964},
+    {"bib_no": 97, "licence_no": 9321828},
+    {"bib_no": 98, "licence_no": 9321971},
+    {"bib_no": 99, "licence_no": 9426636},
+    {"bib_no": 100, "licence_no": 61624},
+    {"bib_no": 101, "licence_no": 608834},
+    {"bib_no": 102, "licence_no": 3537537},
+    {"bib_no": 103, "licence_no": 4427928},
+    {"bib_no": 104, "licence_no": 4455748},
+    {"bib_no": 105, "licence_no": 4526611},
+    {"bib_no": 106, "licence_no": 5318378},
+    {"bib_no": 107, "licence_no": 5324922},
+    {"bib_no": 108, "licence_no": 5325044},
+    {"bib_no": 109, "licence_no": 5325506},
+    {"bib_no": 110, "licence_no": 5325784},
+    {"bib_no": 111, "licence_no": 5325867},
+    {"bib_no": 112, "licence_no": 5327556},
+    {"bib_no": 113, "licence_no": 5615415},
+    {"bib_no": 114, "licence_no": 5953737},
+    {"bib_no": 115, "licence_no": 6021038},
+    {"bib_no": 116, "licence_no": 6021265},
+    {"bib_no": 117, "licence_no": 7214582},
+    {"bib_no": 118, "licence_no": 7218004},
+    {"bib_no": 119, "licence_no": 7221154},
+    {"bib_no": 120, "licence_no": 7221254},
+    {"bib_no": 121, "licence_no": 7222110},
+    {"bib_no": 122, "licence_no": 9143724},
+    {"bib_no": 123, "licence_no": 9457149},
+    {"bib_no": 124, "licence_no": 9532616},
+    {"bib_no": 125, "licence_no": 914291},
+    {"bib_no": 126, "licence_no": 7220549},
+    {"bib_no": 127, "licence_no": 7731399},
+    {"bib_no": 128, "licence_no": 9410780},
+    {"bib_no": 129, "licence_no": 3524722},
+    {"bib_no": 130, "licence_no": 7219456},
+    {"bib_no": 131, "licence_no": 7221275},
+    {"bib_no": 132, "licence_no": 7210055},
+    {"bib_no": 133, "licence_no": 7214813},
+    {"bib_no": 134, "licence_no": 7221748},
+]
+
+incorrect_admin_assign_all_already_assigned_error = (
+    "Some bib numbers are already assigned. Either assign"
+)
+
+"""
+For api_admin_assign_one_bib
+"""
+
+correct_admin_assign_one = {"licenceNo": 9311764}
+correct_assign_one_response = {
+    "bibNo": 3,
+    "club": "BOURGETIN CTT",
+    "email": "jfwxtzrmij@wnspze.com",
+    "firstName": "Feitzmx",
+    "gender": "F",
+    "lastName": "ABJNNQES",
+    "licenceNo": 9311764,
+    "nbPoints": 1287,
+    "paymentDiff": 0,
+    "phone": "+336983296275",
+}
+
+incorrect_admin_assign_one_without_any_assigned_error = (
+    "Cannot assign bib numbers manually before having assigned them in bulk"
+)
+
+incorrect_admin_assign_one_missing_player_identifier_json_field = {
+    "firstName": "Dpwsaob",
+}
+incorrect_admin_assign_one_missing_player_identifier_json_field_error = (
+    "Missing 'licenceNo' and ('firstName' or 'lastName') fields in json."
+)
+
+incorrect_admin_assign_one_already_assigned = {"licenceNo": 722370}
+incorrect_admin_assign_one_already_assigned_error = (
+    "This player already has a bib assigned."
+)
+
+incorrect_admin_assign_one = [
+    (
+        incorrect_admin_assign_one_missing_player_identifier_json_field,
+        incorrect_admin_assign_one_missing_player_identifier_json_field_error,
+        HTTPStatus.BAD_REQUEST,
+    ),
+    (
+        incorrect_admin_assign_one_already_assigned,
+        incorrect_admin_assign_one_already_assigned_error,
+        HTTPStatus.CONFLICT,
+    ),
+]
+
+"""
+For api_admin_reset_all_bibs
+"""
+
+correct_admin_reset_all_bibs = {"confirmation": "Je suis sur! J'ai appelé Céline!"}
+
+
+"""
 For api_get_categories
 """
 
@@ -1044,7 +1244,7 @@ For api_get_player
 correct_get_player_existing = {"licenceNo": 4526124}
 correct_get_player_existing_response = {
     "player": {
-        "bibNo": 94,
+        "bibNo": None,
         "club": "USM OLIVET TENNIS DE TABLE",
         "email": "nvzhltrsqr@mochsf.com",
         "firstName": "Wihelbl",

@@ -10,7 +10,7 @@ from flaskr.db import (
     EntrySchema,
     Entry,
 )
-from sqlalchemy import delete, select, text, func, not_
+from sqlalchemy import delete, select, text, func, not_, update, distinct
 from sqlalchemy.exc import DBAPIError
 from datetime import date
 
@@ -399,6 +399,82 @@ def api_admin_mark_present():
     )
 
 
+@bp.route("/bibs", methods=["POST"])
+def api_admin_assign_all_bibs():
+    if session.scalars(select(distinct(Player.bib_no))).all() != [None]:
+        return (
+            jsonify(
+                error="Some bib numbers are already assigned. Either "
+                "assign remaining bib_nos one by one, or reset bib_nos.",
+            ),
+            HTTPStatus.CONFLICT,
+        )
+    licence_nos = session.scalars(
+        select(Player.licence_no)
+        .join_from(Player, Entry)
+        .join(Category)
+        .group_by(Player.licence_no)
+        .order_by(func.min(Category.start_time), Player.licence_no),
+    )
+    assigned_bib_nos = [
+        {"licence_no": licence_no, "bib_no": (i + 1)}
+        for i, licence_no in enumerate(licence_nos)
+    ]
+    session.execute(update(Player), assigned_bib_nos)
+    session.commit()
+    return jsonify(assignedBibs=assigned_bib_nos), HTTPStatus.OK
+
+
+@bp.route("/bibs", methods=["PUT"])
+def api_admin_assign_one_bib():
+    player_search = find_player_by_name_or_licence(request.json)
+
+    if player_search["is_valid"]:
+        player = player_search["player"]
+    else:
+        return jsonify(error=player_search["error"]), HTTPStatus.BAD_REQUEST
+
+    if player.bib_no is not None:
+        return (
+            jsonify(error="This player already has a bib assigned."),
+            HTTPStatus.CONFLICT,
+        )
+
+    if session.scalars(select(distinct(Player.bib_no))).all() == [None]:
+        return (
+            jsonify(
+                error="Cannot assign bib numbers manually "
+                "before having assigned them in bulk",
+            ),
+            HTTPStatus.CONFLICT,
+        )
+
+    session.execute(
+        text(
+            "UPDATE players SET "
+            "bib_no = (SELECT MAX(bib_no) + 1 FROM players) "
+            "WHERE licence_no = :licence_no;",
+        ),
+        {"licence_no": player.licence_no},
+    )
+    session.commit()
+    schema = PlayerSchema()
+    return jsonify(schema.dump(player)), HTTPStatus.OK
+
+
+@bp.route("/bibs", methods=["DELETE"])
+def api_admin_reset_bibs():
+    confirmation = request.json.get("confirmation", None)
+    if confirmation != "Je suis sur! J'ai appelé Céline!":
+        return (
+            jsonify(error="Missing or incorrect confirmation message."),
+            HTTPStatus.FORBIDDEN,
+        )
+    session.execute(update(Player).values(bib_no=None))
+    session.commit()
+    return Response(status=HTTPStatus.NO_CONTENT)
+
+
 @bp.route("/categories", methods=["GET"])
 def api_get_categories():
     return (
@@ -430,9 +506,6 @@ def api_add_player():
             ),
             HTTPStatus.BAD_REQUEST,
         )
-    # TODO: try to do this as a subquery of an insert statement?
-
-    player.bib_no = None
 
     try:
         session.add(player)

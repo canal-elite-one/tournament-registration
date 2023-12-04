@@ -129,6 +129,68 @@ class TestAPIMarkPresent(BaseTest):
         assert error in r.json["error"], r.json
 
 
+class TestAPIAssignAllBibNos(BaseTest):
+    def test_correct_assign_all(self, client, reset_db, populate):
+        r = client.post("/api/bibs")
+        assert r.status_code == HTTPStatus.OK, r.json
+        assert "assignedBibs" in r.json, r.json
+        assert r.json["assignedBibs"] == td.correct_admin_assign_all_response
+
+    def test_incorrect_assign_all(self, client, reset_db, populate, set_a_few_bibs):
+        r = client.post("/api/bibs")
+        assert r.status_code == HTTPStatus.CONFLICT, r.json
+        assert "error" in r.json, r.json
+        assert (
+            td.incorrect_admin_assign_all_already_assigned_error in r.json["error"]
+        ), r.json
+
+
+class TestAPIAssignOneBibNo(BaseTest):
+    def test_correct_assign_one(self, client, reset_db, populate, set_a_few_bibs):
+        r = client.put("/api/bibs", json=td.correct_admin_assign_one)
+        assert r.status_code == HTTPStatus.OK, r.json
+        assert r.json == td.correct_assign_one_response, r.json
+
+    def test_incorrect_assign_one_without_any_assigned(
+        self,
+        client,
+        reset_db,
+        populate,
+    ):
+        r = client.put("/api/bibs", json=td.correct_admin_assign_one)
+        assert r.status_code == HTTPStatus.CONFLICT, r.json
+        assert "error" in r.json, r.json
+        assert (
+            td.incorrect_admin_assign_one_without_any_assigned_error in r.json["error"]
+        ), r.json
+
+    @pytest.mark.parametrize("payload,error,status_code", td.incorrect_admin_assign_one)
+    def test_incorrect_assign_one_already_assigned(
+        self,
+        client,
+        reset_db,
+        populate,
+        set_a_few_bibs,
+        payload,
+        error,
+        status_code,
+    ):
+        r = client.put("/api/bibs", json=payload)
+        assert r.status_code == status_code, r.json
+        assert "error" in r.json, r.json
+        assert error in r.json["error"], r.json
+
+
+class TestAPIResetBibNos(BaseTest):
+    def test_correct_reset_all_bibs(self, client, reset_db, populate, set_a_few_bibs):
+        r = client.delete("/api/bibs", json=td.correct_admin_reset_all_bibs)
+        assert r.status_code == HTTPStatus.NO_CONTENT
+
+    def test_incorrect_reset_all_bibs(self, client, reset_db, populate, set_a_few_bibs):
+        r = client.delete("/api/bibs", json={"confirmation": ""})
+        assert r.status_code == HTTPStatus.FORBIDDEN
+
+
 class TestAPIGetCategories(BaseTest):
     def test_get(self, client, reset_db, populate):
         r = client.get("/api/categories")
