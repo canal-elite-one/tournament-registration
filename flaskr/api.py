@@ -428,6 +428,46 @@ def api_admin_assign_all_bibs():
     return jsonify(assignedBibs=assigned_bib_nos), HTTPStatus.OK
 
 
+@bp.route("/bibs", methods=["PUT"])
+def api_admin_assign_one_bib():
+    player_search = find_player_by_name_or_licence(request.json)
+
+    if player_search["is_valid"]:
+        player = player_search["player"]
+    else:
+        return jsonify(error=player_search["error"]), HTTPStatus.BAD_REQUEST
+
+    if player.bib_no is not None:
+        return (
+            jsonify(error="This player already has a bib assigned."),
+            HTTPStatus.CONFLICT,
+        )
+
+    existing_bib_nos = session.scalars(
+        select(Player.bib_no).group_by(Player.bib_no),
+    ).all()
+    if existing_bib_nos == [None]:
+        return (
+            jsonify(
+                error="Cannot assign bib numbers manually "
+                "before having assigned them in bulk",
+            ),
+            HTTPStatus.CONFLICT,
+        )
+
+    session.execute(
+        text(
+            "UPDATE players SET "
+            "bib_no = (SELECT MAX(bib_no) + 1 FROM players) "
+            "WHERE licence_no = :licence_no;",
+        ),
+        {"licence_no": player.licence_no},
+    )
+    session.commit()
+    schema = PlayerSchema()
+    return jsonify(schema.dump(player)), HTTPStatus.OK
+
+
 @bp.route("/categories", methods=["GET"])
 def api_get_categories():
     return (

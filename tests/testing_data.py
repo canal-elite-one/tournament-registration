@@ -1,4 +1,5 @@
 from datetime import datetime
+from http import HTTPStatus
 
 """
 For api_admin_set_categories
@@ -731,7 +732,7 @@ incorrect_admin_mark_present = [
 For api_admin_assign_all_bibs
 """
 
-correct_assign_all_response = [
+correct_admin_assign_all_response = [
     {"bib_no": 1, "licence_no": 722370},
     {"bib_no": 2, "licence_no": 4527982},
     {"bib_no": 3, "licence_no": 4529052},
@@ -868,10 +869,56 @@ correct_assign_all_response = [
     {"bib_no": 134, "licence_no": 7221748},
 ]
 
-
-incorrect_assign_all_already_assigned_error = (
+incorrect_admin_assign_all_already_assigned_error = (
     "Some bib numbers are already assigned. Either assign"
 )
+
+"""
+For api_admin_assign_one_bib
+"""
+
+correct_admin_assign_one = {"licenceNo": 9311764}
+correct_assign_one_response = {
+    "bibNo": 3,
+    "club": "BOURGETIN CTT",
+    "email": "jfwxtzrmij@wnspze.com",
+    "firstName": "Feitzmx",
+    "gender": "F",
+    "lastName": "ABJNNQES",
+    "licenceNo": 9311764,
+    "nbPoints": 1287,
+    "paymentDiff": 0,
+    "phone": "+336983296275",
+}
+
+incorrect_admin_assign_one_without_any_assigned_error = (
+    "Cannot assign bib numbers manually before having assigned them in bulk"
+)
+
+incorrect_admin_assign_one_missing_player_identifier_json_field = {
+    "firstName": "Dpwsaob",
+}
+incorrect_admin_assign_one_missing_player_identifier_json_field_error = (
+    "Missing 'licenceNo' and ('firstName' or 'lastName') fields in json."
+)
+
+incorrect_admin_assign_one_already_assigned = {"licenceNo": 722370}
+incorrect_admin_assign_one_already_assigned_error = (
+    "This player already has a bib assigned."
+)
+
+incorrect_admin_assign_one = [
+    (
+        incorrect_admin_assign_one_missing_player_identifier_json_field,
+        incorrect_admin_assign_one_missing_player_identifier_json_field_error,
+        HTTPStatus.BAD_REQUEST,
+    ),
+    (
+        incorrect_admin_assign_one_already_assigned,
+        incorrect_admin_assign_one_already_assigned_error,
+        HTTPStatus.CONFLICT,
+    ),
+]
 
 """
 For api_get_categories

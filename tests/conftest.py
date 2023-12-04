@@ -33,8 +33,11 @@ class BaseTest:
             session.commit()
 
     @fixture
-    def set_one_bib(self):
+    def set_a_few_bibs(self):
         session.execute(
-            text("UPDATE players " "SET bib_no = 1 WHERE licence_no = 722370;"),
+            text(
+                "UPDATE players SET bib_no = 1 WHERE licence_no = 722370;"
+                "UPDATE players SET bib_no = 2 WHERE licence_no = 5325506;",
+            ),
         )
         session.commit()
