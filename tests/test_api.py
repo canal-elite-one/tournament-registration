@@ -191,12 +191,36 @@ class TestAPIResetBibNos(BaseTest):
         assert r.status_code == HTTPStatus.FORBIDDEN
 
 
+class TestAPIGetPlayersByCategories(BaseTest):
+    def test_admin_get_by_cat(self, client, reset_db, populate):
+        r = client.get("/api/by_category?present_only=false")
+        assert r.status_code == HTTPStatus.OK, r.json
+        assert r.json == td.correct_admin_get_by_cat_response, r.json
+
+    def test_admin_get_by_cat_present_only(self, client, reset_db, populate):
+        r = client.get("/api/by_category?present_only=true")
+        assert r.status_code == HTTPStatus.OK, r.json
+        assert r.json == td.correct_admin_get_by_cat_present_only_response, r.json
+
+
+class TestAPIGetAllPlayers(BaseTest):
+    def test_admin_get_all_players(self, client, reset_db, populate):
+        r = client.get("/api/all_players?present_only=false")
+        assert r.status_code == HTTPStatus.OK, r.json
+        assert r.json == td.correct_admin_get_all_players_response, r.json
+
+    def test_admin_get_all_players_present_only(self, client, reset_db, populate):
+        r = client.get("/api/all_players?present_only=true")
+        assert r.status_code == HTTPStatus.OK, r.json
+        assert r.json == td.correct_admin_get_all_players_present_only_response, r.json
+
+
 class TestAPIGetCategories(BaseTest):
     def test_get(self, client, reset_db, populate):
         r = client.get("/api/categories")
         assert r.status_code == HTTPStatus.OK, r.json
         assert "categories" in r.json, r.json
-        assert r.json["categories"] == td.correct_get_categories_response
+        assert r.json["categories"] == td.correct_get_categories_response, r.json
 
 
 class TestAPIAddPlayer(BaseTest):
@@ -214,9 +238,9 @@ class TestAPIAddPlayer(BaseTest):
         assert error in r.json["error"], r.json
 
 
-class TestGetPlayerInfo(BaseTest):
+class TestGetPlayer(BaseTest):
     @pytest.mark.parametrize("payload,response", td.correct_get_player)
-    def test_correct_existing_player(
+    def test_correct_get_player(
         self,
         client,
         reset_db,
@@ -226,13 +250,10 @@ class TestGetPlayerInfo(BaseTest):
     ):
         r = client.get("/api/players", json=payload)
         assert r.status_code == HTTPStatus.OK, r.json
-        assert "player" in r.json, r.json
-        assert r.json["player"] == response["player"], r.json
-        assert "registeredEntries" in r.json, r.json
-        assert r.json["registeredEntries"] == response["registeredEntries"], r.json
+        assert r.json == response, r.json
 
     @pytest.mark.parametrize("payload, error", td.incorrect_get_player)
-    def test_incorrect_missing_field(self, client, reset_db, populate, payload, error):
+    def test_incorrect_get_player(self, client, reset_db, populate, payload, error):
         r = client.get("/api/players", json=payload)
         assert r.status_code == HTTPStatus.BAD_REQUEST, r.json
         assert "error" in r.json, r.json

@@ -103,6 +103,16 @@ class PlayerSchema(Schema):
     def make_field(self, data, **kwargs):
         return Player(**data)
 
+    @post_dump
+    def add_entries_info(self, data, **kwargs):
+        if self.context.get("with_entries_info", False):
+            data["registeredEntries"] = EntrySchema(many=True).dump(
+                session.scalars(
+                    select(Entry).where(Entry.licence_no == data["licenceNo"]),
+                ).all(),
+            )
+        return data
+
 
 class EntrySchema(Schema):
     entry_id = fields.Int(data_key="entryId")
