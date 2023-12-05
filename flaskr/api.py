@@ -13,6 +13,7 @@ from flaskr.db import (
 from sqlalchemy import delete, select, text, func, not_, update, distinct
 from sqlalchemy.exc import DBAPIError
 from datetime import date
+from json import loads
 
 bp = Blueprint("api", __name__, url_prefix="/api")
 
@@ -477,7 +478,7 @@ def api_admin_reset_bibs():
 
 @bp.route("/by_category", methods=["GET"])
 def api_admin_get_players_by_category():
-    present_only = request.args.get("present_only", None) == "true"
+    present_only = request.args.get("present_only", False, loads) is True
     schema = PlayerSchema(many=True)
 
     result = {}
@@ -492,7 +493,7 @@ def api_admin_get_players_by_category():
 
 @bp.route("/all_players", methods=["GET"])
 def api_admin_get_all_players():
-    present_only = request.args.get("present_only", None) == "true"
+    present_only = request.args.get("present_only", False, loads) is True
     schema = PlayerSchema(many=True)
     schema.context["with_entries_info"] = True
 
