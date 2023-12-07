@@ -15,7 +15,7 @@ from sqlalchemy.exc import DBAPIError
 from datetime import date
 from json import loads
 
-bp = Blueprint("api", __name__, url_prefix="/api")
+api_bp = Blueprint("api", __name__, url_prefix="/api")
 
 
 def find_player_by_name_or_licence(json_payload):
@@ -54,7 +54,7 @@ def find_player_by_name_or_licence(json_payload):
     return {"is_valid": True, "player": player}
 
 
-@bp.route("/categories", methods=["POST"])
+@api_bp.route("/categories", methods=["POST"])
 def api_admin_set_categories():
     """
     Expects a jsonified list of dicts in the "categories" field of the json that can be
@@ -109,7 +109,7 @@ def api_admin_set_categories():
         )
 
 
-@bp.route("/pay", methods=["PUT"])
+@api_bp.route("/pay", methods=["PUT"])
 def api_admin_make_payment():
     """
     This endpoint allows admin user to register payments
@@ -226,7 +226,7 @@ def api_admin_make_payment():
     return jsonify(recap), HTTPStatus.OK
 
 
-@bp.route("/entries", methods=["DELETE"])
+@api_bp.route("/entries", methods=["DELETE"])
 def api_admin_delete_entries():
     if "categoryIds" not in request.json:
         return (
@@ -280,7 +280,7 @@ def api_admin_delete_entries():
         return jsonify(error=str(e)), HTTPStatus.BAD_REQUEST
 
 
-@bp.route("/players", methods=["DELETE"])
+@api_bp.route("/players", methods=["DELETE"])
 def api_admin_delete_player():
     player_search = find_player_by_name_or_licence(request.json)
     if player_search["is_valid"]:
@@ -298,7 +298,7 @@ def api_admin_delete_player():
         return jsonify(error=str(e)), HTTPStatus.BAD_REQUEST
 
 
-@bp.route("/present", methods=["PUT"])
+@api_bp.route("/present", methods=["PUT"])
 def api_admin_mark_present():
     """
     This endpoint allows admin to record whether a player was present
@@ -400,7 +400,7 @@ def api_admin_mark_present():
     )
 
 
-@bp.route("/bibs", methods=["POST"])
+@api_bp.route("/bibs", methods=["POST"])
 def api_admin_assign_all_bibs():
     if session.scalars(select(distinct(Player.bib_no))).all() != [None]:
         return (
@@ -426,7 +426,7 @@ def api_admin_assign_all_bibs():
     return jsonify(assignedBibs=assigned_bib_nos), HTTPStatus.OK
 
 
-@bp.route("/bibs", methods=["PUT"])
+@api_bp.route("/bibs", methods=["PUT"])
 def api_admin_assign_one_bib():
     player_search = find_player_by_name_or_licence(request.json)
 
@@ -463,7 +463,7 @@ def api_admin_assign_one_bib():
     return jsonify(schema.dump(player)), HTTPStatus.OK
 
 
-@bp.route("/bibs", methods=["DELETE"])
+@api_bp.route("/bibs", methods=["DELETE"])
 def api_admin_reset_bibs():
     confirmation = request.json.get("confirmation", None)
     if confirmation != "Je suis sur! J'ai appelé Céline!":
@@ -476,7 +476,7 @@ def api_admin_reset_bibs():
     return Response(status=HTTPStatus.NO_CONTENT)
 
 
-@bp.route("/by_category", methods=["GET"])
+@api_bp.route("/by_category", methods=["GET"])
 def api_admin_get_players_by_category():
     present_only = request.args.get("present_only", False, loads) is True
     schema = PlayerSchema(many=True)
@@ -491,7 +491,7 @@ def api_admin_get_players_by_category():
     return jsonify(result), HTTPStatus.OK
 
 
-@bp.route("/all_players", methods=["GET"])
+@api_bp.route("/all_players", methods=["GET"])
 def api_admin_get_all_players():
     present_only = request.args.get("present_only", False, loads) is True
     schema = PlayerSchema(many=True)
@@ -510,7 +510,7 @@ def api_admin_get_all_players():
     return jsonify(players=schema.dump(session.scalars(query))), HTTPStatus.OK
 
 
-@bp.route("/categories", methods=["GET"])
+@api_bp.route("/categories", methods=["GET"])
 def api_get_categories():
     return (
         jsonify(
@@ -522,7 +522,7 @@ def api_get_categories():
     )
 
 
-@bp.route("/players", methods=["POST"])
+@api_bp.route("/players", methods=["POST"])
 def api_add_player():
     if "player" not in request.json:
         return (
@@ -557,9 +557,11 @@ def api_add_player():
         )
 
 
-@bp.route("/players", methods=["GET"])
-def api_get_player():
-    if "licenceNo" not in request.json:
+@api_bp.route("/players", methods=["GET"])
+def api_get_player(req_json=None):
+    if req_json is None:
+        req_json = request.json
+    if "licenceNo" not in req_json:
         return (
             jsonify(
                 error="json was missing 'licenceNo' field. Could not retrieve "
@@ -568,7 +570,7 @@ def api_get_player():
             HTTPStatus.BAD_REQUEST,
         )
 
-    licence_no = request.json["licenceNo"]
+    licence_no = req_json["licenceNo"]
 
     player = session.scalar(select(Player).where(Player.licence_no == licence_no))
     if player is None:
@@ -581,7 +583,7 @@ def api_get_player():
     return jsonify(p_schema.dump(player)), HTTPStatus.OK
 
 
-@bp.route("/entries", methods=["POST"])
+@api_bp.route("/entries", methods=["POST"])
 def api_register_entries():
     if "licenceNo" not in request.json or "categoryIds" not in request.json:
         return (
