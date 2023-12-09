@@ -25,10 +25,13 @@ const FrToEn = {
     'Tableaux':'registeredEntries'
 }
 
-const numericCols = ["bibNo", "licenceNo", "nbPoints"]
-const dontSort = ["registeredEntries", "phone"]
+const numericCols = ["bibNo", "licenceNo", "nbPoints"];
+const dontSort = ["registeredEntries", "phone"];
 
-let playerArray;
+const searchCols = ["licenceNo", "firstName", "lastName", "club"];
+
+let sortedArray;
+let filteredArray;
 
 function putDataInTable(data, elementId) {
     const columns = Object.getOwnPropertyNames(FrToEn);
@@ -79,31 +82,63 @@ function goToPlayerPage(licenceNo) {
 
 let currentSort = {"colName": null, "ascending": true};
 
+
 function sortByColumn(colName) {
     if (dontSort.includes(colName)) {
         return null;
     }
+    if (colName === null) {
+
+    }
     currentSort["ascending"] = (colName == currentSort["colName"]) ? (!(currentSort["ascending"])):true;
     currentSort["colName"] = colName;
     if (numericCols.includes(colName)) {
-        playerArray.sort(function(a, b){return a[colName] - b[colName]});
+        sortedArray.sort(function(a, b){return a[colName] - b[colName]});
+        filteredArray.sort(function(a, b){return a[colName] - b[colName]});
     } else {
-        playerArray.sort(function(a, b){
+        function strCompare(a, b){
             let x = a[colName].toLowerCase();
             let y = b[colName].toLowerCase();
             if (x > y) { return 1; }
             if (x < y) { return -1; }
             return 0;
-        });
+        }
+        sortedArray.sort(strCompare);
+        filteredArray.sort(strCompare);
     }
     if (!(currentSort["ascending"])) {
-        playerArray.reverse();
+        sortedArray.reverse();
+        filteredArray.reverse();
     }
-    let oldTable = document.getElementById("players_table");
-    oldTable.remove();
-    putDataInTable(playerArray, "players_table_div");
+    document.getElementById("players_table").remove();
+    putDataInTable(filteredArray, "players_table_div");
 }
+
+function filterData() {
+    searchString = document.getElementById("players_table_search").value.toLowerCase();
+    filteredArray = [];
+    let cellValue;
+    sortedArray.forEach(function(playerObject) {
+        for (let x in searchCols) {
+            colName = searchCols[x];
+            cellValue = ((numericCols.includes(colName)) ? playerObject[colName].toString():playerObject[colName]).toLowerCase();
+            if (cellValue.startsWith(searchString)) {
+                filteredArray.push(playerObject);
+                break;
+            }
+        };
+    })
+    document.getElementById("players_table").remove();
+    putDataInTable(filteredArray, "players_table_div");
+}
+
 
 fetch("http://localhost:5000/api/all_players")
         .then(response => { return response.json(); })
-            .then(dataJson => { playerArray=dataJson["players"]; putDataInTable(dataJson["players"], "players_table_div"); });
+            .then(dataJson => {
+                sortedArray=dataJson["players"];
+                filteredArray = [...sortedArray];
+                putDataInTable(dataJson["players"], "players_table_div");
+            });
+
+document.getElementById("players_table_search").value = "";
