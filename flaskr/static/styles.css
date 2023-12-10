@@ -1,0 +1,34 @@
+h1 {
+color: blue;
+font-size: 60px;
+text-align: center;
+border: 1px solid grey;
+font-family: Tahoma,Verdana,Segoe,sans-serif;
+}
+
+table, th, td {
+border: 1px solid grey;
+border-collapse: collapse;
+text-align: center;
+font-family: Tahoma,Verdana,Segoe,sans-serif;
+}
+
+tr:nth-child(even) {
+    background-color: #cee1ff;
+  }
+tr:hover {background-color: #D6EEEE;}
+
+.navbar {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+.navbar-element {
+  display: inline;
+}
+
+thead {
+  background-color: rgb(65, 64, 64);
+  color: white;
+}

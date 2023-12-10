@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin - {% block title %}{% endblock %}</title>
+    <link rel="icon" href="{{ url_for('static', filename='uskb.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <nav>
+        <ul class="navbar">
+            <li class="navbar-element">
+                <h3 class="navbar-element">Admin</h3>
+            </li>
+            <li class="navbar-element">
+                <a href="{{ url_for('admin.show_all_players') }}">Inscrits</a>
+            </li>
+        </ul>
+    </nav>
+    {% block content %}{% endblock %}
+</body>
+</html>
