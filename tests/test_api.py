@@ -1,7 +1,7 @@
 from conftest import BaseTest
 from http import HTTPStatus
 import pytest
-import tests.testing_data as td
+import tests.testing_data.api_data as td
 
 
 class TestAPISetCategories(BaseTest):
