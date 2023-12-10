@@ -5,6 +5,8 @@ from flaskr.db import (
     session,
     Category,
     Player,
+    player_from_licence,
+    player_not_found_message,
     CategorySchema,
     PlayerSchema,
     EntrySchema,
@@ -16,42 +18,6 @@ from datetime import date
 from json import loads
 
 api_bp = Blueprint("api", __name__, url_prefix="/api")
-
-
-def find_player_by_name_or_licence(json_payload):
-    if "licenceNo" not in json_payload and (
-        "firstName" not in json_payload or "lastName" not in json_payload
-    ):
-        return {
-            "is_valid": False,
-            "error": "Missing 'licenceNo' and ('firstName' or 'lastName') fields "
-            "in json.",
-        }
-    licence_no = json_payload.get("licenceNo", None)
-    if licence_no is not None:
-        player = session.scalar(select(Player).filter_by(licence_no=licence_no))
-        if player is None:
-            return {
-                "is_valid": False,
-                "error": f"No player with licence number {licence_no} exists in the "
-                f"database. Search by name was not done as there was a "
-                f"non-null 'licenceNo' field in json.",
-            }
-    else:
-        first_name, last_name = json_payload["firstName"], json_payload["lastName"]
-        player = session.scalar(
-            select(Player).where(
-                Player.first_name == first_name,
-                Player.last_name == last_name,
-            ),
-        )
-        if player is None:
-            return {
-                "is_valid": False,
-                "error": f"No player named {first_name} {last_name} exists in "
-                f"the database.",
-            }
-    return {"is_valid": True, "player": player}
 
 
 @api_bp.route("/categories", methods=["POST"])
@@ -109,8 +75,8 @@ def api_admin_set_categories():
         )
 
 
-@api_bp.route("/pay", methods=["PUT"])
-def api_admin_make_payment():
+@api_bp.route("/pay/<int:licence_no>", methods=["PUT"])
+def api_admin_make_payment(licence_no):
     """
     This endpoint allows admin user to register payments
     made by players, specifically:\n
@@ -143,11 +109,12 @@ def api_admin_make_payment():
             HTTPStatus.BAD_REQUEST,
         )
 
-    player_search = find_player_by_name_or_licence(request.json)
-    if player_search["is_valid"]:
-        player = player_search["player"]
-    else:
-        return jsonify(error=player_search["error"]), HTTPStatus.BAD_REQUEST
+    player = player_from_licence(licence_no)
+    if player is None:
+        return (
+            jsonify(error=player_not_found_message(licence_no)),
+            HTTPStatus.BAD_REQUEST,
+        )
 
     player_entries = session.execute(
         select(Category.entry_fee, Category.category_id, Entry.marked_as_paid)
@@ -226,8 +193,8 @@ def api_admin_make_payment():
     return jsonify(recap), HTTPStatus.OK
 
 
-@api_bp.route("/entries", methods=["DELETE"])
-def api_admin_delete_entries():
+@api_bp.route("/entries/<int:licence_no>", methods=["DELETE"])
+def api_admin_delete_entries(licence_no):
     if "categoryIds" not in request.json:
         return (
             jsonify(error="Missing 'categoryIds' field in json."),
@@ -235,11 +202,12 @@ def api_admin_delete_entries():
         )
     category_ids = request.json["categoryIds"]
 
-    player_search = find_player_by_name_or_licence(request.json)
-    if player_search["is_valid"]:
-        licence_no = player_search["player"].licence_no
-    else:
-        return jsonify(error=player_search["error"]), HTTPStatus.BAD_REQUEST
+    player = player_from_licence(licence_no)
+    if player is None:
+        return (
+            jsonify(error=player_not_found_message(licence_no)),
+            HTTPStatus.BAD_REQUEST,
+        )
 
     if unregistered_categories := set(category_ids).difference(
         session.scalars(
@@ -280,13 +248,14 @@ def api_admin_delete_entries():
         return jsonify(error=str(e)), HTTPStatus.BAD_REQUEST
 
 
-@api_bp.route("/players", methods=["DELETE"])
-def api_admin_delete_player():
-    player_search = find_player_by_name_or_licence(request.json)
-    if player_search["is_valid"]:
-        licence_no = player_search["player"].licence_no
-    else:
-        return jsonify(error=player_search["error"]), HTTPStatus.BAD_REQUEST
+@api_bp.route("/players/<int:licence_no>", methods=["DELETE"])
+def api_admin_delete_player(licence_no):
+    player = player_from_licence(licence_no)
+    if player is None:
+        return (
+            jsonify(error=player_not_found_message(licence_no)),
+            HTTPStatus.BAD_REQUEST,
+        )
 
     try:
         session.execute(delete(Entry).filter_by(licence_no=licence_no))
@@ -298,8 +267,8 @@ def api_admin_delete_player():
         return jsonify(error=str(e)), HTTPStatus.BAD_REQUEST
 
 
-@api_bp.route("/present", methods=["PUT"])
-def api_admin_mark_present():
+@api_bp.route("/present/<int:licence_no>", methods=["PUT"])
+def api_admin_mark_present(licence_no):
     """
     This endpoint allows admin to record whether a player was present
     for each entry that they are registered for.
@@ -317,11 +286,12 @@ def api_admin_mark_present():
     for entries which correspond to categories with a
     ``start_time`` of today .
     """
-    player_search = find_player_by_name_or_licence(request.json)
-    if player_search["is_valid"]:
-        licence_no = player_search["player"].licence_no
-    else:
-        return jsonify(error=player_search["error"]), HTTPStatus.BAD_REQUEST
+    player = player_from_licence(licence_no)
+    if player is None:
+        return (
+            jsonify(error=player_not_found_message(licence_no)),
+            HTTPStatus.BAD_REQUEST,
+        )
 
     ids_to_mark = request.json.get("categoryIdsToMark", [])
     ids_to_unmark = request.json.get("categoryIdsToUnmark", [])
@@ -384,6 +354,8 @@ def api_admin_mark_present():
     session.commit()
 
     schema = EntrySchema(many=True)
+    # TODO: (cf db.PlayerSchema) make it so that p_schema.dump(player
+    #  automatically generates all the data
     return (
         jsonify(
             marked=[entry.category_id for entry in entries_to_mark],
@@ -426,14 +398,15 @@ def api_admin_assign_all_bibs():
     return jsonify(assignedBibs=assigned_bib_nos), HTTPStatus.OK
 
 
-@api_bp.route("/bibs", methods=["PUT"])
-def api_admin_assign_one_bib():
-    player_search = find_player_by_name_or_licence(request.json)
+@api_bp.route("/bibs/<int:licence_no>", methods=["PUT"])
+def api_admin_assign_one_bib(licence_no):
+    player = player_from_licence(licence_no)
 
-    if player_search["is_valid"]:
-        player = player_search["player"]
-    else:
-        return jsonify(error=player_search["error"]), HTTPStatus.BAD_REQUEST
+    if player is None:
+        return (
+            jsonify(error=player_not_found_message(licence_no)),
+            HTTPStatus.BAD_REQUEST,
+        )
 
     if player.bib_no is not None:
         return (
@@ -557,22 +530,9 @@ def api_add_player():
         )
 
 
-@api_bp.route("/players", methods=["GET"])
-def api_get_player(req_json=None):
-    if req_json is None:
-        req_json = request.json
-    if "licenceNo" not in req_json:
-        return (
-            jsonify(
-                error="json was missing 'licenceNo' field. Could not retrieve "
-                "player info.",
-            ),
-            HTTPStatus.BAD_REQUEST,
-        )
-
-    licence_no = req_json["licenceNo"]
-
-    player = session.scalar(select(Player).where(Player.licence_no == licence_no))
+@api_bp.route("/players/<int:licence_no>", methods=["GET"])
+def api_get_player(licence_no):
+    player = player_from_licence(licence_no)
     if player is None:
         return jsonify(player=None, registeredEntries=[]), HTTPStatus.OK
 
@@ -583,17 +543,16 @@ def api_get_player(req_json=None):
     return jsonify(p_schema.dump(player)), HTTPStatus.OK
 
 
-@api_bp.route("/entries", methods=["POST"])
-def api_register_entries():
-    if "licenceNo" not in request.json or "categoryIds" not in request.json:
+@api_bp.route("/entries/<int:licence_no>", methods=["POST"])
+def api_register_entries(licence_no):
+    if "categoryIds" not in request.json:
         return (
             jsonify(
-                error="Missing either 'licenceNo' or 'categoryIds' field in json.",
+                error="Missing 'categoryIds' field in json.",
             ),
             HTTPStatus.BAD_REQUEST,
         )
 
-    licence_no = request.json["licenceNo"]
     category_ids = request.json["categoryIds"]
 
     if not category_ids:
@@ -602,12 +561,11 @@ def api_register_entries():
             HTTPStatus.BAD_REQUEST,
         )
 
-    player = session.scalar(select(Player).filter_by(licence_no=licence_no))
+    player = player_from_licence(licence_no)
     if player is None:
         return (
             jsonify(
-                error=f"No player with licence number {licence_no} exists in the "
-                f"database. Entry was not registered.",
+                error=player_not_found_message(licence_no),
             ),
             HTTPStatus.BAD_REQUEST,
         )

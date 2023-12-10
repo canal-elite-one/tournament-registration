@@ -21,109 +21,129 @@ class TestAPISetCategories(BaseTest):
 
 
 class TestAPIMakePayment(BaseTest):
-    @pytest.mark.parametrize("payload,response", td.correct_admin_make_payment)
+    @pytest.mark.parametrize(
+        "licence_no,payload,response",
+        td.correct_admin_make_payment,
+    )
     def test_correct_admin_make_payment(
         self,
         client,
         reset_db,
         populate,
+        licence_no,
         payload,
         response,
     ):
-        r = client.put("/api/pay", json=payload)
+        r = client.put(f"/api/pay/{licence_no}", json=payload)
         assert r.status_code == HTTPStatus.OK, r.json
         assert r.json == response, r.json
 
-    @pytest.mark.parametrize("payload,error", td.incorrect_admin_make_payment)
+    @pytest.mark.parametrize(
+        "licence_no,payload,error",
+        td.incorrect_admin_make_payment,
+    )
     def test_incorrect_admin_make_payment(
         self,
         client,
         reset_db,
         populate,
+        licence_no,
         payload,
         error,
     ):
-        r = client.put("/api/pay", json=payload)
+        r = client.put(f"/api/pay/{licence_no}", json=payload)
         assert r.status_code == HTTPStatus.BAD_REQUEST, r.json
         assert "error" in r.json, r.json
         assert error in r.json["error"], r.json
 
 
 class TestAPIDeleteEntries(BaseTest):
-    @pytest.mark.parametrize("payload,response", td.correct_admin_delete_entries)
+    @pytest.mark.parametrize(
+        "licence_no,payload,response",
+        td.correct_admin_delete_entries,
+    )
     def test_correct_admin_delete_entries(
         self,
         client,
         reset_db,
         populate,
+        licence_no,
         payload,
         response,
     ):
-        r = client.delete("/api/entries", json=payload)
+        r = client.delete(f"/api/entries/{licence_no}", json=payload)
         assert r.status_code == HTTPStatus.OK, r.json
         assert "remainingEntries" in r.json, r.json
         assert r.json["remainingEntries"] == response, r.json
 
-    @pytest.mark.parametrize("payload,error", td.incorrect_admin_delete_entries)
+    @pytest.mark.parametrize(
+        "licence_no,payload,error",
+        td.incorrect_admin_delete_entries,
+    )
     def test_incorrect_admin_delete_entries(
         self,
         client,
         reset_db,
         populate,
+        licence_no,
         payload,
         error,
     ):
-        r = client.delete("/api/entries", json=payload)
+        r = client.delete(f"/api/entries/{licence_no}", json=payload)
         assert r.status_code == HTTPStatus.BAD_REQUEST, r.json
         assert "error" in r.json, r.json
         assert error in r.json["error"], r.json
 
 
 class TestAPIDeletePlayer(BaseTest):
-    @pytest.mark.parametrize("payload", td.correct_admin_delete_player)
-    def test_correct_admin_delete_player(self, client, reset_db, populate, payload):
-        r = client.delete("/api/players", json=payload)
+    def test_correct_admin_delete_player(self, client, reset_db, populate):
+        r = client.delete(f"/api/players/{td.overall_correct_licence}")
         assert r.status_code == HTTPStatus.NO_CONTENT, r.json
 
-    @pytest.mark.parametrize("payload, error", td.incorrect_admin_delete_player)
     def test_incorrect_admin_delete_player(
         self,
         client,
         reset_db,
         populate,
-        payload,
-        error,
     ):
-        r = client.delete("/api/players", json=payload)
+        r = client.delete(f"/api/players/{td.overall_incorrect_licence}")
         assert r.status_code == HTTPStatus.BAD_REQUEST, r.json
         assert "error" in r.json, r.json
-        assert error in r.json["error"], r.json
+        assert td.missing_licence_error in r.json["error"], r.json
 
 
 class TestAPIMarkPresent(BaseTest):
-    @pytest.mark.parametrize("payload,response", td.correct_admin_mark_present)
+    @pytest.mark.parametrize(
+        "licence_no,payload,response",
+        td.correct_admin_mark_present,
+    )
     def test_correct_admin_mark_present(
         self,
         client,
         reset_db,
         populate,
+        licence_no,
         payload,
         response,
     ):
-        r = client.put("/api/present", json=payload)
+        r = client.put(f"/api/present/{licence_no}", json=payload)
         assert r.status_code == HTTPStatus.OK, r.json
         assert r.json == response, r.json
 
-    @pytest.mark.parametrize("payload,error", td.incorrect_admin_mark_present)
+    @pytest.mark.parametrize(
+        "licence_no,payload,error",
+        td.incorrect_admin_mark_present,
+    )
     def test_incorrect_admin_mark_present(
         self,
         client,
         reset_db,
         populate,
+        licence_no,
         payload,
         error,
     ):
-        r = client.put("/api/present", json=payload)
+        r = client.put(f"/api/present/{licence_no}", json=payload)
         assert r.status_code == HTTPStatus.BAD_REQUEST, r.json
         assert "error" in r.json, r.json
         assert error in r.json["error"], r.json
@@ -147,7 +167,7 @@ class TestAPIAssignAllBibNos(BaseTest):
 
 class TestAPIAssignOneBibNo(BaseTest):
     def test_correct_assign_one(self, client, reset_db, populate, set_a_few_bibs):
-        r = client.put("/api/bibs", json=td.correct_admin_assign_one)
+        r = client.put(f"/api/bibs/{td.correct_admin_assign_one}")
         assert r.status_code == HTTPStatus.OK, r.json
         assert r.json == td.correct_assign_one_response, r.json
 
@@ -157,25 +177,28 @@ class TestAPIAssignOneBibNo(BaseTest):
         reset_db,
         populate,
     ):
-        r = client.put("/api/bibs", json=td.correct_admin_assign_one)
+        r = client.put(f"/api/bibs/{td.correct_admin_assign_one}")
         assert r.status_code == HTTPStatus.CONFLICT, r.json
         assert "error" in r.json, r.json
         assert (
             td.incorrect_admin_assign_one_without_any_assigned_error in r.json["error"]
         ), r.json
 
-    @pytest.mark.parametrize("payload,error,status_code", td.incorrect_admin_assign_one)
+    @pytest.mark.parametrize(
+        "licence_no,error,status_code",
+        td.incorrect_admin_assign_one,
+    )
     def test_incorrect_assign_one_already_assigned(
         self,
         client,
         reset_db,
         populate,
         set_a_few_bibs,
-        payload,
+        licence_no,
         error,
         status_code,
     ):
-        r = client.put("/api/bibs", json=payload)
+        r = client.put(f"/api/bibs/{licence_no}")
         assert r.status_code == status_code, r.json
         assert "error" in r.json, r.json
         assert error in r.json["error"], r.json
@@ -239,38 +262,39 @@ class TestAPIAddPlayer(BaseTest):
 
 
 class TestGetPlayer(BaseTest):
-    @pytest.mark.parametrize("payload,response", td.correct_get_player)
+    @pytest.mark.parametrize("licence_no,response", td.correct_get_player)
     def test_correct_get_player(
         self,
         client,
         reset_db,
         populate,
-        payload,
+        licence_no,
         response,
     ):
-        r = client.get("/api/players", json=payload)
+        r = client.get(f"/api/players/{licence_no}")
         assert r.status_code == HTTPStatus.OK, r.json
         assert r.json == response, r.json
 
-    @pytest.mark.parametrize("payload, error", td.incorrect_get_player)
-    def test_incorrect_get_player(self, client, reset_db, populate, payload, error):
-        r = client.get("/api/players", json=payload)
+    @pytest.mark.parametrize("licence_no,error", td.incorrect_get_player)
+    def test_incorrect_get_player(self, client, reset_db, populate, licence_no, error):
+        r = client.get(f"/api/players/{licence_no}")
         assert r.status_code == HTTPStatus.BAD_REQUEST, r.json
         assert "error" in r.json, r.json
         assert error in r.json["error"], r.json
 
 
 class TestRegisterEntries(BaseTest):
-    @pytest.mark.parametrize("payload,response", td.correct_register_entries)
+    @pytest.mark.parametrize("licence_no,payload,response", td.correct_register_entries)
     def test_correct_register_entries(
         self,
         client,
         reset_db,
         populate,
+        licence_no,
         payload,
         response,
     ):
-        r = client.post("/api/entries", json=payload)
+        r = client.post(f"/api/entries/{licence_no}", json=payload)
         assert r.status_code == HTTPStatus.CREATED, r.json
         assert "entries" in r.json, r.json
         for entry1, entry2 in zip(r.json["entries"], response):
@@ -279,16 +303,17 @@ class TestRegisterEntries(BaseTest):
                     key == "registrationTime" and entry1["categoryId"] == "1"
                 ), r.json
 
-    @pytest.mark.parametrize("payload, error", td.incorrect_register_entries)
+    @pytest.mark.parametrize("licence_no,payload,error", td.incorrect_register_entries)
     def test_incorrect_register_entries(
         self,
         client,
         reset_db,
         populate,
+        licence_no,
         payload,
         error,
     ):
-        r = client.post("/api/entries", json=payload)
+        r = client.post(f"/api/entries/{licence_no}", json=payload)
         assert r.status_code == HTTPStatus.BAD_REQUEST, r.json
         assert "error" in r.json, r.json
         assert error in r.json["error"], r.json

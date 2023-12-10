@@ -49,6 +49,14 @@ class Player(Base):
         return str(schema.dump(self))
 
 
+def player_from_licence(licence_no):
+    return session.scalar(select(Player).filter_by(licence_no=licence_no))
+
+
+def player_not_found_message(licence_no):
+    return f"No player with licence number {licence_no} exists in the database."
+
+
 class Entry(Base):
     __table__ = Table("entries", Base.metadata, autoload_with=engine)
 

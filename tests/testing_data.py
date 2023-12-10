@@ -1,6 +1,11 @@
 from datetime import datetime
 from http import HTTPStatus
 
+overall_correct_licence = 722370
+overall_incorrect_licence = 555555
+
+missing_licence_error = "No player with licence number"
+
 """
 For api_admin_set_categories
 """
@@ -221,511 +226,433 @@ incorrect_admin_set_categories = [
 For api_admin_make_payment
 """
 
-correct_payment_pay_all = {"licenceNo": 4526124, "categoryIds": ["B", "F"]}
-correct_payment_pay_all_response = {
-    "actualPaidNow": 14,
-    "actualRemaining": 0,
-    "allEntries": {"amount": 14, "categoryIds": ["B", "F"]},
-    "leftToPay": {"amount": 0, "categoryIds": []},
-    "paymentDiff": 0,
-    "settledNow": {"amount": 14, "categoryIds": ["B", "F"]},
-    "settledPreviously": {"amount": 0, "categoryIds": []},
-}
+correct_payment_pay_all = (
+    4526124,
+    {"categoryIds": ["B", "F"]},
+    {
+        "actualPaidNow": 14,
+        "actualRemaining": 0,
+        "allEntries": {"amount": 14, "categoryIds": ["B", "F"]},
+        "leftToPay": {"amount": 0, "categoryIds": []},
+        "paymentDiff": 0,
+        "settledNow": {"amount": 14, "categoryIds": ["B", "F"]},
+        "settledPreviously": {"amount": 0, "categoryIds": []},
+    },
+)
 
-correct_payment_pay_all_by_name = {
-    "firstName": "Wihelbl",
-    "lastName": "EZWLKRWE",
-    "categoryIds": ["B", "F"],
-}
-correct_payment_pay_all_by_name_response = {
-    "actualPaidNow": 14,
-    "actualRemaining": 0,
-    "allEntries": {"amount": 14, "categoryIds": ["B", "F"]},
-    "leftToPay": {"amount": 0, "categoryIds": []},
-    "paymentDiff": 0,
-    "settledNow": {"amount": 14, "categoryIds": ["B", "F"]},
-    "settledPreviously": {"amount": 0, "categoryIds": []},
-}
+correct_payment_pay_partial = (
+    4526124,
+    {"categoryIds": ["B"]},
+    {
+        "actualPaidNow": 7,
+        "actualRemaining": 7,
+        "allEntries": {"amount": 14, "categoryIds": ["B", "F"]},
+        "leftToPay": {"amount": 7, "categoryIds": ["F"]},
+        "paymentDiff": 0,
+        "settledNow": {"amount": 7, "categoryIds": ["B"]},
+        "settledPreviously": {"amount": 0, "categoryIds": []},
+    },
+)
 
-correct_payment_pay_partial = {"licenceNo": 4526124, "categoryIds": ["B"]}
-correct_payment_pay_partial_response = {
-    "actualPaidNow": 7,
-    "actualRemaining": 7,
-    "allEntries": {"amount": 14, "categoryIds": ["B", "F"]},
-    "leftToPay": {"amount": 7, "categoryIds": ["F"]},
-    "paymentDiff": 0,
-    "settledNow": {"amount": 7, "categoryIds": ["B"]},
-    "settledPreviously": {"amount": 0, "categoryIds": []},
-}
+correct_payment_previously_paid = (
+    5326002,
+    {"categoryIds": ["B"]},
+    {
+        "actualPaidNow": 7,
+        "actualRemaining": 0,
+        "allEntries": {"amount": 14, "categoryIds": ["B", "G"]},
+        "leftToPay": {"amount": 0, "categoryIds": []},
+        "paymentDiff": 0,
+        "settledNow": {"amount": 7, "categoryIds": ["B"]},
+        "settledPreviously": {"amount": 7, "categoryIds": ["G"]},
+    },
+)
 
-correct_payment_previously_paid = {"licenceNo": 5326002, "categoryIds": ["B"]}
-correct_payment_previously_paid_response = {
-    "actualPaidNow": 7,
-    "actualRemaining": 0,
-    "allEntries": {"amount": 14, "categoryIds": ["B", "G"]},
-    "leftToPay": {"amount": 0, "categoryIds": []},
-    "paymentDiff": 0,
-    "settledNow": {"amount": 7, "categoryIds": ["B"]},
-    "settledPreviously": {"amount": 7, "categoryIds": ["G"]},
-}
+correct_payment_all_recap_positive = (
+    722370,
+    {"categoryIds": ["7"]},
+    {
+        "actualPaidNow": 7,
+        "actualRemaining": 7,
+        "allEntries": {"amount": 21, "categoryIds": ["A", "5", "7"]},
+        "leftToPay": {"amount": 7, "categoryIds": ["5"]},
+        "paymentDiff": 0,
+        "settledNow": {"amount": 7, "categoryIds": ["7"]},
+        "settledPreviously": {"amount": 7, "categoryIds": ["A"]},
+    },
+)
 
-correct_payment_all_recap_positive = {"licenceNo": 722370, "categoryIds": ["7"]}
-correct_payment_all_recap_positive_response = {
-    "actualPaidNow": 7,
-    "actualRemaining": 7,
-    "allEntries": {"amount": 21, "categoryIds": ["A", "5", "7"]},
-    "leftToPay": {"amount": 7, "categoryIds": ["5"]},
-    "paymentDiff": 0,
-    "settledNow": {"amount": 7, "categoryIds": ["7"]},
-    "settledPreviously": {"amount": 7, "categoryIds": ["A"]},
-}
+correct_payment_default_actual = (
+    722370,
+    {
+        "categoryIds": ["7"],
+        "actualPaid": 7,
+    },
+    {
+        "actualPaidNow": 7,
+        "actualRemaining": 7,
+        "allEntries": {"amount": 21, "categoryIds": ["A", "5", "7"]},
+        "leftToPay": {"amount": 7, "categoryIds": ["5"]},
+        "paymentDiff": 0,
+        "settledNow": {"amount": 7, "categoryIds": ["7"]},
+        "settledPreviously": {"amount": 7, "categoryIds": ["A"]},
+    },
+)
 
-correct_payment_default_actual = {
-    "licenceNo": 722370,
-    "categoryIds": ["7"],
-    "actualPaid": 7,
-}
-correct_payment_default_actual_response = {
-    "actualPaidNow": 7,
-    "actualRemaining": 7,
-    "allEntries": {"amount": 21, "categoryIds": ["A", "5", "7"]},
-    "leftToPay": {"amount": 7, "categoryIds": ["5"]},
-    "paymentDiff": 0,
-    "settledNow": {"amount": 7, "categoryIds": ["7"]},
-    "settledPreviously": {"amount": 7, "categoryIds": ["A"]},
-}
+correct_payment_nondefault_actual = (
+    722370,
+    {
+        "categoryIds": ["7"],
+        "actualPaid": 8,
+    },
+    {
+        "actualPaidNow": 8,
+        "actualRemaining": 6,
+        "allEntries": {"amount": 21, "categoryIds": ["A", "5", "7"]},
+        "leftToPay": {"amount": 7, "categoryIds": ["5"]},
+        "paymentDiff": 1,
+        "settledNow": {"amount": 7, "categoryIds": ["7"]},
+        "settledPreviously": {"amount": 7, "categoryIds": ["A"]},
+    },
+)
 
-correct_payment_nondefault_actual = {
-    "licenceNo": 722370,
-    "categoryIds": ["7"],
-    "actualPaid": 8,
-}
-correct_payment_nondefault_actual_response = {
-    "actualPaidNow": 8,
-    "actualRemaining": 6,
-    "allEntries": {"amount": 21, "categoryIds": ["A", "5", "7"]},
-    "leftToPay": {"amount": 7, "categoryIds": ["5"]},
-    "paymentDiff": 1,
-    "settledNow": {"amount": 7, "categoryIds": ["7"]},
-    "settledPreviously": {"amount": 7, "categoryIds": ["A"]},
-}
+correct_payment_nonzero_diff = (
+    9426636,
+    {"categoryIds": ["2"]},
+    {
+        "actualPaidNow": 6,
+        "actualRemaining": 7,
+        "allEntries": {"amount": 28, "categoryIds": ["D", "F", "2", "6"]},
+        "leftToPay": {"amount": 7, "categoryIds": ["6"]},
+        "paymentDiff": 0,
+        "settledNow": {"amount": 7, "categoryIds": ["2"]},
+        "settledPreviously": {"amount": 14, "categoryIds": ["D", "F"]},
+    },
+)
 
-correct_payment_nonzero_diff = {"licenceNo": 9426636, "categoryIds": ["2"]}
-correct_payment_nonzero_diff_response = {
-    "actualPaidNow": 6,
-    "actualRemaining": 7,
-    "allEntries": {"amount": 28, "categoryIds": ["D", "F", "2", "6"]},
-    "leftToPay": {"amount": 7, "categoryIds": ["6"]},
-    "paymentDiff": 0,
-    "settledNow": {"amount": 7, "categoryIds": ["2"]},
-    "settledPreviously": {"amount": 14, "categoryIds": ["D", "F"]},
-}
-
-correct_payment_nonzero_diff_nondefault_actual = {
-    "licenceNo": 9426636,
-    "categoryIds": ["2"],
-    "actualPaid": 5,
-}
-correct_payment_nonzero_diff_nondefault_actual_response = {
-    "actualPaidNow": 5,
-    "actualRemaining": 8,
-    "allEntries": {"amount": 28, "categoryIds": ["D", "F", "2", "6"]},
-    "leftToPay": {"amount": 7, "categoryIds": ["6"]},
-    "paymentDiff": -1,
-    "settledNow": {"amount": 7, "categoryIds": ["2"]},
-    "settledPreviously": {"amount": 14, "categoryIds": ["D", "F"]},
-}
+correct_payment_nonzero_diff_nondefault_actual = (
+    9426636,
+    {
+        "categoryIds": ["2"],
+        "actualPaid": 5,
+    },
+    {
+        "actualPaidNow": 5,
+        "actualRemaining": 8,
+        "allEntries": {"amount": 28, "categoryIds": ["D", "F", "2", "6"]},
+        "leftToPay": {"amount": 7, "categoryIds": ["6"]},
+        "paymentDiff": -1,
+        "settledNow": {"amount": 7, "categoryIds": ["2"]},
+        "settledPreviously": {"amount": 14, "categoryIds": ["D", "F"]},
+    },
+)
 
 correct_admin_make_payment = [
-    (correct_payment_pay_all, correct_payment_pay_all_response),
-    (correct_payment_pay_all_by_name, correct_payment_pay_all_by_name_response),
-    (correct_payment_pay_partial, correct_payment_pay_partial_response),
-    (correct_payment_previously_paid, correct_payment_previously_paid_response),
-    (correct_payment_all_recap_positive, correct_payment_all_recap_positive_response),
-    (correct_payment_default_actual, correct_payment_default_actual_response),
-    (correct_payment_nondefault_actual, correct_payment_nondefault_actual_response),
-    (correct_payment_nonzero_diff, correct_payment_nonzero_diff_response),
-    (
-        correct_payment_nonzero_diff_nondefault_actual,
-        correct_payment_nonzero_diff_nondefault_actual_response,
-    ),
+    correct_payment_pay_all,
+    correct_payment_pay_partial,
+    correct_payment_previously_paid,
+    correct_payment_all_recap_positive,
+    correct_payment_default_actual,
+    correct_payment_nondefault_actual,
+    correct_payment_nonzero_diff,
+    correct_payment_nonzero_diff_nondefault_actual,
 ]
 
-incorrect_payment_missing_player_identifier_json_field = {
-    "firstName": "Dqdjfklm",
-    "categoryIds": ["G"],
-}
-incorrect_payment_missing_player_identifier_json_field_error = (
-    "Missing 'licenceNo' and ('firstName' or 'lastName') fields in json."
+incorrect_payment_missing_categories_json_field = (
+    5326002,
+    {},
+    "Missing 'categoryIds' field in json.",
 )
 
-incorrect_payment_missing_categories_json_field = {"licenceNo": 5326002}
-incorrect_payment_missing_categories_json_field_error = (
-    "Missing 'categoryIds' field in json."
+incorrect_payment_duplicate_payment = (
+    5326002,
+    {"categoryIds": ["G"]},
+    "Tried to make payment for some entries which were already paid for",
 )
 
-incorrect_payment_duplicate_payment = {"licenceNo": 5326002, "categoryIds": ["G"]}
-incorrect_payment_duplicate_payment_error = (
-    "Tried to make payment for some entries which were already paid for"
-)
-
-incorrect_payment_without_registration = {"licenceNo": 5326002, "categoryIds": ["A"]}
-incorrect_payment_without_registration_error = (
-    "Tried to pay the fee for some categories which did not exist,"
+incorrect_payment_without_registration = (
+    5326002,
+    {"categoryIds": ["A"]},
+    "Tried to pay the fee for some categories which did not exist,",
 )
 
 incorrect_admin_make_payment = [
-    (
-        incorrect_payment_missing_player_identifier_json_field,
-        incorrect_payment_missing_player_identifier_json_field_error,
-    ),
-    (
-        incorrect_payment_missing_categories_json_field,
-        incorrect_payment_missing_categories_json_field_error,
-    ),
-    (incorrect_payment_duplicate_payment, incorrect_payment_duplicate_payment_error),
-    (
-        incorrect_payment_without_registration,
-        incorrect_payment_without_registration_error,
-    ),
+    incorrect_payment_missing_categories_json_field,
+    incorrect_payment_duplicate_payment,
+    incorrect_payment_without_registration,
 ]
 
 """
 For api_admin_delete_entries
 """
 
-correct_delete_entries_all = {"licenceNo": 722370, "categoryIds": ["A", "5", "7"]}
-correct_delete_entries_all_response = []
+correct_delete_entries_all = (722370, {"categoryIds": ["A", "5", "7"]}, [])
 
-correct_delete_entries_partial = {"licenceNo": 722370, "categoryIds": ["A", "5"]}
-correct_delete_entries_partial_response = [
-    {
-        "categoryId": "7",
-        "color": "#00FFFF",
-        "entryId": 320,
-        "licenceNo": 722370,
-        "markedAsPaid": False,
-        "registrationTime": "2023-09-17T05:10:51",
-        "markedAsPresent": False,
-    },
-]
+correct_delete_entries_partial = (
+    722370,
+    {"categoryIds": ["A", "5"]},
+    [
+        {
+            "categoryId": "7",
+            "color": "#00FFFF",
+            "entryId": 320,
+            "licenceNo": 722370,
+            "markedAsPaid": False,
+            "registrationTime": "2023-09-17T05:10:51",
+            "markedAsPresent": False,
+        },
+    ],
+)
 
 correct_admin_delete_entries = [
-    (correct_delete_entries_all, correct_delete_entries_all_response),
-    (correct_delete_entries_partial, correct_delete_entries_partial_response),
+    correct_delete_entries_all,
+    correct_delete_entries_partial,
 ]
 
-incorrect_delete_entries_missing_player_identifier_json_field = {
-    "firstName": "Fjhgzg",
-    "categoryIds": ["A", "5"],
-}
-incorrect_delete_entries_missing_player_identifier_json_field_error = (
-    "Missing 'licenceNo' and ('firstName' or 'lastName') fields in json."
+incorrect_delete_entries_missing_categories_json_field = (
+    722370,
+    {},
+    "Missing 'categoryIds' field in json.",
 )
 
-incorrect_delete_entries_missing_categories_json_field = {
-    "firstName": "Fjhgzg",
-    "lastname": "DFJQKL",
-}
-incorrect_delete_entries_missing_categories_json_field_error = (
-    "Missing 'categoryIds' field in json."
+incorrect_delete_entries_nonexisting_player = (
+    overall_incorrect_licence,
+    {"categoryIds": ["A", "5"]},
+    missing_licence_error,
 )
 
-incorrect_delete_entries_nonexisting_player = {
-    "licenceNo": 55555,
-    "categoryIds": ["A", "5"],
-}
-incorrect_delete_entries_nonexisting_player_error = "No player with licence number"
-
-incorrect_delete_entries_nonexisting_categories = {
-    "licenceNo": 722370,
-    "categoryIds": ["P", "5"],
-}
-incorrect_delete_entries_nonexisting_categories_error = (
-    "Tried to delete some entries which were not registered"
+incorrect_delete_entries_nonexisting_categories = (
+    722370,
+    {"categoryIds": ["P", "5"]},
+    "Tried to delete some entries which were not registered",
 )
 
-incorrect_delete_entries_nonexisting_entries = {
-    "licenceNo": 722370,
-    "categoryIds": ["B", "5"],
-}
-incorrect_delete_entries_nonexisting_entries_error = (
-    "Tried to delete some entries which were not registered"
+incorrect_delete_entries_nonexisting_entries = (
+    722370,
+    {"categoryIds": ["B", "5"]},
+    "Tried to delete some entries which were not registered",
 )
 
 incorrect_admin_delete_entries = [
-    (
-        incorrect_delete_entries_missing_player_identifier_json_field,
-        incorrect_delete_entries_missing_player_identifier_json_field_error,
-    ),
-    (
-        incorrect_delete_entries_missing_categories_json_field,
-        incorrect_delete_entries_missing_categories_json_field_error,
-    ),
-    (
-        incorrect_delete_entries_nonexisting_player,
-        incorrect_delete_entries_nonexisting_player_error,
-    ),
-    (
-        incorrect_delete_entries_nonexisting_categories,
-        incorrect_delete_entries_nonexisting_categories_error,
-    ),
-    (
-        incorrect_delete_entries_nonexisting_entries,
-        incorrect_delete_entries_nonexisting_entries_error,
-    ),
+    incorrect_delete_entries_missing_categories_json_field,
+    incorrect_delete_entries_nonexisting_player,
+    incorrect_delete_entries_nonexisting_categories,
+    incorrect_delete_entries_nonexisting_entries,
 ]
 
 """
 For api_admin_delete_player
 """
 
-correct_delete_player_by_licence = {"licenceNo": 722370}
-
-correct_delete_player_by_name = {"firstName": "Wihelbl", "lastName": "EZWLKRWE"}
-
-correct_admin_delete_player = [
-    correct_delete_player_by_licence,
-    correct_delete_player_by_name,
-]
-
-incorrect_delete_player_missing_json_field = {"firstName": "Wihelbl"}
-incorrect_delete_player_missing_json_field_error = (
-    "Missing 'licenceNo' and ('firstName' or 'lastName') fields in json."
-)
-
-incorrect_delete_player_nonexisting_player_by_name = {
-    "firstName": "Wfdjklbl",
-    "lastName": "IDODLJSDLWE",
-}
-incorrect_delete_player_nonexisting_player_by_name_error = "No player named "
-
-incorrect_delete_player_nonexisting_player_by_licence = {"licenceNo": 55555}
-incorrect_delete_player_nonexisting_player_by_licence_error = (
-    "No player with licence number "
-)
-
-incorrect_admin_delete_player = [
-    (
-        incorrect_delete_player_missing_json_field,
-        incorrect_delete_player_missing_json_field_error,
-    ),
-    (
-        incorrect_delete_player_nonexisting_player_by_name,
-        incorrect_delete_player_nonexisting_player_by_name_error,
-    ),
-    (
-        incorrect_delete_player_nonexisting_player_by_licence,
-        incorrect_delete_player_nonexisting_player_by_licence_error,
-    ),
-]
+# See at top
 
 """
 For api_admin_mark_present
 """
 
-correct_mark_present_default = {"licenceNo": 4526124}
-correct_mark_present_default_response = {
-    "allEntries": [
-        {
-            "categoryId": "B",
-            "color": "#000000",
-            "entryId": 59,
-            "licenceNo": 4526124,
-            "markedAsPaid": False,
-            "markedAsPresent": False,
-            "registrationTime": "2023-11-17T18:01:20",
-        },
-        {
-            "categoryId": "F",
-            "color": "#FF0000",
-            "entryId": 64,
-            "licenceNo": 4526124,
-            "markedAsPaid": False,
-            "markedAsPresent": False,
-            "registrationTime": "2023-11-25T21:56:50",
-        },
-    ],
-    "marked": [],
-    "unmarked": [],
-}
-
-correct_mark_present_nondefault = {"licenceNo": 4526124, "categoryIdsToMark": ["B"]}
-correct_mark_present_nondefault_response = {
-    "allEntries": [
-        {
-            "categoryId": "B",
-            "color": "#000000",
-            "entryId": 59,
-            "licenceNo": 4526124,
-            "markedAsPaid": False,
-            "markedAsPresent": True,
-            "registrationTime": "2023-11-17T18:01:20",
-        },
-        {
-            "categoryId": "F",
-            "color": "#FF0000",
-            "entryId": 64,
-            "licenceNo": 4526124,
-            "markedAsPaid": False,
-            "markedAsPresent": False,
-            "registrationTime": "2023-11-25T21:56:50",
-        },
-    ],
-    "marked": ["B"],
-    "unmarked": [],
-}
-
-correct_unmark_present = {"licenceNo": 608834, "categoryIdsToUnmark": ["E"]}
-correct_unmark_present_response = {
-    "allEntries": [
-        {
-            "categoryId": "3",
-            "color": "#FFFF00",
-            "entryId": 100,
-            "licenceNo": 608834,
-            "markedAsPaid": False,
-            "markedAsPresent": False,
-            "registrationTime": "2023-03-20T00:24:12",
-        },
-        {
-            "categoryId": "E",
-            "color": "#FF0000",
-            "entryId": 70,
-            "licenceNo": 608834,
-            "markedAsPaid": False,
-            "markedAsPresent": False,
-            "registrationTime": "2023-11-02T18:50:24",
-        },
-        {
-            "categoryId": "G",
-            "color": None,
-            "entryId": 286,
-            "licenceNo": 608834,
-            "markedAsPaid": False,
-            "markedAsPresent": False,
-            "registrationTime": "2023-08-23T06:56:51",
-        },
-    ],
-    "marked": [],
-    "unmarked": ["E"],
-}
-
-correct_mark_unmark_present = {
-    "licenceNo": 608834,
-    "categoryIdsToMark": ["3"],
-    "categoryIdsToUnmark": ["E"],
-}
-correct_mark_unmark_present_response = {
-    "allEntries": [
-        {
-            "categoryId": "3",
-            "color": "#FFFF00",
-            "entryId": 100,
-            "licenceNo": 608834,
-            "markedAsPaid": False,
-            "markedAsPresent": True,
-            "registrationTime": "2023-03-20T00:24:12",
-        },
-        {
-            "categoryId": "E",
-            "color": "#FF0000",
-            "entryId": 70,
-            "licenceNo": 608834,
-            "markedAsPaid": False,
-            "markedAsPresent": False,
-            "registrationTime": "2023-11-02T18:50:24",
-        },
-        {
-            "categoryId": "G",
-            "color": None,
-            "entryId": 286,
-            "licenceNo": 608834,
-            "markedAsPaid": False,
-            "markedAsPresent": False,
-            "registrationTime": "2023-08-23T06:56:51",
-        },
-    ],
-    "marked": ["3"],
-    "unmarked": ["E"],
-}
-
-correct_mark_present_idempotent = {
-    "licenceNo": 608834,
-    "categoryIdsToMark": ["3", "E"],
-}
-correct_mark_present_idempotent_response = {
-    "allEntries": [
-        {
-            "categoryId": "3",
-            "color": "#FFFF00",
-            "entryId": 100,
-            "licenceNo": 608834,
-            "markedAsPaid": False,
-            "markedAsPresent": True,
-            "registrationTime": "2023-03-20T00:24:12",
-        },
-        {
-            "categoryId": "E",
-            "color": "#FF0000",
-            "entryId": 70,
-            "licenceNo": 608834,
-            "markedAsPaid": False,
-            "markedAsPresent": True,
-            "registrationTime": "2023-11-02T18:50:24",
-        },
-        {
-            "categoryId": "G",
-            "color": None,
-            "entryId": 286,
-            "licenceNo": 608834,
-            "markedAsPaid": False,
-            "markedAsPresent": False,
-            "registrationTime": "2023-08-23T06:56:51",
-        },
-    ],
-    "marked": ["3"],
-    "unmarked": [],
-}
-
-correct_admin_mark_present = [
-    (correct_mark_present_default, correct_mark_present_default_response),
-    (correct_mark_present_nondefault, correct_mark_present_nondefault_response),
-    (correct_unmark_present, correct_unmark_present_response),
-    (correct_mark_unmark_present, correct_mark_unmark_present_response),
-    (correct_mark_present_idempotent, correct_mark_present_idempotent_response),
-]
-
-incorrect_mark_present_missing_player_identifier_json_field = {"firstName": "Wihelbl"}
-incorrect_mark_present_missing_player_identifier_json_field_error = (
-    "Missing 'licenceNo' and ('firstName' or 'lastName') "
+correct_mark_present_default = (
+    4526124,
+    {},
+    {
+        "allEntries": [
+            {
+                "categoryId": "B",
+                "color": "#000000",
+                "entryId": 59,
+                "licenceNo": 4526124,
+                "markedAsPaid": False,
+                "markedAsPresent": False,
+                "registrationTime": "2023-11-17T18:01:20",
+            },
+            {
+                "categoryId": "F",
+                "color": "#FF0000",
+                "entryId": 64,
+                "licenceNo": 4526124,
+                "markedAsPaid": False,
+                "markedAsPresent": False,
+                "registrationTime": "2023-11-25T21:56:50",
+            },
+        ],
+        "marked": [],
+        "unmarked": [],
+    },
 )
 
-incorrect_mark_present_nonexisting_player = {"licenceNo": 55555}
-incorrect_mark_present_nonexisting_player_error = "No player with licence number "
+correct_mark_present_nondefault = (
+    4526124,
+    {"categoryIdsToMark": ["B"]},
+    {
+        "allEntries": [
+            {
+                "categoryId": "B",
+                "color": "#000000",
+                "entryId": 59,
+                "licenceNo": 4526124,
+                "markedAsPaid": False,
+                "markedAsPresent": True,
+                "registrationTime": "2023-11-17T18:01:20",
+            },
+            {
+                "categoryId": "F",
+                "color": "#FF0000",
+                "entryId": 64,
+                "licenceNo": 4526124,
+                "markedAsPaid": False,
+                "markedAsPresent": False,
+                "registrationTime": "2023-11-25T21:56:50",
+            },
+        ],
+        "marked": ["B"],
+        "unmarked": [],
+    },
+)
 
-incorrect_mark_present_mark_unmark_same_id = {
-    "licenceNo": 608834,
-    "categoryIdsToMark": ["E"],
-    "categoryIdsToUnmark": ["E"],
-}
-incorrect_mark_present_mark_unmark_same_id_error = (
-    "Tried to mark and unmark player as present for same categories:"
+correct_unmark_present = (
+    608834,
+    {"categoryIdsToUnmark": ["E"]},
+    {
+        "allEntries": [
+            {
+                "categoryId": "3",
+                "color": "#FFFF00",
+                "entryId": 100,
+                "licenceNo": 608834,
+                "markedAsPaid": False,
+                "markedAsPresent": False,
+                "registrationTime": "2023-03-20T00:24:12",
+            },
+            {
+                "categoryId": "E",
+                "color": "#FF0000",
+                "entryId": 70,
+                "licenceNo": 608834,
+                "markedAsPaid": False,
+                "markedAsPresent": False,
+                "registrationTime": "2023-11-02T18:50:24",
+            },
+            {
+                "categoryId": "G",
+                "color": None,
+                "entryId": 286,
+                "licenceNo": 608834,
+                "markedAsPaid": False,
+                "markedAsPresent": False,
+                "registrationTime": "2023-08-23T06:56:51",
+            },
+        ],
+        "marked": [],
+        "unmarked": ["E"],
+    },
+)
+
+correct_mark_unmark_present = (
+    608834,
+    {
+        "categoryIdsToMark": ["3"],
+        "categoryIdsToUnmark": ["E"],
+    },
+    {
+        "allEntries": [
+            {
+                "categoryId": "3",
+                "color": "#FFFF00",
+                "entryId": 100,
+                "licenceNo": 608834,
+                "markedAsPaid": False,
+                "markedAsPresent": True,
+                "registrationTime": "2023-03-20T00:24:12",
+            },
+            {
+                "categoryId": "E",
+                "color": "#FF0000",
+                "entryId": 70,
+                "licenceNo": 608834,
+                "markedAsPaid": False,
+                "markedAsPresent": False,
+                "registrationTime": "2023-11-02T18:50:24",
+            },
+            {
+                "categoryId": "G",
+                "color": None,
+                "entryId": 286,
+                "licenceNo": 608834,
+                "markedAsPaid": False,
+                "markedAsPresent": False,
+                "registrationTime": "2023-08-23T06:56:51",
+            },
+        ],
+        "marked": ["3"],
+        "unmarked": ["E"],
+    },
+)
+
+correct_mark_present_idempotent = (
+    608834,
+    {
+        "categoryIdsToMark": ["3", "E"],
+    },
+    {
+        "allEntries": [
+            {
+                "categoryId": "3",
+                "color": "#FFFF00",
+                "entryId": 100,
+                "licenceNo": 608834,
+                "markedAsPaid": False,
+                "markedAsPresent": True,
+                "registrationTime": "2023-03-20T00:24:12",
+            },
+            {
+                "categoryId": "E",
+                "color": "#FF0000",
+                "entryId": 70,
+                "licenceNo": 608834,
+                "markedAsPaid": False,
+                "markedAsPresent": True,
+                "registrationTime": "2023-11-02T18:50:24",
+            },
+            {
+                "categoryId": "G",
+                "color": None,
+                "entryId": 286,
+                "licenceNo": 608834,
+                "markedAsPaid": False,
+                "markedAsPresent": False,
+                "registrationTime": "2023-08-23T06:56:51",
+            },
+        ],
+        "marked": ["3"],
+        "unmarked": [],
+    },
+)
+
+correct_admin_mark_present = [
+    correct_mark_present_default,
+    correct_mark_present_nondefault,
+    correct_unmark_present,
+    correct_mark_unmark_present,
+    correct_mark_present_idempotent,
+]
+
+incorrect_mark_present_nonexisting_player = (
+    overall_incorrect_licence,
+    {},
+    missing_licence_error,
+)
+
+incorrect_mark_present_mark_unmark_same_id = (
+    608834,
+    {
+        "categoryIdsToMark": ["E"],
+        "categoryIdsToUnmark": ["E"],
+    },
+    "Tried to mark and unmark player as present for same categories:",
 )
 
 incorrect_admin_mark_present = [
-    (
-        incorrect_mark_present_missing_player_identifier_json_field,
-        incorrect_mark_present_missing_player_identifier_json_field_error,
-    ),
-    (
-        incorrect_mark_present_nonexisting_player,
-        incorrect_mark_present_nonexisting_player_error,
-    ),
-    (
-        incorrect_mark_present_mark_unmark_same_id,
-        incorrect_mark_present_mark_unmark_same_id_error,
-    ),
+    incorrect_mark_present_nonexisting_player,
+    incorrect_mark_present_mark_unmark_same_id,
 ]
 
 """
@@ -877,7 +804,7 @@ incorrect_admin_assign_all_already_assigned_error = (
 For api_admin_assign_one_bib
 """
 
-correct_admin_assign_one = {"licenceNo": 9311764}
+correct_admin_assign_one = 9311764
 correct_assign_one_response = {
     "bibNo": 3,
     "club": "BOURGETIN CTT",
@@ -895,29 +822,14 @@ incorrect_admin_assign_one_without_any_assigned_error = (
     "Cannot assign bib numbers manually before having assigned them in bulk"
 )
 
-incorrect_admin_assign_one_missing_player_identifier_json_field = {
-    "firstName": "Dpwsaob",
-}
-incorrect_admin_assign_one_missing_player_identifier_json_field_error = (
-    "Missing 'licenceNo' and ('firstName' or 'lastName') fields in json."
-)
-
-incorrect_admin_assign_one_already_assigned = {"licenceNo": 722370}
-incorrect_admin_assign_one_already_assigned_error = (
-    "This player already has a bib assigned."
+incorrect_admin_assign_one_already_assigned = (
+    722370,
+    "This player already has a bib assigned.",
+    HTTPStatus.CONFLICT,
 )
 
 incorrect_admin_assign_one = [
-    (
-        incorrect_admin_assign_one_missing_player_identifier_json_field,
-        incorrect_admin_assign_one_missing_player_identifier_json_field_error,
-        HTTPStatus.BAD_REQUEST,
-    ),
-    (
-        incorrect_admin_assign_one_already_assigned,
-        incorrect_admin_assign_one_already_assigned_error,
-        HTTPStatus.CONFLICT,
-    ),
+    incorrect_admin_assign_one_already_assigned,
 ]
 
 """
@@ -10717,27 +10629,80 @@ incorrect_add_player = [
 For api_get_player
 """
 
-correct_get_player_existing = {"licenceNo": 4526124}
-correct_get_player_existing_response = {
-    "bibNo": None,
-    "club": "USM OLIVET TENNIS DE TABLE",
-    "email": "nvzhltrsqr@mochsf.com",
-    "firstName": "Wihelbl",
-    "gender": "F",
-    "lastName": "EZWLKRWE",
-    "licenceNo": 4526124,
-    "nbPoints": 1149,
-    "paymentDiff": 0,
-    "phone": "+336919756238",
-    "registeredEntries": [
+correct_get_player_existing = (
+    4526124,
+    {
+        "bibNo": None,
+        "club": "USM OLIVET TENNIS DE TABLE",
+        "email": "nvzhltrsqr@mochsf.com",
+        "firstName": "Wihelbl",
+        "gender": "F",
+        "lastName": "EZWLKRWE",
+        "licenceNo": 4526124,
+        "nbPoints": 1149,
+        "paymentDiff": 0,
+        "phone": "+336919756238",
+        "registeredEntries": [
+            {
+                "categoryId": "B",
+                "color": "#000000",
+                "entryId": 59,
+                "licenceNo": 4526124,
+                "markedAsPaid": False,
+                "markedAsPresent": False,
+                "registrationTime": "2023-11-17T18:01:20",
+            },
+            {
+                "categoryId": "F",
+                "color": "#FF0000",
+                "entryId": 64,
+                "licenceNo": 4526124,
+                "markedAsPaid": False,
+                "markedAsPresent": False,
+                "registrationTime": "2023-11-25T21:56:50",
+            },
+        ],
+    },
+)
+
+correct_get_player_nonexisting = (
+    overall_incorrect_licence,
+    {"player": None, "registeredEntries": []},
+)
+
+correct_get_player = [
+    correct_get_player_existing,
+    correct_get_player_nonexisting,
+]
+
+
+incorrect_get_player = []
+
+"""
+For api_register_entries
+"""
+
+correct_registration = (
+    4526124,
+    {"categoryIds": ["1"]},
+    [
+        {
+            "categoryId": "1",
+            "color": "#0000FF",
+            "entryId": 353,
+            "licenceNo": 4526124,
+            "markedAsPaid": False,
+            "registrationTime": "2023-11-30T12:18:21",
+            "markedAsPresent": False,
+        },
         {
             "categoryId": "B",
             "color": "#000000",
             "entryId": 59,
             "licenceNo": 4526124,
             "markedAsPaid": False,
-            "markedAsPresent": False,
             "registrationTime": "2023-11-17T18:01:20",
+            "markedAsPresent": False,
         },
         {
             "categoryId": "F",
@@ -10745,175 +10710,98 @@ correct_get_player_existing_response = {
             "entryId": 64,
             "licenceNo": 4526124,
             "markedAsPaid": False,
-            "markedAsPresent": False,
             "registrationTime": "2023-11-25T21:56:50",
+            "markedAsPresent": False,
         },
     ],
-}
-
-correct_get_player_nonexisting = {"licenceNo": 555555}
-correct_get_player_nonexisting_response = {"player": None, "registeredEntries": []}
-
-correct_get_player = [
-    (correct_get_player_existing, correct_get_player_existing_response),
-    (correct_get_player_nonexisting, correct_get_player_nonexisting_response),
-]
-
-incorrect_get_player_missing_licence_no_json_field = {}
-incorrect_get_player_missing_licence_no_json_field_error = (
-    "json was missing 'licenceNo' field. Could not retrieve player info."
 )
 
-incorrect_get_player = [
-    (
-        incorrect_get_player_missing_licence_no_json_field,
-        incorrect_get_player_missing_licence_no_json_field_error,
-    ),
-]
-
-"""
-For api_register_entries
-"""
-
-correct_registration = {"licenceNo": 4526124, "categoryIds": ["1"]}
-correct_registration_response = [
+correct_registration_with_duplicates = (
+    4526124,
     {
-        "categoryId": "1",
-        "color": "#0000FF",
-        "entryId": 353,
-        "licenceNo": 4526124,
-        "markedAsPaid": False,
-        "registrationTime": "2023-11-30T12:18:21",
-        "markedAsPresent": False,
+        "categoryIds": ["1", "B", "F"],
     },
-    {
-        "categoryId": "B",
-        "color": "#000000",
-        "entryId": 59,
-        "licenceNo": 4526124,
-        "markedAsPaid": False,
-        "registrationTime": "2023-11-17T18:01:20",
-        "markedAsPresent": False,
-    },
-    {
-        "categoryId": "F",
-        "color": "#FF0000",
-        "entryId": 64,
-        "licenceNo": 4526124,
-        "markedAsPaid": False,
-        "registrationTime": "2023-11-25T21:56:50",
-        "markedAsPresent": False,
-    },
-]
-
-correct_registration_with_duplicates = {
-    "licenceNo": 4526124,
-    "categoryIds": ["1", "B", "F"],
-}
-correct_registration_with_duplicates_response = [
-    {
-        "categoryId": "1",
-        "color": "#0000FF",
-        "entryId": 353,
-        "licenceNo": 4526124,
-        "markedAsPaid": False,
-        "registrationTime": "2023-11-30T12:18:21",
-        "markedAsPresent": False,
-    },
-    {
-        "categoryId": "B",
-        "color": "#000000",
-        "entryId": 59,
-        "licenceNo": 4526124,
-        "markedAsPaid": False,
-        "registrationTime": "2023-11-17T18:01:20",
-        "markedAsPresent": False,
-    },
-    {
-        "categoryId": "F",
-        "color": "#FF0000",
-        "entryId": 64,
-        "licenceNo": 4526124,
-        "markedAsPaid": False,
-        "registrationTime": "2023-11-25T21:56:50",
-        "markedAsPresent": False,
-    },
-]
+    [
+        {
+            "categoryId": "1",
+            "color": "#0000FF",
+            "entryId": 353,
+            "licenceNo": 4526124,
+            "markedAsPaid": False,
+            "registrationTime": "2023-11-30T12:18:21",
+            "markedAsPresent": False,
+        },
+        {
+            "categoryId": "B",
+            "color": "#000000",
+            "entryId": 59,
+            "licenceNo": 4526124,
+            "markedAsPaid": False,
+            "registrationTime": "2023-11-17T18:01:20",
+            "markedAsPresent": False,
+        },
+        {
+            "categoryId": "F",
+            "color": "#FF0000",
+            "entryId": 64,
+            "licenceNo": 4526124,
+            "markedAsPaid": False,
+            "registrationTime": "2023-11-25T21:56:50",
+            "markedAsPresent": False,
+        },
+    ],
+)
 
 correct_register_entries = [
-    (correct_registration, correct_registration_response),
-    (
-        correct_registration_with_duplicates,
-        correct_registration_with_duplicates_response,
-    ),
+    correct_registration,
+    correct_registration_with_duplicates,
 ]
 
-incorrect_registration_color_violation = {"licenceNo": 7886249, "categoryIds": ["1"]}
-incorrect_registration_color_violation_error = (
-    "One or several potential entries violate color constraint."
+incorrect_registration_color_violation = (
+    7886249,
+    {"categoryIds": ["1"]},
+    "One or several potential entries violate color constraint.",
 )
 
-incorrect_registration_gender_points_violation = {
-    "licenceNo": 4526124,
-    "categoryIds": ["A"],
-}
-incorrect_registration_gender_points_violation_error = (
-    "Tried to register some entries violating either gender or "
+incorrect_registration_gender_points_violation = (
+    4526124,
+    {
+        "categoryIds": ["A"],
+    },
+    "Tried to register some entries violating either gender or ",
 )
 
-incorrect_registration_missing_player = {"licenceNo": 55555, "categoryIds": ["A"]}
-incorrect_registration_missing_player_error = "No player with licence number"
-
-incorrect_registrations_missing_licenceno_json_fields = {"categoryIds": ["A"]}
-incorrect_registrations_missing_licenceno_json_fields_error = (
-    "Missing either 'licenceNo' or 'categoryIds' field in json."
+incorrect_registration_missing_player = (
+    55555,
+    {"categoryIds": ["A"]},
+    "No player with licence number",
 )
 
-incorrect_registrations_missing_categoryids_json_fields = {"licenceNo": 4526124}
-incorrect_registrations_missing_categoryids_json_fields_error = (
-    "Missing either 'licenceNo' or 'categoryIds' field in json."
+incorrect_registrations_missing_categoryids_json_fields = (
+    4526124,
+    {},
+    "Missing 'categoryIds' field in json.",
 )
 
-incorrect_registration_empty_categories = {"licenceNo": 4526124, "categoryIds": []}
-incorrect_registration_empty_categories_error = (
-    "No categories to register entries in were sent."
+incorrect_registration_empty_categories = (
+    4526124,
+    {"categoryIds": []},
+    "No categories to register entries in were sent.",
 )
 
-incorrect_registration_nonexisting_categories = {
-    "licenceNo": 4526124,
-    "categoryIds": ["A", "a", "b"],
-}
-incorrect_registration_nonexisting_categories_error = (
-    "No categories with the following categoryIds"
+incorrect_registration_nonexisting_categories = (
+    4526124,
+    {
+        "categoryIds": ["A", "a", "b"],
+    },
+    "No categories with the following categoryIds",
 )
 
 incorrect_register_entries = [
-    (
-        incorrect_registration_color_violation,
-        incorrect_registration_color_violation_error,
-    ),
-    (
-        incorrect_registration_gender_points_violation,
-        incorrect_registration_gender_points_violation_error,
-    ),
-    (
-        incorrect_registration_missing_player,
-        incorrect_registration_missing_player_error,
-    ),
-    (
-        incorrect_registrations_missing_licenceno_json_fields,
-        incorrect_registrations_missing_licenceno_json_fields_error,
-    ),
-    (
-        incorrect_registrations_missing_categoryids_json_fields,
-        incorrect_registrations_missing_categoryids_json_fields_error,
-    ),
-    (
-        incorrect_registration_empty_categories,
-        incorrect_registration_empty_categories_error,
-    ),
-    (
-        incorrect_registration_nonexisting_categories,
-        incorrect_registration_nonexisting_categories_error,
-    ),
+    incorrect_registration_color_violation,
+    incorrect_registration_gender_points_violation,
+    incorrect_registration_missing_player,
+    incorrect_registrations_missing_categoryids_json_fields,
+    incorrect_registration_empty_categories,
+    incorrect_registration_nonexisting_categories,
 ]
