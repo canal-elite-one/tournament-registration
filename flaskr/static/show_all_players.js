@@ -11,7 +11,7 @@ const enToFr = {
     'phone': 'N° téléphone',
     'registeredEntries': 'Tableaux'
 }
-const FrToEn = {
+const frToEn = {
     'N° licence':'licenceNo',
     'Prénom':'firstName',
     'Nom de Famille':'lastName',
@@ -34,7 +34,7 @@ let sortedArray;
 let filteredArray;
 
 function putDataInTable(data, elementId) {
-    const columns = Object.getOwnPropertyNames(FrToEn);
+    const columns = Object.getOwnPropertyNames(frToEn);
     const table = document.createElement('table');
     table.id = "players_table";
     const body = document.createElement('tbody');
@@ -43,7 +43,7 @@ function putDataInTable(data, elementId) {
     columns.forEach(function(colName) {
         if (colName != 'Surplus de paiement') {
             let colCell = document.createElement('th');
-            colCell.setAttribute("onclick", "sortByColumn('" + FrToEn[colName] + "')");
+            colCell.setAttribute("onclick", "sortByColumn('" + frToEn[colName] + "')");
             colCell.appendChild(document.createTextNode(colName));
             head.appendChild(colCell);
         }
@@ -56,13 +56,9 @@ function putDataInTable(data, elementId) {
             if (colName != 'Surplus de paiement') {
                 let dataCell = document.createElement('td');
                 if (colName == 'Tableaux') {
-                    let entriesString = "";
-                    playerObject["registeredEntries"].forEach(function(entryObject) {
-                        entriesString += entryObject["categoryId"] + " ";
-                    });
-                    dataCell.appendChild(document.createTextNode(entriesString));
+                    dataCell.appendChild(document.createTextNode(playerObject["registeredEntries"].map((x) => x['categoryId']).toSorted().join(", ")));
                 } else {
-                    dataCell.appendChild(document.createTextNode(playerObject[FrToEn[colName]]));
+                    dataCell.appendChild(document.createTextNode(playerObject[frToEn[colName]]));
                 }
                 row.appendChild(dataCell);
             }
@@ -87,10 +83,8 @@ function sortByColumn(colName) {
     if (dontSort.includes(colName)) {
         return null;
     }
-    if (colName === null) {
 
-    }
-    currentSort["ascending"] = (colName == currentSort["colName"]) ? (!(currentSort["ascending"])):true;
+    currentSort["ascending"] = (colName == currentSort["colName"]) ? (!(currentSort["ascending"])) : true;
     currentSort["colName"] = colName;
     if (numericCols.includes(colName)) {
         sortedArray.sort(function(a, b){return a[colName] - b[colName]});
@@ -121,7 +115,7 @@ function filterData() {
     sortedArray.forEach(function(playerObject) {
         for (let x in searchCols) {
             colName = searchCols[x];
-            cellValue = ((numericCols.includes(colName)) ? playerObject[colName].toString():playerObject[colName]).toLowerCase();
+            cellValue = (numericCols.includes(colName) ? playerObject[colName].toString() : playerObject[colName]).toLowerCase();
             if (cellValue.startsWith(searchString)) {
                 filteredArray.push(playerObject);
                 break;
@@ -133,7 +127,7 @@ function filterData() {
 }
 
 
-fetch("http://localhost:5000/api/all_players")
+fetch("/api/all_players")
         .then(response => { return response.json(); })
             .then(dataJson => {
                 sortedArray=dataJson["players"];

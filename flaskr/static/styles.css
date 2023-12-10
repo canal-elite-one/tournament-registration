@@ -14,7 +14,7 @@ font-family: Tahoma,Verdana,Segoe,sans-serif;
 }
 
 tr:nth-child(even) {
-    background-color: #d1dada;
+    background-color: #cee1ff;
   }
 tr:hover {background-color: #D6EEEE;}
 
@@ -26,4 +26,9 @@ tr:hover {background-color: #D6EEEE;}
 
 .navbar-element {
   display: inline;
+}
+
+thead {
+  background-color: rgb(65, 64, 64);
+  color: white;
 }
