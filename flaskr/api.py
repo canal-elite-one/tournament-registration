@@ -5,7 +5,6 @@ from flaskr.db import (
     session,
     Category,
     Player,
-    player_from_licence,
     player_not_found_message,
     CategorySchema,
     PlayerSchema,
@@ -56,7 +55,7 @@ def api_admin_set_categories():
         session.commit()
         return (
             jsonify(
-                categories=schema.dump(
+                schema.dump(
                     session.scalars(
                         select(Category).order_by(Category.start_time),
                     ).all(),
@@ -109,18 +108,12 @@ def api_admin_make_payment(licence_no):
             HTTPStatus.BAD_REQUEST,
         )
 
-    player = player_from_licence(licence_no)
+    player = session.get(Player, licence_no)
     if player is None:
         return (
             jsonify(error=player_not_found_message(licence_no)),
             HTTPStatus.BAD_REQUEST,
         )
-
-    player_entries = session.execute(
-        select(Category.entry_fee, Category.category_id, Entry.marked_as_paid)
-        .join_from(Category, Entry)
-        .where(Entry.licence_no == player.licence_no),
-    )
 
     to_pay = set(request.json["categoryIds"])
     all_entries = {"amount": 0, "categoryIds": []}
@@ -129,21 +122,22 @@ def api_admin_make_payment(licence_no):
     left_to_settle = {"amount": 0, "categoryIds": []}
     duplicates = []
 
-    for entry_fee, category_id, paid in player_entries:
-        all_entries["amount"] += entry_fee
-        all_entries["categoryIds"].append(category_id)
-        if paid:
-            if category_id in to_pay:
-                duplicates.append(category_id)
-            settled_previously["amount"] += entry_fee
-            settled_previously["categoryIds"].append(category_id)
-        elif category_id in to_pay:
-            settled_now["amount"] += entry_fee
-            settled_now["categoryIds"].append(category_id)
-            to_pay.remove(category_id)
+    for entry in sorted(player.entries, key=lambda x: x.category.start_time):
+        cat = entry.category
+        all_entries["amount"] += cat.entry_fee
+        all_entries["categoryIds"].append(cat.category_id)
+        if entry.marked_as_paid:
+            if cat.category_id in to_pay:
+                duplicates.append(cat.category_id)
+            settled_previously["amount"] += cat.entry_fee
+            settled_previously["categoryIds"].append(cat.category_id)
+        elif cat.category_id in to_pay:
+            settled_now["amount"] += cat.entry_fee
+            settled_now["categoryIds"].append(cat.category_id)
+            to_pay.remove(cat.category_id)
         else:
-            left_to_settle["amount"] += entry_fee
-            left_to_settle["categoryIds"].append(category_id)
+            left_to_settle["amount"] += cat.entry_fee
+            left_to_settle["categoryIds"].append(cat.category_id)
 
     if duplicates:
         return (
@@ -179,7 +173,7 @@ def api_admin_make_payment(licence_no):
                 Entry.category_id == category_id,
             ),
         )
-        entry.paid = True
+        entry.marked_as_paid = True
     session.commit()
     recap = {
         "actualPaidNow": actual_paid_now,
@@ -202,22 +196,20 @@ def api_admin_delete_entries(licence_no):
         )
     category_ids = request.json["categoryIds"]
 
-    player = player_from_licence(licence_no)
+    player = session.get(Player, licence_no)
     if player is None:
         return (
             jsonify(error=player_not_found_message(licence_no)),
             HTTPStatus.BAD_REQUEST,
         )
 
-    if unregistered_categories := set(category_ids).difference(
-        session.scalars(
-            select(Entry.category_id).where(Entry.licence_no == licence_no),
-        ),
+    if unregistered_category_ids := set(category_ids).difference(
+        entry.category_id for entry in player.entries
     ):
         return (
             jsonify(
                 error=f"Tried to delete some entries which were not registered or "
-                f"even for nonexisting categories: {unregistered_categories}.",
+                f"even for nonexisting categories: {unregistered_category_ids}.",
             ),
             HTTPStatus.BAD_REQUEST,
         )
@@ -231,7 +223,7 @@ def api_admin_delete_entries(licence_no):
         )
         session.commit()
         e_schema = EntrySchema(many=True)
-        # TODO: (cf db.PlayerSchema) make it so that p_schema.dump(player
+        # TODO: (cf db.PlayerSchema) make it so that p_schema.dump(player)
         #  automatically generates all the data
         return (
             jsonify(
@@ -250,7 +242,7 @@ def api_admin_delete_entries(licence_no):
 
 @api_bp.route("/players/<int:licence_no>", methods=["DELETE"])
 def api_admin_delete_player(licence_no):
-    player = player_from_licence(licence_no)
+    player = session.get(Player, licence_no)
     if player is None:
         return (
             jsonify(error=player_not_found_message(licence_no)),
@@ -286,7 +278,7 @@ def api_admin_mark_present(licence_no):
     for entries which correspond to categories with a
     ``start_time`` of today .
     """
-    player = player_from_licence(licence_no)
+    player = session.get(Player, licence_no)
     if player is None:
         return (
             jsonify(error=player_not_found_message(licence_no)),
@@ -400,7 +392,7 @@ def api_admin_assign_all_bibs():
 
 @api_bp.route("/bibs/<int:licence_no>", methods=["PUT"])
 def api_admin_assign_one_bib(licence_no):
-    player = player_from_licence(licence_no)
+    player = session.get(Player, licence_no)
 
     if player is None:
         return (
@@ -459,7 +451,7 @@ def api_admin_get_players_by_category():
         query = select(Player).join(Entry).where(Entry.category_id == cat_id)
         if present_only:
             query = query.where(Entry.marked_as_present.is_(True))
-        result[cat_id] = schema.dump(session.scalars(query))
+        result[cat_id] = schema.dump(session.scalars(query).all())
 
     return jsonify(result), HTTPStatus.OK
 
@@ -480,15 +472,15 @@ def api_admin_get_all_players():
     else:
         query = select(Player)
 
-    return jsonify(players=schema.dump(session.scalars(query))), HTTPStatus.OK
+    return jsonify(players=schema.dump(session.scalars(query).all())), HTTPStatus.OK
 
 
 @api_bp.route("/categories", methods=["GET"])
 def api_get_categories():
     return (
         jsonify(
-            categories=CategorySchema(many=True).dump(
-                session.scalars(select(Category).order_by(Category.start_time)),
+            CategorySchema(many=True).dump(
+                session.scalars(select(Category).order_by(Category.start_time)).all(),
             ),
         ),
         HTTPStatus.OK,
@@ -532,7 +524,7 @@ def api_add_player():
 
 @api_bp.route("/players/<int:licence_no>", methods=["GET"])
 def api_get_player(licence_no):
-    player = player_from_licence(licence_no)
+    player = session.get(Player, licence_no)
     if player is None:
         return jsonify(player=None, registeredEntries=[]), HTTPStatus.OK
 
@@ -561,7 +553,7 @@ def api_register_entries(licence_no):
             HTTPStatus.BAD_REQUEST,
         )
 
-    player = player_from_licence(licence_no)
+    player = session.get(Player, licence_no)
     if player is None:
         return (
             jsonify(

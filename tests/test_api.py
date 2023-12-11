@@ -9,8 +9,7 @@ class TestAPISetCategories(BaseTest):
     def test_correct_admin_set_categories(self, client, reset_db, payload, response):
         r = client.post("/api/categories", json=payload)
         assert r.status_code == HTTPStatus.CREATED, r.json
-        assert "categories" in r.json
-        assert r.json["categories"] == response, r.json
+        assert r.json == response, r.json
 
     @pytest.mark.parametrize("payload,error", td.incorrect_admin_set_categories)
     def test_incorrect_admin_set_categories(self, client, reset_db, payload, error):
@@ -243,7 +242,7 @@ class TestAPIGetCategories(BaseTest):
         r = client.get("/api/categories")
         assert r.status_code == HTTPStatus.OK, r.json
         assert "categories" in r.json, r.json
-        assert r.json["categories"] == td.correct_get_categories_response, r.json
+        assert r.json == td.correct_get_categories_response, r.json
 
 
 class TestAPIAddPlayer(BaseTest):

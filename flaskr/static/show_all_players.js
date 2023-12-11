@@ -56,7 +56,7 @@ function putDataInTable(data, elementId) {
             if (colName != 'Surplus de paiement') {
                 let dataCell = document.createElement('td');
                 if (colName == 'Tableaux') {
-                    dataCell.appendChild(document.createTextNode(playerObject["registeredEntries"].map((x) => x['categoryId']).toSorted().join(", ")));
+                    dataCell.appendChild(document.createTextNode(playerObject["registeredEntries"].map((x) => x['categoryId']).join(", ")));
                 } else {
                     dataCell.appendChild(document.createTextNode(playerObject[frToEn[colName]]));
                 }

@@ -2,8 +2,8 @@ import os
 import subprocess
 from datetime import datetime
 
-from sqlalchemy import create_engine, Table, func, select
-from sqlalchemy.orm import DeclarativeBase, Session, Mapped
+from sqlalchemy import create_engine, Table
+from sqlalchemy.orm import DeclarativeBase, Session, Mapped, relationship
 from marshmallow import Schema, fields, post_load, post_dump
 
 db_url = os.environ.get("DATABASE_URL")
@@ -40,6 +40,8 @@ class Category(Base):
     entry_fee: Mapped[int]
     category_id: Mapped[str]
 
+    entries = relationship("Entry", back_populates="category")
+
     __table__ = Table("categories", Base.metadata, autoload_with=engine)
 
     def __repr__(self):
@@ -51,15 +53,13 @@ class Player(Base):
     licence_no: Mapped[int]
     bib_no: Mapped[int]
 
+    entries = relationship("Entry", back_populates="player")
+
     __table__ = Table("players", Base.metadata, autoload_with=engine)
 
     def __repr__(self):
         schema = PlayerSchema()
         return str(schema.dump(self))
-
-
-def player_from_licence(licence_no):
-    return session.scalar(select(Player).filter_by(licence_no=licence_no))
 
 
 def player_not_found_message(licence_no):
@@ -72,6 +72,9 @@ class Entry(Base):
     category_id: Mapped[str]
     licence_no: Mapped[int]
     marked_as_paid: Mapped[bool]
+
+    player = relationship("Player", back_populates="entries")
+    category = relationship("Category", back_populates="entries")
 
     __table__ = Table("entries", Base.metadata, autoload_with=engine)
 
@@ -99,13 +102,15 @@ class CategorySchema(Schema):
     def make_field(self, data, **kwargs):
         return Category(**data)
 
-    @post_dump
-    def add_entry_count(self, data, **kwargs):
-        data["entryCount"] = session.scalar(
-            select(func.count(Entry.entry_id)).where(
-                Entry.category_id == data["categoryId"],
-            ),
-        )
+    @post_dump(pass_original=True)
+    def add_entry_count(self, data, original, **kwargs):
+        data["entryCount"] = len(original.entries)
+        return data
+
+    @post_dump(pass_many=True)
+    def envelop(self, data, many, **kwargs):
+        if many:
+            return {"categories": data}
         return data
 
 
@@ -126,22 +131,19 @@ class PlayerSchema(Schema):
     def make_field(self, data, **kwargs):
         return Player(**data)
 
-    @post_dump
-    def add_entries_info(self, data, **kwargs):
+    @post_dump(pass_original=True)
+    def add_entries_info(self, data, original, **kwargs):
         if self.context.get("with_entries_info", False):
             data["registeredEntries"] = EntrySchema(many=True).dump(
-                session.scalars(
-                    select(Entry).where(Entry.licence_no == data["licenceNo"]),
-                ).all(),
+                sorted(original.entries, key=lambda x: x.category.start_time),
             )
         return data
 
 
 class EntrySchema(Schema):
-    entry_id = fields.Int(data_key="entryId")
     category_id = fields.Str(data_key="categoryId")
     licence_no = fields.Int(data_key="licenceNo")
-    color = fields.Str()
+    color = fields.Str(load_only=True)
     registration_time = fields.DateTime(data_key="registrationTime")
     marked_as_paid = fields.Bool(data_key="markedAsPaid")
     marked_as_present = fields.Bool(data_key="markedAsPresent")
