@@ -38,9 +38,9 @@ CREATE TABLE entries (
     PRIMARY KEY (category_id, licence_no),
     UNIQUE (color, licence_no),
     FOREIGN KEY (category_id)
-    REFERENCES categories (category_id),
+    REFERENCES categories (category_id) ON DELETE RESTRICT,
     FOREIGN KEY (licence_no)
-    REFERENCES players (licence_no)
+    REFERENCES players (licence_no) ON DELETE CASCADE
 );
 
 -- migrate:down

@@ -72,8 +72,7 @@ class TestAPIDeleteEntries(BaseTest):
     ):
         r = client.delete(f"/api/entries/{licence_no}", json=payload)
         assert r.status_code == HTTPStatus.OK, r.json
-        assert "remainingEntries" in r.json, r.json
-        assert r.json["remainingEntries"] == response, r.json
+        assert r.json == response, r.json
 
     @pytest.mark.parametrize(
         "licence_no,payload,error",
@@ -295,8 +294,8 @@ class TestRegisterEntries(BaseTest):
     ):
         r = client.post(f"/api/entries/{licence_no}", json=payload)
         assert r.status_code == HTTPStatus.CREATED, r.json
-        assert "entries" in r.json, r.json
-        for entry1, entry2 in zip(r.json["entries"], response):
+        assert "registeredEntries" in r.json, r.json
+        for entry1, entry2 in zip(r.json["registeredEntries"], response):
             for key in entry1:
                 assert entry1[key] == entry2[key] or (
                     key == "registrationTime" and entry1["categoryId"] == "1"

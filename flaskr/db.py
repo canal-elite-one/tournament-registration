@@ -53,7 +53,12 @@ class Player(Base):
     licence_no: Mapped[int]
     bib_no: Mapped[int]
 
-    entries = relationship("Entry", back_populates="player")
+    entries = relationship(
+        "Entry",
+        back_populates="player",
+        cascade="all, delete",
+        passive_deletes=True,
+    )
 
     __table__ = Table("players", Base.metadata, autoload_with=engine)
 

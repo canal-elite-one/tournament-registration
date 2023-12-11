@@ -389,20 +389,48 @@ incorrect_admin_make_payment = [
 For api_admin_delete_entries
 """
 
-correct_delete_entries_all = (722370, {"categoryIds": ["A", "5", "7"]}, [])
+correct_delete_entries_all = (
+    722370,
+    {"categoryIds": ["A", "5", "7"]},
+    {
+        "bibNo": None,
+        "club": "LE MANS SARTHE TENNIS DE TABLE",
+        "email": "gzzduckcnh@kmgdxv.com",
+        "firstName": "Dpwsaob",
+        "gender": "F",
+        "lastName": "ORHCWRNU",
+        "licenceNo": 722370,
+        "nbPoints": 689,
+        "paymentDiff": 0,
+        "phone": "+336769763133",
+        "registeredEntries": [],
+    },
+)
 
 correct_delete_entries_partial = (
     722370,
     {"categoryIds": ["A", "5"]},
-    [
-        {
-            "categoryId": "7",
-            "licenceNo": 722370,
-            "markedAsPaid": False,
-            "registrationTime": "2023-09-17T05:10:51",
-            "markedAsPresent": False,
-        },
-    ],
+    {
+        "bibNo": None,
+        "club": "LE MANS SARTHE TENNIS DE TABLE",
+        "email": "gzzduckcnh@kmgdxv.com",
+        "firstName": "Dpwsaob",
+        "gender": "F",
+        "lastName": "ORHCWRNU",
+        "licenceNo": 722370,
+        "nbPoints": 689,
+        "paymentDiff": 0,
+        "phone": "+336769763133",
+        "registeredEntries": [
+            {
+                "categoryId": "7",
+                "licenceNo": 722370,
+                "markedAsPaid": False,
+                "markedAsPresent": False,
+                "registrationTime": "2023-09-17T05:10:51",
+            },
+        ],
+    },
 )
 
 correct_admin_delete_entries = [
@@ -455,7 +483,17 @@ correct_mark_present_default = (
     4526124,
     {},
     {
-        "allEntries": [
+        "bibNo": None,
+        "club": "USM OLIVET TENNIS DE TABLE",
+        "email": "nvzhltrsqr@mochsf.com",
+        "firstName": "Wihelbl",
+        "gender": "F",
+        "lastName": "EZWLKRWE",
+        "licenceNo": 4526124,
+        "nbPoints": 1149,
+        "paymentDiff": 0,
+        "phone": "+336919756238",
+        "registeredEntries": [
             {
                 "categoryId": "B",
                 "licenceNo": 4526124,
@@ -471,8 +509,6 @@ correct_mark_present_default = (
                 "registrationTime": "2023-11-25T21:56:50",
             },
         ],
-        "marked": [],
-        "unmarked": [],
     },
 )
 
@@ -480,7 +516,17 @@ correct_mark_present_nondefault = (
     4526124,
     {"categoryIdsToMark": ["B"]},
     {
-        "allEntries": [
+        "bibNo": None,
+        "club": "USM OLIVET TENNIS DE TABLE",
+        "email": "nvzhltrsqr@mochsf.com",
+        "firstName": "Wihelbl",
+        "gender": "F",
+        "lastName": "EZWLKRWE",
+        "licenceNo": 4526124,
+        "nbPoints": 1149,
+        "paymentDiff": 0,
+        "phone": "+336919756238",
+        "registeredEntries": [
             {
                 "categoryId": "B",
                 "licenceNo": 4526124,
@@ -496,8 +542,6 @@ correct_mark_present_nondefault = (
                 "registrationTime": "2023-11-25T21:56:50",
             },
         ],
-        "marked": ["B"],
-        "unmarked": [],
     },
 )
 
@@ -505,14 +549,17 @@ correct_unmark_present = (
     608834,
     {"categoryIdsToUnmark": ["E"]},
     {
-        "allEntries": [
-            {
-                "categoryId": "3",
-                "licenceNo": 608834,
-                "markedAsPaid": False,
-                "markedAsPresent": False,
-                "registrationTime": "2023-03-20T00:24:12",
-            },
+        "bibNo": None,
+        "club": "U S ETREPAGNY T T",
+        "email": "wihnpztoim@tjbnck.com",
+        "firstName": "Nxovesf",
+        "gender": "F",
+        "lastName": "GZLDPNEH",
+        "licenceNo": 608834,
+        "nbPoints": 1721,
+        "paymentDiff": 0,
+        "phone": "+336044431914",
+        "registeredEntries": [
             {
                 "categoryId": "E",
                 "licenceNo": 608834,
@@ -527,9 +574,14 @@ correct_unmark_present = (
                 "markedAsPresent": False,
                 "registrationTime": "2023-08-23T06:56:51",
             },
+            {
+                "categoryId": "3",
+                "licenceNo": 608834,
+                "markedAsPaid": False,
+                "markedAsPresent": False,
+                "registrationTime": "2023-03-20T00:24:12",
+            },
         ],
-        "marked": [],
-        "unmarked": ["E"],
     },
 )
 
@@ -540,14 +592,17 @@ correct_mark_unmark_present = (
         "categoryIdsToUnmark": ["E"],
     },
     {
-        "allEntries": [
-            {
-                "categoryId": "3",
-                "licenceNo": 608834,
-                "markedAsPaid": False,
-                "markedAsPresent": True,
-                "registrationTime": "2023-03-20T00:24:12",
-            },
+        "bibNo": None,
+        "club": "U S ETREPAGNY T T",
+        "email": "wihnpztoim@tjbnck.com",
+        "firstName": "Nxovesf",
+        "gender": "F",
+        "lastName": "GZLDPNEH",
+        "licenceNo": 608834,
+        "nbPoints": 1721,
+        "paymentDiff": 0,
+        "phone": "+336044431914",
+        "registeredEntries": [
             {
                 "categoryId": "E",
                 "licenceNo": 608834,
@@ -562,9 +617,14 @@ correct_mark_unmark_present = (
                 "markedAsPresent": False,
                 "registrationTime": "2023-08-23T06:56:51",
             },
+            {
+                "categoryId": "3",
+                "licenceNo": 608834,
+                "markedAsPaid": False,
+                "markedAsPresent": True,
+                "registrationTime": "2023-03-20T00:24:12",
+            },
         ],
-        "marked": ["3"],
-        "unmarked": ["E"],
     },
 )
 
@@ -574,14 +634,17 @@ correct_mark_present_idempotent = (
         "categoryIdsToMark": ["3", "E"],
     },
     {
-        "allEntries": [
-            {
-                "categoryId": "3",
-                "licenceNo": 608834,
-                "markedAsPaid": False,
-                "markedAsPresent": True,
-                "registrationTime": "2023-03-20T00:24:12",
-            },
+        "bibNo": None,
+        "club": "U S ETREPAGNY T T",
+        "email": "wihnpztoim@tjbnck.com",
+        "firstName": "Nxovesf",
+        "gender": "F",
+        "lastName": "GZLDPNEH",
+        "licenceNo": 608834,
+        "nbPoints": 1721,
+        "paymentDiff": 0,
+        "phone": "+336044431914",
+        "registeredEntries": [
             {
                 "categoryId": "E",
                 "licenceNo": 608834,
@@ -596,9 +659,14 @@ correct_mark_present_idempotent = (
                 "markedAsPresent": False,
                 "registrationTime": "2023-08-23T06:56:51",
             },
+            {
+                "categoryId": "3",
+                "licenceNo": 608834,
+                "markedAsPaid": False,
+                "markedAsPresent": True,
+                "registrationTime": "2023-03-20T00:24:12",
+            },
         ],
-        "marked": ["3"],
-        "unmarked": [],
     },
 )
 
@@ -1345,15 +1413,6 @@ correct_registration = (
     {"categoryIds": ["1"]},
     [
         {
-            "categoryId": "1",
-            "color": "#0000FF",
-            "entryId": 353,
-            "licenceNo": 4526124,
-            "markedAsPaid": False,
-            "registrationTime": "2023-11-30T12:18:21",
-            "markedAsPresent": False,
-        },
-        {
             "categoryId": "B",
             "color": "#000000",
             "entryId": 59,
@@ -1369,6 +1428,15 @@ correct_registration = (
             "licenceNo": 4526124,
             "markedAsPaid": False,
             "registrationTime": "2023-11-25T21:56:50",
+            "markedAsPresent": False,
+        },
+        {
+            "categoryId": "1",
+            "color": "#0000FF",
+            "entryId": 353,
+            "licenceNo": 4526124,
+            "markedAsPaid": False,
+            "registrationTime": "2023-11-30T12:18:21",
             "markedAsPresent": False,
         },
     ],
@@ -1381,15 +1449,6 @@ correct_registration_with_duplicates = (
     },
     [
         {
-            "categoryId": "1",
-            "color": "#0000FF",
-            "entryId": 353,
-            "licenceNo": 4526124,
-            "markedAsPaid": False,
-            "registrationTime": "2023-11-30T12:18:21",
-            "markedAsPresent": False,
-        },
-        {
             "categoryId": "B",
             "color": "#000000",
             "entryId": 59,
@@ -1405,6 +1464,15 @@ correct_registration_with_duplicates = (
             "licenceNo": 4526124,
             "markedAsPaid": False,
             "registrationTime": "2023-11-25T21:56:50",
+            "markedAsPresent": False,
+        },
+        {
+            "categoryId": "1",
+            "color": "#0000FF",
+            "entryId": 353,
+            "licenceNo": 4526124,
+            "markedAsPaid": False,
+            "registrationTime": "2023-11-30T12:18:21",
             "markedAsPresent": False,
         },
     ],
