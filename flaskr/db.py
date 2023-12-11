@@ -1,7 +1,9 @@
 import os
 import subprocess
+from datetime import datetime
+
 from sqlalchemy import create_engine, Table, func, select
-from sqlalchemy.orm import DeclarativeBase, Session
+from sqlalchemy.orm import DeclarativeBase, Session, Mapped
 from marshmallow import Schema, fields, post_load, post_dump
 
 db_url = os.environ.get("DATABASE_URL")
@@ -34,6 +36,10 @@ class Base(DeclarativeBase):
 
 
 class Category(Base):
+    start_time: Mapped[datetime]
+    entry_fee: Mapped[int]
+    category_id: Mapped[str]
+
     __table__ = Table("categories", Base.metadata, autoload_with=engine)
 
     def __repr__(self):
@@ -42,6 +48,9 @@ class Category(Base):
 
 
 class Player(Base):
+    licence_no: Mapped[int]
+    bib_no: Mapped[int]
+
     __table__ = Table("players", Base.metadata, autoload_with=engine)
 
     def __repr__(self):
@@ -58,6 +67,12 @@ def player_not_found_message(licence_no):
 
 
 class Entry(Base):
+    entry_id: Mapped[int]
+    marked_as_present: Mapped[bool]
+    category_id: Mapped[str]
+    licence_no: Mapped[int]
+    marked_as_paid: Mapped[bool]
+
     __table__ = Table("entries", Base.metadata, autoload_with=engine)
 
     def __repr__(self):
