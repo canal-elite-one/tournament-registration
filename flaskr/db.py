@@ -2,7 +2,7 @@ import os
 import subprocess
 from datetime import datetime
 
-from sqlalchemy import create_engine, Table
+from sqlalchemy import create_engine, Table, select, func
 from sqlalchemy.orm import DeclarativeBase, Session, Mapped, relationship
 from marshmallow import Schema, fields, post_load, post_dump, validate
 
@@ -31,14 +31,41 @@ engine = create_engine(db_url)
 session = Session(engine)
 
 
+class AppWideInfo:
+    def __init__(self):
+        self.registration_cutoff_dt = None
+
+    def registration_cutoff(self):
+        if self.registration_cutoff_dt is None:
+            tournament_start = session.scalar(select(func.min(Category.start_time)))
+            if tournament_start is None:
+                raise Exception(
+                    "Categories are not set, cannot query registration cutoff time",
+                )
+            self.registration_cutoff_dt = tournament_start.replace(
+                hour=0,
+                minute=0,
+                second=0,
+                microsecond=0,
+            )
+        return self.registration_cutoff_dt
+
+    def has_registration_ended(self):
+        return datetime.now() >= self.registration_cutoff()
+
+
+app_info = AppWideInfo()
+
+
 class Base(DeclarativeBase):
     pass
 
 
 class Category(Base):
     start_time: Mapped[datetime]
-    entry_fee: Mapped[int]
+    base_registration_fee: Mapped[int]
     category_id: Mapped[str]
+    late_registration_fee: Mapped[int]
 
     entries = relationship("Entry", back_populates="category")
 
@@ -86,6 +113,7 @@ class Entry(Base):
     category_id: Mapped[str]
     licence_no: Mapped[int]
     marked_as_paid: Mapped[bool]
+    registration_time: Mapped[datetime]
 
     player = relationship("Player", back_populates="entries")
     category = relationship("Category", back_populates="entries")
@@ -97,7 +125,10 @@ class Entry(Base):
         return str(schema.dump(self))
 
     def fee(self):
-        return self.category.entry_fee
+        result = self.category.base_registration_fee
+        if self.registration_time > app_info.registration_cutoff():
+            result += self.category.late_registration_fee
+        return result
 
 
 class CategorySchema(Schema):
@@ -111,7 +142,16 @@ class CategorySchema(Schema):
     max_points = fields.Int(data_key="maxPoints")
     start_time = fields.DateTime(data_key="startTime", allow_none=False, required=True)
     women_only = fields.Bool(data_key="womenOnly")
-    entry_fee = fields.Int(data_key="entryFee", allow_none=False, required=True)
+    base_registration_fee = fields.Int(
+        data_key="baseRegistrationFee",
+        allow_none=False,
+        required=True,
+    )
+    late_registration_fee = fields.Int(
+        data_key="lateRegistrationFee",
+        allow_none=False,
+        required=True,
+    )
     reward_first = fields.Int(data_key="rewardFirst", allow_none=False, required=True)
     reward_second = fields.Int(data_key="rewardSecond", allow_none=False, required=True)
     reward_semi = fields.Int(data_key="rewardSemi", allow_none=False, required=True)
@@ -164,6 +204,7 @@ class PlayerSchema(Schema):
             data["registeredEntries"] = EntrySchema(many=True).dump(
                 sorted(original.entries, key=lambda x: x.category.start_time),
             )
+            data["currentRequiredPayment"] = original.current_required_payment()
         return data
 
 
@@ -178,3 +219,8 @@ class EntrySchema(Schema):
     @post_load
     def make_field(self, data, **kwargs):
         return Entry(**data)
+
+    @post_dump(pass_original=True)
+    def add_entry_fee(self, data, original, **kwargs):
+        data["entryFee"] = original.fee()
+        return data

@@ -1,5 +1,4 @@
 from http import HTTPStatus
-from marshmallow import ValidationError
 from flask import Blueprint, request, jsonify, Response
 from flaskr.db import (
     session,
@@ -9,6 +8,7 @@ from flaskr.db import (
     CategorySchema,
     PlayerSchema,
     Entry,
+    app_info,
 )
 from flaskr.api_input_schemas import MakePaymentSchema, CategoryIdsSchema
 from sqlalchemy import delete, select, text, func, update, distinct
@@ -29,29 +29,22 @@ def api_admin_set_categories():
     if "categories" not in request.json:
         return (
             jsonify(
-                error="json was missing 'categories' field. Categories were not set",
+                error="json was missing 'categories' field. Categories were not set.",
             ),
             HTTPStatus.BAD_REQUEST,
         )
 
     c_schema = CategorySchema(many=True)
-    try:
-        categories = c_schema.load(request.json["categories"])
-    except ValidationError as e:
-        return (
-            jsonify(
-                error=f"Some category data was missing or wrongly formatted. "
-                f"Categories were not set. {e}",
-            ),
-            HTTPStatus.BAD_REQUEST,
-        )
+    if error := c_schema.validate(request.json["categories"]):
+        return jsonify(error=error), HTTPStatus.BAD_REQUEST
 
     session.execute(delete(Category))
 
     try:
-        for category in categories:
+        for category in c_schema.load(request.json["categories"]):
             session.add(category)
         session.commit()
+        app_info.registration_cutoff()
         return (
             jsonify(
                 c_schema.dump(
@@ -62,12 +55,12 @@ def api_admin_set_categories():
             ),
             HTTPStatus.CREATED,
         )
-    except DBAPIError as e:
+    except DBAPIError:
         session.rollback()
         return (
             jsonify(
-                error=f"At least two categories have the same name. Categories "
-                f"were not set. {e}",
+                error="At least two categories have the same name. Categories "
+                "were not set.",
             ),
             HTTPStatus.BAD_REQUEST,
         )

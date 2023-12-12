@@ -15,8 +15,7 @@ class TestAPISetCategories(BaseTest):
     def test_incorrect_admin_set_categories(self, client, reset_db, payload, error):
         r = client.post("/api/categories", json=payload)
         assert r.status_code == HTTPStatus.BAD_REQUEST, r.json
-        assert "error" in r.json, r.json
-        assert error in r.json["error"], r.json
+        assert r.json == error, r.json
 
 
 class TestAPIMakePayment(BaseTest):
@@ -284,10 +283,15 @@ class TestRegisterEntries(BaseTest):
         r = client.post(f"/api/entries/{licence_no}", json=payload)
         assert r.status_code == HTTPStatus.CREATED, r.json
         assert "registeredEntries" in r.json, r.json
+        for entry1, entry2 in zip(response, r.json["registeredEntries"]):
+            for key in entry1:
+                assert entry1[key] == entry2[key] or (
+                    key == "registrationTime" and entry2["categoryId"] == "1"
+                ), r.json
         for entry1, entry2 in zip(r.json["registeredEntries"], response):
             for key in entry1:
                 assert entry1[key] == entry2[key] or (
-                    key == "registrationTime" and entry1["categoryId"] == "1"
+                    key == "registrationTime" and entry2["categoryId"] == "1"
                 ), r.json
 
     @pytest.mark.parametrize("licence_no,payload,error", td.incorrect_register_entries)

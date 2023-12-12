@@ -10,237 +10,248 @@ overall_incorrect_licence = 555555
 For api_admin_set_categories
 """
 
-correct_categories = {
-    "categories": [
-        {
-            "categoryId": "a",
-            "color": "#FF0000",
-            "maxPoints": 1500,
-            "startTime": datetime(2023, 12, 20, 10, 00, 00).strftime(
-                "%Y-%m-%dT%H:%M:%S",
-            ),
-            "entryFee": 10,
-            "rewardFirst": 200,
-            "rewardSecond": 100,
-            "rewardSemi": 50,
-            "maxPlayers": 40,
-        },
-        {
-            "categoryId": "b",
-            "color": "#FFFF00",
-            "minPoints": 800,
-            "startTime": datetime(2023, 12, 20, 10, 00, 00).strftime(
-                "%Y-%m-%dT%H:%M:%S",
-            ),
-            "entryFee": 20,
-            "rewardFirst": 200,
-            "rewardSecond": 100,
-            "rewardSemi": 50,
-            "maxPlayers": 40,
-        },
-        {
-            "categoryId": "c",
-            "color": "#FFFFFF",
-            "minPoints": 800,
-            "maxPoints": 2000,
-            "startTime": datetime(2023, 12, 20, 10, 00, 00).strftime(
-                "%Y-%m-%dT%H:%M:%S",
-            ),
-            "womenOnly": True,
-            "entryFee": 20,
-            "rewardFirst": 200,
-            "rewardSecond": 100,
-            "rewardSemi": 50,
-            "maxPlayers": 40,
-            "overbookingPercentage": 10,
-        },
-        {
-            "categoryId": "d",
-            "maxPoints": 1500,
-            "startTime": datetime(2023, 12, 20, 10, 00, 00).strftime(
-                "%Y-%m-%dT%H:%M:%S",
-            ),
-            "entryFee": 10,
-            "rewardFirst": 200,
-            "rewardSecond": 100,
-            "rewardSemi": 50,
-            "maxPlayers": 40,
-        },
-    ],
-}
-
-correct_categories_response = {
-    "categories": [
-        {
-            "alternateName": None,
-            "categoryId": "a",
-            "color": "#FF0000",
-            "entryCount": 0,
-            "entryFee": 10,
-            "maxPlayers": 40,
-            "maxPoints": 1500,
-            "minPoints": 0,
-            "overbookingPercentage": 0,
-            "rewardFirst": 200,
-            "rewardQuarter": None,
-            "rewardSecond": 100,
-            "rewardSemi": 50,
-            "startTime": "2023-12-20T10:00:00",
-            "womenOnly": False,
-        },
-        {
-            "alternateName": None,
-            "categoryId": "b",
-            "color": "#FFFF00",
-            "entryCount": 0,
-            "entryFee": 20,
-            "maxPlayers": 40,
-            "maxPoints": 4000,
-            "minPoints": 800,
-            "overbookingPercentage": 0,
-            "rewardFirst": 200,
-            "rewardQuarter": None,
-            "rewardSecond": 100,
-            "rewardSemi": 50,
-            "startTime": "2023-12-20T10:00:00",
-            "womenOnly": False,
-        },
-        {
-            "alternateName": None,
-            "categoryId": "c",
-            "color": "#FFFFFF",
-            "entryCount": 0,
-            "entryFee": 20,
-            "maxPlayers": 40,
-            "maxPoints": 2000,
-            "minPoints": 800,
-            "overbookingPercentage": 10,
-            "rewardFirst": 200,
-            "rewardQuarter": None,
-            "rewardSecond": 100,
-            "rewardSemi": 50,
-            "startTime": "2023-12-20T10:00:00",
-            "womenOnly": True,
-        },
-        {
-            "alternateName": None,
-            "categoryId": "d",
-            "color": None,
-            "entryCount": 0,
-            "entryFee": 10,
-            "maxPlayers": 40,
-            "maxPoints": 1500,
-            "minPoints": 0,
-            "overbookingPercentage": 0,
-            "rewardFirst": 200,
-            "rewardQuarter": None,
-            "rewardSecond": 100,
-            "rewardSemi": 50,
-            "startTime": "2023-12-20T10:00:00",
-            "womenOnly": False,
-        },
-    ],
-}
-
-correct_admin_set_categories = [(correct_categories, correct_categories_response)]
-
-incorrect_categories_missing_categories_field = {}
-incorrect_categories_missing_categories_field_error = (
-    "json was missing 'categories' field. Categories were not set"
+correct_categories = (
+    {
+        "categories": [
+            {
+                "categoryId": "a",
+                "color": "#FF0000",
+                "maxPoints": 1500,
+                "startTime": datetime(2023, 12, 20, 10, 00, 00).strftime(
+                    "%Y-%m-%dT%H:%M:%S",
+                ),
+                "baseRegistrationFee": 10,
+                "lateRegistrationFee": 2,
+                "rewardFirst": 200,
+                "rewardSecond": 100,
+                "rewardSemi": 50,
+                "maxPlayers": 40,
+            },
+            {
+                "categoryId": "b",
+                "color": "#FFFF00",
+                "minPoints": 800,
+                "startTime": datetime(2023, 12, 20, 10, 00, 00).strftime(
+                    "%Y-%m-%dT%H:%M:%S",
+                ),
+                "baseRegistrationFee": 20,
+                "lateRegistrationFee": 4,
+                "rewardFirst": 200,
+                "rewardSecond": 100,
+                "rewardSemi": 50,
+                "maxPlayers": 40,
+            },
+            {
+                "categoryId": "c",
+                "color": "#FFFFFF",
+                "minPoints": 800,
+                "maxPoints": 2000,
+                "startTime": datetime(2023, 12, 20, 10, 00, 00).strftime(
+                    "%Y-%m-%dT%H:%M:%S",
+                ),
+                "womenOnly": True,
+                "baseRegistrationFee": 20,
+                "lateRegistrationFee": 4,
+                "rewardFirst": 200,
+                "rewardSecond": 100,
+                "rewardSemi": 50,
+                "maxPlayers": 40,
+                "overbookingPercentage": 10,
+            },
+            {
+                "categoryId": "d",
+                "maxPoints": 1500,
+                "startTime": datetime(2023, 12, 20, 10, 00, 00).strftime(
+                    "%Y-%m-%dT%H:%M:%S",
+                ),
+                "baseRegistrationFee": 10,
+                "lateRegistrationFee": 2,
+                "rewardFirst": 200,
+                "rewardSecond": 100,
+                "rewardSemi": 50,
+                "maxPlayers": 40,
+            },
+        ],
+    },
+    {
+        "categories": [
+            {
+                "alternateName": None,
+                "categoryId": "a",
+                "color": "#FF0000",
+                "entryCount": 0,
+                "baseRegistrationFee": 10,
+                "lateRegistrationFee": 2,
+                "maxPlayers": 40,
+                "maxPoints": 1500,
+                "minPoints": 0,
+                "overbookingPercentage": 0,
+                "rewardFirst": 200,
+                "rewardQuarter": None,
+                "rewardSecond": 100,
+                "rewardSemi": 50,
+                "startTime": "2023-12-20T10:00:00",
+                "womenOnly": False,
+            },
+            {
+                "alternateName": None,
+                "categoryId": "b",
+                "color": "#FFFF00",
+                "entryCount": 0,
+                "baseRegistrationFee": 20,
+                "lateRegistrationFee": 4,
+                "maxPlayers": 40,
+                "maxPoints": 4000,
+                "minPoints": 800,
+                "overbookingPercentage": 0,
+                "rewardFirst": 200,
+                "rewardQuarter": None,
+                "rewardSecond": 100,
+                "rewardSemi": 50,
+                "startTime": "2023-12-20T10:00:00",
+                "womenOnly": False,
+            },
+            {
+                "alternateName": None,
+                "categoryId": "c",
+                "color": "#FFFFFF",
+                "entryCount": 0,
+                "baseRegistrationFee": 20,
+                "lateRegistrationFee": 4,
+                "maxPlayers": 40,
+                "maxPoints": 2000,
+                "minPoints": 800,
+                "overbookingPercentage": 10,
+                "rewardFirst": 200,
+                "rewardQuarter": None,
+                "rewardSecond": 100,
+                "rewardSemi": 50,
+                "startTime": "2023-12-20T10:00:00",
+                "womenOnly": True,
+            },
+            {
+                "alternateName": None,
+                "categoryId": "d",
+                "color": None,
+                "entryCount": 0,
+                "baseRegistrationFee": 10,
+                "lateRegistrationFee": 2,
+                "maxPlayers": 40,
+                "maxPoints": 1500,
+                "minPoints": 0,
+                "overbookingPercentage": 0,
+                "rewardFirst": 200,
+                "rewardQuarter": None,
+                "rewardSecond": 100,
+                "rewardSemi": 50,
+                "startTime": "2023-12-20T10:00:00",
+                "womenOnly": False,
+            },
+        ],
+    },
 )
 
-incorrect_categories_missing_badly_formatted_data = {
-    "categories": [
-        {
-            "categoryId": "aa",
-            "color": "#FF00000",
-            "maxPoints": 1500,
-            "startTime": datetime(2023, 12, 20, 10, 00, 00).strftime(
-                "%Y-%m-%dT%H:%M:%S",
-            ),
-            "rewardFirst": 200,
-            "rewardSecond": 100,
-            "rewardSemi": 50,
-            "maxPlayers": 40,
-        },
-        {
-            "categoryId": "b",
-            "color": "#FFFF00",
-            "minPoints": 800,
-            "startTime": datetime(2023, 12, 20, 10, 00, 00).strftime(
-                "%Y-%m-%dT%H:%M:%S",
-            ),
-            "entryFee": 20,
-            "rewardFirst": 200,
-            "rewardSecond": 100,
-            "rewardSemi": 50,
-            "maxPlayers": "aa",
-        },
-        {},
-    ],
-}
+correct_admin_set_categories = [correct_categories]
 
-incorrect_categories_missing_badly_formatted_data_error = (
-    "Some category data was missing or wrongly "
-    "formatted. Categories were not set. {0: {"
-    "'categoryId': ['Length must be 1.'], "
-    "'color': ['Length must be 7.'], 'entryFee': ["
-    "'Missing data for required field.']}, "
-    "1: {'maxPlayers': ['Not a valid integer.']}, "
-    "2: {'startTime': ['Missing data for required "
-    "field.'], 'entryFee': ['Missing data for "
-    "required field.'], 'rewardFirst': ['Missing data "
-    "for required field.'], 'rewardSecond': ['Missing "
-    "data for required field.'], 'rewardSemi': ["
-    "'Missing data for required field.'], "
-    "'maxPlayers': ['Missing data for required "
-    "field.']}}"
+incorrect_categories_missing_categories_field = (
+    {},
+    {"error": "json was missing 'categories' field. Categories were not set."},
 )
 
-incorrect_categories_duplicate = {
-    "categories": [
-        {
-            "categoryId": "a",
-            "color": "#FF0000",
-            "maxPoints": 1500,
-            "startTime": datetime(2023, 12, 20, 10, 00, 00).strftime(
-                "%Y-%m-%dT%H:%M:%S",
-            ),
-            "entryFee": 10,
-            "rewardFirst": 200,
-            "rewardSecond": 100,
-            "rewardSemi": 50,
-            "maxPlayers": 40,
+incorrect_categories_missing_badly_formatted_data = (
+    {
+        "categories": [
+            {
+                "categoryId": "aa",
+                "color": "#FF00000",
+                "maxPoints": 1500,
+                "startTime": datetime(2023, 12, 20, 10, 00, 00).strftime(
+                    "%Y-%m-%dT%H:%M:%S",
+                ),
+                "rewardFirst": 200,
+                "rewardSecond": 100,
+                "rewardSemi": 50,
+                "maxPlayers": 40,
+            },
+            {
+                "categoryId": "b",
+                "color": "#FFFF00",
+                "minPoints": 800,
+                "startTime": datetime(2023, 12, 20, 10, 00, 00).strftime(
+                    "%Y-%m-%dT%H:%M:%S",
+                ),
+                "baseRegistrationFee": 20,
+                "lateRegistrationFee": 4,
+                "rewardFirst": 200,
+                "rewardSecond": 100,
+                "rewardSemi": 50,
+                "maxPlayers": "aa",
+            },
+            {},
+        ],
+    },
+    {
+        "error": {
+            "0": {
+                "categoryId": ["Length must be 1."],
+                "color": ["Length must be 7."],
+                "baseRegistrationFee": ["Missing data for required field."],
+                "lateRegistrationFee": ["Missing data for required field."],
+            },
+            "1": {"maxPlayers": ["Not a valid integer."]},
+            "2": {
+                "baseRegistrationFee": ["Missing data for required field."],
+                "lateRegistrationFee": ["Missing data for required field."],
+                "maxPlayers": ["Missing data for required field."],
+                "rewardFirst": ["Missing data for required field."],
+                "rewardSecond": ["Missing data for required field."],
+                "rewardSemi": ["Missing data for required field."],
+                "startTime": ["Missing data for required field."],
+            },
         },
-        {
-            "categoryId": "a",
-            "color": "#FFFF00",
-            "minPoints": 800,
-            "startTime": datetime(2023, 12, 20, 10, 00, 00).strftime(
-                "%Y-%m-%dT%H:%M:%S",
-            ),
-            "entryFee": 20,
-            "rewardFirst": 200,
-            "rewardSecond": 100,
-            "rewardSemi": 50,
-            "maxPlayers": 40,
-        },
-    ],
-}
-incorrect_categories_duplicate_error = (
-    "At least two categories have the same name. Categories were not set."
+    },
+)
+
+incorrect_categories_duplicate = (
+    {
+        "categories": [
+            {
+                "categoryId": "a",
+                "color": "#FF0000",
+                "maxPoints": 1500,
+                "startTime": datetime(2023, 12, 20, 10, 00, 00).strftime(
+                    "%Y-%m-%dT%H:%M:%S",
+                ),
+                "baseRegistrationFee": 10,
+                "lateRegistrationFee": 2,
+                "rewardFirst": 200,
+                "rewardSecond": 100,
+                "rewardSemi": 50,
+                "maxPlayers": 40,
+            },
+            {
+                "categoryId": "a",
+                "color": "#FFFF00",
+                "minPoints": 800,
+                "startTime": datetime(2023, 12, 20, 10, 00, 00).strftime(
+                    "%Y-%m-%dT%H:%M:%S",
+                ),
+                "baseRegistrationFee": 20,
+                "lateRegistrationFee": 4,
+                "rewardFirst": 200,
+                "rewardSecond": 100,
+                "rewardSemi": 50,
+                "maxPlayers": 40,
+            },
+        ],
+    },
+    {"error": "At least two categories have the same name. Categories were not set."},
 )
 
 incorrect_admin_set_categories = [
-    (
-        incorrect_categories_missing_categories_field,
-        incorrect_categories_missing_categories_field_error,
-    ),
-    (
-        incorrect_categories_missing_badly_formatted_data,
-        incorrect_categories_missing_badly_formatted_data_error,
-    ),
-    (incorrect_categories_duplicate, incorrect_categories_duplicate_error),
+    incorrect_categories_missing_categories_field,
+    incorrect_categories_missing_badly_formatted_data,
+    incorrect_categories_duplicate,
 ]
 
 """
@@ -267,9 +278,11 @@ correct_payment_pay_all = (
                 "markedAsPaid": True,
                 "markedAsPresent": True,
                 "registrationTime": "2023-11-17T18:01:20",
+                "entryFee": 7,
             },
             {
                 "categoryId": "F",
+                "entryFee": 7,
                 "licenceNo": 4526124,
                 "markedAsPaid": True,
                 "markedAsPresent": True,
@@ -277,6 +290,7 @@ correct_payment_pay_all = (
             },
         ],
         "totalActualPaid": 14,
+        "currentRequiredPayment": 14,
     },
 )
 
@@ -296,6 +310,7 @@ correct_payment_pay_partial = (
         "registeredEntries": [
             {
                 "categoryId": "B",
+                "entryFee": 7,
                 "licenceNo": 4526124,
                 "markedAsPaid": True,
                 "markedAsPresent": True,
@@ -303,6 +318,7 @@ correct_payment_pay_partial = (
             },
             {
                 "categoryId": "F",
+                "entryFee": 7,
                 "licenceNo": 4526124,
                 "markedAsPaid": False,
                 "markedAsPresent": True,
@@ -310,6 +326,7 @@ correct_payment_pay_partial = (
             },
         ],
         "totalActualPaid": 7,
+        "currentRequiredPayment": 14,
     },
 )
 
@@ -329,6 +346,7 @@ correct_payment_idempotent = (
         "registeredEntries": [
             {
                 "categoryId": "B",
+                "entryFee": 7,
                 "licenceNo": 5326002,
                 "markedAsPaid": True,
                 "markedAsPresent": True,
@@ -336,6 +354,7 @@ correct_payment_idempotent = (
             },
             {
                 "categoryId": "G",
+                "entryFee": 7,
                 "licenceNo": 5326002,
                 "markedAsPaid": False,
                 "markedAsPresent": True,
@@ -343,6 +362,7 @@ correct_payment_idempotent = (
             },
         ],
         "totalActualPaid": 7,
+        "currentRequiredPayment": 14,
     },
 )
 
@@ -362,6 +382,7 @@ correct_payment_nondefault_actual = (
         "registeredEntries": [
             {
                 "categoryId": "B",
+                "entryFee": 7,
                 "licenceNo": 4526124,
                 "markedAsPaid": True,
                 "markedAsPresent": True,
@@ -369,6 +390,7 @@ correct_payment_nondefault_actual = (
             },
             {
                 "categoryId": "F",
+                "entryFee": 7,
                 "licenceNo": 4526124,
                 "markedAsPaid": False,
                 "markedAsPresent": True,
@@ -376,6 +398,7 @@ correct_payment_nondefault_actual = (
             },
         ],
         "totalActualPaid": 6,
+        "currentRequiredPayment": 14,
     },
 )
 
@@ -463,6 +486,7 @@ correct_delete_entries_all = (
     {
         "bibNo": None,
         "club": "LE MANS SARTHE TENNIS DE TABLE",
+        "currentRequiredPayment": 0,
         "email": "gzzduckcnh@kmgdxv.com",
         "firstName": "Dpwsaob",
         "gender": "F",
@@ -481,6 +505,7 @@ correct_delete_entries_partial = (
     {
         "bibNo": None,
         "club": "LE MANS SARTHE TENNIS DE TABLE",
+        "currentRequiredPayment": 0,
         "email": "gzzduckcnh@kmgdxv.com",
         "firstName": "Dpwsaob",
         "gender": "F",
@@ -492,6 +517,7 @@ correct_delete_entries_partial = (
         "registeredEntries": [
             {
                 "categoryId": "7",
+                "entryFee": 7,
                 "licenceNo": 722370,
                 "markedAsPaid": False,
                 "markedAsPresent": False,
@@ -549,6 +575,7 @@ correct_mark_unmark_present_nothing = (
     {
         "bibNo": None,
         "club": "U S ETREPAGNY T T",
+        "currentRequiredPayment": 10,
         "email": "wihnpztoim@tjbnck.com",
         "firstName": "Nxovesf",
         "gender": "F",
@@ -559,6 +586,7 @@ correct_mark_unmark_present_nothing = (
         "registeredEntries": [
             {
                 "categoryId": "E",
+                "entryFee": 10,
                 "licenceNo": 608834,
                 "markedAsPaid": False,
                 "markedAsPresent": True,
@@ -566,6 +594,7 @@ correct_mark_unmark_present_nothing = (
             },
             {
                 "categoryId": "G",
+                "entryFee": 7,
                 "licenceNo": 608834,
                 "markedAsPaid": False,
                 "markedAsPresent": False,
@@ -573,6 +602,7 @@ correct_mark_unmark_present_nothing = (
             },
             {
                 "categoryId": "3",
+                "entryFee": 7,
                 "licenceNo": 608834,
                 "markedAsPaid": False,
                 "markedAsPresent": False,
@@ -592,6 +622,7 @@ correct_mark_unmark_present = (
     {
         "bibNo": None,
         "club": "U S ETREPAGNY T T",
+        "currentRequiredPayment": 7,
         "email": "wihnpztoim@tjbnck.com",
         "firstName": "Nxovesf",
         "gender": "F",
@@ -603,6 +634,7 @@ correct_mark_unmark_present = (
         "registeredEntries": [
             {
                 "categoryId": "E",
+                "entryFee": 10,
                 "licenceNo": 608834,
                 "markedAsPaid": False,
                 "markedAsPresent": False,
@@ -610,6 +642,7 @@ correct_mark_unmark_present = (
             },
             {
                 "categoryId": "G",
+                "entryFee": 7,
                 "licenceNo": 608834,
                 "markedAsPaid": False,
                 "markedAsPresent": False,
@@ -617,6 +650,7 @@ correct_mark_unmark_present = (
             },
             {
                 "categoryId": "3",
+                "entryFee": 7,
                 "licenceNo": 608834,
                 "markedAsPaid": False,
                 "markedAsPresent": True,
@@ -634,6 +668,7 @@ correct_mark_unmark_present_idempotent = (
     {
         "bibNo": None,
         "club": "U S ETREPAGNY T T",
+        "currentRequiredPayment": 17,
         "email": "wihnpztoim@tjbnck.com",
         "firstName": "Nxovesf",
         "gender": "F",
@@ -645,6 +680,7 @@ correct_mark_unmark_present_idempotent = (
         "registeredEntries": [
             {
                 "categoryId": "E",
+                "entryFee": 10,
                 "licenceNo": 608834,
                 "markedAsPaid": False,
                 "markedAsPresent": True,
@@ -652,6 +688,7 @@ correct_mark_unmark_present_idempotent = (
             },
             {
                 "categoryId": "G",
+                "entryFee": 7,
                 "licenceNo": 608834,
                 "markedAsPaid": False,
                 "markedAsPresent": False,
@@ -659,6 +696,7 @@ correct_mark_unmark_present_idempotent = (
             },
             {
                 "categoryId": "3",
+                "entryFee": 7,
                 "licenceNo": 608834,
                 "markedAsPaid": False,
                 "markedAsPresent": True,
@@ -907,7 +945,20 @@ For api_admin_get_players_by_category
 
 correct_admin_get_by_cat_response = get_players_by_categories_data.data
 correct_admin_get_by_cat_present_only_response = {
-    "1": [],
+    "1": [
+        {
+            "bibNo": None,
+            "club": "BOIS COLOMBES SPORTS",
+            "email": "sobsfewmas@mmzbwc.com",
+            "firstName": "Vtrgrdc",
+            "gender": "M",
+            "lastName": "ZBXLTMIV",
+            "licenceNo": 9241901,
+            "nbPoints": 1475,
+            "phone": "+336535833023",
+            "totalActualPaid": 0,
+        },
+    ],
     "2": [],
     "3": [],
     "4": [],
@@ -1047,7 +1098,55 @@ correct_admin_get_all_players_present_only_response = {
     "players": [
         {
             "bibNo": None,
+            "club": "BOIS COLOMBES SPORTS",
+            "currentRequiredPayment": 8,
+            "email": "sobsfewmas@mmzbwc.com",
+            "firstName": "Vtrgrdc",
+            "gender": "M",
+            "lastName": "ZBXLTMIV",
+            "licenceNo": 9241901,
+            "nbPoints": 1475,
+            "phone": "+336535833023",
+            "registeredEntries": [
+                {
+                    "categoryId": "B",
+                    "entryFee": 7,
+                    "licenceNo": 9241901,
+                    "markedAsPaid": False,
+                    "markedAsPresent": False,
+                    "registrationTime": "2023-05-17T21:17:58",
+                },
+                {
+                    "categoryId": "G",
+                    "entryFee": 7,
+                    "licenceNo": 9241901,
+                    "markedAsPaid": False,
+                    "markedAsPresent": False,
+                    "registrationTime": "2023-09-15T23:55:16",
+                },
+                {
+                    "categoryId": "1",
+                    "entryFee": 8,
+                    "licenceNo": 9241901,
+                    "markedAsPaid": False,
+                    "markedAsPresent": True,
+                    "registrationTime": "2024-11-08T22:03:59",
+                },
+                {
+                    "categoryId": "3",
+                    "entryFee": 7,
+                    "licenceNo": 9241901,
+                    "markedAsPaid": False,
+                    "markedAsPresent": False,
+                    "registrationTime": "2023-05-15T21:07:40",
+                },
+            ],
+            "totalActualPaid": 0,
+        },
+        {
+            "bibNo": None,
             "club": "LA CHAPELLE ALTT",
+            "currentRequiredPayment": 7,
             "email": "ivsiphdoxr@zwdzel.com",
             "firstName": "Buqjuvk",
             "gender": "M",
@@ -1058,6 +1157,7 @@ correct_admin_get_all_players_present_only_response = {
             "registeredEntries": [
                 {
                     "categoryId": "E",
+                    "entryFee": 10,
                     "licenceNo": 7221154,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
@@ -1065,6 +1165,7 @@ correct_admin_get_all_players_present_only_response = {
                 },
                 {
                     "categoryId": "G",
+                    "entryFee": 7,
                     "licenceNo": 7221154,
                     "markedAsPaid": False,
                     "markedAsPresent": True,
@@ -1072,6 +1173,7 @@ correct_admin_get_all_players_present_only_response = {
                 },
                 {
                     "categoryId": "1",
+                    "entryFee": 7,
                     "licenceNo": 7221154,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
@@ -1079,6 +1181,7 @@ correct_admin_get_all_players_present_only_response = {
                 },
                 {
                     "categoryId": "3",
+                    "entryFee": 7,
                     "licenceNo": 7221154,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
@@ -1090,6 +1193,7 @@ correct_admin_get_all_players_present_only_response = {
         {
             "bibNo": None,
             "club": "USM OLIVET TENNIS DE TABLE",
+            "currentRequiredPayment": 14,
             "email": "nvzhltrsqr@mochsf.com",
             "firstName": "Wihelbl",
             "gender": "F",
@@ -1100,6 +1204,7 @@ correct_admin_get_all_players_present_only_response = {
             "registeredEntries": [
                 {
                     "categoryId": "B",
+                    "entryFee": 7,
                     "licenceNo": 4526124,
                     "markedAsPaid": False,
                     "markedAsPresent": True,
@@ -1107,6 +1212,7 @@ correct_admin_get_all_players_present_only_response = {
                 },
                 {
                     "categoryId": "F",
+                    "entryFee": 7,
                     "licenceNo": 4526124,
                     "markedAsPaid": False,
                     "markedAsPresent": True,
@@ -1118,6 +1224,7 @@ correct_admin_get_all_players_present_only_response = {
         {
             "bibNo": None,
             "club": "CABOURG TT",
+            "currentRequiredPayment": 21,
             "email": "stbznywcnu@orabso.com",
             "firstName": "Smbhrdm",
             "gender": "F",
@@ -1128,6 +1235,7 @@ correct_admin_get_all_players_present_only_response = {
             "registeredEntries": [
                 {
                     "categoryId": "D",
+                    "entryFee": 7,
                     "licenceNo": 1420954,
                     "markedAsPaid": True,
                     "markedAsPresent": True,
@@ -1135,6 +1243,7 @@ correct_admin_get_all_players_present_only_response = {
                 },
                 {
                     "categoryId": "F",
+                    "entryFee": 7,
                     "licenceNo": 1420954,
                     "markedAsPaid": False,
                     "markedAsPresent": True,
@@ -1142,6 +1251,7 @@ correct_admin_get_all_players_present_only_response = {
                 },
                 {
                     "categoryId": "2",
+                    "entryFee": 7,
                     "licenceNo": 1420954,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
@@ -1149,6 +1259,7 @@ correct_admin_get_all_players_present_only_response = {
                 },
                 {
                     "categoryId": "6",
+                    "entryFee": 7,
                     "licenceNo": 1420954,
                     "markedAsPaid": True,
                     "markedAsPresent": True,
@@ -1160,6 +1271,7 @@ correct_admin_get_all_players_present_only_response = {
         {
             "bibNo": None,
             "club": "ERNEENNE Sport Tennis de Table",
+            "currentRequiredPayment": 14,
             "email": "zvsbcnurlb@ieppes.com",
             "firstName": "Hoyhjni",
             "gender": "M",
@@ -1170,6 +1282,7 @@ correct_admin_get_all_players_present_only_response = {
             "registeredEntries": [
                 {
                     "categoryId": "B",
+                    "entryFee": 7,
                     "licenceNo": 5326002,
                     "markedAsPaid": False,
                     "markedAsPresent": True,
@@ -1177,6 +1290,7 @@ correct_admin_get_all_players_present_only_response = {
                 },
                 {
                     "categoryId": "G",
+                    "entryFee": 7,
                     "licenceNo": 5326002,
                     "markedAsPaid": False,
                     "markedAsPresent": True,
@@ -1188,6 +1302,7 @@ correct_admin_get_all_players_present_only_response = {
         {
             "bibNo": None,
             "club": "U S ETREPAGNY T T",
+            "currentRequiredPayment": 10,
             "email": "wihnpztoim@tjbnck.com",
             "firstName": "Nxovesf",
             "gender": "F",
@@ -1198,6 +1313,7 @@ correct_admin_get_all_players_present_only_response = {
             "registeredEntries": [
                 {
                     "categoryId": "E",
+                    "entryFee": 10,
                     "licenceNo": 608834,
                     "markedAsPaid": False,
                     "markedAsPresent": True,
@@ -1205,6 +1321,7 @@ correct_admin_get_all_players_present_only_response = {
                 },
                 {
                     "categoryId": "G",
+                    "entryFee": 7,
                     "licenceNo": 608834,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
@@ -1212,6 +1329,7 @@ correct_admin_get_all_players_present_only_response = {
                 },
                 {
                     "categoryId": "3",
+                    "entryFee": 7,
                     "licenceNo": 608834,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
@@ -1223,6 +1341,7 @@ correct_admin_get_all_players_present_only_response = {
     ],
 }
 
+
 """
 For api_get_categories
 """
@@ -1231,10 +1350,11 @@ correct_get_categories_response = {
     "categories": [
         {
             "alternateName": None,
+            "baseRegistrationFee": 7,
             "categoryId": "A",
             "color": "#000000",
             "entryCount": 30,
-            "entryFee": 7,
+            "lateRegistrationFee": 1,
             "maxPlayers": 72,
             "maxPoints": 900,
             "minPoints": 0,
@@ -1248,10 +1368,11 @@ correct_get_categories_response = {
         },
         {
             "alternateName": None,
+            "baseRegistrationFee": 7,
             "categoryId": "B",
             "color": "#000000",
             "entryCount": 46,
-            "entryFee": 7,
+            "lateRegistrationFee": 1,
             "maxPlayers": 72,
             "maxPoints": 1500,
             "minPoints": 0,
@@ -1265,10 +1386,11 @@ correct_get_categories_response = {
         },
         {
             "alternateName": None,
+            "baseRegistrationFee": 10,
             "categoryId": "C",
             "color": "#00FF00",
             "entryCount": 8,
-            "entryFee": 10,
+            "lateRegistrationFee": 2,
             "maxPlayers": 36,
             "maxPoints": 4000,
             "minPoints": 1300,
@@ -1282,10 +1404,11 @@ correct_get_categories_response = {
         },
         {
             "alternateName": None,
+            "baseRegistrationFee": 7,
             "categoryId": "D",
             "color": "#00FF00",
             "entryCount": 41,
-            "entryFee": 7,
+            "lateRegistrationFee": 1,
             "maxPlayers": 72,
             "maxPoints": 1100,
             "minPoints": 0,
@@ -1299,10 +1422,11 @@ correct_get_categories_response = {
         },
         {
             "alternateName": None,
+            "baseRegistrationFee": 10,
             "categoryId": "E",
             "color": "#FF0000",
             "entryCount": 29,
-            "entryFee": 10,
+            "lateRegistrationFee": 2,
             "maxPlayers": 72,
             "maxPoints": 4000,
             "minPoints": 1500,
@@ -1316,10 +1440,11 @@ correct_get_categories_response = {
         },
         {
             "alternateName": None,
+            "baseRegistrationFee": 7,
             "categoryId": "F",
             "color": "#FF0000",
             "entryCount": 36,
-            "entryFee": 7,
+            "lateRegistrationFee": 1,
             "maxPlayers": 72,
             "maxPoints": 1300,
             "minPoints": 0,
@@ -1333,10 +1458,11 @@ correct_get_categories_response = {
         },
         {
             "alternateName": None,
+            "baseRegistrationFee": 7,
             "categoryId": "G",
             "color": None,
             "entryCount": 48,
-            "entryFee": 7,
+            "lateRegistrationFee": 1,
             "maxPlayers": 72,
             "maxPoints": 1900,
             "minPoints": 0,
@@ -1350,10 +1476,11 @@ correct_get_categories_response = {
         },
         {
             "alternateName": None,
+            "baseRegistrationFee": 7,
             "categoryId": "1",
             "color": "#0000FF",
             "entryCount": 28,
-            "entryFee": 7,
+            "lateRegistrationFee": 1,
             "maxPlayers": 72,
             "maxPoints": 1700,
             "minPoints": 0,
@@ -1367,10 +1494,11 @@ correct_get_categories_response = {
         },
         {
             "alternateName": None,
+            "baseRegistrationFee": 7,
             "categoryId": "2",
             "color": "#0000FF",
             "entryCount": 20,
-            "entryFee": 7,
+            "lateRegistrationFee": 1,
             "maxPlayers": 72,
             "maxPoints": 1400,
             "minPoints": 0,
@@ -1384,10 +1512,11 @@ correct_get_categories_response = {
         },
         {
             "alternateName": None,
+            "baseRegistrationFee": 7,
             "categoryId": "3",
             "color": "#FFFF00",
             "entryCount": 23,
-            "entryFee": 7,
+            "lateRegistrationFee": 1,
             "maxPlayers": 72,
             "maxPoints": 2100,
             "minPoints": 0,
@@ -1401,10 +1530,11 @@ correct_get_categories_response = {
         },
         {
             "alternateName": None,
+            "baseRegistrationFee": 7,
             "categoryId": "4",
             "color": "#FFFF00",
             "entryCount": 13,
-            "entryFee": 7,
+            "lateRegistrationFee": 1,
             "maxPlayers": 72,
             "maxPoints": 1000,
             "minPoints": 0,
@@ -1418,10 +1548,11 @@ correct_get_categories_response = {
         },
         {
             "alternateName": None,
+            "baseRegistrationFee": 7,
             "categoryId": "5",
             "color": None,
             "entryCount": 5,
-            "entryFee": 7,
+            "lateRegistrationFee": 1,
             "maxPlayers": 36,
             "maxPoints": 1600,
             "minPoints": 0,
@@ -1435,10 +1566,11 @@ correct_get_categories_response = {
         },
         {
             "alternateName": None,
+            "baseRegistrationFee": 7,
             "categoryId": "6",
             "color": "#00FFFF",
             "entryCount": 15,
-            "entryFee": 7,
+            "lateRegistrationFee": 1,
             "maxPlayers": 72,
             "maxPoints": 1200,
             "minPoints": 0,
@@ -1452,10 +1584,11 @@ correct_get_categories_response = {
         },
         {
             "alternateName": None,
+            "baseRegistrationFee": 7,
             "categoryId": "7",
             "color": "#00FFFF",
             "entryCount": 10,
-            "entryFee": 7,
+            "lateRegistrationFee": 1,
             "maxPlayers": 72,
             "maxPoints": 800,
             "minPoints": 0,
@@ -1469,7 +1602,6 @@ correct_get_categories_response = {
         },
     ],
 }
-
 """
 For api_add_player
 """
@@ -1549,17 +1681,18 @@ correct_get_player_existing = (
     {
         "bibNo": None,
         "club": "USM OLIVET TENNIS DE TABLE",
+        "currentRequiredPayment": 14,
         "email": "nvzhltrsqr@mochsf.com",
         "firstName": "Wihelbl",
         "gender": "F",
         "lastName": "EZWLKRWE",
         "licenceNo": 4526124,
         "nbPoints": 1149,
-        "totalActualPaid": 0,
         "phone": "+336919756238",
         "registeredEntries": [
             {
                 "categoryId": "B",
+                "entryFee": 7,
                 "licenceNo": 4526124,
                 "markedAsPaid": False,
                 "markedAsPresent": True,
@@ -1567,12 +1700,65 @@ correct_get_player_existing = (
             },
             {
                 "categoryId": "F",
+                "entryFee": 7,
                 "licenceNo": 4526124,
                 "markedAsPaid": False,
                 "markedAsPresent": True,
                 "registrationTime": "2023-11-25T21:56:50",
             },
         ],
+        "totalActualPaid": 0,
+    },
+)
+
+correct_get_player_late_registration = (
+    9241901,
+    {
+        "bibNo": None,
+        "club": "BOIS COLOMBES SPORTS",
+        "currentRequiredPayment": 8,
+        "email": "sobsfewmas@mmzbwc.com",
+        "firstName": "Vtrgrdc",
+        "gender": "M",
+        "lastName": "ZBXLTMIV",
+        "licenceNo": 9241901,
+        "nbPoints": 1475,
+        "phone": "+336535833023",
+        "registeredEntries": [
+            {
+                "categoryId": "B",
+                "entryFee": 7,
+                "licenceNo": 9241901,
+                "markedAsPaid": False,
+                "markedAsPresent": False,
+                "registrationTime": "2023-05-17T21:17:58",
+            },
+            {
+                "categoryId": "G",
+                "entryFee": 7,
+                "licenceNo": 9241901,
+                "markedAsPaid": False,
+                "markedAsPresent": False,
+                "registrationTime": "2023-09-15T23:55:16",
+            },
+            {
+                "categoryId": "1",
+                "entryFee": 8,
+                "licenceNo": 9241901,
+                "markedAsPaid": False,
+                "markedAsPresent": True,
+                "registrationTime": "2024-11-08T22:03:59",
+            },
+            {
+                "categoryId": "3",
+                "entryFee": 7,
+                "licenceNo": 9241901,
+                "markedAsPaid": False,
+                "markedAsPresent": False,
+                "registrationTime": "2023-05-15T21:07:40",
+            },
+        ],
+        "totalActualPaid": 0,
     },
 )
 
@@ -1583,6 +1769,7 @@ correct_get_player_nonexisting = (
 
 correct_get_player = [
     correct_get_player_existing,
+    correct_get_player_late_registration,
     correct_get_player_nonexisting,
 ]
 
@@ -1598,8 +1785,7 @@ correct_registration = (
     [
         {
             "categoryId": "B",
-            "color": "#000000",
-            "entryId": 59,
+            "entryFee": 7,
             "licenceNo": 4526124,
             "markedAsPaid": False,
             "registrationTime": "2023-11-17T18:01:20",
@@ -1607,8 +1793,7 @@ correct_registration = (
         },
         {
             "categoryId": "F",
-            "color": "#FF0000",
-            "entryId": 64,
+            "entryFee": 7,
             "licenceNo": 4526124,
             "markedAsPaid": False,
             "registrationTime": "2023-11-25T21:56:50",
@@ -1616,8 +1801,7 @@ correct_registration = (
         },
         {
             "categoryId": "1",
-            "color": "#0000FF",
-            "entryId": 353,
+            "entryFee": 7,
             "licenceNo": 4526124,
             "markedAsPaid": False,
             "registrationTime": "2023-11-30T12:18:21",
@@ -1634,8 +1818,7 @@ correct_registration_with_duplicates = (
     [
         {
             "categoryId": "B",
-            "color": "#000000",
-            "entryId": 59,
+            "entryFee": 7,
             "licenceNo": 4526124,
             "markedAsPaid": False,
             "registrationTime": "2023-11-17T18:01:20",
@@ -1643,8 +1826,7 @@ correct_registration_with_duplicates = (
         },
         {
             "categoryId": "F",
-            "color": "#FF0000",
-            "entryId": 64,
+            "entryFee": 7,
             "licenceNo": 4526124,
             "markedAsPaid": False,
             "registrationTime": "2023-11-25T21:56:50",
@@ -1652,8 +1834,7 @@ correct_registration_with_duplicates = (
         },
         {
             "categoryId": "1",
-            "color": "#0000FF",
-            "entryId": 353,
+            "entryFee": 7,
             "licenceNo": 4526124,
             "markedAsPaid": False,
             "registrationTime": "2023-11-30T12:18:21",
