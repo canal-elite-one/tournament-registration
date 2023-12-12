@@ -354,16 +354,13 @@ def api_admin_reset_bibs():
 @api_bp.route("/by_category", methods=["GET"])
 def api_admin_get_players_by_category():
     present_only = request.args.get("present_only", False, loads) is True
-    p_schema = PlayerSchema(many=True)
+    c_schema = CategorySchema(many=True)
+    c_schema.context["include_players"] = True
+    c_schema.context["present_only"] = present_only
 
-    result = {}
-    for cat_id in session.scalars(select(Category.category_id)):
-        query = select(Player).join(Entry).where(Entry.category_id == cat_id)
-        if present_only:
-            query = query.where(Entry.marked_as_present.is_(True))
-        result[cat_id] = p_schema.dump(session.scalars(query).all())
+    categories = session.scalars(select(Category).order_by(Category.start_time)).all()
 
-    return jsonify(result), HTTPStatus.OK
+    return jsonify(c_schema.dump(categories)), HTTPStatus.OK
 
 
 @api_bp.route("/all_players", methods=["GET"])

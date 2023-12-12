@@ -75,6 +75,15 @@ class Category(Base):
         schema = CategorySchema()
         return str(schema.dump(self))
 
+    def present_entries(self):
+        return filter(lambda x: x.marked_as_present, self.entries)
+
+    def current_fee(self):
+        result = self.base_registration_fee
+        if datetime.now() > app_info.registration_cutoff():
+            result += self.late_registration_fee
+        return result
+
 
 class Player(Base):
     licence_no: Mapped[int]
@@ -163,7 +172,8 @@ class CategorySchema(Schema):
     def make_field(self, data, **kwargs):
         return Category(**data)
 
-    # add_entry_count is called first, either on the one serialized object being dumped,
+    # add_entry_count & add_players_info are called first (they commute),
+    # either on the one serialized object being dumped,
     # or on each serialized object in the list if many=True;
     # then envelop is called on the whole serialized data,
     # doing nothing if many=False and enveloping if many=True
@@ -174,6 +184,19 @@ class CategorySchema(Schema):
         data["entryCount"] = len(original.entries)
         return data
 
+    @post_dump(pass_original=True)
+    def add_players_info(self, data, original, **kwargs):
+        if self.context.get("include_players", False):
+            if self.context.get("present_only", False):
+                entries = original.present_entries()
+            else:
+                entries = original.entries
+            entries = sorted(entries, key=lambda x: x.registration_time)
+            e_schema = EntrySchema(many=True)
+            e_schema.context["include_player"] = True
+            data["entries"] = e_schema.dump(entries)
+        return data
+
     @post_dump(pass_many=True)
     def envelop(self, data, many, **kwargs):
         if many:
@@ -182,17 +205,19 @@ class CategorySchema(Schema):
 
 
 class PlayerSchema(Schema):
-    # TODO: use nested fields for licence_no & bib_no, maybe change to player & category
-    licence_no = fields.Int(data_key="licenceNo")
+    licence_no = fields.Int(data_key="licenceNo", required=True, allow_none=False)
     bib_no = fields.Int(data_key="bibNo", validate=validate.Equal(None))
-    first_name = fields.Str(data_key="firstName", required=True)
-    last_name = fields.Str(data_key="lastName", required=True)
-    email = fields.Email(required=True)
-    phone = fields.Str(required=True)
-    gender = fields.Str(required=True)
-    nb_points = fields.Int(data_key="nbPoints", required=True)
-    club = fields.Str(required=True)
-    total_actual_paid = fields.Int(data_key="totalActualPaid")
+    first_name = fields.Str(data_key="firstName", required=True, allow_none=False)
+    last_name = fields.Str(data_key="lastName", required=True, allow_none=False)
+    email = fields.Email(required=True, allow_none=False)
+    phone = fields.Str(required=True, allow_none=False)
+    gender = fields.Str(required=True, allow_none=False)
+    nb_points = fields.Int(data_key="nbPoints", required=True, allow_none=False)
+    club = fields.Str(required=True, allow_none=False)
+    total_actual_paid = fields.Int(
+        data_key="totalActualPaid",
+        validate=validate.Equal(None),
+    )
 
     @post_load
     def make_field(self, data, **kwargs):
@@ -220,7 +245,21 @@ class EntrySchema(Schema):
     def make_field(self, data, **kwargs):
         return Entry(**data)
 
+    # the two post_dump functions commute.
+
     @post_dump(pass_original=True)
     def add_entry_fee(self, data, original, **kwargs):
         data["entryFee"] = original.fee()
+        return data
+
+    @post_dump(pass_original=True)
+    def add_player_info(self, data, original, **kwargs):
+        if self.context.get("include_player", False):
+            player = original.player
+            data["firstName"] = player.first_name
+            data["lastName"] = player.last_name
+            data["bibNo"] = player.bib_no
+            data["nbPoints"] = player.nb_points
+            data["club"] = player.club
+            del data["categoryId"]
         return data
