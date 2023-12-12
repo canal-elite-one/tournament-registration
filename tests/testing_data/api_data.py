@@ -73,6 +73,7 @@ correct_categories = {
 correct_categories_response = {
     "categories": [
         {
+            "alternateName": None,
             "categoryId": "a",
             "color": "#FF0000",
             "entryCount": 0,
@@ -89,6 +90,7 @@ correct_categories_response = {
             "womenOnly": False,
         },
         {
+            "alternateName": None,
             "categoryId": "b",
             "color": "#FFFF00",
             "entryCount": 0,
@@ -105,6 +107,7 @@ correct_categories_response = {
             "womenOnly": False,
         },
         {
+            "alternateName": None,
             "categoryId": "c",
             "color": "#FFFFFF",
             "entryCount": 0,
@@ -121,6 +124,7 @@ correct_categories_response = {
             "womenOnly": True,
         },
         {
+            "alternateName": None,
             "categoryId": "d",
             "color": None,
             "entryCount": 0,
@@ -149,8 +153,8 @@ incorrect_categories_missing_categories_field_error = (
 incorrect_categories_missing_badly_formatted_data = {
     "categories": [
         {
-            "categoryId": "a",
-            "color": "#FF0000",
+            "categoryId": "aa",
+            "color": "#FF00000",
             "maxPoints": 1500,
             "startTime": datetime(2023, 12, 20, 10, 00, 00).strftime(
                 "%Y-%m-%dT%H:%M:%S",
@@ -173,10 +177,24 @@ incorrect_categories_missing_badly_formatted_data = {
             "rewardSemi": 50,
             "maxPlayers": "aa",
         },
+        {},
     ],
 }
 incorrect_categories_missing_badly_formatted_data_error = (
-    "Some category data was missing or wrongly formatted. Categories "
+    "Some category data was missing or wrongly "
+    "formatted. Categories were not set. {0: {"
+    "'categoryId': ['Length must be 1.'], "
+    "'color': ['Length must be 7.'], 'entryFee': ["
+    "'Missing data for required field.']}, "
+    "1: {'maxPlayers': ['Not a valid integer.']}, "
+    "2: {'startTime': ['Missing data for required "
+    "field.'], 'entryFee': ['Missing data for "
+    "required field.'], 'rewardFirst': ['Missing data "
+    "for required field.'], 'rewardSecond': ['Missing "
+    "data for required field.'], 'rewardSemi': ["
+    "'Missing data for required field.'], "
+    "'maxPlayers': ['Missing data for required "
+    "field.']}}"
 )
 
 incorrect_categories_duplicate = {
@@ -1050,6 +1068,7 @@ For api_get_categories
 correct_get_categories_response = {
     "categories": [
         {
+            "alternateName": None,
             "categoryId": "A",
             "color": "#000000",
             "entryCount": 30,
@@ -1066,6 +1085,7 @@ correct_get_categories_response = {
             "womenOnly": False,
         },
         {
+            "alternateName": None,
             "categoryId": "B",
             "color": "#000000",
             "entryCount": 46,
@@ -1082,6 +1102,7 @@ correct_get_categories_response = {
             "womenOnly": False,
         },
         {
+            "alternateName": None,
             "categoryId": "C",
             "color": "#00FF00",
             "entryCount": 8,
@@ -1098,6 +1119,7 @@ correct_get_categories_response = {
             "womenOnly": True,
         },
         {
+            "alternateName": None,
             "categoryId": "D",
             "color": "#00FF00",
             "entryCount": 41,
@@ -1114,6 +1136,7 @@ correct_get_categories_response = {
             "womenOnly": False,
         },
         {
+            "alternateName": None,
             "categoryId": "E",
             "color": "#FF0000",
             "entryCount": 29,
@@ -1130,6 +1153,7 @@ correct_get_categories_response = {
             "womenOnly": False,
         },
         {
+            "alternateName": None,
             "categoryId": "F",
             "color": "#FF0000",
             "entryCount": 36,
@@ -1146,6 +1170,7 @@ correct_get_categories_response = {
             "womenOnly": False,
         },
         {
+            "alternateName": None,
             "categoryId": "G",
             "color": None,
             "entryCount": 48,
@@ -1162,6 +1187,7 @@ correct_get_categories_response = {
             "womenOnly": False,
         },
         {
+            "alternateName": None,
             "categoryId": "1",
             "color": "#0000FF",
             "entryCount": 28,
@@ -1178,6 +1204,7 @@ correct_get_categories_response = {
             "womenOnly": False,
         },
         {
+            "alternateName": None,
             "categoryId": "2",
             "color": "#0000FF",
             "entryCount": 20,
@@ -1194,6 +1221,7 @@ correct_get_categories_response = {
             "womenOnly": False,
         },
         {
+            "alternateName": None,
             "categoryId": "3",
             "color": "#FFFF00",
             "entryCount": 23,
@@ -1210,6 +1238,7 @@ correct_get_categories_response = {
             "womenOnly": False,
         },
         {
+            "alternateName": None,
             "categoryId": "4",
             "color": "#FFFF00",
             "entryCount": 13,
@@ -1226,6 +1255,7 @@ correct_get_categories_response = {
             "womenOnly": False,
         },
         {
+            "alternateName": None,
             "categoryId": "5",
             "color": None,
             "entryCount": 5,
@@ -1242,6 +1272,7 @@ correct_get_categories_response = {
             "womenOnly": True,
         },
         {
+            "alternateName": None,
             "categoryId": "6",
             "color": "#00FFFF",
             "entryCount": 15,
@@ -1258,6 +1289,7 @@ correct_get_categories_response = {
             "womenOnly": False,
         },
         {
+            "alternateName": None,
             "categoryId": "7",
             "color": "#00FFFF",
             "entryCount": 10,
@@ -1400,7 +1432,6 @@ correct_get_player = [
     correct_get_player_existing,
     correct_get_player_nonexisting,
 ]
-
 
 incorrect_get_player = []
 

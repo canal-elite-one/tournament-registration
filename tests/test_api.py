@@ -240,7 +240,6 @@ class TestAPIGetCategories(BaseTest):
     def test_get(self, client, reset_db, populate):
         r = client.get("/api/categories")
         assert r.status_code == HTTPStatus.OK, r.json
-        assert "categories" in r.json, r.json
         assert r.json == td.correct_get_categories_response, r.json
 
 

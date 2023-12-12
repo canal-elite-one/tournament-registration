@@ -1,6 +1,7 @@
 -- migrate:up
 CREATE TABLE categories (
-    category_id VARCHAR(32) NOT NULL PRIMARY KEY,
+    category_id CHAR NOT NULL PRIMARY KEY,
+    alternate_name VARCHAR(64),
     color VARCHAR(7),
     min_points INT NOT NULL DEFAULT 0,
     max_points INT NOT NULL DEFAULT 4000,
@@ -29,7 +30,7 @@ CREATE TABLE players (
 );
 
 CREATE TABLE entries (
-    category_id VARCHAR(32) NOT NULL,
+    category_id CHAR NOT NULL,
     licence_no INT NOT NULL,
     color VARCHAR(7),
     registration_time TIMESTAMP NOT NULL DEFAULT NOW(),

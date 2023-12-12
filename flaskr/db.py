@@ -4,7 +4,7 @@ from datetime import datetime
 
 from sqlalchemy import create_engine, Table
 from sqlalchemy.orm import DeclarativeBase, Session, Mapped, relationship
-from marshmallow import Schema, fields, post_load, post_dump
+from marshmallow import Schema, fields, post_load, post_dump, validate
 
 db_url = os.environ.get("DATABASE_URL")
 migration_directory = os.environ.get("MIGRATION_DIR")
@@ -67,7 +67,7 @@ class Player(Base):
         return str(schema.dump(self))
 
 
-def player_not_found_message(licence_no):
+def get_player_not_found_message(licence_no):
     return f"No player with licence number {licence_no} exists in the database."
 
 
@@ -89,23 +89,33 @@ class Entry(Base):
 
 
 class CategorySchema(Schema):
-    category_id = fields.Str(data_key="categoryId")
-    color = fields.Str()
+    category_id = fields.Str(data_key="categoryId", validate=validate.Length(equal=1))
+    alternate_name = fields.Str(
+        data_key="alternateName",
+        validate=validate.Length(max=64),
+    )
+    color = fields.Str(validate=validate.Length(equal=7))
     min_points = fields.Int(data_key="minPoints")
     max_points = fields.Int(data_key="maxPoints")
     start_time = fields.DateTime(data_key="startTime", allow_none=False, required=True)
     women_only = fields.Bool(data_key="womenOnly")
-    entry_fee = fields.Int(data_key="entryFee")
-    reward_first = fields.Int(data_key="rewardFirst")
-    reward_second = fields.Int(data_key="rewardSecond")
-    reward_semi = fields.Int(data_key="rewardSemi")
+    entry_fee = fields.Int(data_key="entryFee", allow_none=False, required=True)
+    reward_first = fields.Int(data_key="rewardFirst", allow_none=False, required=True)
+    reward_second = fields.Int(data_key="rewardSecond", allow_none=False, required=True)
+    reward_semi = fields.Int(data_key="rewardSemi", allow_none=False, required=True)
     reward_quarter = fields.Int(data_key="rewardQuarter")
-    max_players = fields.Int(data_key="maxPlayers")
+    max_players = fields.Int(data_key="maxPlayers", allow_none=False, required=True)
     overbooking_percentage = fields.Int(data_key="overbookingPercentage")
 
     @post_load
     def make_field(self, data, **kwargs):
         return Category(**data)
+
+    # add_entry_count is called first, either on the one serialized object being dumped,
+    # or on each serialized object in the list if many=True;
+    # then envelop is called on the whole serialized data,
+    # doing nothing if many=False and enveloping if many=True
+    # cf https://marshmallow.readthedocs.io/en/stable/extending.html#pre-post-processor-invocation-order
 
     @post_dump(pass_original=True)
     def add_entry_count(self, data, original, **kwargs):

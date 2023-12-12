@@ -5,7 +5,7 @@ from flaskr.db import (
     session,
     Category,
     Player,
-    player_not_found_message,
+    get_player_not_found_message,
     CategorySchema,
     PlayerSchema,
     Entry,
@@ -110,7 +110,7 @@ def api_admin_make_payment(licence_no):
     player = session.get(Player, licence_no)
     if player is None:
         return (
-            jsonify(error=player_not_found_message(licence_no)),
+            jsonify(error=get_player_not_found_message(licence_no)),
             HTTPStatus.BAD_REQUEST,
         )
 
@@ -193,7 +193,7 @@ def api_admin_delete_entries(licence_no):
     player = session.get(Player, licence_no)
     if player is None:
         return (
-            jsonify(error=player_not_found_message(licence_no)),
+            jsonify(error=get_player_not_found_message(licence_no)),
             HTTPStatus.BAD_REQUEST,
         )
 
@@ -230,7 +230,7 @@ def api_admin_delete_player(licence_no):
     player = session.get(Player, licence_no)
     if player is None:
         return (
-            jsonify(error=player_not_found_message(licence_no)),
+            jsonify(error=get_player_not_found_message(licence_no)),
             HTTPStatus.BAD_REQUEST,
         )
 
@@ -265,7 +265,7 @@ def api_admin_mark_present(licence_no):
     player = session.get(Player, licence_no)
     if player is None:
         return (
-            jsonify(error=player_not_found_message(licence_no)),
+            jsonify(error=get_player_not_found_message(licence_no)),
             HTTPStatus.BAD_REQUEST,
         )
 
@@ -350,7 +350,7 @@ def api_admin_assign_one_bib(licence_no):
 
     if player is None:
         return (
-            jsonify(error=player_not_found_message(licence_no)),
+            jsonify(error=get_player_not_found_message(licence_no)),
             HTTPStatus.BAD_REQUEST,
         )
 
@@ -509,7 +509,7 @@ def api_register_entries(licence_no):
     if player is None:
         return (
             jsonify(
-                error=player_not_found_message(licence_no),
+                error=get_player_not_found_message(licence_no),
             ),
             HTTPStatus.BAD_REQUEST,
         )
