@@ -17,5 +17,5 @@ def show_all_players():
 
 @admin_bp.route("/inscrits/<int:licence_no>", methods=["GET"])
 def player_page(licence_no):
-    player_dict = api_get_player(req_json={"licenceNo": licence_no})[0].json
+    player_dict = api_get_player(licence_no)[0].json
     return render_template("/show_one_player.html", player_dict=player_dict)
