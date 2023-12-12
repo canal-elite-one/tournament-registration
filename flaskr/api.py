@@ -38,7 +38,16 @@ def api_admin_set_categories():
     if error := c_schema.validate(request.json["categories"]):
         return jsonify(error=error), HTTPStatus.BAD_REQUEST
 
-    session.execute(delete(Category))
+    try:
+        session.execute(delete(Category))
+    except DBAPIError:
+        return (
+            jsonify(
+                error="Tried to reset categories while "
+                "registration has already started.",
+            ),
+            HTTPStatus.BAD_REQUEST,
+        )
 
     try:
         for category in c_schema.load(request.json["categories"]):

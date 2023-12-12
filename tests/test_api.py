@@ -11,6 +11,11 @@ class TestAPISetCategories(BaseTest):
         assert r.status_code == HTTPStatus.CREATED, r.json
         assert r.json == response, r.json
 
+    def test_incorrect_existing_entries(self, client, reset_db, populate):
+        r = client.post("/api/categories", json=td.correct_categories[0])
+        assert r.status_code == HTTPStatus.BAD_REQUEST, r.json
+        assert r.json == td.incorrect_set_categories_existing_entries, r.json
+
     @pytest.mark.parametrize("payload,error", td.incorrect_admin_set_categories)
     def test_incorrect_admin_set_categories(self, client, reset_db, payload, error):
         r = client.post("/api/categories", json=payload)

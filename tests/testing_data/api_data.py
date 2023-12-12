@@ -153,6 +153,10 @@ correct_categories = (
 
 correct_admin_set_categories = [correct_categories]
 
+incorrect_set_categories_existing_entries = {
+    "error": "Tried to reset categories while registration has already started.",
+}
+
 incorrect_categories_missing_categories_field = (
     {},
     {"error": "json was missing 'categories' field. Categories were not set."},
