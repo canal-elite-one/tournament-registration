@@ -66,9 +66,17 @@ class Player(Base):
         schema = PlayerSchema()
         return str(schema.dump(self))
 
+    def present_entries(self):
+        return filter(lambda x: x.marked_as_present, self.entries)
 
-def get_player_not_found_message(licence_no):
-    return f"No player with licence number {licence_no} exists in the database."
+    def current_required_payment(self):
+        return sum(entry.fee() for entry in self.present_entries())
+
+
+def get_player_not_found_error(licence_no):
+    return {
+        "error": f"No player with licence number {licence_no} exists in the database.",
+    }
 
 
 class Entry(Base):
@@ -86,6 +94,9 @@ class Entry(Base):
     def __repr__(self):
         schema = EntrySchema()
         return str(schema.dump(self))
+
+    def fee(self):
+        return self.category.entry_fee
 
 
 class CategorySchema(Schema):
@@ -132,7 +143,7 @@ class CategorySchema(Schema):
 class PlayerSchema(Schema):
     # TODO: use nested fields for licence_no & bib_no, maybe change to player & category
     licence_no = fields.Int(data_key="licenceNo")
-    bib_no = fields.Int(data_key="bibNo")
+    bib_no = fields.Int(data_key="bibNo", validate=validate.Equal(None))
     first_name = fields.Str(data_key="firstName", required=True)
     last_name = fields.Str(data_key="lastName", required=True)
     email = fields.Email(required=True)
@@ -140,7 +151,7 @@ class PlayerSchema(Schema):
     gender = fields.Str(required=True)
     nb_points = fields.Int(data_key="nbPoints", required=True)
     club = fields.Str(required=True)
-    payment_diff = fields.Int(data_key="paymentDiff")
+    total_actual_paid = fields.Int(data_key="totalActualPaid")
 
     @post_load
     def make_field(self, data, **kwargs):
@@ -148,7 +159,7 @@ class PlayerSchema(Schema):
 
     @post_dump(pass_original=True)
     def add_entries_info(self, data, original, **kwargs):
-        if self.context.get("with_entries_info", False):
+        if self.context.get("include_entries", False):
             data["registeredEntries"] = EntrySchema(many=True).dump(
                 sorted(original.entries, key=lambda x: x.category.start_time),
             )

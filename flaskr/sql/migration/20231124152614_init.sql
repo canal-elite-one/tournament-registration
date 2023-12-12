@@ -26,7 +26,7 @@ CREATE TABLE players (
     gender CHAR NOT NULL,
     nb_points INT NOT NULL,
     club VARCHAR(255) NOT NULL,
-    payment_diff INT NOT NULL DEFAULT 0
+    total_actual_paid INT NOT NULL DEFAULT 0
 );
 
 CREATE TABLE entries (

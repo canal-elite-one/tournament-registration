@@ -9,7 +9,7 @@ data = {
             "lastName": "PBRIPYCK",
             "licenceNo": 9536504,
             "nbPoints": 1663,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336047911690",
             "registeredEntries": [
                 {
@@ -44,7 +44,7 @@ data = {
             "lastName": "EXWMBYSU",
             "licenceNo": 3714960,
             "nbPoints": 1144,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336950666140",
             "registeredEntries": [
                 {
@@ -72,7 +72,7 @@ data = {
             "lastName": "COIBTUNG",
             "licenceNo": 7886249,
             "nbPoints": 901,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336330441827",
             "registeredEntries": [
                 {
@@ -114,7 +114,7 @@ data = {
             "lastName": "EDYQCAPE",
             "licenceNo": 5953737,
             "nbPoints": 1586,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336214388998",
             "registeredEntries": [
                 {
@@ -142,7 +142,7 @@ data = {
             "lastName": "JRBIKZES",
             "licenceNo": 5325784,
             "nbPoints": 1535,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336586819466",
             "registeredEntries": [
                 {
@@ -170,7 +170,7 @@ data = {
             "lastName": "HZSPPNTA",
             "licenceNo": 9145837,
             "nbPoints": 1326,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336828009963",
             "registeredEntries": [
                 {
@@ -205,7 +205,7 @@ data = {
             "lastName": "KRAHOAYE",
             "licenceNo": 4451551,
             "nbPoints": 1287,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336033111161",
             "registeredEntries": [
                 {
@@ -233,7 +233,7 @@ data = {
             "lastName": "NDCGUBRN",
             "licenceNo": 7219314,
             "nbPoints": 567,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336904091479",
             "registeredEntries": [
                 {
@@ -261,7 +261,7 @@ data = {
             "lastName": "ABJNNQES",
             "licenceNo": 9311764,
             "nbPoints": 1287,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336983296275",
             "registeredEntries": [
                 {
@@ -289,7 +289,7 @@ data = {
             "lastName": "TMVODEGI",
             "licenceNo": 7225133,
             "nbPoints": 747,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336332339460",
             "registeredEntries": [
                 {
@@ -317,7 +317,7 @@ data = {
             "lastName": "MGUEIYAL",
             "licenceNo": 7223032,
             "nbPoints": 1007,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336494616650",
             "registeredEntries": [
                 {
@@ -359,7 +359,7 @@ data = {
             "lastName": "UTEWEWLJ",
             "licenceNo": 3731932,
             "nbPoints": 1148,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336386081866",
             "registeredEntries": [
                 {
@@ -387,7 +387,7 @@ data = {
             "lastName": "KLUQGOIN",
             "licenceNo": 9257964,
             "nbPoints": 892,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336147247763",
             "registeredEntries": [
                 {
@@ -429,7 +429,7 @@ data = {
             "lastName": "KVAOZKEM",
             "licenceNo": 7512693,
             "nbPoints": 944,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336722635818",
             "registeredEntries": [
                 {
@@ -471,7 +471,7 @@ data = {
             "lastName": "ORHCWRNU",
             "licenceNo": 722370,
             "nbPoints": 689,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336769763133",
             "registeredEntries": [
                 {
@@ -506,7 +506,7 @@ data = {
             "lastName": "XJWCHCBX",
             "licenceNo": 7223406,
             "nbPoints": 594,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336466775400",
             "registeredEntries": [
                 {
@@ -534,7 +534,7 @@ data = {
             "lastName": "BNWQLJND",
             "licenceNo": 7224029,
             "nbPoints": 914,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336192422551",
             "registeredEntries": [
                 {
@@ -555,7 +555,7 @@ data = {
             "lastName": "YVJQEHBH",
             "licenceNo": 5324922,
             "nbPoints": 1731,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336893556423",
             "registeredEntries": [
                 {
@@ -583,7 +583,7 @@ data = {
             "lastName": "XMKREDVE",
             "licenceNo": 5325321,
             "nbPoints": 1134,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336692763141",
             "registeredEntries": [
                 {
@@ -611,7 +611,7 @@ data = {
             "lastName": "SKYEVEOJ",
             "licenceNo": 7216648,
             "nbPoints": 1640,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336200982659",
             "registeredEntries": [
                 {
@@ -653,7 +653,7 @@ data = {
             "lastName": "IYYSZFHY",
             "licenceNo": 9143724,
             "nbPoints": 1558,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336561184725",
             "registeredEntries": [
                 {
@@ -695,7 +695,7 @@ data = {
             "lastName": "RDOTMKZT",
             "licenceNo": 7218004,
             "nbPoints": 1545,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336526600838",
             "registeredEntries": [
                 {
@@ -737,7 +737,7 @@ data = {
             "lastName": "SHWSAJRR",
             "licenceNo": 4531022,
             "nbPoints": 789,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336762508515",
             "registeredEntries": [
                 {
@@ -765,7 +765,7 @@ data = {
             "lastName": "TSZCAMNY",
             "licenceNo": 4427928,
             "nbPoints": 1884,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336285480190",
             "registeredEntries": [
                 {
@@ -793,7 +793,7 @@ data = {
             "lastName": "ZBXLTMIV",
             "licenceNo": 9241901,
             "nbPoints": 1475,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336535833023",
             "registeredEntries": [
                 {
@@ -835,7 +835,7 @@ data = {
             "lastName": "HLEOPEPS",
             "licenceNo": 723342,
             "nbPoints": 1293,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336812186886",
             "registeredEntries": [
                 {
@@ -863,7 +863,7 @@ data = {
             "lastName": "JSEJUKIW",
             "licenceNo": 725492,
             "nbPoints": 1448,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336445253052",
             "registeredEntries": [
                 {
@@ -891,7 +891,7 @@ data = {
             "lastName": "WXGTVSNJ",
             "licenceNo": 7220549,
             "nbPoints": 1280,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336649797238",
             "registeredEntries": [
                 {
@@ -926,7 +926,7 @@ data = {
             "lastName": "XRBWSBOM",
             "licenceNo": 4519318,
             "nbPoints": 1181,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336070975504",
             "registeredEntries": [
                 {
@@ -954,7 +954,7 @@ data = {
             "lastName": "WMVAFWPR",
             "licenceNo": 7224166,
             "nbPoints": 752,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336865807609",
             "registeredEntries": [
                 {
@@ -982,7 +982,7 @@ data = {
             "lastName": "KEJDXMLT",
             "licenceNo": 9538603,
             "nbPoints": 808,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336248154653",
             "registeredEntries": [
                 {
@@ -1010,7 +1010,7 @@ data = {
             "lastName": "JOUNKYRF",
             "licenceNo": 7214582,
             "nbPoints": 1534,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336142636429",
             "registeredEntries": [
                 {
@@ -1052,7 +1052,7 @@ data = {
             "lastName": "QDUJVVUV",
             "licenceNo": 9247952,
             "nbPoints": 1342,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336668212878",
             "registeredEntries": [
                 {
@@ -1094,7 +1094,7 @@ data = {
             "lastName": "MTWJESWJ",
             "licenceNo": 7217573,
             "nbPoints": 1417,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336755099505",
             "registeredEntries": [
                 {
@@ -1136,7 +1136,7 @@ data = {
             "lastName": "ZCPCUWHT",
             "licenceNo": 7219491,
             "nbPoints": 1380,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336926115731",
             "registeredEntries": [
                 {
@@ -1171,7 +1171,7 @@ data = {
             "lastName": "HKIVBRUY",
             "licenceNo": 914291,
             "nbPoints": 1481,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336944792288",
             "registeredEntries": [
                 {
@@ -1192,7 +1192,7 @@ data = {
             "lastName": "LFFLKEOG",
             "licenceNo": 7887928,
             "nbPoints": 778,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336443570667",
             "registeredEntries": [
                 {
@@ -1234,7 +1234,7 @@ data = {
             "lastName": "ZVGLUQJD",
             "licenceNo": 5326543,
             "nbPoints": 1252,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336508925440",
             "registeredEntries": [
                 {
@@ -1262,7 +1262,7 @@ data = {
             "lastName": "RXGMAHSP",
             "licenceNo": 5327528,
             "nbPoints": 1199,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336034559647",
             "registeredEntries": [
                 {
@@ -1290,7 +1290,7 @@ data = {
             "lastName": "FJUDNNAU",
             "licenceNo": 5327529,
             "nbPoints": 641,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336816201296",
             "registeredEntries": [
                 {
@@ -1318,7 +1318,7 @@ data = {
             "lastName": "JQEWNZVW",
             "licenceNo": 9410780,
             "nbPoints": 1477,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336967801610",
             "registeredEntries": [
                 {
@@ -1353,7 +1353,7 @@ data = {
             "lastName": "ZSBFQKYE",
             "licenceNo": 4526611,
             "nbPoints": 1737,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336992296491",
             "registeredEntries": [
                 {
@@ -1381,7 +1381,7 @@ data = {
             "lastName": "JXJUZDZK",
             "licenceNo": 7884741,
             "nbPoints": 1097,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336253796038",
             "registeredEntries": [
                 {
@@ -1416,7 +1416,7 @@ data = {
             "lastName": "XJYPXGPT",
             "licenceNo": 5327556,
             "nbPoints": 1538,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336138697079",
             "registeredEntries": [
                 {
@@ -1444,7 +1444,7 @@ data = {
             "lastName": "DJGBQNQJ",
             "licenceNo": 3731597,
             "nbPoints": 896,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336668854144",
             "registeredEntries": [
                 {
@@ -1472,7 +1472,7 @@ data = {
             "lastName": "FXAOPBGS",
             "licenceNo": 6021038,
             "nbPoints": 1735,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336468308655",
             "registeredEntries": [
                 {
@@ -1507,7 +1507,7 @@ data = {
             "lastName": "PKKRLNXK",
             "licenceNo": 4529052,
             "nbPoints": 815,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336220372463",
             "registeredEntries": [
                 {
@@ -1535,7 +1535,7 @@ data = {
             "lastName": "HMQXOUPK",
             "licenceNo": 4529053,
             "nbPoints": 1047,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336850663471",
             "registeredEntries": [
                 {
@@ -1563,7 +1563,7 @@ data = {
             "lastName": "LHNENQRZ",
             "licenceNo": 9240480,
             "nbPoints": 751,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336303268786",
             "registeredEntries": [
                 {
@@ -1605,7 +1605,7 @@ data = {
             "lastName": "XOLGFTAN",
             "licenceNo": 4111546,
             "nbPoints": 1305,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336128976817",
             "registeredEntries": [
                 {
@@ -1647,7 +1647,7 @@ data = {
             "lastName": "KIGTDPBH",
             "licenceNo": 1420954,
             "nbPoints": 1019,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336318836582",
             "registeredEntries": [
                 {
@@ -1689,7 +1689,7 @@ data = {
             "lastName": "ZRQQHQZO",
             "licenceNo": 7225209,
             "nbPoints": 546,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336419527912",
             "registeredEntries": [
                 {
@@ -1717,7 +1717,7 @@ data = {
             "lastName": "UFBUDADJ",
             "licenceNo": 7221275,
             "nbPoints": 1249,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336269911214",
             "registeredEntries": [
                 {
@@ -1752,7 +1752,7 @@ data = {
             "lastName": "IZUXFTOH",
             "licenceNo": 3524722,
             "nbPoints": 1442,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336587705971",
             "registeredEntries": [
                 {
@@ -1773,7 +1773,7 @@ data = {
             "lastName": "UYJXNEHX",
             "licenceNo": 9242977,
             "nbPoints": 500,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336771439111",
             "registeredEntries": [
                 {
@@ -1801,7 +1801,7 @@ data = {
             "lastName": "AQKXKNBC",
             "licenceNo": 9252435,
             "nbPoints": 835,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336725193582",
             "registeredEntries": [
                 {
@@ -1829,7 +1829,7 @@ data = {
             "lastName": "HTYGMBON",
             "licenceNo": 1425307,
             "nbPoints": 1891,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336582395729",
             "registeredEntries": [
                 {
@@ -1857,7 +1857,7 @@ data = {
             "lastName": "TYLANABF",
             "licenceNo": 7213526,
             "nbPoints": 1106,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336291515263",
             "registeredEntries": [
                 {
@@ -1899,7 +1899,7 @@ data = {
             "lastName": "SDUBHFJL",
             "licenceNo": 6021265,
             "nbPoints": 1547,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336533634748",
             "registeredEntries": [
                 {
@@ -1941,7 +1941,7 @@ data = {
             "lastName": "WNYZPAWB",
             "licenceNo": 9256721,
             "nbPoints": 581,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336078499112",
             "registeredEntries": [
                 {
@@ -1969,7 +1969,7 @@ data = {
             "lastName": "OHDPGLCA",
             "licenceNo": 7221748,
             "nbPoints": 901,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336407961898",
             "registeredEntries": [
                 {
@@ -1990,7 +1990,7 @@ data = {
             "lastName": "QOFQIKPF",
             "licenceNo": 7731399,
             "nbPoints": 1534,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336962769215",
             "registeredEntries": [
                 {
@@ -2025,7 +2025,7 @@ data = {
             "lastName": "KIKBKBWS",
             "licenceNo": 4530898,
             "nbPoints": 593,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336023925042",
             "registeredEntries": [
                 {
@@ -2053,7 +2053,7 @@ data = {
             "lastName": "SFXIDHEQ",
             "licenceNo": 4935234,
             "nbPoints": 1146,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336263574439",
             "registeredEntries": [
                 {
@@ -2081,7 +2081,7 @@ data = {
             "lastName": "GZLDPNEH",
             "licenceNo": 608834,
             "nbPoints": 1721,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336044431914",
             "registeredEntries": [
                 {
@@ -2116,7 +2116,7 @@ data = {
             "lastName": "XYQPAZJE",
             "licenceNo": 5324871,
             "nbPoints": 1437,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336931684226",
             "registeredEntries": [
                 {
@@ -2151,7 +2151,7 @@ data = {
             "lastName": "GRGHDXPJ",
             "licenceNo": 4435747,
             "nbPoints": 1255,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336634646740",
             "registeredEntries": [
                 {
@@ -2193,7 +2193,7 @@ data = {
             "lastName": "ZTXRBGQA",
             "licenceNo": 7222110,
             "nbPoints": 1571,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336812642957",
             "registeredEntries": [
                 {
@@ -2235,7 +2235,7 @@ data = {
             "lastName": "GXSSGFRM",
             "licenceNo": 5328211,
             "nbPoints": 697,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336910539746",
             "registeredEntries": [
                 {
@@ -2263,7 +2263,7 @@ data = {
             "lastName": "ZYWMLBWF",
             "licenceNo": 5615415,
             "nbPoints": 1901,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336041306040",
             "registeredEntries": [
                 {
@@ -2284,7 +2284,7 @@ data = {
             "lastName": "RWNDBZOB",
             "licenceNo": 3712439,
             "nbPoints": 1206,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336708970870",
             "registeredEntries": [
                 {
@@ -2326,7 +2326,7 @@ data = {
             "lastName": "SCEZCCRO",
             "licenceNo": 4939159,
             "nbPoints": 1231,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336175019437",
             "registeredEntries": [
                 {
@@ -2361,7 +2361,7 @@ data = {
             "lastName": "EFPBJJIW",
             "licenceNo": 2814398,
             "nbPoints": 1149,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336999559490",
             "registeredEntries": [
                 {
@@ -2396,7 +2396,7 @@ data = {
             "lastName": "GPDVOUUX",
             "licenceNo": 4529851,
             "nbPoints": 1122,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336562509807",
             "registeredEntries": [
                 {
@@ -2431,7 +2431,7 @@ data = {
             "lastName": "HQGWRHAQ",
             "licenceNo": 4527511,
             "nbPoints": 1388,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336830909893",
             "registeredEntries": [
                 {
@@ -2459,7 +2459,7 @@ data = {
             "lastName": "ZCNDZZBY",
             "licenceNo": 4532589,
             "nbPoints": 966,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336266069622",
             "registeredEntries": [
                 {
@@ -2501,7 +2501,7 @@ data = {
             "lastName": "PDXFFTEP",
             "licenceNo": 5324235,
             "nbPoints": 1345,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336688933730",
             "registeredEntries": [
                 {
@@ -2529,7 +2529,7 @@ data = {
             "lastName": "UMOABWZF",
             "licenceNo": 9321828,
             "nbPoints": 857,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336808987945",
             "registeredEntries": [
                 {
@@ -2557,7 +2557,7 @@ data = {
             "lastName": "YUIIAHZZ",
             "licenceNo": 4530477,
             "nbPoints": 862,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336995954810",
             "registeredEntries": [
                 {
@@ -2585,7 +2585,7 @@ data = {
             "lastName": "WQQWXIHE",
             "licenceNo": 7222777,
             "nbPoints": 611,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336149895660",
             "registeredEntries": [
                 {
@@ -2627,7 +2627,7 @@ data = {
             "lastName": "CKXPFJSK",
             "licenceNo": 9321954,
             "nbPoints": 714,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336224511754",
             "registeredEntries": [
                 {
@@ -2655,7 +2655,7 @@ data = {
             "lastName": "LTIBYLOB",
             "licenceNo": 5327437,
             "nbPoints": 900,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336259932590",
             "registeredEntries": [
                 {
@@ -2683,7 +2683,7 @@ data = {
             "lastName": "HFONBSGQ",
             "licenceNo": 3727799,
             "nbPoints": 1208,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336344090490",
             "registeredEntries": [
                 {
@@ -2711,7 +2711,7 @@ data = {
             "lastName": "ANNWHKEX",
             "licenceNo": 7210055,
             "nbPoints": 1177,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336161678371",
             "registeredEntries": [
                 {
@@ -2739,7 +2739,7 @@ data = {
             "lastName": "UFVSFPBZ",
             "licenceNo": 7214813,
             "nbPoints": 796,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336568714075",
             "registeredEntries": [
                 {
@@ -2767,7 +2767,7 @@ data = {
             "lastName": "CHYTWBCJ",
             "licenceNo": 7219370,
             "nbPoints": 1103,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336177732321",
             "registeredEntries": [
                 {
@@ -2802,7 +2802,7 @@ data = {
             "lastName": "MYKISYYT",
             "licenceNo": 5325044,
             "nbPoints": 1719,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336470840237",
             "registeredEntries": [
                 {
@@ -2830,21 +2830,21 @@ data = {
             "lastName": "JTFLCUZD",
             "licenceNo": 5326002,
             "nbPoints": 1364,
-            "paymentDiff": 0,
+            "totalActualPaid": 7,
             "phone": "+336368307553",
             "registeredEntries": [
                 {
                     "categoryId": "B",
                     "licenceNo": 5326002,
                     "markedAsPaid": False,
-                    "markedAsPresent": False,
+                    "markedAsPresent": True,
                     "registrationTime": "2023-09-19T15:04:30",
                 },
                 {
                     "categoryId": "G",
                     "licenceNo": 5326002,
-                    "markedAsPaid": True,
-                    "markedAsPresent": False,
+                    "markedAsPaid": False,
+                    "markedAsPresent": True,
                     "registrationTime": "2023-11-16T12:30:04",
                 },
             ],
@@ -2858,7 +2858,7 @@ data = {
             "lastName": "TWMHXBNG",
             "licenceNo": 9322263,
             "nbPoints": 551,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336835858696",
             "registeredEntries": [
                 {
@@ -2886,7 +2886,7 @@ data = {
             "lastName": "WYQYCMUJ",
             "licenceNo": 798720,
             "nbPoints": 1958,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336065273222",
             "registeredEntries": [
                 {
@@ -2921,7 +2921,7 @@ data = {
             "lastName": "HPHCTKSA",
             "licenceNo": 9256846,
             "nbPoints": 864,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336952443602",
             "registeredEntries": [
                 {
@@ -2963,7 +2963,7 @@ data = {
             "lastName": "IGFCMUVU",
             "licenceNo": 7218763,
             "nbPoints": 831,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336239689879",
             "registeredEntries": [
                 {
@@ -3005,7 +3005,7 @@ data = {
             "lastName": "MHVMKTGE",
             "licenceNo": 5328103,
             "nbPoints": 702,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336944779212",
             "registeredEntries": [
                 {
@@ -3033,21 +3033,21 @@ data = {
             "lastName": "EZWLKRWE",
             "licenceNo": 4526124,
             "nbPoints": 1149,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336919756238",
             "registeredEntries": [
                 {
                     "categoryId": "B",
                     "licenceNo": 4526124,
                     "markedAsPaid": False,
-                    "markedAsPresent": False,
+                    "markedAsPresent": True,
                     "registrationTime": "2023-11-17T18:01:20",
                 },
                 {
                     "categoryId": "F",
                     "licenceNo": 4526124,
                     "markedAsPaid": False,
-                    "markedAsPresent": False,
+                    "markedAsPresent": True,
                     "registrationTime": "2023-11-25T21:56:50",
                 },
             ],
@@ -3061,7 +3061,7 @@ data = {
             "lastName": "EBWSLVVF",
             "licenceNo": 5326610,
             "nbPoints": 870,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336486433387",
             "registeredEntries": [
                 {
@@ -3089,7 +3089,7 @@ data = {
             "lastName": "GTHLUKDT",
             "licenceNo": 3537537,
             "nbPoints": 2008,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336443926556",
             "registeredEntries": [
                 {
@@ -3110,7 +3110,7 @@ data = {
             "lastName": "XAWMYYIV",
             "licenceNo": 7219456,
             "nbPoints": 1485,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336797617186",
             "registeredEntries": [
                 {
@@ -3138,7 +3138,7 @@ data = {
             "lastName": "EIDMBYJU",
             "licenceNo": 7874062,
             "nbPoints": 1251,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336679978940",
             "registeredEntries": [
                 {
@@ -3173,7 +3173,7 @@ data = {
             "lastName": "AXFKRLVQ",
             "licenceNo": 9323439,
             "nbPoints": 523,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336601695855",
             "registeredEntries": [
                 {
@@ -3201,7 +3201,7 @@ data = {
             "lastName": "POHKBTWO",
             "licenceNo": 5325867,
             "nbPoints": 1662,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336833044815",
             "registeredEntries": [
                 {
@@ -3229,7 +3229,7 @@ data = {
             "lastName": "RGRKXRWC",
             "licenceNo": 4528713,
             "nbPoints": 894,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336604391689",
             "registeredEntries": [
                 {
@@ -3271,7 +3271,7 @@ data = {
             "lastName": "SGMSTESX",
             "licenceNo": 9324241,
             "nbPoints": 523,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336605622040",
             "registeredEntries": [
                 {
@@ -3299,7 +3299,7 @@ data = {
             "lastName": "ITMZMIPM",
             "licenceNo": 4422906,
             "nbPoints": 1310,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336072282639",
             "registeredEntries": [
                 {
@@ -3334,7 +3334,7 @@ data = {
             "lastName": "YCCFVLGS",
             "licenceNo": 3525635,
             "nbPoints": 1307,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336255082716",
             "registeredEntries": [
                 {
@@ -3369,7 +3369,7 @@ data = {
             "lastName": "ZCZCIDKF",
             "licenceNo": 5327901,
             "nbPoints": 1329,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336051682958",
             "registeredEntries": [
                 {
@@ -3397,7 +3397,7 @@ data = {
             "lastName": "YAKWORSX",
             "licenceNo": 4530487,
             "nbPoints": 779,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336643054425",
             "registeredEntries": [
                 {
@@ -3425,7 +3425,7 @@ data = {
             "lastName": "CEAOHUQH",
             "licenceNo": 9321971,
             "nbPoints": 897,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336040224620",
             "registeredEntries": [
                 {
@@ -3467,7 +3467,7 @@ data = {
             "lastName": "PUIVRWGZ",
             "licenceNo": 4529838,
             "nbPoints": 1399,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336009040012",
             "registeredEntries": [
                 {
@@ -3495,7 +3495,7 @@ data = {
             "lastName": "MMBRHYHD",
             "licenceNo": 4455748,
             "nbPoints": 1501,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336113840164",
             "registeredEntries": [
                 {
@@ -3530,7 +3530,7 @@ data = {
             "lastName": "OYHKWBKK",
             "licenceNo": 9532616,
             "nbPoints": 2167,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336380050600",
             "registeredEntries": [
                 {
@@ -3551,7 +3551,7 @@ data = {
             "lastName": "GTSEZQSB",
             "licenceNo": 5325506,
             "nbPoints": 1629,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336322657219",
             "registeredEntries": [
                 {
@@ -3579,7 +3579,7 @@ data = {
             "lastName": "NUIGCUPU",
             "licenceNo": 7218408,
             "nbPoints": 772,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336686260497",
             "registeredEntries": [
                 {
@@ -3621,7 +3621,7 @@ data = {
             "lastName": "RIOEILJS",
             "licenceNo": 9239990,
             "nbPoints": 719,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336685487053",
             "registeredEntries": [
                 {
@@ -3663,7 +3663,7 @@ data = {
             "lastName": "ORLJZXXM",
             "licenceNo": 9457149,
             "nbPoints": 1729,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336472086583",
             "registeredEntries": [
                 {
@@ -3691,7 +3691,7 @@ data = {
             "lastName": "FTXMWDKH",
             "licenceNo": 4529894,
             "nbPoints": 672,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336345281862",
             "registeredEntries": [
                 {
@@ -3719,7 +3719,7 @@ data = {
             "lastName": "QLLISRFJ",
             "licenceNo": 4462320,
             "nbPoints": 1016,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336776307966",
             "registeredEntries": [
                 {
@@ -3747,13 +3747,13 @@ data = {
             "lastName": "LNGPQTTV",
             "licenceNo": 7221154,
             "nbPoints": 1568,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336674877385",
             "registeredEntries": [
                 {
                     "categoryId": "E",
                     "licenceNo": 7221154,
-                    "markedAsPaid": True,
+                    "markedAsPaid": False,
                     "markedAsPresent": False,
                     "registrationTime": "2023-07-11T22:50:23",
                 },
@@ -3761,13 +3761,13 @@ data = {
                     "categoryId": "G",
                     "licenceNo": 7221154,
                     "markedAsPaid": False,
-                    "markedAsPresent": False,
+                    "markedAsPresent": True,
                     "registrationTime": "2023-09-12T23:08:23",
                 },
                 {
                     "categoryId": "1",
                     "licenceNo": 7221154,
-                    "markedAsPaid": True,
+                    "markedAsPaid": False,
                     "markedAsPresent": False,
                     "registrationTime": "2023-09-25T06:16:33",
                 },
@@ -3789,7 +3789,7 @@ data = {
             "lastName": "UYPLUGVM",
             "licenceNo": 5318378,
             "nbPoints": 1861,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336137104939",
             "registeredEntries": [
                 {
@@ -3817,7 +3817,7 @@ data = {
             "lastName": "FWDUITLF",
             "licenceNo": 4527177,
             "nbPoints": 1312,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336836299148",
             "registeredEntries": [
                 {
@@ -3845,7 +3845,7 @@ data = {
             "lastName": "AVDGJPLA",
             "licenceNo": 7527624,
             "nbPoints": 1513,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336183591785",
             "registeredEntries": [
                 {
@@ -3873,7 +3873,7 @@ data = {
             "lastName": "ROCRJSIT",
             "licenceNo": 7216475,
             "nbPoints": 500,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336521341951",
             "registeredEntries": [
                 {
@@ -3908,7 +3908,7 @@ data = {
             "lastName": "ABGYHZKT",
             "licenceNo": 7221254,
             "nbPoints": 1548,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336445887541",
             "registeredEntries": [
                 {
@@ -3950,7 +3950,7 @@ data = {
             "lastName": "DKPBAPUD",
             "licenceNo": 9221871,
             "nbPoints": 1156,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336563560122",
             "registeredEntries": [
                 {
@@ -3978,7 +3978,7 @@ data = {
             "lastName": "VOEZXKKO",
             "licenceNo": 4527982,
             "nbPoints": 735,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336638455084",
             "registeredEntries": [
                 {
@@ -4006,7 +4006,7 @@ data = {
             "lastName": "CEBCEPDJ",
             "licenceNo": 7216286,
             "nbPoints": 843,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336503390520",
             "registeredEntries": [
                 {
@@ -4034,7 +4034,7 @@ data = {
             "lastName": "VAVIRLYZ",
             "licenceNo": 7217048,
             "nbPoints": 1286,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336370778197",
             "registeredEntries": [
                 {
@@ -4062,7 +4062,7 @@ data = {
             "lastName": "TJNYYBJE",
             "licenceNo": 9426636,
             "nbPoints": 943,
-            "paymentDiff": 1,
+            "totalActualPaid": 1,
             "phone": "+336400475384",
             "registeredEntries": [
                 {
@@ -4104,7 +4104,7 @@ data = {
             "lastName": "TYXWOMYI",
             "licenceNo": 7225053,
             "nbPoints": 675,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336406303705",
             "registeredEntries": [
                 {
@@ -4132,7 +4132,7 @@ data = {
             "lastName": "MYUORACV",
             "licenceNo": 9245676,
             "nbPoints": 880,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336672808099",
             "registeredEntries": [
                 {
@@ -4174,7 +4174,7 @@ data = {
             "lastName": "LJLWWGLT",
             "licenceNo": 3726270,
             "nbPoints": 1422,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336180454164",
             "registeredEntries": [
                 {
@@ -4209,7 +4209,7 @@ data = {
             "lastName": "LEOJUHVP",
             "licenceNo": 3727700,
             "nbPoints": 1265,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336276333958",
             "registeredEntries": [
                 {
@@ -4244,7 +4244,7 @@ data = {
             "lastName": "BZFLMGIC",
             "licenceNo": 7525173,
             "nbPoints": 808,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336993578146",
             "registeredEntries": [
                 {
@@ -4272,7 +4272,7 @@ data = {
             "lastName": "VWCFOURA",
             "licenceNo": 61624,
             "nbPoints": 1627,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336774464286",
             "registeredEntries": [
                 {
@@ -4307,7 +4307,7 @@ data = {
             "lastName": "DDWMMBQS",
             "licenceNo": 9137160,
             "nbPoints": 1151,
-            "paymentDiff": 0,
+            "totalActualPaid": 0,
             "phone": "+336014602526",
             "registeredEntries": [
                 {

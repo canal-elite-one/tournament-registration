@@ -5,11 +5,12 @@ from flaskr.db import (
     session,
     Category,
     Player,
-    get_player_not_found_message,
+    get_player_not_found_error,
     CategorySchema,
     PlayerSchema,
     Entry,
 )
+from flaskr.api_input_schemas import MakePaymentSchema, CategoryIdsSchema
 from sqlalchemy import delete, select, text, func, update, distinct
 from sqlalchemy.exc import DBAPIError
 from json import loads
@@ -33,9 +34,9 @@ def api_admin_set_categories():
             HTTPStatus.BAD_REQUEST,
         )
 
-    schema = CategorySchema(many=True)
+    c_schema = CategorySchema(many=True)
     try:
-        categories = schema.load(request.json["categories"])
+        categories = c_schema.load(request.json["categories"])
     except ValidationError as e:
         return (
             jsonify(
@@ -53,7 +54,7 @@ def api_admin_set_categories():
         session.commit()
         return (
             jsonify(
-                schema.dump(
+                c_schema.dump(
                     session.scalars(
                         select(Category).order_by(Category.start_time),
                     ).all(),
@@ -75,126 +76,77 @@ def api_admin_set_categories():
 @api_bp.route("/pay/<int:licence_no>", methods=["PUT"])
 def api_admin_make_payment(licence_no):
     """
-    This endpoint allows admin user to register payments
-    made by players, specifically:\n
-    * For which categories did they pay
-    * How much did they actually pay if they did not pay the exact amount
-    to settle all entries marked as paid, both for this
-    transaction and for the previous ones.
+    Requires both a 'categoryIds' and a 'totalActualPaid' field in json.
+    For each category_id, will update entry.marked_as_paid to True.
+    Will update player.total_actual_paid to value of 'totalActualPaid'.
+    Idempotent.
 
-    It requires some attached json in the request,
-     with the following fields:\n
-    * For paying player identification, either a ``'licenceNo'``
-    or both a ``'firstName'`` and ``'lastName'`` str fields.
-     Will prioritise using ``'licenceNo'`` if present.\n
-    * A ``'categoryIds'`` array field\n
-    * Optionally, an ``'actualPaid'`` int field, representing
-    the actual amount of money that has just changed hands.
-
-    WARNING: If the ``'actualPaid'`` field is not present, the default
-    behaviour is to assume the current payment was
-    exactly enough to settle ALL entries marked as paid,
-    including those in previous transactions, as opposed to only
-    those for this transaction. In other words, the value of
-    ``player.payment_diff`` will be reset to ``0``,
-    with the actual amount paid this transaction assumed to be:
-    ``settled_now['amount'] - player.payment_diff`` instead of just ``settled_now``
+    Will return BAD_REQUEST (and not change anything db-side) for:
+    - nonexisting licence_no.
+    - category_ids that either do not exist in db or the player is not registered for.
+    - WARNING: the corresponding entry is not marked_as_present = True.
+    - WARNING: if totalActualPaid > sum of the fees required
+        to pay for all entries with marked_as_present=True, or negative.
     """
-    if "categoryIds" not in request.json:
-        return (
-            jsonify(error="Missing 'categoryIds' field in json."),
-            HTTPStatus.BAD_REQUEST,
-        )
 
-    player = session.get(Player, licence_no)
-    if player is None:
-        return (
-            jsonify(error=get_player_not_found_message(licence_no)),
-            HTTPStatus.BAD_REQUEST,
-        )
+    v_schema = MakePaymentSchema()
+    if error := v_schema.validate(request.json):
+        return jsonify(error=error), HTTPStatus.BAD_REQUEST
 
-    to_pay = set(request.json["categoryIds"])
-    all_entries = {"amount": 0, "categoryIds": []}
-    settled_previously = {"amount": 0, "categoryIds": []}
-    settled_now = {"amount": 0, "categoryIds": []}
-    left_to_settle = {"amount": 0, "categoryIds": []}
-    duplicates = []
+    if (player := session.get(Player, licence_no)) is None:
+        return jsonify(get_player_not_found_error(licence_no)), HTTPStatus.BAD_REQUEST
 
-    for entry in sorted(player.entries, key=lambda x: x.category.start_time):
-        cat = entry.category
-        all_entries["amount"] += cat.entry_fee
-        all_entries["categoryIds"].append(cat.category_id)
-        if entry.marked_as_paid:
-            if cat.category_id in to_pay:
-                duplicates.append(cat.category_id)
-            settled_previously["amount"] += cat.entry_fee
-            settled_previously["categoryIds"].append(cat.category_id)
-        elif cat.category_id in to_pay:
-            settled_now["amount"] += cat.entry_fee
-            settled_now["categoryIds"].append(cat.category_id)
-            to_pay.remove(cat.category_id)
-        else:
-            left_to_settle["amount"] += cat.entry_fee
-            left_to_settle["categoryIds"].append(cat.category_id)
+    ids_to_pay = set(request.json["categoryIds"])
 
-    if duplicates:
+    if nonexisting_unregistered_nonpresent_categories := ids_to_pay.difference(
+        entry.category_id for entry in player.present_entries()
+    ):
         return (
             jsonify(
-                error=f"Tried to make payment for some entries which were already "
-                f"paid for: {duplicates}",
+                error=f"Tried to pay the fee for some categories which "
+                f"either did not exist, the player was not "
+                f"registered for, or was not marked present: "
+                f"{sorted(nonexisting_unregistered_nonpresent_categories)}",
             ),
             HTTPStatus.BAD_REQUEST,
         )
 
-    if to_pay:
+    for entry in player.present_entries():
+        if entry.category_id in ids_to_pay:
+            entry.marked_as_paid = True
+
+    if player.current_required_payment() < request.json["totalActualPaid"]:
+        session.rollback()
         return (
             jsonify(
-                error=f"Tried to pay the fee for some categories which did not exist, "
-                f"or to which the player was not registered: {to_pay}",
+                error="The 'totalActualPaid' field is higher than what the player must "
+                "currently pay for all categories he is marked as present",
             ),
             HTTPStatus.BAD_REQUEST,
         )
 
-    actual_paid_now = request.json.get("actualPaid", None)
-    if actual_paid_now is None:
-        actual_paid_now = settled_now["amount"] - player.payment_diff
-        player.payment_diff = 0
-    else:
-        player.payment_diff = (
-            actual_paid_now - settled_now["amount"] + player.payment_diff
-        )
+    player.total_actual_paid = request.json["totalActualPaid"]
 
-    for category_id in settled_now["categoryIds"]:
-        entry = session.get(Entry, (category_id, licence_no))
-        entry.marked_as_paid = True
     session.commit()
-    recap = {
-        "actualPaidNow": actual_paid_now,
-        "paymentDiff": player.payment_diff,
-        "actualRemaining": left_to_settle["amount"] - player.payment_diff,
-        "allEntries": all_entries,
-        "settledPreviously": settled_previously,
-        "settledNow": settled_now,
-        "leftToPay": left_to_settle,
-    }
-    return jsonify(recap), HTTPStatus.OK
+    p_schema = PlayerSchema()
+    p_schema.context["include_entries"] = True
+    return jsonify(p_schema.dump(player)), HTTPStatus.OK
 
 
 @api_bp.route("/entries/<int:licence_no>", methods=["DELETE"])
 def api_admin_delete_entries(licence_no):
-    if "categoryIds" not in request.json:
+    v_schema = CategoryIdsSchema()
+    if error := v_schema.validate(request.json):
         return (
-            jsonify(error="Missing 'categoryIds' field in json."),
+            jsonify(error=error),
             HTTPStatus.BAD_REQUEST,
         )
+
     category_ids = request.json["categoryIds"]
 
     player = session.get(Player, licence_no)
     if player is None:
-        return (
-            jsonify(error=get_player_not_found_message(licence_no)),
-            HTTPStatus.BAD_REQUEST,
-        )
+        return jsonify(get_player_not_found_error(licence_no)), HTTPStatus.BAD_REQUEST
 
     if unregistered_category_ids := set(category_ids).difference(
         entry.category_id for entry in player.entries
@@ -202,7 +154,8 @@ def api_admin_delete_entries(licence_no):
         return (
             jsonify(
                 error=f"Tried to delete some entries which were not registered or "
-                f"even for nonexisting categories: {unregistered_category_ids}.",
+                f"even for nonexisting categories: "
+                f"{sorted(unregistered_category_ids)}.",
             ),
             HTTPStatus.BAD_REQUEST,
         )
@@ -216,7 +169,7 @@ def api_admin_delete_entries(licence_no):
         )
         session.commit()
         p_schema = PlayerSchema()
-        p_schema.context["with_entries_info"] = True
+        p_schema.context["include_entries"] = True
         return jsonify(p_schema.dump(player)), HTTPStatus.OK
 
     except DBAPIError as e:
@@ -229,7 +182,7 @@ def api_admin_delete_player(licence_no):
     player = session.get(Player, licence_no)
     if player is None:
         return (
-            jsonify(error=get_player_not_found_message(licence_no)),
+            jsonify(get_player_not_found_error(licence_no)),
             HTTPStatus.BAD_REQUEST,
         )
 
@@ -251,15 +204,15 @@ def api_admin_mark_present(licence_no):
     player.marked_as_present to True/False,
     depending on which field it is in. Idempotent.
 
-    Returns BAD_REQUEST for nonexisting licence_no,
-    nonempty intersection between the two fields,
-    nonexisting and/or nonregistered category_ids, and NOT for
-    empty fields.
+    Returns BAD_REQUEST for:
+    - nonexisting licence_no,
+    - nonexisting and/or nonregistered category_ids
+    - nonempty intersection between the two fields,
     """
     player = session.get(Player, licence_no)
     if player is None:
         return (
-            jsonify(error=get_player_not_found_message(licence_no)),
+            jsonify(get_player_not_found_error(licence_no)),
             HTTPStatus.BAD_REQUEST,
         )
 
@@ -274,7 +227,7 @@ def api_admin_mark_present(licence_no):
             jsonify(
                 error=f"Tried to mark/unmark player for categories which he was not "
                 f"registered for or even non_existing catgories"
-                f": {unregistered_nonexisting_categories}",
+                f": {sorted(unregistered_nonexisting_categories)}",
             ),
             HTTPStatus.BAD_REQUEST,
         )
@@ -283,27 +236,19 @@ def api_admin_mark_present(licence_no):
         return (
             jsonify(
                 error=f"Tried to mark and unmark player "
-                f"as present for same categories: {present_in_both}",
+                f"as present for same categories: {sorted(present_in_both)}",
             ),
             HTTPStatus.BAD_REQUEST,
         )
 
-    session.execute(
-        update(Entry),
-        [
-            {
-                "licence_no": licence_no,
-                "category_id": cat_id,
-                "marked_as_present": cat_id in ids_to_mark,
-            }
-            for cat_id in all_ids_to_update
-        ],
-    )
+    for entry in player.entries:
+        if entry.category_id in all_ids_to_update:
+            entry.marked_as_present = entry.category_id in ids_to_mark
 
     session.commit()
 
     p_schema = PlayerSchema()
-    p_schema.context["with_entries_info"] = True
+    p_schema.context["include_entries"] = True
     return jsonify(p_schema.dump(player)), HTTPStatus.OK
 
 
@@ -339,7 +284,7 @@ def api_admin_assign_one_bib(licence_no):
 
     if player is None:
         return (
-            jsonify(error=get_player_not_found_message(licence_no)),
+            jsonify(get_player_not_found_error(licence_no)),
             HTTPStatus.BAD_REQUEST,
         )
 
@@ -367,8 +312,8 @@ def api_admin_assign_one_bib(licence_no):
         {"licence_no": player.licence_no},
     )
     session.commit()
-    schema = PlayerSchema()
-    return jsonify(schema.dump(player)), HTTPStatus.OK
+    p_schema = PlayerSchema()
+    return jsonify(p_schema.dump(player)), HTTPStatus.OK
 
 
 @api_bp.route("/bibs", methods=["DELETE"])
@@ -402,8 +347,6 @@ def api_admin_get_players_by_category():
 @api_bp.route("/all_players", methods=["GET"])
 def api_admin_get_all_players():
     present_only = request.args.get("present_only", False, loads) is True
-    schema = PlayerSchema(many=True)
-    schema.context["with_entries_info"] = True
 
     if present_only:
         query = (
@@ -415,7 +358,10 @@ def api_admin_get_all_players():
     else:
         query = select(Player)
 
-    return jsonify(players=schema.dump(session.scalars(query).all())), HTTPStatus.OK
+    p_schema = PlayerSchema(many=True)
+    p_schema.context["include_entries"] = True
+
+    return jsonify(players=p_schema.dump(session.scalars(query).all())), HTTPStatus.OK
 
 
 @api_bp.route("/categories", methods=["GET"])
@@ -432,34 +378,22 @@ def api_get_categories():
 
 @api_bp.route("/players", methods=["POST"])
 def api_add_player():
-    if "player" not in request.json:
-        return (
-            jsonify(error="json was missing 'player' field. Player was not added."),
-            HTTPStatus.BAD_REQUEST,
-        )
+    p_schema = PlayerSchema()
+    if error := p_schema.validate(request.json):
+        return jsonify(error=error), HTTPStatus.BAD_REQUEST
 
-    schema = PlayerSchema()
-    try:
-        player = schema.load(request.json["player"])
-    except ValidationError as e:
-        return (
-            jsonify(
-                error=f"Some player data was missing or wrongly formatted. "
-                f"Player was not added. {e}",
-            ),
-            HTTPStatus.BAD_REQUEST,
-        )
+    player = p_schema.load(request.json)
 
     try:
         session.add(player)
         session.commit()
-        return schema.dump(player), HTTPStatus.CREATED
-    except DBAPIError as e:
+        return p_schema.dump(player), HTTPStatus.CREATED
+    except DBAPIError:
         session.rollback()
         return (
             jsonify(
-                error=f"A player with this licence already exists in the database. "
-                f"Player was not added. {e}",
+                error="A player with this licence already exists in the database. "
+                "Player was not added.",
             ),
             HTTPStatus.BAD_REQUEST,
         )
@@ -472,19 +406,15 @@ def api_get_player(licence_no):
         return jsonify(player=None, registeredEntries=[]), HTTPStatus.OK
 
     p_schema = PlayerSchema()
-    p_schema.context["with_entries_info"] = True
+    p_schema.context["include_entries"] = True
     return jsonify(p_schema.dump(player)), HTTPStatus.OK
 
 
 @api_bp.route("/entries/<int:licence_no>", methods=["POST"])
 def api_register_entries(licence_no):
-    if "categoryIds" not in request.json:
-        return (
-            jsonify(
-                error="Missing 'categoryIds' field in json.",
-            ),
-            HTTPStatus.BAD_REQUEST,
-        )
+    v_schema = CategoryIdsSchema()
+    if error := v_schema.validate(request.json):
+        return jsonify(error=error), HTTPStatus.BAD_REQUEST
 
     category_ids = request.json["categoryIds"]
 
@@ -498,7 +428,7 @@ def api_register_entries(licence_no):
     if player is None:
         return (
             jsonify(
-                error=get_player_not_found_message(licence_no),
+                get_player_not_found_error(licence_no),
             ),
             HTTPStatus.BAD_REQUEST,
         )
@@ -509,7 +439,7 @@ def api_register_entries(licence_no):
         return (
             jsonify(
                 error=f"No categories with the following categoryIds "
-                f"{nonexisting_category_ids} exist in the database",
+                f"{sorted(nonexisting_category_ids)} exist in the database",
             ),
             HTTPStatus.BAD_REQUEST,
         )
@@ -552,13 +482,13 @@ def api_register_entries(licence_no):
         session.execute(stmt, temp_dicts)
         session.commit()
         p_schema = PlayerSchema()
-        p_schema.context["with_entries_info"] = True
+        p_schema.context["include_entries"] = True
         return jsonify(p_schema.dump(player)), HTTPStatus.CREATED
-    except DBAPIError as e:
+    except DBAPIError:
         session.rollback()
         return (
             jsonify(
-                error=f"One or several potential entries violate color constraint. {e}",
+                error="One or several potential entries violate color constraint.",
             ),
             HTTPStatus.BAD_REQUEST,
         )
