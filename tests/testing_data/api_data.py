@@ -180,6 +180,7 @@ incorrect_categories_missing_badly_formatted_data = {
         {},
     ],
 }
+
 incorrect_categories_missing_badly_formatted_data_error = (
     "Some category data was missing or wrongly "
     "formatted. Categories were not set. {0: {"
@@ -702,6 +703,22 @@ incorrect_mark_present_nonexisting_player = (
     missing_licence_error,
 )
 
+incorrect_mark_present_nonexisting_category = (
+    overall_correct_licence,
+    {
+        "categoryIdsToMark": ["FF"],
+    },
+    "Tried to mark/unmark player for categories which he was not ",
+)
+
+incorrect_mark_present_unregistered_category = (
+    overall_correct_licence,
+    {
+        "categoryIdsToMark": ["B"],
+    },
+    "Tried to mark/unmark player for categories which he was not ",
+)
+
 incorrect_mark_present_mark_unmark_same_id = (
     608834,
     {
@@ -713,6 +730,8 @@ incorrect_mark_present_mark_unmark_same_id = (
 
 incorrect_admin_mark_present = [
     incorrect_mark_present_nonexisting_player,
+    incorrect_mark_present_nonexisting_category,
+    incorrect_mark_present_unregistered_category,
     incorrect_mark_present_mark_unmark_same_id,
 ]
 

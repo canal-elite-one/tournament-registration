@@ -12,7 +12,6 @@ from flaskr.db import (
 )
 from sqlalchemy import delete, select, text, func, update, distinct
 from sqlalchemy.exc import DBAPIError
-from datetime import date
 from json import loads
 
 api_bp = Blueprint("api", __name__, url_prefix="/api")
@@ -246,21 +245,16 @@ def api_admin_delete_player(licence_no):
 @api_bp.route("/present/<int:licence_no>", methods=["PUT"])
 def api_admin_mark_present(licence_no):
     """
-    This endpoint allows admin to record whether a player was present
-    for each entry that they are registered for.
-    It expects a json payload with the following fields\n
-    * either a ``licenceNo`` or both a ``firstName`` and ``lastName`` str fields\n
-    * either a ``categoryIdsToMark``, a ``categoryIdsToUnmark``
-    array fields, both, or none\n
-    If either or both of the categoryIds field are present,
-    the endpoint changes the ``marked_as_present`` column for
-    each relevant entries accordingly,
-    except if the intersection of both array is nonempty,
-    in which case it return a BAD_REQUEST.\n
-    If none is present, the default behaviour is to set the
-    ``marked_as_present`` column to ``True``
-    for entries which correspond to categories with a
-    ``start_time`` of today .
+    Expects json fields "categoryIdsToMark" and "categoryIdsToUnmark"
+    with a list of categoryIds in each.
+    For each category_id in the fields, will update value of
+    player.marked_as_present to True/False,
+    depending on which field it is in. Idempotent.
+
+    Returns BAD_REQUEST for nonexisting licence_no,
+    nonempty intersection between the two fields,
+    nonexisting and/or nonregistered category_ids, and NOT for
+    empty fields.
     """
     player = session.get(Player, licence_no)
     if player is None:
@@ -271,6 +265,20 @@ def api_admin_mark_present(licence_no):
 
     ids_to_mark = set(request.json.get("categoryIdsToMark", []))
     ids_to_unmark = set(request.json.get("categoryIdsToUnmark", []))
+    all_ids_to_update = ids_to_mark.union(ids_to_unmark)
+
+    if unregistered_nonexisting_categories := all_ids_to_update.difference(
+        entry.category_id for entry in player.entries
+    ):
+        return (
+            jsonify(
+                error=f"Tried to mark/unmark player for categories which he was not "
+                f"registered for or even non_existing catgories"
+                f": {unregistered_nonexisting_categories}",
+            ),
+            HTTPStatus.BAD_REQUEST,
+        )
+
     if present_in_both := ids_to_mark.intersection(ids_to_unmark):
         return (
             jsonify(
@@ -280,34 +288,15 @@ def api_admin_mark_present(licence_no):
             HTTPStatus.BAD_REQUEST,
         )
 
-    def to_mark(en):
-        if ids_to_mark or ids_to_unmark:
-            return en.category_id in ids_to_mark
-        return en.category.start_time.date() == date.today()
-
     session.execute(
         update(Entry),
         [
             {
                 "licence_no": licence_no,
-                "category_id": entry.category_id,
-                "marked_as_present": True,
+                "category_id": cat_id,
+                "marked_as_present": cat_id in ids_to_mark,
             }
-            for entry in player.entries
-            if to_mark(entry)
-        ],
-    )
-
-    session.execute(
-        update(Entry),
-        [
-            {
-                "licence_no": licence_no,
-                "category_id": entry.category_id,
-                "marked_as_present": False,
-            }
-            for entry in player.entries
-            if entry.category_id in ids_to_unmark
+            for cat_id in all_ids_to_update
         ],
     )
 
