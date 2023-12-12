@@ -87,6 +87,8 @@ def api_admin_make_payment(licence_no):
     - WARNING: the corresponding entry is not marked_as_present = True.
     - WARNING: if totalActualPaid > sum of the fees required
         to pay for all entries with marked_as_present=True, or negative.
+    This last 400 is to enforce the fact that a player can never pay more
+    than the entries he has showed up for.
     """
 
     v_schema = MakePaymentSchema()
@@ -204,9 +206,19 @@ def api_admin_mark_present(licence_no):
     player.marked_as_present to True/False,
     depending on which field it is in. Idempotent.
 
+    Additionally, this is the only way to unpay an entry:
+    It is assumed that the only valid transitions paid=True -> paid=False
+    are of the form paid=True, present=True -> paid=False, present=False.
+    The case paid=True, present=False -> Any is already prevented by hypothesis,
+    but this endpoint (and the lack of unpay functionality for api_admin_make_payment)
+    prevents paid=True, present=True -> paid=False, present=True.
+    Furthermore, if player.total_actual_paid > player.current_required_payment()
+    after unmarking some entries, then total_actual_paid is reduced to
+    enforce inequality constraint.
+
     Returns BAD_REQUEST for:
     - nonexisting licence_no,
-    - nonexisting and/or nonregistered category_ids
+    - nonexisting and/or unregistered category_ids
     - nonempty intersection between the two fields,
     """
     player = session.get(Player, licence_no)
@@ -244,6 +256,14 @@ def api_admin_mark_present(licence_no):
     for entry in player.entries:
         if entry.category_id in all_ids_to_update:
             entry.marked_as_present = entry.category_id in ids_to_mark
+            entry.marked_as_paid = (
+                entry.marked_as_paid and entry.category_id not in ids_to_unmark
+            )
+
+    player.total_actual_paid = min(
+        player.current_required_payment(),
+        player.total_actual_paid,
+    )
 
     session.commit()
 

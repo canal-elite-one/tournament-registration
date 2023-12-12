@@ -52,6 +52,7 @@ class Category(Base):
 class Player(Base):
     licence_no: Mapped[int]
     bib_no: Mapped[int]
+    total_actual_paid: Mapped[int]
 
     entries = relationship(
         "Entry",
