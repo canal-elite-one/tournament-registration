@@ -172,7 +172,7 @@ class CategorySchema(Schema):
     def make_field(self, data, **kwargs):
         return Category(**data)
 
-    # add_entry_count & add_players_info are called first (they commute),
+    # add_entry_count_current_fee & add_players_info are called first (they commute),
     # either on the one serialized object being dumped,
     # or on each serialized object in the list if many=True;
     # then envelop is called on the whole serialized data,
@@ -180,8 +180,9 @@ class CategorySchema(Schema):
     # cf https://marshmallow.readthedocs.io/en/stable/extending.html#pre-post-processor-invocation-order
 
     @post_dump(pass_original=True)
-    def add_entry_count(self, data, original, **kwargs):
+    def add_entry_count_current_fee(self, data, original, **kwargs):
         data["entryCount"] = len(original.entries)
+        data["currentFee"] = original.current_fee()
         return data
 
     @post_dump(pass_original=True)

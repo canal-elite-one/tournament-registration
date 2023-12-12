@@ -77,10 +77,11 @@ correct_categories = (
         "categories": [
             {
                 "alternateName": None,
+                "baseRegistrationFee": 10,
                 "categoryId": "a",
                 "color": "#FF0000",
+                "currentFee": 10,
                 "entryCount": 0,
-                "baseRegistrationFee": 10,
                 "lateRegistrationFee": 2,
                 "maxPlayers": 40,
                 "maxPoints": 1500,
@@ -95,10 +96,11 @@ correct_categories = (
             },
             {
                 "alternateName": None,
+                "baseRegistrationFee": 20,
                 "categoryId": "b",
                 "color": "#FFFF00",
+                "currentFee": 20,
                 "entryCount": 0,
-                "baseRegistrationFee": 20,
                 "lateRegistrationFee": 4,
                 "maxPlayers": 40,
                 "maxPoints": 4000,
@@ -113,10 +115,11 @@ correct_categories = (
             },
             {
                 "alternateName": None,
+                "baseRegistrationFee": 20,
                 "categoryId": "c",
                 "color": "#FFFFFF",
+                "currentFee": 20,
                 "entryCount": 0,
-                "baseRegistrationFee": 20,
                 "lateRegistrationFee": 4,
                 "maxPlayers": 40,
                 "maxPoints": 2000,
@@ -131,10 +134,11 @@ correct_categories = (
             },
             {
                 "alternateName": None,
+                "baseRegistrationFee": 10,
                 "categoryId": "d",
                 "color": None,
+                "currentFee": 10,
                 "entryCount": 0,
-                "baseRegistrationFee": 10,
                 "lateRegistrationFee": 2,
                 "maxPlayers": 40,
                 "maxPoints": 1500,
@@ -955,6 +959,7 @@ correct_admin_get_by_cat_present_only_response = {
             "baseRegistrationFee": 7,
             "categoryId": "A",
             "color": "#000000",
+            "currentFee": 7,
             "entries": [],
             "entryCount": 30,
             "lateRegistrationFee": 1,
@@ -974,6 +979,7 @@ correct_admin_get_by_cat_present_only_response = {
             "baseRegistrationFee": 7,
             "categoryId": "B",
             "color": "#000000",
+            "currentFee": 7,
             "entries": [
                 {
                     "bibNo": None,
@@ -1018,6 +1024,7 @@ correct_admin_get_by_cat_present_only_response = {
             "baseRegistrationFee": 10,
             "categoryId": "C",
             "color": "#00FF00",
+            "currentFee": 10,
             "entries": [],
             "entryCount": 8,
             "lateRegistrationFee": 2,
@@ -1037,6 +1044,7 @@ correct_admin_get_by_cat_present_only_response = {
             "baseRegistrationFee": 7,
             "categoryId": "D",
             "color": "#00FF00",
+            "currentFee": 7,
             "entries": [
                 {
                     "bibNo": None,
@@ -1069,6 +1077,7 @@ correct_admin_get_by_cat_present_only_response = {
             "baseRegistrationFee": 10,
             "categoryId": "E",
             "color": "#FF0000",
+            "currentFee": 10,
             "entries": [
                 {
                     "bibNo": None,
@@ -1101,6 +1110,7 @@ correct_admin_get_by_cat_present_only_response = {
             "baseRegistrationFee": 7,
             "categoryId": "F",
             "color": "#FF0000",
+            "currentFee": 7,
             "entries": [
                 {
                     "bibNo": None,
@@ -1145,6 +1155,7 @@ correct_admin_get_by_cat_present_only_response = {
             "baseRegistrationFee": 7,
             "categoryId": "G",
             "color": None,
+            "currentFee": 7,
             "entries": [
                 {
                     "bibNo": None,
@@ -1189,6 +1200,7 @@ correct_admin_get_by_cat_present_only_response = {
             "baseRegistrationFee": 7,
             "categoryId": "1",
             "color": "#0000FF",
+            "currentFee": 7,
             "entries": [
                 {
                     "bibNo": None,
@@ -1221,6 +1233,7 @@ correct_admin_get_by_cat_present_only_response = {
             "baseRegistrationFee": 7,
             "categoryId": "2",
             "color": "#0000FF",
+            "currentFee": 7,
             "entries": [],
             "entryCount": 20,
             "lateRegistrationFee": 1,
@@ -1240,6 +1253,7 @@ correct_admin_get_by_cat_present_only_response = {
             "baseRegistrationFee": 7,
             "categoryId": "3",
             "color": "#FFFF00",
+            "currentFee": 7,
             "entries": [],
             "entryCount": 23,
             "lateRegistrationFee": 1,
@@ -1259,6 +1273,7 @@ correct_admin_get_by_cat_present_only_response = {
             "baseRegistrationFee": 7,
             "categoryId": "4",
             "color": "#FFFF00",
+            "currentFee": 7,
             "entries": [],
             "entryCount": 13,
             "lateRegistrationFee": 1,
@@ -1278,6 +1293,7 @@ correct_admin_get_by_cat_present_only_response = {
             "baseRegistrationFee": 7,
             "categoryId": "5",
             "color": None,
+            "currentFee": 7,
             "entries": [],
             "entryCount": 5,
             "lateRegistrationFee": 1,
@@ -1297,6 +1313,7 @@ correct_admin_get_by_cat_present_only_response = {
             "baseRegistrationFee": 7,
             "categoryId": "6",
             "color": "#00FFFF",
+            "currentFee": 7,
             "entries": [
                 {
                     "bibNo": None,
@@ -1329,6 +1346,7 @@ correct_admin_get_by_cat_present_only_response = {
             "baseRegistrationFee": 7,
             "categoryId": "7",
             "color": "#00FFFF",
+            "currentFee": 7,
             "entries": [],
             "entryCount": 10,
             "lateRegistrationFee": 1,
@@ -1345,6 +1363,7 @@ correct_admin_get_by_cat_present_only_response = {
         },
     ],
 }
+
 
 """
 For api_admin_get_all_players
@@ -1610,6 +1629,7 @@ correct_get_categories_response = {
             "baseRegistrationFee": 7,
             "categoryId": "A",
             "color": "#000000",
+            "currentFee": 7,
             "entryCount": 30,
             "lateRegistrationFee": 1,
             "maxPlayers": 72,
@@ -1628,6 +1648,7 @@ correct_get_categories_response = {
             "baseRegistrationFee": 7,
             "categoryId": "B",
             "color": "#000000",
+            "currentFee": 7,
             "entryCount": 46,
             "lateRegistrationFee": 1,
             "maxPlayers": 72,
@@ -1646,6 +1667,7 @@ correct_get_categories_response = {
             "baseRegistrationFee": 10,
             "categoryId": "C",
             "color": "#00FF00",
+            "currentFee": 10,
             "entryCount": 8,
             "lateRegistrationFee": 2,
             "maxPlayers": 36,
@@ -1664,6 +1686,7 @@ correct_get_categories_response = {
             "baseRegistrationFee": 7,
             "categoryId": "D",
             "color": "#00FF00",
+            "currentFee": 7,
             "entryCount": 41,
             "lateRegistrationFee": 1,
             "maxPlayers": 72,
@@ -1682,6 +1705,7 @@ correct_get_categories_response = {
             "baseRegistrationFee": 10,
             "categoryId": "E",
             "color": "#FF0000",
+            "currentFee": 10,
             "entryCount": 29,
             "lateRegistrationFee": 2,
             "maxPlayers": 72,
@@ -1700,6 +1724,7 @@ correct_get_categories_response = {
             "baseRegistrationFee": 7,
             "categoryId": "F",
             "color": "#FF0000",
+            "currentFee": 7,
             "entryCount": 36,
             "lateRegistrationFee": 1,
             "maxPlayers": 72,
@@ -1718,6 +1743,7 @@ correct_get_categories_response = {
             "baseRegistrationFee": 7,
             "categoryId": "G",
             "color": None,
+            "currentFee": 7,
             "entryCount": 48,
             "lateRegistrationFee": 1,
             "maxPlayers": 72,
@@ -1736,6 +1762,7 @@ correct_get_categories_response = {
             "baseRegistrationFee": 7,
             "categoryId": "1",
             "color": "#0000FF",
+            "currentFee": 7,
             "entryCount": 28,
             "lateRegistrationFee": 1,
             "maxPlayers": 72,
@@ -1754,6 +1781,7 @@ correct_get_categories_response = {
             "baseRegistrationFee": 7,
             "categoryId": "2",
             "color": "#0000FF",
+            "currentFee": 7,
             "entryCount": 20,
             "lateRegistrationFee": 1,
             "maxPlayers": 72,
@@ -1772,6 +1800,7 @@ correct_get_categories_response = {
             "baseRegistrationFee": 7,
             "categoryId": "3",
             "color": "#FFFF00",
+            "currentFee": 7,
             "entryCount": 23,
             "lateRegistrationFee": 1,
             "maxPlayers": 72,
@@ -1790,6 +1819,7 @@ correct_get_categories_response = {
             "baseRegistrationFee": 7,
             "categoryId": "4",
             "color": "#FFFF00",
+            "currentFee": 7,
             "entryCount": 13,
             "lateRegistrationFee": 1,
             "maxPlayers": 72,
@@ -1808,6 +1838,7 @@ correct_get_categories_response = {
             "baseRegistrationFee": 7,
             "categoryId": "5",
             "color": None,
+            "currentFee": 7,
             "entryCount": 5,
             "lateRegistrationFee": 1,
             "maxPlayers": 36,
@@ -1826,6 +1857,7 @@ correct_get_categories_response = {
             "baseRegistrationFee": 7,
             "categoryId": "6",
             "color": "#00FFFF",
+            "currentFee": 7,
             "entryCount": 15,
             "lateRegistrationFee": 1,
             "maxPlayers": 72,
@@ -1844,6 +1876,7 @@ correct_get_categories_response = {
             "baseRegistrationFee": 7,
             "categoryId": "7",
             "color": "#00FFFF",
+            "currentFee": 7,
             "entryCount": 10,
             "lateRegistrationFee": 1,
             "maxPlayers": 72,
@@ -1859,6 +1892,7 @@ correct_get_categories_response = {
         },
     ],
 }
+
 """
 For api_add_player
 """
