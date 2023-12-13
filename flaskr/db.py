@@ -4,7 +4,15 @@ from datetime import datetime
 
 from sqlalchemy import create_engine, Table, select, func
 from sqlalchemy.orm import DeclarativeBase, Session, Mapped, relationship
-from marshmallow import Schema, fields, post_load, post_dump, validate
+from marshmallow import (
+    Schema,
+    fields,
+    pre_load,
+    post_load,
+    post_dump,
+    validate,
+    ValidationError,
+)
 
 db_url = os.environ.get("DATABASE_URL")
 migration_directory = os.environ.get("MIGRATION_DIR")
@@ -168,8 +176,29 @@ class CategorySchema(Schema):
     max_players = fields.Int(data_key="maxPlayers", allow_none=False, required=True)
     overbooking_percentage = fields.Int(data_key="overbookingPercentage")
 
+    @pre_load(pass_many=True)
+    def check_json_field(self, data, many, **kwargs):
+        if many and "categories" not in data:
+            raise ValidationError(
+                "json payload should have 'categories' field.",
+                field_name="json",
+            )
+        return data["categories"]
+
+    # as below, check_duplicates with pass_many=True is called
+    # before make_object with pass_many=False
+
+    @post_load(pass_many=True)
+    def check_duplicates(self, data, many, **kwargs):
+        if len({cat_dict["category_id"] for cat_dict in data}) < len(data):
+            raise ValidationError(
+                "Different categories cannot have the same id",
+                field_name="category_ids",
+            )
+        return data
+
     @post_load
-    def make_field(self, data, **kwargs):
+    def make_object(self, data, **kwargs):
         return Category(**data)
 
     # add_entry_count_current_fee & add_players_info are called first (they commute),
@@ -207,7 +236,7 @@ class CategorySchema(Schema):
 
 class PlayerSchema(Schema):
     licence_no = fields.Int(data_key="licenceNo", required=True, allow_none=False)
-    bib_no = fields.Int(data_key="bibNo", validate=validate.Equal(None))
+    bib_no = fields.Int(data_key="bibNo", dump_only=True)
     first_name = fields.Str(data_key="firstName", required=True, allow_none=False)
     last_name = fields.Str(data_key="lastName", required=True, allow_none=False)
     email = fields.Email(required=True, allow_none=False)
@@ -217,11 +246,11 @@ class PlayerSchema(Schema):
     club = fields.Str(required=True, allow_none=False)
     total_actual_paid = fields.Int(
         data_key="totalActualPaid",
-        validate=validate.Equal(None),
+        dump_only=True,
     )
 
     @post_load
-    def make_field(self, data, **kwargs):
+    def make_object(self, data, **kwargs):
         return Player(**data)
 
     @post_dump(pass_original=True)

@@ -1,5 +1,7 @@
 from http import HTTPStatus
 from flask import Blueprint, request, jsonify, Response
+from marshmallow import ValidationError
+
 from flaskr.db import (
     session,
     Category,
@@ -26,17 +28,11 @@ def api_admin_set_categories():
     to some parsable string.
     """
 
-    if "categories" not in request.json:
-        return (
-            jsonify(
-                error="json was missing 'categories' field. Categories were not set.",
-            ),
-            HTTPStatus.BAD_REQUEST,
-        )
-
     c_schema = CategorySchema(many=True)
-    if error := c_schema.validate(request.json["categories"]):
-        return jsonify(error=error), HTTPStatus.BAD_REQUEST
+    try:
+        categories = c_schema.load(request.json)
+    except ValidationError as e:
+        return jsonify(error=e.messages), HTTPStatus.BAD_REQUEST
 
     try:
         session.execute(delete(Category))
@@ -50,7 +46,7 @@ def api_admin_set_categories():
         )
 
     try:
-        for category in c_schema.load(request.json["categories"]):
+        for category in categories:
             session.add(category)
         session.commit()
         app_info.registration_cutoff()
@@ -64,15 +60,9 @@ def api_admin_set_categories():
             ),
             HTTPStatus.CREATED,
         )
-    except DBAPIError:
+    except DBAPIError as e:
         session.rollback()
-        return (
-            jsonify(
-                error="At least two categories have the same name. Categories "
-                "were not set.",
-            ),
-            HTTPStatus.BAD_REQUEST,
-        )
+        return jsonify(error=str(e)), HTTPStatus.BAD_REQUEST
 
 
 @api_bp.route("/pay/<int:licence_no>", methods=["PUT"])
@@ -141,10 +131,7 @@ def api_admin_make_payment(licence_no):
 def api_admin_delete_entries(licence_no):
     v_schema = CategoryIdsSchema()
     if error := v_schema.validate(request.json):
-        return (
-            jsonify(error=error),
-            HTTPStatus.BAD_REQUEST,
-        )
+        return jsonify(error=error), HTTPStatus.BAD_REQUEST
 
     category_ids = request.json["categoryIds"]
 
@@ -398,10 +385,10 @@ def api_get_categories():
 @api_bp.route("/players", methods=["POST"])
 def api_add_player():
     p_schema = PlayerSchema()
-    if error := p_schema.validate(request.json):
-        return jsonify(error=error), HTTPStatus.BAD_REQUEST
-
-    player = p_schema.load(request.json)
+    try:
+        player = p_schema.load(request.json)
+    except ValidationError as e:
+        return jsonify(error=e.messages), HTTPStatus.BAD_REQUEST
 
     try:
         session.add(player)

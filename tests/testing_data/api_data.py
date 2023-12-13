@@ -163,7 +163,7 @@ incorrect_set_categories_existing_entries = {
 
 incorrect_categories_missing_categories_field = (
     {},
-    {"error": "json was missing 'categories' field. Categories were not set."},
+    {"error": {"json": ["json payload should have 'categories' field."]}},
 )
 
 incorrect_categories_missing_badly_formatted_data = (
@@ -253,7 +253,7 @@ incorrect_categories_duplicate = (
             },
         ],
     },
-    {"error": "At least two categories have the same name. Categories were not set."},
+    {"error": {"category_ids": ["Different categories cannot have the same id"]}},
 )
 
 incorrect_admin_set_categories = [
