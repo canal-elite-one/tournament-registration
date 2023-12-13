@@ -19,6 +19,9 @@ from json import loads
 
 api_bp = Blueprint("api", __name__, url_prefix="/api")
 
+p_schema = PlayerSchema()
+c_schema = CategorySchema()
+
 
 @api_bp.route("/categories", methods=["POST"])
 def api_admin_set_categories():
@@ -28,7 +31,7 @@ def api_admin_set_categories():
     to some parsable string.
     """
 
-    c_schema = CategorySchema(many=True)
+    c_schema.reset(many=True)
     try:
         categories = c_schema.load(request.json)
     except ValidationError as e:
@@ -122,7 +125,7 @@ def api_admin_make_payment(licence_no):
     player.total_actual_paid = request.json["totalActualPaid"]
 
     session.commit()
-    p_schema = PlayerSchema()
+    p_schema.reset()
     p_schema.context["include_entries"] = True
     return jsonify(p_schema.dump(player)), HTTPStatus.OK
 
@@ -159,7 +162,7 @@ def api_admin_delete_entries(licence_no):
             ),
         )
         session.commit()
-        p_schema = PlayerSchema()
+        p_schema.reset()
         p_schema.context["include_entries"] = True
         return jsonify(p_schema.dump(player)), HTTPStatus.OK
 
@@ -256,7 +259,7 @@ def api_admin_mark_present(licence_no):
 
     session.commit()
 
-    p_schema = PlayerSchema()
+    p_schema.reset()
     p_schema.context["include_entries"] = True
     return jsonify(p_schema.dump(player)), HTTPStatus.OK
 
@@ -321,7 +324,7 @@ def api_admin_assign_one_bib(licence_no):
         {"licence_no": player.licence_no},
     )
     session.commit()
-    p_schema = PlayerSchema()
+    p_schema.reset()
     return jsonify(p_schema.dump(player)), HTTPStatus.OK
 
 
@@ -341,7 +344,7 @@ def api_admin_reset_bibs():
 @api_bp.route("/by_category", methods=["GET"])
 def api_admin_get_players_by_category():
     present_only = request.args.get("present_only", False, loads) is True
-    c_schema = CategorySchema(many=True)
+    c_schema.reset(many=True)
     c_schema.context["include_players"] = True
     c_schema.context["present_only"] = present_only
 
@@ -364,7 +367,7 @@ def api_admin_get_all_players():
     else:
         query = select(Player)
 
-    p_schema = PlayerSchema(many=True)
+    p_schema.reset(many=True)
     p_schema.context["include_entries"] = True
 
     return jsonify(players=p_schema.dump(session.scalars(query).all())), HTTPStatus.OK
@@ -384,7 +387,7 @@ def api_get_categories():
 
 @api_bp.route("/players", methods=["POST"])
 def api_add_player():
-    p_schema = PlayerSchema()
+    p_schema.reset()
     try:
         player = p_schema.load(request.json)
     except ValidationError as e:
@@ -393,7 +396,7 @@ def api_add_player():
     try:
         session.add(player)
         session.commit()
-        return p_schema.dump(player), HTTPStatus.CREATED
+        return jsonify(p_schema.dump(player)), HTTPStatus.CREATED
     except DBAPIError:
         session.rollback()
         return (
@@ -411,7 +414,7 @@ def api_get_player(licence_no):
     if player is None:
         return jsonify(player=None, registeredEntries=[]), HTTPStatus.OK
 
-    p_schema = PlayerSchema()
+    p_schema.reset()
     p_schema.context["include_entries"] = True
     return jsonify(p_schema.dump(player)), HTTPStatus.OK
 
@@ -487,7 +490,7 @@ def api_register_entries(licence_no):
     try:
         session.execute(stmt, temp_dicts)
         session.commit()
-        p_schema = PlayerSchema()
+        p_schema.reset()
         p_schema.context["include_entries"] = True
         return jsonify(p_schema.dump(player)), HTTPStatus.CREATED
     except DBAPIError:

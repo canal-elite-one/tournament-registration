@@ -148,7 +148,16 @@ class Entry(Base):
         return result
 
 
-class CategorySchema(Schema):
+class SchemaWithReset(Schema):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+    def reset(self, many=False):
+        self.many = many
+        self.context = {}
+
+
+class CategorySchema(SchemaWithReset):
     category_id = fields.Str(data_key="categoryId", validate=validate.Length(equal=1))
     alternate_name = fields.Str(
         data_key="alternateName",
@@ -234,7 +243,7 @@ class CategorySchema(Schema):
         return data
 
 
-class PlayerSchema(Schema):
+class PlayerSchema(SchemaWithReset):
     licence_no = fields.Int(data_key="licenceNo", required=True, allow_none=False)
     bib_no = fields.Int(data_key="bibNo", dump_only=True)
     first_name = fields.Str(data_key="firstName", required=True, allow_none=False)
@@ -263,7 +272,7 @@ class PlayerSchema(Schema):
         return data
 
 
-class EntrySchema(Schema):
+class EntrySchema(SchemaWithReset):
     category_id = fields.Str(data_key="categoryId")
     licence_no = fields.Int(data_key="licenceNo")
     color = fields.Str(load_only=True)
