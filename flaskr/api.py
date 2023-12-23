@@ -52,7 +52,10 @@ def api_admin_set_categories():
         for category in categories:
             session.add(category)
         session.commit()
-        app_info.registration_cutoff()
+
+        _ = app_info.registration_cutoff
+        del app_info.registration_cutoff
+
         return (
             jsonify(
                 c_schema.dump(

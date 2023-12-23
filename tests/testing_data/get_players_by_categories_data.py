@@ -4,7 +4,7 @@ data = {
             "alternateName": None,
             "baseRegistrationFee": 7,
             "categoryId": "A",
-            "color": "#000000",
+            "color": "blue",
             "currentFee": 7,
             "entries": [
                 {
@@ -385,7 +385,7 @@ data = {
             "alternateName": None,
             "baseRegistrationFee": 7,
             "categoryId": "B",
-            "color": "#000000",
+            "color": "blue",
             "currentFee": 7,
             "entries": [
                 {

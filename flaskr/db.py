@@ -1,6 +1,7 @@
 import os
 import subprocess
 from datetime import datetime
+from functools import cached_property
 
 from sqlalchemy import create_engine, Table, select, func
 from sqlalchemy.orm import DeclarativeBase, Session, Mapped, relationship
@@ -40,26 +41,17 @@ session = Session(engine)
 
 
 class AppWideInfo:
-    def __init__(self):
-        self.registration_cutoff_dt = None
-
+    @cached_property
     def registration_cutoff(self):
-        if self.registration_cutoff_dt is None:
-            tournament_start = session.scalar(select(func.min(Category.start_time)))
-            if tournament_start is None:
-                raise Exception(
-                    "Categories are not set, cannot query registration cutoff time",
-                )
-            self.registration_cutoff_dt = tournament_start.replace(
-                hour=0,
-                minute=0,
-                second=0,
-                microsecond=0,
-            )
-        return self.registration_cutoff_dt
-
-    def has_registration_ended(self):
-        return datetime.now() >= self.registration_cutoff()
+        tournament_start = session.scalar(select(func.min(Category.start_time)))
+        if tournament_start is None:
+            return None
+        return tournament_start.replace(
+            hour=0,
+            minute=0,
+            second=0,
+            microsecond=0,
+        )
 
 
 app_info = AppWideInfo()
@@ -88,7 +80,7 @@ class Category(Base):
 
     def current_fee(self):
         result = self.base_registration_fee
-        if datetime.now() > app_info.registration_cutoff():
+        if datetime.now() > app_info.registration_cutoff:
             result += self.late_registration_fee
         return result
 
@@ -143,7 +135,7 @@ class Entry(Base):
 
     def fee(self):
         result = self.category.base_registration_fee
-        if self.registration_time > app_info.registration_cutoff():
+        if self.registration_time > app_info.registration_cutoff:
             result += self.category.late_registration_fee
         return result
 
