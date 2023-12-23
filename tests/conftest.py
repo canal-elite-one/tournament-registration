@@ -2,7 +2,7 @@ from pytest import fixture
 from sqlalchemy import text
 
 from flaskr import create_app
-from flaskr.db import session, execute_dbmate
+from flaskr.db import session, execute_dbmate, app_info
 
 SAMPLE_DATA_PATH = "./tests/sample_data.sql"
 
@@ -19,6 +19,8 @@ class BaseTest:
     @fixture
     def reset_db(self, request):
         execute_dbmate("up")
+        _ = app_info.registration_cutoff
+        del app_info.registration_cutoff
 
         def tear_down():
             session.close_all()

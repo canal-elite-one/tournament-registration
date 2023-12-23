@@ -7,7 +7,8 @@ CREATE TABLE categories (
     max_points INT NOT NULL DEFAULT 4000,
     start_time TIMESTAMP NOT NULL,
     women_only BOOL NOT NULL DEFAULT FALSE,
-    entry_fee INT NOT NULL,
+    base_registration_fee INT NOT NULL,
+    late_registration_fee INT NOT NULL,
     reward_first INT NOT NULL,
     reward_second INT NOT NULL,
     reward_semi INT NOT NULL,
@@ -26,7 +27,7 @@ CREATE TABLE players (
     gender CHAR NOT NULL,
     nb_points INT NOT NULL,
     club VARCHAR(255) NOT NULL,
-    payment_diff INT NOT NULL DEFAULT 0
+    total_actual_paid INT NOT NULL DEFAULT 0
 );
 
 CREATE TABLE entries (
