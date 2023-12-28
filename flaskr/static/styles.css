@@ -6,17 +6,24 @@ border: 1px solid grey;
 font-family: Tahoma,Verdana,Segoe,sans-serif;
 }
 
+.players_table_row:nth-child(even) {
+  background-color: #cee1ff;
+}
+
+.players_table_row:hover {
+  background-color: #D6EEEE;
+}
+
 table, th, td {
 border: 1px solid grey;
 border-collapse: collapse;
 text-align: center;
 font-family: Tahoma,Verdana,Segoe,sans-serif;
+padding-top: 3px;
+padding-bottom: 2px;
+padding-left: 5px;
+padding-right: 5px;
 }
-
-tr:nth-child(even) {
-    background-color: #cee1ff;
-  }
-tr:hover {background-color: #D6EEEE;}
 
 .navbar {
   list-style-type: none;
@@ -31,4 +38,13 @@ tr:hover {background-color: #D6EEEE;}
 thead {
   background-color: rgb(65, 64, 64);
   color: white;
+}
+
+#delete_player_button {
+  background-color: red;
+  font-size: large;
+}
+
+#player_info_table {
+  margin: auto;
 }

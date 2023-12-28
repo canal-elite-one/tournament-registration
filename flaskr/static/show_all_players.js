@@ -52,6 +52,7 @@ function putDataInTable(data, elementId) {
 
     data.forEach(function(playerObject) {
         let row = document.createElement('tr');
+        row.setAttribute("class", "players_table_row")
         columns.forEach(function(colName) {
             if (colName != 'Surplus de paiement') {
                 let dataCell = document.createElement('td');

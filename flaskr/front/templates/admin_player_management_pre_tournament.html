@@ -1,0 +1,15 @@
+{% extends 'base_admin.html' %}
+
+{% block title %}Gestion de l'inscrit {{ licence_no }} {% endblock %}
+
+{% block content %}
+<div id="player_info">
+</div>
+
+<div id="admin_entry_management">
+</div>
+
+<script>const licence_no={{ licence_no }}</script>
+<script src="{{ url_for('static', filename='admin_player_management_pre_tournament.js') }}">
+</script>
+{% endblock %}
