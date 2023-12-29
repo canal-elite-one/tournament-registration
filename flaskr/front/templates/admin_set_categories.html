@@ -1,0 +1,37 @@
+{% extends 'base_admin.html' %}
+
+{% block title %}Saisir Tableaux{% endblock %}
+
+{% block content %}
+<div id="categories_table_div">
+    <form id="categories_form">
+        <table id="categories_table">
+            <thead>
+                <tr>
+                    <th>Identifiant</th>
+                    <th>Nom alternatif</th>
+                    <th>Couleur</th>
+                    <th>Points min</th>
+                    <th>Points max</th>
+                    <th>Début</th>
+                    <th>Féminin ?</th>
+                    <th>Coût inscription (&euro;)</th>
+                    <th>Surcoût inscription tardive (&euro;)</th>
+                    <th>Prix 1er</th>
+                    <th>Prix 2e</th>
+                    <th>Prix 1/2</th>
+                    <th>Prix 1/4</th>
+                    <th>Max inscrits</th>
+                    <th>Surbooking (%)</th>
+                </tr>
+            </thead>
+                <tbody id="categories_table_body"></tbody>
+        </table>
+    </form>
+    <button onclick="removeFormRow()">-</button>
+    <button onclick="addFormRow()" formnovalidate="true">+</button>
+    <button onclick="submitForm()">Enregistrer les catégories</button>
+</div>
+<script src="{{ url_for('static', filename='admin_set_categories.js') }}">
+</script>
+{% endblock %}

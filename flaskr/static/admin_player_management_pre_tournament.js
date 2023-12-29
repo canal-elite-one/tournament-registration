@@ -114,92 +114,92 @@ function processPlayerInfo() {
 
 function createCategoryRow(categoryObject) {
     let row = document.createElement('tr');
-            let categoryId = categoryObject['categoryId'];
+    let categoryId = categoryObject['categoryId'];
 
-            let registerCell = document.createElement('td');
-            registerCell.setAttribute('id', 'register_cell_' + categoryId);
-            let registerCheckbox = document.createElement('input');
-            registerCheckbox.type = 'checkbox';
-            registerCheckbox.id = 'register_checkbox_' + categoryId;
-            registerCheckbox.setAttribute('oninput', 'handleCheckbox("' + categoryId + '")');
-            registerCell.appendChild(registerCheckbox);
-            let registerLabel = document.createElement('label');
-            registerLabel.id = registerCheckbox.id + '_label';
-            registerLabel.setAttribute('for', registerCheckbox.id);
-            registerLabel.appendChild(document.createTextNode(' '));
-            registerCell.appendChild(registerLabel);
+    let registerCell = document.createElement('td');
+    registerCell.setAttribute('id', 'register_cell_' + categoryId);
+    let registerCheckbox = document.createElement('input');
+    registerCheckbox.type = 'checkbox';
+    registerCheckbox.id = 'register_checkbox_' + categoryId;
+    registerCheckbox.setAttribute('oninput', 'handleCheckbox("' + categoryId + '")');
+    registerCell.appendChild(registerCheckbox);
+    let registerLabel = document.createElement('label');
+    registerLabel.id = registerCheckbox.id + '_label';
+    registerLabel.setAttribute('for', registerCheckbox.id);
+    registerLabel.appendChild(document.createTextNode(' '));
+    registerCell.appendChild(registerLabel);
 
-            let idCell = document.createElement('td');
-            idCell.setAttribute('id', 'id_cell_' + categoryId);
-            idCell.appendChild(document.createTextNode(categoryId));
-            row.appendChild(idCell);
+    let idCell = document.createElement('td');
+    idCell.setAttribute('id', 'id_cell_' + categoryId);
+    idCell.appendChild(document.createTextNode(categoryId));
+    row.appendChild(idCell);
 
-            let color = categoryObject['color'];
+    let color = categoryObject['color'];
 
-            if (!(color === null)) {
-                if (color in categoryIdByColor) {
-                    sameColor[categoryId] = categoryIdByColor[color];
-                    sameColor[categoryIdByColor[color]] = categoryId;
-                } else { categoryIdByColor[color] = categoryId; }
-                // registerCell.style.backgroundColor = categoryObject['color'];
-                idCell.style.backgroundColor = color;
-            };
+    if (!(color === null)) {
+        if (color in categoryIdByColor) {
+            sameColor[categoryId] = categoryIdByColor[color];
+            sameColor[categoryIdByColor[color]] = categoryId;
+        } else { categoryIdByColor[color] = categoryId; }
+        // registerCell.style.backgroundColor = categoryObject['color'];
+        idCell.style.backgroundColor = color;
+    };
 
-            let entryCount = categoryObject['entryCount'];
-            let maxPlayers = categoryObject['maxPlayers'];
-            let maxOverbooked = Math.floor(categoryObject['maxPlayers'] * (1 + categoryObject['overbookingPercentage'] / 100.));
+    let entryCount = categoryObject['entryCount'];
+    let maxPlayers = categoryObject['maxPlayers'];
+    let maxOverbooked = Math.floor(categoryObject['maxPlayers'] * (1 + categoryObject['overbookingPercentage'] / 100.));
 
-            let entryCountColor;
+    let entryCountColor;
 
-            if (entryCount < maxPlayers) {
-                entryCountColor = 'hsl(140, 100%, 80%)';
-            } else if (entryCount > maxOverbooked) {
-                entryCountColor = 'hsl(25, 100%, 80%)';
-            } else {
-                entryCountColor = 'hsl(60, 100%, 80%)';
-            }
+    if (entryCount < maxPlayers) {
+        entryCountColor = 'hsl(140, 100%, 80%)';
+    } else if (entryCount > maxOverbooked) {
+        entryCountColor = 'hsl(25, 100%, 80%)';
+    } else {
+        entryCountColor = 'hsl(60, 100%, 80%)';
+    }
 
-            let entryCountCell = document.createElement('td');
-            entryCountCell.setAttribute('id', 'entry_count_cell_' + categoryId);
-            entryCountCell.appendChild(document.createTextNode(entryCount + ' / ' + maxPlayers + ' (' + maxOverbooked + ')'));
-            row.appendChild(entryCountCell);
+    let entryCountCell = document.createElement('td');
+    entryCountCell.setAttribute('id', 'entry_count_cell_' + categoryId);
+    entryCountCell.appendChild(document.createTextNode(entryCount + ' / ' + maxPlayers + ' (' + maxOverbooked + ')'));
+    row.appendChild(entryCountCell);
 
-            entryCountCell.style.backgroundColor = entryCountColor;
+    entryCountCell.style.backgroundColor = entryCountColor;
 
-            let pointsCell = document.createElement('td');
-            pointsCell.setAttribute('id', 'points_cell_' + categoryId);
-            let maxPoints = categoryObject['maxPoints'];
-            let minPoints = categoryObject['minPoints'];
-            let pointsString;
-            if (maxPoints < 4000) {
-                pointsString = '< ' + maxPoints;
-            } else if (minPoints > 0) {
-                pointsString = '> ' + minPoints;
-            } else { pointsString = ' -'}
+    let pointsCell = document.createElement('td');
+    pointsCell.setAttribute('id', 'points_cell_' + categoryId);
+    let maxPoints = categoryObject['maxPoints'];
+    let minPoints = categoryObject['minPoints'];
+    let pointsString;
+    if (maxPoints < 4000) {
+        pointsString = '< ' + maxPoints;
+    } else if (minPoints > 0) {
+        pointsString = '> ' + minPoints;
+    } else { pointsString = ' -'}
 
-            if (playerObject['nbPoints'] < minPoints || playerObject['nbPoints'] > maxPoints) {
-                pointsCell.style.backgroundColor = 'red';
-                registerCell.style.backgroundColor = 'grey';
-                registerCheckbox.setAttribute('disabled', '');
-                pointsString = pointsString + ' \u2717';
-            } else {
-                pointsString = pointsString + ' \u2713';
-            }
-            pointsCell.appendChild(document.createTextNode(pointsString));
-            row.appendChild(pointsCell);
+    if (playerObject['nbPoints'] < minPoints || playerObject['nbPoints'] > maxPoints) {
+        pointsCell.style.backgroundColor = 'red';
+        registerCell.style.backgroundColor = 'grey';
+        registerCheckbox.setAttribute('disabled', '');
+        pointsString = pointsString + ' \u2717';
+    } else {
+        pointsString = pointsString + ' \u2713';
+    }
+    pointsCell.appendChild(document.createTextNode(pointsString));
+    row.appendChild(pointsCell);
 
-            let womenOnlyCell = document.createElement('td');
-            womenOnlyCell.setAttribute('id', 'women_only_cell_' + categoryId);
-            womenOnlyCell.appendChild(document.createTextNode(categoryObject['womenOnly'] ? 'Oui' : 'Non'));
-            row.appendChild(womenOnlyCell);
-            if (categoryObject['womenOnly'] && playerObject['gender'] == 'M') {
-                womenOnlyCell.style.backgroundColor = 'red';
-                registerCell.style.backgroundColor = 'red';
-                registerCheckbox.setAttribute('disabled', '');
-            }
-            row.appendChild(registerCell);
+    let womenOnlyCell = document.createElement('td');
+    womenOnlyCell.setAttribute('id', 'women_only_cell_' + categoryId);
+    womenOnlyCell.appendChild(document.createTextNode(categoryObject['womenOnly'] ? 'Oui' : 'Non'));
+    row.appendChild(womenOnlyCell);
+    if (categoryObject['womenOnly'] && playerObject['gender'] == 'M') {
+        womenOnlyCell.style.backgroundColor = 'red';
+        registerCell.style.backgroundColor = 'red';
+        registerCheckbox.setAttribute('disabled', '');
+    }
+    row.appendChild(registerCell);
 
-            return row;
+    return row;
 }
 
 function fillHead(head, tempColumns) {
