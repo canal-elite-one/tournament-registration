@@ -38,8 +38,19 @@ const categoryIdByColor = {};
 const sameColor = {};
 
 function handleCheckbox(categoryId) {
-    if (!(categoryId in sameColor)) { return null; }
     checkbox = document.getElementById('register_checkbox_' + categoryId);
+
+    if (!(categoryId in sameColor)) {
+        if (initialRegisteredCategoryIds.includes(categoryId) && !checkbox.checked) {
+            let label = document.getElementById(checkbox.id + '_label')
+            label.firstChild.data = '\u26A0';
+        } else if (initialRegisteredCategoryIds.includes(categoryId) && checkbox.checked) {
+            let label = document.getElementById(checkbox.id + '_label')
+            label.firstChild.data = ' ';
+        }
+        return null;
+    }
+
     otherCheckbox = document.getElementById('register_checkbox_' + sameColor[categoryId]);
     if (checkbox.checked) {
         otherCheckbox.checked = false;
@@ -79,8 +90,7 @@ function deletePlayer() {
 }
 
 function processPlayerInfo() {
-    let playerInfo = document.createElement('table');
-    playerInfo.setAttribute('id', 'player_info_table');
+    let playerInfoTable = document.getElementById('player_info_table');
     playerObject['registeredEntries'].forEach( (entryObject) =>
     {
         let categoryId = entryObject['categoryId'];
@@ -96,20 +106,15 @@ function processPlayerInfo() {
             let fieldValueCell = document.createElement('td');
             fieldValueCell.appendChild(document.createTextNode(playerObject[fieldName]));
             row.appendChild(fieldValueCell);
-            playerInfo.appendChild(row);
+            playerInfoTable.appendChild(row);
         });
-    document.getElementById('player_info').appendChild(playerInfo);
-    let deleteButton = document.createElement('input');
-    deleteButton.type = 'button';
-    deleteButton.setAttribute('onclick', 'deletePlayer()');
-    deleteButton.id = 'delete_player_button';
+    let deleteButtonText;
     if (playerObject['gender'] == 'F') {
-        deleteButton.setAttribute('value', 'Supprimer compétitrice \uD83D\uDDD1');
+        deleteButtonText = document.createTextNode('Supprimer compétitrice \uD83D\uDDD1');
     } else {
-        deleteButton.setAttribute('value', 'Supprimer compétiteur \uD83D\uDDD1');
+        deleteButtonText = document.createTextNode('Supprimer compétiteur \uD83D\uDDD1');
     }
-
-    document.getElementById('player_info').appendChild(deleteButton);
+    document.getElementById('delete_player_button').appendChild(deleteButtonText);
 }
 
 function createCategoryRow(categoryObject) {
@@ -202,15 +207,6 @@ function createCategoryRow(categoryObject) {
     return row;
 }
 
-function fillHead(head, tempColumns) {
-    tempColumns.forEach(function (colName){
-        let colCell = document.createElement('th');
-        colCell.id = 'col_' + colName.toLowerCase().replace(' ', '_');
-        colCell.appendChild(document.createTextNode(colName));
-        head.appendChild(colCell);
-    });
-}
-
 function setUpCategoriesTable() {
     const saturdayCategories = [];
     const sundayCategories = [];
@@ -224,35 +220,75 @@ function setUpCategoriesTable() {
         }
     });
 
-    let saturdayTable = document.createElement('table');
-    let saturdayHead = document.createElement('thead');
-    let saturdayBody = document.createElement('tbody');
+    let saturdayBody = document.getElementById('saturday_table_body');
 
-    let sundayTable = document.createElement('table');
-    let sundayHead = document.createElement('thead');
-    let sundayBody = document.createElement('tbody');
-
-    let columns = ['Tableaux', "Nombre d'inscrits", 'Limite de points', 'Féminin ?', 'Inscription'];
-
-    fillHead(saturdayHead, columns);
-    saturdayTable.appendChild(saturdayHead);
-    fillHead(sundayHead, columns);
-    sundayTable.appendChild(sundayHead);
+    let sundayBody = document.getElementById('sunday_table_body');
 
     saturdayCategories.forEach(
         function (categoryObject) {
             row = createCategoryRow(categoryObject);
             saturdayBody.appendChild(row);
         });
-    saturdayTable.appendChild(saturdayBody);
-    document.getElementById('admin_entry_management').appendChild(saturdayTable);
+
     sundayCategories.forEach(
         function (categoryObject) {
             row = createCategoryRow(categoryObject);
             sundayBody.appendChild(row);
         });
-    sundayTable.appendChild(sundayBody);
-    document.getElementById('admin_entry_management').appendChild(sundayTable);
+}
+
+function submitEntries() {
+    let categoryIdsToRegister = [];
+    let categoryIdsToDelete = [];
+
+    categoriesData.forEach(function (categoryObject) {
+        let categoryId = categoryObject['categoryId'];
+        let checkbox = document.getElementById('register_checkbox_' + categoryId);
+        if (checkbox.checked) {
+            categoryIdsToRegister.push(categoryId);
+        } else if (initialRegisteredCategoryIds.includes(categoryId)) {
+            categoryIdsToDelete.push(categoryId);
+        }
+    });
+
+    let registerData = {
+        'categoryIds': categoryIdsToRegister,
+    };
+
+    let deleteData = {
+        'categoryIds': categoryIdsToDelete,
+    };
+
+    fetch('/api/entries/' + licence_no, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(registerData),
+    }).then((response) => response.json())
+    .then((data) => {
+        if ('error' in data) {
+            console.error('Could not register new entries: ' + data.error);
+        } else {
+            console.log('Successfully registered new entries');
+            console.log(data);
+            fetch('/api/entries/' + licence_no, {
+                method: 'DELETE',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(deleteData),
+            }).then((response) => response.json())
+            .then((data) => {
+                if ('error' in data) {
+                    console.error('Could not delete entries: ' + data.error);
+                } else {
+                    console.log('Successfully deleted entries');
+                    window.location.href = "/admin/inscrits";
+                }
+            });
+        }
+    });
 }
 
 const categoriesPromise = fetch("/api/categories");

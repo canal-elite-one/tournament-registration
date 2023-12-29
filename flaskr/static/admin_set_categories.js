@@ -39,9 +39,9 @@ function addFormRow(rowData = null) {
     let colorField = document.createElement('input');
     colorField.type = 'color';
     colorField.size = '10';
-    colorField.value = '#ffffff'
+    colorField.value = '#ffffff';
     colorField.id = 'color_field_' + nbRows;
-    if (fillValues) { colorField.value = rowData['color']; }
+    if (fillValues && !(rowData['color'] === null)) { colorField.value = rowData['color']; }
     let colorCell = document.createElement('td');
     colorCell.appendChild(colorField);
     row.appendChild(colorCell);

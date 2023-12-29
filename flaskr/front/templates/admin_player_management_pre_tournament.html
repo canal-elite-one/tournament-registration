@@ -3,10 +3,43 @@
 {% block title %}Gestion de l'inscrit {{ licence_no }} {% endblock %}
 
 {% block content %}
-<div id="player_info">
+<div id="player_info_div">
+    <table id="player_info_table"></table>
+    <button id="delete_player_button" onclick="deletePlayer()"></button>
 </div>
 
 <div id="admin_entry_management">
+    <table id="saturday_table">
+        <thead>
+            <tr>
+                <th colspan="5">Samedi</th>
+            </tr>
+            <tr>
+                <th>Tableau</th>
+                <th>Nombre d'inscrits</th>
+                <th>Limite de points</th>
+                <th>Féminin ?</th>
+                <th>Inscription</th>
+            </tr>
+        </thead>
+        <tbody id="saturday_table_body"></tbody>
+    </table>
+    <table id="sunday_table">
+        <thead>
+            <tr>
+                <th colspan="5">Dimanche</th>
+            </tr>
+            <tr>
+                <th>Tableau</th>
+                <th>Nombre d'inscrits</th>
+                <th>Limite de points</th>
+                <th>Féminin ?</th>
+                <th>Inscription</th>
+            </tr>
+        </thead>
+        <tbody id="sunday_table_body"></tbody>
+    </table>
+    <button id="submit_entries_button" onclick="submitEntries()">Enregistrer les modifications</button>
 </div>
 
 <script>const licence_no={{ licence_no }}</script>
