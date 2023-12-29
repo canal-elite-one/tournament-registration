@@ -2,7 +2,6 @@ from flask import Blueprint, render_template, redirect, url_for
 from flaskr.db import app_info
 from datetime import datetime
 
-
 admin_bp = Blueprint(
     "admin",
     __name__,
@@ -25,15 +24,14 @@ def set_categories():
         and datetime.now() > app_info.registration_cutoff
     ):
         # TODO: 404? 403?
-        return None
+        return render_template("admin_set_categories.html")
     return render_template("admin_set_categories.html")
 
 
 @admin_bp.route("/inscrits/<int:licence_no>", methods=["GET"])
 def player_page(licence_no):
     if app_info.registration_cutoff is None:
-        # TODO: redirect to set categories page
-        return None
+        return redirect(url_for("admin.set_categories"))
     if datetime.now() > app_info.registration_cutoff:
         # TODO: render /admin_player_management_during_tournament
         return None
@@ -41,3 +39,13 @@ def player_page(licence_no):
         "/admin_player_management_pre_tournament.html",
         licence_no=licence_no,
     )
+
+
+@admin_bp.route("/dossards", methods=["GET"])
+def bib_page():
+    if app_info.registration_cutoff is None:
+        return redirect(url_for("admin.set_categories"))
+    if datetime.now() < app_info.registration_cutoff:
+        # TODO: 404? 403?
+        return None
+    return render_template("/admin_bib_management.html")

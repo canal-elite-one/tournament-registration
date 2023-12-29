@@ -45,10 +45,10 @@ thead {
   font-size: large;
 }
 
-#player_info_table {
+#player_info_table, #categories_table {
   margin: auto;
 }
 
-#categories_table {
+#reset_all_bibs_button, #set_all_bibs_button {
   margin: auto;
 }

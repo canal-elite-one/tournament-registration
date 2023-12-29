@@ -40,6 +40,7 @@ def api_admin_set_categories():
     try:
         session.execute(delete(Category))
     except DBAPIError:
+        session.rollback()
         return (
             jsonify(
                 error="Tried to reset categories while "
@@ -269,7 +270,7 @@ def api_admin_mark_present(licence_no):
 
 @api_bp.route("/bibs", methods=["POST"])
 def api_admin_assign_all_bibs():
-    if session.scalars(select(distinct(Player.bib_no))).all() != [None]:
+    if session.scalars(select(distinct(Player.bib_no))).all() not in [[None], []]:
         return (
             jsonify(
                 error="Some bib numbers are already assigned. Either "
@@ -341,7 +342,7 @@ def api_admin_reset_bibs():
         )
     session.execute(update(Player).values(bib_no=None))
     session.commit()
-    return Response(status=HTTPStatus.NO_CONTENT)
+    return jsonify(success="success"), HTTPStatus.NO_CONTENT
 
 
 @api_bp.route("/by_category", methods=["GET"])

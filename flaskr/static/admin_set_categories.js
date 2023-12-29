@@ -219,8 +219,6 @@ function submitForm() {
             for (const [formField, jsonField] of Object.entries(fieldNames)) {
                 let field = document.getElementById(formField + '_field_' + i);
                 if (isNotNull(formField, field.value)) {
-                    console.log(formField);
-                    console.log(field.value);
                     categoryObject[jsonField] = field.value;
                 }
             }
@@ -238,7 +236,6 @@ function submitForm() {
               if ('error' in data) {
                 console.error('Error setting categories:', data.error);
               } else {
-                console.log('Successfully set categories');
                 window.location.href = '/admin/inscrits';
               }
             })
@@ -251,12 +248,16 @@ function submitForm() {
 
 function processExistingCategories(data) {
     if ('error' in data) {
-        console.error('/api/categories could not be reached from /admin/categories.', data.error)
+        console.error('Error fetching categories data:', data.error)
     } else if (data['categories'].length == 0) {
         addFormRow();
     } else {
         data['categories'].forEach(categoryData => {
             addFormRow(categoryData);
+            if (categoryData['entryCount'] > 0) {
+                document.getElementById("submit_categories_button").disabled = 'true';
+                document.getElementById("submit_categories_button").title = 'Les inscriptions ont déjà commencé.';
+            }
         });
     }
 }

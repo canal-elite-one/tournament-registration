@@ -30,7 +30,7 @@
     </form>
     <button onclick="removeFormRow()">-</button>
     <button onclick="addFormRow()" formnovalidate="true">+</button>
-    <button onclick="submitForm()">Enregistrer les catégories</button>
+    <button id="submit_categories_button" onclick="submitForm()">Enregistrer les catégories</button>
 </div>
 <script src="{{ url_for('static', filename='admin_set_categories.js') }}">
 </script>
