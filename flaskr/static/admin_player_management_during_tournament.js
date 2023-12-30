@@ -28,6 +28,11 @@ const enToFr = {
 
 let playerObject;
 let categoriesData;
+let paymentStatus = {
+    'register_total': 0,
+    'present_total': 0,
+    'paid_total': 0,
+};
 
 const relevantPlayerFields = ['licenceNo', 'firstName', 'lastName', 'gender', 'club', 'nbPoints', 'email', 'phone'];
 const relevantCategoriesFields = ['categoryId', 'color', 'entryCount', 'maxPlayers', 'overbookingPercentage', 'womenOnly', 'maxPoints', 'minPoints']
@@ -35,39 +40,114 @@ const relevantCategoriesFields = ['categoryId', 'color', 'entryCount', 'maxPlaye
 const categoryIdByColor = {};
 const sameColor = {};
 
-function handleCheckbox(categoryId) {
-    checkbox = document.getElementById('register_checkbox_' + categoryId);
-
-    if (!(categoryId in sameColor)) {
-        if (categoryId in playerObject['registeredEntries'] && !checkbox.checked) {
-            let label = document.getElementById(checkbox.id + '_label')
-            label.firstChild.data = '\u26A0';
-        } else if (categoryId in playerObject['registeredEntries'] && checkbox.checked) {
-            let label = document.getElementById(checkbox.id + '_label')
-            label.firstChild.data = ' ';
-        }
-        return null;
-    }
-
-    otherCheckbox = document.getElementById('register_checkbox_' + sameColor[categoryId]);
-    if (checkbox.checked) {
-        otherCheckbox.checked = false;
-    }
+function initialChecked(checkbox) {
+    let categoryId = checkbox.id.slice(-1);
     if (categoryId in playerObject['registeredEntries']) {
-        let label = document.getElementById(checkbox.id + '_label')
-        if (checkbox.checked) {
-            label.firstChild.data = ' ';
+        if (checkbox.getAttribute('data-checkbox-type') == 'register') {
+            return true;
+        } else if (checkbox.getAttribute('data-checkbox-type') == 'present') {
+            return playerObject['registeredEntries'][categoryId]['markedAsPresent'];
         } else {
-            label.firstChild.data = '\u26A0';
+            return playerObject['registeredEntries'][categoryId]['markedAsPaid'];
+        }
+    } else {
+        return false;
+    }
+}
+
+function currentFee(categoryId) {
+    if (categoryId in playerObject['registeredEntries']) {
+        return playerObject['registeredEntries'][categoryId]['entryFee'];
+    } else {
+        let categoryObject = categoriesData.find(category => category['categoryId'] == categoryId);
+        return categoryObject['currentFee'];
+    }
+}
+
+function processFeeChange(checkbox, futureChecked, oppositeFactor=1) {
+    let categoryId = checkbox.id.slice(-1);
+    let checkboxType = checkbox.getAttribute('data-checkbox-type');
+    if (futureChecked == checkbox.checked) { return; }
+    else if (futureChecked) {
+        paymentStatus[checkboxType + '_total'] += currentFee(categoryId) * oppositeFactor;
+    } else {
+        paymentStatus[checkboxType + '_total'] -= currentFee(categoryId) * oppositeFactor;
+    }
+    document.getElementById(checkboxType + '_total').firstChild.nodeValue = paymentStatus[checkboxType + '_total'];
+    if (checkboxType == 'paid') {
+        currentPaymentField.value = paymentStatus['paid_total'] - playerObject['paymentStatus']['totalActualPaid'];
+    } else if (checkboxType == 'present') {
+        currentPaymentField.setAttribute('max', paymentStatus['present_total'] - playerObject['paymentStatus']['totalActualPaid']);
+    }
+}
+
+function disableCheckbox(checkbox) {
+    if (checkbox == null) { return; }
+    checkbox.setAttribute('disabled', '');
+    processFeeChange(checkbox, false);
+    checkbox.checked = false;
+    checkbox.parentElement.style.backgroundColor = '#d3d3d3';
+    onCheckboxChange(checkbox);
+}
+
+function enableCheckbox(checkbox) {
+    if (checkbox == null) { return; }
+    if (!(checkbox.getAttribute('data-checkbox-type') == 'paid' && initialChecked(checkbox))) {
+        checkbox.removeAttribute('disabled');
+        checkbox.parentElement.style.backgroundColor = 'white';
+    }
+    processFeeChange(checkbox, initialChecked(checkbox));
+    checkbox.checked = initialChecked(checkbox);
+    onCheckboxChange(checkbox);
+}
+
+function onCheckboxChange(checkbox) {
+    let checkboxType = checkbox.getAttribute('data-checkbox-type');
+    let categoryId = checkbox.id.slice(-1);
+
+    let checkboxLabel = document.getElementById(checkbox.id + '_label');
+    if (!checkbox.checked && initialChecked(checkbox)) {
+        checkboxLabel.firstChild.nodeValue = ' \u26A0';
+    } else {
+        checkboxLabel.firstChild.nodeValue = ' ';
+    }
+
+    let childCheckbox = null;
+    if (checkboxType == 'register') {
+        childCheckbox = document.getElementById('present_checkbox_' + categoryId);
+    } else if (checkboxType == 'present') {
+        childCheckbox = document.getElementById('paid_checkbox_' + categoryId);
+    } else {
+        return;
+    }
+    if (checkbox.checked) {
+        enableCheckbox(childCheckbox);
+    } else {
+        disableCheckbox(childCheckbox);
+    }
+}
+
+function handleColor(checkbox) {
+    let categoryId = checkbox.id.slice(-1);
+    onCheckboxChange(checkbox);
+
+    if (categoryId in sameColor) {
+        let otherCheckbox = document.getElementById('register_checkbox_' + sameColor[categoryId]);
+        if (checkbox.checked) {
+            processFeeChange(otherCheckbox, false);
+            otherCheckbox.checked = false;
+            onCheckboxChange(otherCheckbox);
         }
     }
-    if (sameColor[categoryId] in playerObject['registeredEntries']) {
-        let label = document.getElementById(otherCheckbox.id + '_label')
-        if (otherCheckbox.checked) {
-            label.firstChild.data = ' ';
-        } else {
-            label.firstChild.data = '\u26A0';
-        }
+}
+
+function onclickCheckboxWrapper(checkboxType, categoryId) {
+    let checkbox = document.getElementById(checkboxType + '_checkbox_' + categoryId);
+    processFeeChange(checkbox, !checkbox.checked, -1);
+    if (checkboxType == 'register') {
+        handleColor(checkbox);
+    } else {
+        onCheckboxChange(checkbox);
     }
 }
 
@@ -88,7 +168,22 @@ function deletePlayer() {
 }
 
 function processPlayerInfo() {
+    console.log(playerObject);
     let playerInfoTable = document.getElementById('player_info_table');
+
+    document.getElementById('register_total').firstChild.nodeValue = playerObject['paymentStatus']['totalRegistered'];
+    document.getElementById('present_total').firstChild.nodeValue = playerObject['paymentStatus']['totalPresent'];
+    document.getElementById('paid_total').firstChild.nodeValue = playerObject['paymentStatus']['totalPaid'];
+    document.getElementById('previous_actual_total').firstChild.nodeValue = playerObject['paymentStatus']['totalActualPaid'];
+    currentPaymentField = document.getElementById('actual_total_field');
+    currentPaymentField.value = playerObject['paymentStatus']['totalPaid'] - playerObject['paymentStatus']['totalActualPaid'];
+    currentPaymentField.setAttribute('max', playerObject['paymentStatus']['totalPresent'] - playerObject['paymentStatus']['totalActualPaid']);
+
+    for (const categoryId in playerObject['registeredEntries']) {
+        let registerCheckbox = document.getElementById('register_checkbox_' + categoryId);
+        registerCheckbox.checked = true;
+        onclickCheckboxWrapper('register', categoryId);
+    }
 
     relevantPlayerFields.forEach(
         function(fieldName) {
@@ -119,16 +214,47 @@ function createCategoryRow(categoryObject) {
     let registerCheckbox = document.createElement('input');
     registerCheckbox.type = 'checkbox';
     registerCheckbox.id = 'register_checkbox_' + categoryId;
-    registerCheckbox.setAttribute('oninput', 'handleCheckbox("' + categoryId + '")');
-    if (categoryId in playerObject['registeredEntries']) {
-        registerCheckbox.checked = true;
-    }
+    registerCheckbox.setAttribute('data-checkbox-type', 'register')
+    registerCheckbox.setAttribute('oninput', 'onclickCheckboxWrapper("register", "' + categoryId + '")');
     registerCell.appendChild(registerCheckbox);
     let registerLabel = document.createElement('label');
     registerLabel.id = registerCheckbox.id + '_label';
     registerLabel.setAttribute('for', registerCheckbox.id);
     registerLabel.appendChild(document.createTextNode(' '));
     registerCell.appendChild(registerLabel);
+
+    let presentCell = document.createElement('td');
+    presentCell.setAttribute('id', 'present_cell_' + categoryId);
+    let presentCheckbox = document.createElement('input');
+    presentCheckbox.type = 'checkbox';
+    presentCheckbox.id = 'present_checkbox_' + categoryId;
+    presentCheckbox.setAttribute('data-checkbox-type', 'present')
+    presentCheckbox.setAttribute('oninput', 'onclickCheckboxWrapper("present", "' + categoryId + '")');
+    presentCell.appendChild(presentCheckbox);
+    let presentLabel = document.createElement('label');
+    presentLabel.id = presentCheckbox.id + '_label';
+    presentLabel.setAttribute('for', presentCheckbox.id);
+    presentLabel.appendChild(document.createTextNode(' '));
+    presentCell.appendChild(presentLabel);
+
+    let paidCell = document.createElement('td');
+    paidCell.setAttribute('id', 'paid_cell_' + categoryId);
+    let paidCheckbox = document.createElement('input');
+    paidCheckbox.type = 'checkbox';
+    paidCheckbox.id = 'paid_checkbox_' + categoryId;
+    paidCheckbox.setAttribute('data-checkbox-type', 'paid')
+    paidCheckbox.setAttribute('oninput', 'onclickCheckboxWrapper("paid", "' + categoryId + '")');
+    paidCell.appendChild(paidCheckbox);
+    let paidLabel = document.createElement('label');
+    paidLabel.id = paidCheckbox.id + '_label';
+    paidLabel.setAttribute('for', paidCheckbox.id);
+    paidLabel.appendChild(document.createTextNode(' '));
+    paidCell.appendChild(paidLabel);
+
+    presentCell.style.backgroundColor = '#d3d3d3';
+    presentCheckbox.setAttribute('disabled', '');
+    paidCell.style.backgroundColor = '#d3d3d3';
+    paidCheckbox.setAttribute('disabled', '');
 
     let idCell = document.createElement('td');
     idCell.setAttribute('id', 'id_cell_' + categoryId);
@@ -180,7 +306,7 @@ function createCategoryRow(categoryObject) {
 
     if (playerObject['nbPoints'] < minPoints || playerObject['nbPoints'] > maxPoints) {
         pointsCell.style.backgroundColor = 'red';
-        registerCell.style.backgroundColor = 'grey';
+        registerCell.style.backgroundColor = '#d3d3d3';
         registerCheckbox.setAttribute('disabled', '');
         pointsString = pointsString + ' \u2717';
     } else {
@@ -195,10 +321,13 @@ function createCategoryRow(categoryObject) {
     row.appendChild(womenOnlyCell);
     if (categoryObject['womenOnly'] && playerObject['gender'] == 'M') {
         womenOnlyCell.style.backgroundColor = 'red';
-        registerCell.style.backgroundColor = 'red';
+        registerCell.style.backgroundColor = '#d3d3d3';
         registerCheckbox.setAttribute('disabled', '');
     }
+
     row.appendChild(registerCell);
+    row.appendChild(presentCell);
+    row.appendChild(paidCell);
 
     return row;
 }

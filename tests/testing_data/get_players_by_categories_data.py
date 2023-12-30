@@ -779,7 +779,7 @@ data = {
                     "firstName": "Hoyhjni",
                     "lastName": "JTFLCUZD",
                     "licenceNo": 5326002,
-                    "markedAsPaid": False,
+                    "markedAsPaid": True,
                     "markedAsPresent": True,
                     "nbPoints": 1364,
                     "registrationTime": "2023-09-19T15:04:30",

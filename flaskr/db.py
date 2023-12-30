@@ -103,11 +103,28 @@ class Player(Base):
         schema = PlayerSchema()
         return str(schema.dump(self))
 
+    def paid_entries(self):
+        return filter(lambda x: x.marked_as_paid, self.entries)
+
     def present_entries(self):
         return filter(lambda x: x.marked_as_present, self.entries)
 
-    def current_required_payment(self):
+    def _fees_total_registered(self):
+        return sum(entry.fee() for entry in self.entries)
+
+    def _fees_total_present(self):
         return sum(entry.fee() for entry in self.present_entries())
+
+    def _fees_total_paid(self):
+        return sum(entry.fee() for entry in self.paid_entries())
+
+    def payment_status(self):
+        return {
+            "totalActualPaid": self.total_actual_paid,
+            "totalRegistered": self._fees_total_registered(),
+            "totalPresent": self._fees_total_present(),
+            "totalPaid": self._fees_total_paid(),
+        }
 
 
 def get_player_not_found_error(licence_no):
@@ -257,10 +274,13 @@ class PlayerSchema(SchemaWithReset):
     @post_dump(pass_original=True)
     def add_entries_info(self, data, original, **kwargs):
         if self.context.get("include_entries", False):
-            data["registeredEntries"] = EntrySchema(many=True).dump(
+            e_schema = EntrySchema(many=True)
+            e_schema.context["nest"] = True
+            data["registeredEntries"] = e_schema.dump(
                 sorted(original.entries, key=lambda x: x.category.start_time),
             )
-            data["currentRequiredPayment"] = original.current_required_payment()
+            del data["totalActualPaid"]
+            data["paymentStatus"] = original.payment_status()
         return data
 
 
@@ -293,4 +313,15 @@ class EntrySchema(SchemaWithReset):
             data["nbPoints"] = player.nb_points
             data["club"] = player.club
             del data["categoryId"]
+        return data
+
+    @post_dump(pass_many=True)
+    def nest(self, data, many, **kwargs):
+        if many and self.context.get("nest", False):
+            result = {}
+            for entry in data:
+                category_id = entry["categoryId"]
+                del entry["categoryId"]
+                result[category_id] = entry
+            return result
         return data

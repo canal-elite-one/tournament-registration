@@ -33,8 +33,10 @@ def player_page(licence_no):
     if app_info.registration_cutoff is None:
         return redirect(url_for("admin.set_categories"))
     if datetime.now() > app_info.registration_cutoff:
-        # TODO: render /admin_player_management_during_tournament
-        return None
+        return render_template(
+            "/admin_player_management_during_tournament.html",
+            licence_no=licence_no,
+        )
     return render_template(
         "/admin_player_management_pre_tournament.html",
         licence_no=licence_no,

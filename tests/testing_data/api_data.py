@@ -278,27 +278,29 @@ correct_payment_pay_all = (
         "lastName": "EZWLKRWE",
         "licenceNo": 4526124,
         "nbPoints": 1149,
+        "paymentStatus": {
+            "totalActualPaid": 14,
+            "totalPaid": 14,
+            "totalPresent": 14,
+            "totalRegistered": 14,
+        },
         "phone": "+336919756238",
-        "registeredEntries": [
-            {
-                "categoryId": "B",
+        "registeredEntries": {
+            "B": {
+                "entryFee": 7,
                 "licenceNo": 4526124,
                 "markedAsPaid": True,
                 "markedAsPresent": True,
                 "registrationTime": "2023-11-17T18:01:20",
-                "entryFee": 7,
             },
-            {
-                "categoryId": "F",
+            "F": {
                 "entryFee": 7,
                 "licenceNo": 4526124,
                 "markedAsPaid": True,
                 "markedAsPresent": True,
                 "registrationTime": "2023-11-25T21:56:50",
             },
-        ],
-        "totalActualPaid": 14,
-        "currentRequiredPayment": 14,
+        },
     },
 )
 
@@ -314,27 +316,29 @@ correct_payment_pay_partial = (
         "lastName": "EZWLKRWE",
         "licenceNo": 4526124,
         "nbPoints": 1149,
+        "paymentStatus": {
+            "totalActualPaid": 7,
+            "totalPaid": 7,
+            "totalPresent": 14,
+            "totalRegistered": 14,
+        },
         "phone": "+336919756238",
-        "registeredEntries": [
-            {
-                "categoryId": "B",
+        "registeredEntries": {
+            "B": {
                 "entryFee": 7,
                 "licenceNo": 4526124,
                 "markedAsPaid": True,
                 "markedAsPresent": True,
                 "registrationTime": "2023-11-17T18:01:20",
             },
-            {
-                "categoryId": "F",
+            "F": {
                 "entryFee": 7,
                 "licenceNo": 4526124,
                 "markedAsPaid": False,
                 "markedAsPresent": True,
                 "registrationTime": "2023-11-25T21:56:50",
             },
-        ],
-        "totalActualPaid": 7,
-        "currentRequiredPayment": 14,
+        },
     },
 )
 
@@ -350,27 +354,29 @@ correct_payment_idempotent = (
         "lastName": "JTFLCUZD",
         "licenceNo": 5326002,
         "nbPoints": 1364,
+        "paymentStatus": {
+            "totalActualPaid": 7,
+            "totalPaid": 7,
+            "totalPresent": 14,
+            "totalRegistered": 14,
+        },
         "phone": "+336368307553",
-        "registeredEntries": [
-            {
-                "categoryId": "B",
+        "registeredEntries": {
+            "B": {
                 "entryFee": 7,
                 "licenceNo": 5326002,
                 "markedAsPaid": True,
                 "markedAsPresent": True,
                 "registrationTime": "2023-09-19T15:04:30",
             },
-            {
-                "categoryId": "G",
+            "G": {
                 "entryFee": 7,
                 "licenceNo": 5326002,
                 "markedAsPaid": False,
                 "markedAsPresent": True,
                 "registrationTime": "2023-11-16T12:30:04",
             },
-        ],
-        "totalActualPaid": 7,
-        "currentRequiredPayment": 14,
+        },
     },
 )
 
@@ -386,27 +392,29 @@ correct_payment_nondefault_actual = (
         "lastName": "EZWLKRWE",
         "licenceNo": 4526124,
         "nbPoints": 1149,
+        "paymentStatus": {
+            "totalActualPaid": 6,
+            "totalPaid": 7,
+            "totalPresent": 14,
+            "totalRegistered": 14,
+        },
         "phone": "+336919756238",
-        "registeredEntries": [
-            {
-                "categoryId": "B",
+        "registeredEntries": {
+            "B": {
                 "entryFee": 7,
                 "licenceNo": 4526124,
                 "markedAsPaid": True,
                 "markedAsPresent": True,
                 "registrationTime": "2023-11-17T18:01:20",
             },
-            {
-                "categoryId": "F",
+            "F": {
                 "entryFee": 7,
                 "licenceNo": 4526124,
                 "markedAsPaid": False,
                 "markedAsPresent": True,
                 "registrationTime": "2023-11-25T21:56:50",
             },
-        ],
-        "totalActualPaid": 6,
-        "currentRequiredPayment": 14,
+        },
     },
 )
 
@@ -494,16 +502,20 @@ correct_delete_entries_all = (
     {
         "bibNo": None,
         "club": "LE MANS SARTHE TENNIS DE TABLE",
-        "currentRequiredPayment": 0,
         "email": "gzzduckcnh@kmgdxv.com",
         "firstName": "Dpwsaob",
         "gender": "F",
         "lastName": "ORHCWRNU",
         "licenceNo": 722370,
         "nbPoints": 689,
-        "totalActualPaid": 0,
+        "paymentStatus": {
+            "totalActualPaid": 0,
+            "totalPaid": 0,
+            "totalPresent": 0,
+            "totalRegistered": 0,
+        },
         "phone": "+336769763133",
-        "registeredEntries": [],
+        "registeredEntries": {},
     },
 )
 
@@ -513,25 +525,28 @@ correct_delete_entries_partial = (
     {
         "bibNo": None,
         "club": "LE MANS SARTHE TENNIS DE TABLE",
-        "currentRequiredPayment": 0,
         "email": "gzzduckcnh@kmgdxv.com",
         "firstName": "Dpwsaob",
         "gender": "F",
         "lastName": "ORHCWRNU",
         "licenceNo": 722370,
         "nbPoints": 689,
-        "totalActualPaid": 0,
+        "paymentStatus": {
+            "totalActualPaid": 0,
+            "totalPaid": 0,
+            "totalPresent": 0,
+            "totalRegistered": 7,
+        },
         "phone": "+336769763133",
-        "registeredEntries": [
-            {
-                "categoryId": "7",
+        "registeredEntries": {
+            "7": {
                 "entryFee": 7,
                 "licenceNo": 722370,
                 "markedAsPaid": False,
                 "markedAsPresent": False,
                 "registrationTime": "2023-09-17T05:10:51",
             },
-        ],
+        },
     },
 )
 
@@ -583,41 +598,42 @@ correct_mark_unmark_present_nothing = (
     {
         "bibNo": None,
         "club": "U S ETREPAGNY T T",
-        "currentRequiredPayment": 10,
         "email": "wihnpztoim@tjbnck.com",
         "firstName": "Nxovesf",
         "gender": "F",
         "lastName": "GZLDPNEH",
         "licenceNo": 608834,
         "nbPoints": 1721,
+        "paymentStatus": {
+            "totalActualPaid": 0,
+            "totalPaid": 0,
+            "totalPresent": 10,
+            "totalRegistered": 24,
+        },
         "phone": "+336044431914",
-        "registeredEntries": [
-            {
-                "categoryId": "E",
-                "entryFee": 10,
-                "licenceNo": 608834,
-                "markedAsPaid": False,
-                "markedAsPresent": True,
-                "registrationTime": "2023-11-02T18:50:24",
-            },
-            {
-                "categoryId": "G",
-                "entryFee": 7,
-                "licenceNo": 608834,
-                "markedAsPaid": False,
-                "markedAsPresent": False,
-                "registrationTime": "2023-08-23T06:56:51",
-            },
-            {
-                "categoryId": "3",
+        "registeredEntries": {
+            "3": {
                 "entryFee": 7,
                 "licenceNo": 608834,
                 "markedAsPaid": False,
                 "markedAsPresent": False,
                 "registrationTime": "2023-03-20T00:24:12",
             },
-        ],
-        "totalActualPaid": 0,
+            "E": {
+                "entryFee": 10,
+                "licenceNo": 608834,
+                "markedAsPaid": False,
+                "markedAsPresent": True,
+                "registrationTime": "2023-11-02T18:50:24",
+            },
+            "G": {
+                "entryFee": 7,
+                "licenceNo": 608834,
+                "markedAsPaid": False,
+                "markedAsPresent": False,
+                "registrationTime": "2023-08-23T06:56:51",
+            },
+        },
     },
 )
 
@@ -630,41 +646,42 @@ correct_mark_unmark_present = (
     {
         "bibNo": None,
         "club": "U S ETREPAGNY T T",
-        "currentRequiredPayment": 7,
         "email": "wihnpztoim@tjbnck.com",
         "firstName": "Nxovesf",
         "gender": "F",
         "lastName": "GZLDPNEH",
         "licenceNo": 608834,
         "nbPoints": 1721,
-        "totalActualPaid": 0,
+        "paymentStatus": {
+            "totalActualPaid": 0,
+            "totalPaid": 0,
+            "totalPresent": 7,
+            "totalRegistered": 24,
+        },
         "phone": "+336044431914",
-        "registeredEntries": [
-            {
-                "categoryId": "E",
-                "entryFee": 10,
-                "licenceNo": 608834,
-                "markedAsPaid": False,
-                "markedAsPresent": False,
-                "registrationTime": "2023-11-02T18:50:24",
-            },
-            {
-                "categoryId": "G",
-                "entryFee": 7,
-                "licenceNo": 608834,
-                "markedAsPaid": False,
-                "markedAsPresent": False,
-                "registrationTime": "2023-08-23T06:56:51",
-            },
-            {
-                "categoryId": "3",
+        "registeredEntries": {
+            "3": {
                 "entryFee": 7,
                 "licenceNo": 608834,
                 "markedAsPaid": False,
                 "markedAsPresent": True,
                 "registrationTime": "2023-03-20T00:24:12",
             },
-        ],
+            "E": {
+                "entryFee": 10,
+                "licenceNo": 608834,
+                "markedAsPaid": False,
+                "markedAsPresent": False,
+                "registrationTime": "2023-11-02T18:50:24",
+            },
+            "G": {
+                "entryFee": 7,
+                "licenceNo": 608834,
+                "markedAsPaid": False,
+                "markedAsPresent": False,
+                "registrationTime": "2023-08-23T06:56:51",
+            },
+        },
     },
 )
 
@@ -676,41 +693,42 @@ correct_mark_unmark_present_idempotent = (
     {
         "bibNo": None,
         "club": "U S ETREPAGNY T T",
-        "currentRequiredPayment": 17,
         "email": "wihnpztoim@tjbnck.com",
         "firstName": "Nxovesf",
         "gender": "F",
         "lastName": "GZLDPNEH",
         "licenceNo": 608834,
         "nbPoints": 1721,
-        "totalActualPaid": 0,
+        "paymentStatus": {
+            "totalActualPaid": 0,
+            "totalPaid": 0,
+            "totalPresent": 17,
+            "totalRegistered": 24,
+        },
         "phone": "+336044431914",
-        "registeredEntries": [
-            {
-                "categoryId": "E",
-                "entryFee": 10,
-                "licenceNo": 608834,
-                "markedAsPaid": False,
-                "markedAsPresent": True,
-                "registrationTime": "2023-11-02T18:50:24",
-            },
-            {
-                "categoryId": "G",
-                "entryFee": 7,
-                "licenceNo": 608834,
-                "markedAsPaid": False,
-                "markedAsPresent": False,
-                "registrationTime": "2023-08-23T06:56:51",
-            },
-            {
-                "categoryId": "3",
+        "registeredEntries": {
+            "3": {
                 "entryFee": 7,
                 "licenceNo": 608834,
                 "markedAsPaid": False,
                 "markedAsPresent": True,
                 "registrationTime": "2023-03-20T00:24:12",
             },
-        ],
+            "E": {
+                "entryFee": 10,
+                "licenceNo": 608834,
+                "markedAsPaid": False,
+                "markedAsPresent": True,
+                "registrationTime": "2023-11-02T18:50:24",
+            },
+            "G": {
+                "entryFee": 7,
+                "licenceNo": 608834,
+                "markedAsPaid": False,
+                "markedAsPresent": False,
+                "registrationTime": "2023-08-23T06:56:51",
+            },
+        },
     },
 )
 
@@ -988,7 +1006,7 @@ correct_admin_get_by_cat_present_only_response = {
                     "firstName": "Hoyhjni",
                     "lastName": "JTFLCUZD",
                     "licenceNo": 5326002,
-                    "markedAsPaid": False,
+                    "markedAsPaid": True,
                     "markedAsPresent": True,
                     "nbPoints": 1364,
                     "registrationTime": "2023-09-19T15:04:30",
@@ -1376,248 +1394,252 @@ correct_admin_get_all_players_present_only_response = {
         {
             "bibNo": None,
             "club": "BOIS COLOMBES SPORTS",
-            "currentRequiredPayment": 8,
             "email": "sobsfewmas@mmzbwc.com",
             "firstName": "Vtrgrdc",
             "gender": "M",
             "lastName": "ZBXLTMIV",
             "licenceNo": 9241901,
             "nbPoints": 1475,
+            "paymentStatus": {
+                "totalActualPaid": 0,
+                "totalPaid": 0,
+                "totalPresent": 8,
+                "totalRegistered": 29,
+            },
             "phone": "+336535833023",
-            "registeredEntries": [
-                {
-                    "categoryId": "B",
-                    "entryFee": 7,
-                    "licenceNo": 9241901,
-                    "markedAsPaid": False,
-                    "markedAsPresent": False,
-                    "registrationTime": "2023-05-17T21:17:58",
-                },
-                {
-                    "categoryId": "G",
-                    "entryFee": 7,
-                    "licenceNo": 9241901,
-                    "markedAsPaid": False,
-                    "markedAsPresent": False,
-                    "registrationTime": "2023-09-15T23:55:16",
-                },
-                {
-                    "categoryId": "1",
+            "registeredEntries": {
+                "1": {
                     "entryFee": 8,
                     "licenceNo": 9241901,
                     "markedAsPaid": False,
                     "markedAsPresent": True,
                     "registrationTime": "2024-11-08T22:03:59",
                 },
-                {
-                    "categoryId": "3",
+                "3": {
                     "entryFee": 7,
                     "licenceNo": 9241901,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
                     "registrationTime": "2023-05-15T21:07:40",
                 },
-            ],
-            "totalActualPaid": 0,
+                "B": {
+                    "entryFee": 7,
+                    "licenceNo": 9241901,
+                    "markedAsPaid": False,
+                    "markedAsPresent": False,
+                    "registrationTime": "2023-05-17T21:17:58",
+                },
+                "G": {
+                    "entryFee": 7,
+                    "licenceNo": 9241901,
+                    "markedAsPaid": False,
+                    "markedAsPresent": False,
+                    "registrationTime": "2023-09-15T23:55:16",
+                },
+            },
         },
         {
             "bibNo": None,
             "club": "LA CHAPELLE ALTT",
-            "currentRequiredPayment": 7,
             "email": "ivsiphdoxr@zwdzel.com",
             "firstName": "Buqjuvk",
             "gender": "M",
             "lastName": "LNGPQTTV",
             "licenceNo": 7221154,
             "nbPoints": 1568,
+            "paymentStatus": {
+                "totalActualPaid": 0,
+                "totalPaid": 0,
+                "totalPresent": 7,
+                "totalRegistered": 31,
+            },
             "phone": "+336674877385",
-            "registeredEntries": [
-                {
-                    "categoryId": "E",
-                    "entryFee": 10,
-                    "licenceNo": 7221154,
-                    "markedAsPaid": False,
-                    "markedAsPresent": False,
-                    "registrationTime": "2023-07-11T22:50:23",
-                },
-                {
-                    "categoryId": "G",
-                    "entryFee": 7,
-                    "licenceNo": 7221154,
-                    "markedAsPaid": False,
-                    "markedAsPresent": True,
-                    "registrationTime": "2023-09-12T23:08:23",
-                },
-                {
-                    "categoryId": "1",
+            "registeredEntries": {
+                "1": {
                     "entryFee": 7,
                     "licenceNo": 7221154,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
                     "registrationTime": "2023-09-25T06:16:33",
                 },
-                {
-                    "categoryId": "3",
+                "3": {
                     "entryFee": 7,
                     "licenceNo": 7221154,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
                     "registrationTime": "2023-09-07T04:20:46",
                 },
-            ],
-            "totalActualPaid": 0,
+                "E": {
+                    "entryFee": 10,
+                    "licenceNo": 7221154,
+                    "markedAsPaid": False,
+                    "markedAsPresent": False,
+                    "registrationTime": "2023-07-11T22:50:23",
+                },
+                "G": {
+                    "entryFee": 7,
+                    "licenceNo": 7221154,
+                    "markedAsPaid": False,
+                    "markedAsPresent": True,
+                    "registrationTime": "2023-09-12T23:08:23",
+                },
+            },
         },
         {
             "bibNo": None,
             "club": "USM OLIVET TENNIS DE TABLE",
-            "currentRequiredPayment": 14,
             "email": "nvzhltrsqr@mochsf.com",
             "firstName": "Wihelbl",
             "gender": "F",
             "lastName": "EZWLKRWE",
             "licenceNo": 4526124,
             "nbPoints": 1149,
+            "paymentStatus": {
+                "totalActualPaid": 0,
+                "totalPaid": 0,
+                "totalPresent": 14,
+                "totalRegistered": 14,
+            },
             "phone": "+336919756238",
-            "registeredEntries": [
-                {
-                    "categoryId": "B",
+            "registeredEntries": {
+                "B": {
                     "entryFee": 7,
                     "licenceNo": 4526124,
                     "markedAsPaid": False,
                     "markedAsPresent": True,
                     "registrationTime": "2023-11-17T18:01:20",
                 },
-                {
-                    "categoryId": "F",
+                "F": {
                     "entryFee": 7,
                     "licenceNo": 4526124,
                     "markedAsPaid": False,
                     "markedAsPresent": True,
                     "registrationTime": "2023-11-25T21:56:50",
                 },
-            ],
-            "totalActualPaid": 0,
+            },
         },
         {
             "bibNo": None,
             "club": "CABOURG TT",
-            "currentRequiredPayment": 21,
             "email": "stbznywcnu@orabso.com",
             "firstName": "Smbhrdm",
             "gender": "F",
             "lastName": "KIGTDPBH",
             "licenceNo": 1420954,
             "nbPoints": 1019,
+            "paymentStatus": {
+                "totalActualPaid": 0,
+                "totalPaid": 14,
+                "totalPresent": 21,
+                "totalRegistered": 28,
+            },
             "phone": "+336318836582",
-            "registeredEntries": [
-                {
-                    "categoryId": "D",
-                    "entryFee": 7,
-                    "licenceNo": 1420954,
-                    "markedAsPaid": True,
-                    "markedAsPresent": True,
-                    "registrationTime": "2023-04-05T02:14:15",
-                },
-                {
-                    "categoryId": "F",
-                    "entryFee": 7,
-                    "licenceNo": 1420954,
-                    "markedAsPaid": False,
-                    "markedAsPresent": True,
-                    "registrationTime": "2023-09-05T10:40:48",
-                },
-                {
-                    "categoryId": "2",
+            "registeredEntries": {
+                "2": {
                     "entryFee": 7,
                     "licenceNo": 1420954,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
                     "registrationTime": "2023-10-14T10:17:16",
                 },
-                {
-                    "categoryId": "6",
+                "6": {
                     "entryFee": 7,
                     "licenceNo": 1420954,
                     "markedAsPaid": True,
                     "markedAsPresent": True,
                     "registrationTime": "2023-11-24T05:36:23",
                 },
-            ],
-            "totalActualPaid": 0,
+                "D": {
+                    "entryFee": 7,
+                    "licenceNo": 1420954,
+                    "markedAsPaid": True,
+                    "markedAsPresent": True,
+                    "registrationTime": "2023-04-05T02:14:15",
+                },
+                "F": {
+                    "entryFee": 7,
+                    "licenceNo": 1420954,
+                    "markedAsPaid": False,
+                    "markedAsPresent": True,
+                    "registrationTime": "2023-09-05T10:40:48",
+                },
+            },
         },
         {
             "bibNo": None,
             "club": "ERNEENNE Sport Tennis de Table",
-            "currentRequiredPayment": 14,
             "email": "zvsbcnurlb@ieppes.com",
             "firstName": "Hoyhjni",
             "gender": "M",
             "lastName": "JTFLCUZD",
             "licenceNo": 5326002,
             "nbPoints": 1364,
+            "paymentStatus": {
+                "totalActualPaid": 7,
+                "totalPaid": 7,
+                "totalPresent": 14,
+                "totalRegistered": 14,
+            },
             "phone": "+336368307553",
-            "registeredEntries": [
-                {
-                    "categoryId": "B",
+            "registeredEntries": {
+                "B": {
                     "entryFee": 7,
                     "licenceNo": 5326002,
-                    "markedAsPaid": False,
+                    "markedAsPaid": True,
                     "markedAsPresent": True,
                     "registrationTime": "2023-09-19T15:04:30",
                 },
-                {
-                    "categoryId": "G",
+                "G": {
                     "entryFee": 7,
                     "licenceNo": 5326002,
                     "markedAsPaid": False,
                     "markedAsPresent": True,
                     "registrationTime": "2023-11-16T12:30:04",
                 },
-            ],
-            "totalActualPaid": 7,
+            },
         },
         {
             "bibNo": None,
             "club": "U S ETREPAGNY T T",
-            "currentRequiredPayment": 10,
             "email": "wihnpztoim@tjbnck.com",
             "firstName": "Nxovesf",
             "gender": "F",
             "lastName": "GZLDPNEH",
             "licenceNo": 608834,
             "nbPoints": 1721,
+            "paymentStatus": {
+                "totalActualPaid": 0,
+                "totalPaid": 0,
+                "totalPresent": 10,
+                "totalRegistered": 24,
+            },
             "phone": "+336044431914",
-            "registeredEntries": [
-                {
-                    "categoryId": "E",
-                    "entryFee": 10,
-                    "licenceNo": 608834,
-                    "markedAsPaid": False,
-                    "markedAsPresent": True,
-                    "registrationTime": "2023-11-02T18:50:24",
-                },
-                {
-                    "categoryId": "G",
-                    "entryFee": 7,
-                    "licenceNo": 608834,
-                    "markedAsPaid": False,
-                    "markedAsPresent": False,
-                    "registrationTime": "2023-08-23T06:56:51",
-                },
-                {
-                    "categoryId": "3",
+            "registeredEntries": {
+                "3": {
                     "entryFee": 7,
                     "licenceNo": 608834,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
                     "registrationTime": "2023-03-20T00:24:12",
                 },
-            ],
-            "totalActualPaid": 0,
+                "E": {
+                    "entryFee": 10,
+                    "licenceNo": 608834,
+                    "markedAsPaid": False,
+                    "markedAsPresent": True,
+                    "registrationTime": "2023-11-02T18:50:24",
+                },
+                "G": {
+                    "entryFee": 7,
+                    "licenceNo": 608834,
+                    "markedAsPaid": False,
+                    "markedAsPresent": False,
+                    "registrationTime": "2023-08-23T06:56:51",
+                },
+            },
         },
     ],
 }
-
 """
 For api_get_categories
 """
@@ -1972,33 +1994,35 @@ correct_get_player_existing = (
     {
         "bibNo": None,
         "club": "USM OLIVET TENNIS DE TABLE",
-        "currentRequiredPayment": 14,
         "email": "nvzhltrsqr@mochsf.com",
         "firstName": "Wihelbl",
         "gender": "F",
         "lastName": "EZWLKRWE",
         "licenceNo": 4526124,
         "nbPoints": 1149,
+        "paymentStatus": {
+            "totalActualPaid": 0,
+            "totalPaid": 0,
+            "totalPresent": 14,
+            "totalRegistered": 14,
+        },
         "phone": "+336919756238",
-        "registeredEntries": [
-            {
-                "categoryId": "B",
+        "registeredEntries": {
+            "B": {
                 "entryFee": 7,
                 "licenceNo": 4526124,
                 "markedAsPaid": False,
                 "markedAsPresent": True,
                 "registrationTime": "2023-11-17T18:01:20",
             },
-            {
-                "categoryId": "F",
+            "F": {
                 "entryFee": 7,
                 "licenceNo": 4526124,
                 "markedAsPaid": False,
                 "markedAsPresent": True,
                 "registrationTime": "2023-11-25T21:56:50",
             },
-        ],
-        "totalActualPaid": 0,
+        },
     },
 )
 
@@ -2007,49 +2031,49 @@ correct_get_player_late_registration = (
     {
         "bibNo": None,
         "club": "BOIS COLOMBES SPORTS",
-        "currentRequiredPayment": 8,
         "email": "sobsfewmas@mmzbwc.com",
         "firstName": "Vtrgrdc",
         "gender": "M",
         "lastName": "ZBXLTMIV",
         "licenceNo": 9241901,
         "nbPoints": 1475,
+        "paymentStatus": {
+            "totalActualPaid": 0,
+            "totalPaid": 0,
+            "totalPresent": 8,
+            "totalRegistered": 29,
+        },
         "phone": "+336535833023",
-        "registeredEntries": [
-            {
-                "categoryId": "B",
-                "entryFee": 7,
-                "licenceNo": 9241901,
-                "markedAsPaid": False,
-                "markedAsPresent": False,
-                "registrationTime": "2023-05-17T21:17:58",
-            },
-            {
-                "categoryId": "G",
-                "entryFee": 7,
-                "licenceNo": 9241901,
-                "markedAsPaid": False,
-                "markedAsPresent": False,
-                "registrationTime": "2023-09-15T23:55:16",
-            },
-            {
-                "categoryId": "1",
+        "registeredEntries": {
+            "1": {
                 "entryFee": 8,
                 "licenceNo": 9241901,
                 "markedAsPaid": False,
                 "markedAsPresent": True,
                 "registrationTime": "2024-11-08T22:03:59",
             },
-            {
-                "categoryId": "3",
+            "3": {
                 "entryFee": 7,
                 "licenceNo": 9241901,
                 "markedAsPaid": False,
                 "markedAsPresent": False,
                 "registrationTime": "2023-05-15T21:07:40",
             },
-        ],
-        "totalActualPaid": 0,
+            "B": {
+                "entryFee": 7,
+                "licenceNo": 9241901,
+                "markedAsPaid": False,
+                "markedAsPresent": False,
+                "registrationTime": "2023-05-17T21:17:58",
+            },
+            "G": {
+                "entryFee": 7,
+                "licenceNo": 9241901,
+                "markedAsPaid": False,
+                "markedAsPresent": False,
+                "registrationTime": "2023-09-15T23:55:16",
+            },
+        },
     },
 )
 

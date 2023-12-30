@@ -116,7 +116,7 @@ def api_admin_make_payment(licence_no):
         if entry.category_id in ids_to_pay:
             entry.marked_as_paid = True
 
-    if player.current_required_payment() < request.json["totalActualPaid"]:
+    if player._fees_total_present() < request.json["totalActualPaid"]:
         session.rollback()
         return (
             jsonify(
@@ -257,7 +257,7 @@ def api_admin_mark_present(licence_no):
             )
 
     player.total_actual_paid = min(
-        player.current_required_payment(),
+        player._fees_total_present(),
         player.total_actual_paid,
     )
 
@@ -379,9 +379,10 @@ def api_admin_get_all_players():
 
 @api_bp.route("/categories", methods=["GET"])
 def api_get_categories():
+    c_schema.reset(many=True)
     return (
         jsonify(
-            CategorySchema(many=True).dump(
+            c_schema.dump(
                 session.scalars(select(Category).order_by(Category.start_time)).all(),
             ),
         ),

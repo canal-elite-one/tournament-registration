@@ -470,7 +470,7 @@ INSERT INTO entries(category_id, color, licence_no, registration_time, marked_as
 INSERT INTO entries(category_id, color, licence_no, registration_time, marked_as_paid, marked_as_present) VALUES ('7', '#00FFFF', 722370, '2023-9-17T5:10:51', FALSE, FALSE);
 INSERT INTO entries(category_id, color, licence_no, registration_time, marked_as_paid, marked_as_present) VALUES ('7', '#00FFFF', 7218408, '2023-9-18T7:27:4', TRUE, FALSE);
 INSERT INTO entries(category_id, color, licence_no, registration_time, marked_as_paid, marked_as_present) VALUES ('1', '#0000FF', 9143724, '2023-9-19T14:39:23', FALSE, FALSE);
-INSERT INTO entries(category_id, color, licence_no, registration_time, marked_as_paid, marked_as_present) VALUES ('B', 'blue', 5326002, '2023-9-19T15:4:30', FALSE, TRUE);
+INSERT INTO entries(category_id, color, licence_no, registration_time, marked_as_paid, marked_as_present) VALUES ('B', 'blue', 5326002, '2023-9-19T15:4:30', TRUE, TRUE);
 INSERT INTO entries(category_id, color, licence_no, registration_time, marked_as_paid, marked_as_present) VALUES ('6', '#00FFFF', 9426636, '2023-9-19T16:4:43', FALSE, FALSE);
 INSERT INTO entries(category_id, color, licence_no, registration_time, marked_as_paid, marked_as_present) VALUES ('B', 'blue', 4527177, '2023-9-1T2:8:33', TRUE, FALSE);
 INSERT INTO entries(category_id, color, licence_no, registration_time, marked_as_paid, marked_as_present) VALUES ('E', '#FF0000', 5325784, '2023-9-1T8:30:35', TRUE, FALSE);
