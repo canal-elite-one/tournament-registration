@@ -5,6 +5,9 @@
 {% block content %}
 <button id="set_all_bibs_button" onclick="setAllBibs()">Générer les n° de dossards</button>
 <button id="reset_all_bibs_button" onclick="resetAllBibs()">&#x26A0; Supprimer les n° de dossards existants &#x26A0;</button>
+{% endblock %}
+
+{% block scripts %}
 <script src="{{ url_for('static', filename='admin_bib_management.js') }}">
 </script>
 {% endblock %}

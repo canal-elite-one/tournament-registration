@@ -14,6 +14,17 @@ font-family: Tahoma,Verdana,Segoe,sans-serif;
   background-color: #D6EEEE;
 }
 
+.players_table_separator {
+  background-color: #1a4268;
+  color: white;
+}
+
+.players_table_search {
+  padding: 5px;
+  margin: 10px;
+  margin-left: 20px;
+}
+
 table, th, td {
 border: 1px solid grey;
 border-collapse: collapse;
@@ -25,14 +36,51 @@ padding-left: 5px;
 padding-right: 5px;
 }
 
+.navbar-container {
+  background-color: white;
+  margin-left: -8px;
+  margin-top: -8px;
+  padding-left: 0px;
+  padding-bottom: 0px;
+  position: sticky;
+  top: 0;
+  width: 100%;
+  border-bottom: 1px solid #ccc;
+  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+}
+
 .navbar {
-  list-style-type: none;
-  margin: 0;
-  padding: 0;
+  margin: 0px;
+  padding: 5px;
+  padding-left: 10px;
+  background-color: #e2e2e2;
 }
 
 .navbar-element {
   display: inline;
+}
+
+.navbar-element:hover {
+  background-color: #d6d6d6;
+}
+
+.navbar-element:active {
+  background-color: #c9c9c9;
+}
+
+.navbar-link {
+  padding-left: 10px;
+  padding-right: 10px;
+  text-decoration: none;
+  color: rgb(0, 38, 255);
+  font-family: Tahoma,Verdana,Segoe,sans-serif;
+}
+
+.navbar-link-current {
+  text-decoration: none;
+  color: rgb(255, 255, 255);
+  font-family: Tahoma,Verdana,Segoe,sans-serif;
+  background-color: rgb(0, 38, 255);
 }
 
 thead {
@@ -51,4 +99,26 @@ thead {
 
 #reset_all_bibs_button, #set_all_bibs_button {
   margin: auto;
+}
+
+#players_table_div {
+  margin: auto;
+  padding: 5px;
+}
+
+.recap_notification {
+  position: fixed;
+  bottom: 10px;
+  left: 30px;
+  width: 300px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+  background-color: white;
+}
+
+.category_table_div {
+  margin: auto;
+  padding: 5px;
+  scroll-margin-top: 120px;
 }

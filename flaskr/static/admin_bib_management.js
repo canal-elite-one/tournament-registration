@@ -1,5 +1,5 @@
 function setAllBibs() {
-    fetch('/api/bibs', {
+    fetch('/api/admin/bibs', {
         method: 'POST',
     }).then((response) => response.json())
     .then((data) => {
@@ -15,7 +15,7 @@ function setAllBibs() {
 function resetAllBibs() {
     let confirmationMessage = window.prompt('Etes vous sûr de vouloir supprimer les n° de dossards existants ? Avez-vous appelé Céline avant de cliquer sur ce bouton ? Si oui, ou si vous êtes Céline, tapez "Je suis sur! J\'ai appelé Céline!" et validez.')
     if (confirmationMessage == "Je suis sur! J'ai appelé Céline!") {
-        fetch('/api/bibs', {
+        fetch('/api/admin/bibs', {
             method: 'DELETE',
             headers: {
               'Content-Type': 'application/json',
@@ -34,3 +34,7 @@ function resetAllBibs() {
         window.alert('Vous n\'êtes pas sûr et/ou vous n\'avez pas appelé Céline.');
     }
 }
+
+document.getElementById('bibs_navbar_link').setAttribute('class', 'navbar-link-current');
+
+showContent();

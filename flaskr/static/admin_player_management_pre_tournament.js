@@ -35,7 +35,22 @@ const relevantCategoriesFields = ['categoryId', 'color', 'entryCount', 'maxPlaye
 const categoryIdByColor = {};
 const sameColor = {};
 
+function exitConfirmation (e) {
+    let confirmationMessage = 'Voulez-vous vraiment quitter la page? Les changements non sauvegardés seront perdus';
+    (e).returnValue = confirmationMessage;
+    return confirmationMessage;
+}
+
+function addExitConfirmation() {
+    window.onbeforeunload = exitConfirmation;
+}
+
+function removeExitConfirmation() {
+    window.onbeforeunload = null;
+}
+
 function handleCheckbox(categoryId) {
+    addExitConfirmation();
     checkbox = document.getElementById('register_checkbox_' + categoryId);
 
     if (!(categoryId in sameColor)) {
@@ -79,7 +94,7 @@ function deletePlayer() {
         confirmMessage = "Voulez-vous vraiment supprimer cette compétitrice de la base de données ? Toutes les informations sur les inscriptions seront perdues";
     }
     if (confirm(confirmMessage)) {
-        fetch('/api/players/' + licence_no, {method: 'DELETE'}).then(() =>
+        fetch('/api/admin/players/' + licence_no, {method: 'DELETE'}).then(() =>
         {
             console.log('Successfully deleted player' + licence_no);
             window.location.href = "/admin/inscrits";
@@ -97,7 +112,17 @@ function processPlayerInfo() {
             fieldNameCell.appendChild(document.createTextNode(enToFr[fieldName]));
             row.appendChild(fieldNameCell);
             let fieldValueCell = document.createElement('td');
-            fieldValueCell.appendChild(document.createTextNode(playerObject[fieldName]));
+            if (playerObject[fieldName] === null) {
+                let fieldInput = document.createElement('input');
+                fieldInput.type = (fieldName == 'email') ? 'email' : ((fieldName == 'phone') ? 'tel' : 'text');
+                fieldInput.id = 'field_input_' + fieldName;
+                fieldInput.value = '';
+                fieldInput.setAttribute('required', '');
+                fieldInput.setAttribute('onchange', 'addExitConfirmation()');
+                fieldValueCell.appendChild(fieldInput);
+            } else {
+                fieldValueCell.appendChild(document.createTextNode(playerObject[fieldName]));
+            }
             row.appendChild(fieldValueCell);
             playerInfoTable.appendChild(row);
         });
@@ -108,6 +133,44 @@ function processPlayerInfo() {
         deleteButtonText = document.createTextNode('Supprimer compétiteur \uD83D\uDDD1');
     }
     document.getElementById('delete_player_button').appendChild(deleteButtonText);
+}
+
+function createEntryCountCell(categoryObject) {
+    let categoryId = categoryObject['categoryId'];
+
+    let entryCount = categoryObject['entryCount'];
+    let maxPlayers = categoryObject['maxPlayers'];
+    let maxOverbooked = Math.floor(categoryObject['maxPlayers'] * (1 + categoryObject['overbookingPercentage'] / 100.));
+
+    let relevantEntryCount;
+    let entryCountString;
+
+    if (categoryId in playerObject['registeredEntries']) {
+        rank = playerObject['registeredEntries'][categoryId]['rank'];
+        relevantEntryCount = rank;
+        entryCountString = rank + ' / ' + maxPlayers + ' (' + maxOverbooked + ') (' + entryCount + ')';
+    } else {
+        relevantEntryCount = entryCount;
+        entryCountString =  ' - / ' + maxPlayers + ' (' + maxOverbooked + ') (' + entryCount + ')';
+    }
+
+    let entryCountColor;
+
+    if (relevantEntryCount < maxPlayers) {
+        entryCountColor = 'hsl(140, 100%, 80%)';
+    } else if (relevantEntryCount > maxOverbooked) {
+        entryCountColor = 'hsl(25, 100%, 80%)';
+    } else {
+        entryCountColor = 'hsl(60, 100%, 80%)';
+    }
+
+    let entryCountCell = document.createElement('td');
+    entryCountCell.setAttribute('id', 'entry_count_cell_' + categoryId);
+    entryCountCell.appendChild(document.createTextNode(entryCountString));
+
+    entryCountCell.style.backgroundColor = entryCountColor;
+
+    return entryCountCell;
 }
 
 function createCategoryRow(categoryObject) {
@@ -146,26 +209,7 @@ function createCategoryRow(categoryObject) {
         idCell.style.backgroundColor = color;
     };
 
-    let entryCount = categoryObject['entryCount'];
-    let maxPlayers = categoryObject['maxPlayers'];
-    let maxOverbooked = Math.floor(categoryObject['maxPlayers'] * (1 + categoryObject['overbookingPercentage'] / 100.));
-
-    let entryCountColor;
-
-    if (entryCount < maxPlayers) {
-        entryCountColor = 'hsl(140, 100%, 80%)';
-    } else if (entryCount > maxOverbooked) {
-        entryCountColor = 'hsl(25, 100%, 80%)';
-    } else {
-        entryCountColor = 'hsl(60, 100%, 80%)';
-    }
-
-    let entryCountCell = document.createElement('td');
-    entryCountCell.setAttribute('id', 'entry_count_cell_' + categoryId);
-    entryCountCell.appendChild(document.createTextNode(entryCount + ' / ' + maxPlayers + ' (' + maxOverbooked + ')'));
-    row.appendChild(entryCountCell);
-
-    entryCountCell.style.backgroundColor = entryCountColor;
+    row.appendChild(createEntryCountCell(categoryObject));
 
     let pointsCell = document.createElement('td');
     pointsCell.setAttribute('id', 'points_cell_' + categoryId);
@@ -233,7 +277,53 @@ function setUpCategoriesTable() {
         });
 }
 
-function submitEntries() {
+async function submitPlayer() {
+
+    let emailInput = document.getElementById('field_input_email');
+    let phoneInput = document.getElementById('field_input_phone');
+    let isValid = emailInput.reportValidity() && phoneInput.reportValidity();
+    if (!isValid) {
+        return;
+    }
+    console.log("Submitting player");
+    let playerPayload = {
+        'licenceNo': playerObject.licenceNo,
+        'firstName': playerObject.firstName,
+        'lastName': playerObject.lastName,
+        'gender': playerObject.gender,
+        'club': playerObject.club,
+        'nbPoints': playerObject.nbPoints,
+        'email': emailInput.value,
+        'phone': phoneInput.value
+    };
+    try {
+        let response = await fetch('/api/admin/players', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(playerPayload)
+        })
+        if (response.ok) {
+            let responseData = await response.json();
+            console.log(responseData);
+            console.log("Player successfully added");
+            return true;
+        } else {
+            let responseData = await response.json();
+            console.error("Error:", responseData);
+            window.alert('An unexpected error occured while trying to submit player:' + response.status + ' ' + JSON.stringify(responseData));
+            return false;
+        }
+
+    } catch (error) {
+        console.error("Error:", error);
+        window.alert('An unexpected error occured while trying to submit player:' + error);
+        return false;
+    }
+}
+
+async function submitEntries() {
     let categoryIdsToRegister = [];
     let categoryIdsToDelete = [];
 
@@ -242,7 +332,7 @@ function submitEntries() {
         let checkbox = document.getElementById('register_checkbox_' + categoryId);
         if (checkbox.checked) {
             categoryIdsToRegister.push(categoryId);
-        } else if (initialRegisteredCategoryIds.includes(categoryId)) {
+        } else if (categoryId in playerObject['registeredEntries']) {
             categoryIdsToDelete.push(categoryId);
         }
     });
@@ -255,49 +345,86 @@ function submitEntries() {
         'categoryIds': categoryIdsToDelete,
     };
 
-    fetch('/api/entries/' + licence_no, {
+    let registerResponse = await fetch('/api/admin/entries/' + licence_no, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(registerData),
-    }).then((response) => response.json())
-    .then((data) => {
-        if ('error' in data) {
-            console.error('Could not register new entries: ' + data.error);
-        } else {
-            console.log('Successfully registered new entries');
-            console.log(data);
-            fetch('/api/entries/' + licence_no, {
-                method: 'DELETE',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(deleteData),
-            }).then((response) => response.json())
-            .then((data) => {
-                if ('error' in data) {
-                    console.error('Could not delete entries: ' + data.error);
-                } else {
-                    console.log('Successfully deleted entries');
-                    window.location.href = "/admin/inscrits";
-                }
-            });
-        }
     });
+
+    if (!registerResponse.ok) {
+        let data = await registerResponse.json();
+        console.alert('An unexpected error occured while trying to register entries:' + registerResponse.status + ' ' + JSON.stringify(data));
+        return false;
+    }
+    console.log('Successfully registered new entries');
+    let data = await registerResponse.json();
+    console.log(data);
+
+    let deleteResponse = await fetch('/api/admin/entries/' + licence_no, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(deleteData),
+    });
+
+    if (!deleteResponse.ok) {
+        let data = await deleteResponse.json();
+        console.alert('An unexpected error occured while trying to delete entries:' + deleteResponse.status + ' ' + JSON.stringify(data));
+        return false;
+    }
+    console.log('Successfully deleted entries');
+    data = await deleteResponse.json();
+    console.log(data);
+    return true;
 }
 
-const categoriesPromise = fetch("/api/categories");
-const playerPromise = fetch("/api/players/" + licence_no);
+async function submitAll() {
+    removeExitConfirmation();
+    let playerSubmitted;
+    if (playerObject['email'] === null) {
+        playerSubmitted = await submitPlayer();
+    } else {
+        playerSubmitted = true;
+    }
+    if (playerSubmitted) {
+        let entriesSubmitted = await submitEntries();
+        if (entriesSubmitted) {
+            console.log('Successfully submitted player and entries')
+            window.location.href = "/admin/inscrits";
+        }
+    }
+}
 
-Promise.all([categoriesPromise, playerPromise]).then(
-    async(responses) =>
-    {
-        categoriesData = await responses[0].json();
-        playerObject = await responses[1].json();
+async function fetchAll() {
+    let categoriesResponse = await fetch("/api/public/categories");
+    let playerResponse = await fetch("/api/admin/players/" + licence_no);
+
+    if (categoriesResponse.ok && playerResponse.ok) {
+        categoriesData = await categoriesResponse.json();
         categoriesData = categoriesData["categories"];
-    }).then(() =>
-    {
+        playerObject = await playerResponse.json();
+        console.log(categoriesData);
+        console.log(playerObject);
         setUpCategoriesTable();
         processPlayerInfo();
-    });
+    } else if (!categoriesResponse.ok) {
+        if (categoriesResponse.status == 400) {
+            let data = await categoriesResponse.json();
+            console.error("400 Bad Request: " + data);
+        } else {
+            console.error("Could not fetch categories: " + categoriesResponse.status);
+        }
+    } else {
+        if (playerResponse.status == 400) {
+            let data = await playerResponse.json();
+            console.error("400 Bad Request: " + data);
+        } else {
+            console.error("Could not fetch player: " + playerResponse.status);
+        }
+    }
+}
+
+fetchAll().then(() => showContent());

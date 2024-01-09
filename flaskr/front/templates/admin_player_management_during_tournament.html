@@ -19,6 +19,9 @@
             <td id="paid_total">0</td>
         </tr>
         <tr>
+            <th>Montant total reste à payer</th>
+            <td id="due_total">0</td>
+        <tr>
             <th>Montant déjà payé</th>
             <td id="previous_actual_total">0</td>
         </tr>
@@ -27,6 +30,7 @@
             <td id="current_actual_total">
                 <input type="number" id="actual_total_field"/>
             </td>
+        </tr>
     </table>
     <button id="delete_player_button" onclick="deletePlayer()"></button>
 </div>
@@ -35,15 +39,17 @@
     <table id="saturday_table">
         <thead>
             <tr>
-                <th colspan="7">Samedi</th>
+                <th colspan="9">Samedi</th>
             </tr>
             <tr>
                 <th>Tableau</th>
-                <th>Nombre d'inscrits</th>
+                <th>Rang ou #inscrits</th>
+                <th>Max (surbook)</th>
                 <th>Limite de points</th>
                 <th>Féminin ?</th>
                 <th>Inscription</th>
                 <th>Présent ?</th>
+                <th>Absent ?</th>
                 <th>Payé ?</th>
             </tr>
         </thead>
@@ -52,15 +58,17 @@
     <table id="sunday_table">
         <thead>
             <tr>
-                <th colspan="7">Dimanche</th>
+                <th colspan="9">Dimanche</th>
             </tr>
             <tr>
                 <th>Tableau</th>
-                <th>Nombre d'inscrits</th>
+                <th>Rang ou #inscrits</th>
+                <th>Max (surbook)</th>
                 <th>Limite de points</th>
                 <th>Féminin ?</th>
                 <th>Inscription</th>
                 <th>Présent ?</th>
+                <th>Absent ?</th>
                 <th>Payé ?</th>
             </tr>
         </thead>
@@ -68,8 +76,11 @@
     </table>
     <button id="submit_changes_button" onclick="submitChanges()">Enregistrer les modifications</button>
 </div>
+{% endblock %}
 
-<script>const licence_no={{ licence_no }}</script>
+{% block scripts %}
+<script>const licenceNo={{ licence_no }}</script>
+<script>const showBib={{ show_bib|lower }}</script>
 <script src="{{ url_for('static', filename='admin_player_management_during_tournament.js') }}">
 </script>
 {% endblock %}

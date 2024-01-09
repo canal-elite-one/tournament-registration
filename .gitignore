@@ -5,3 +5,4 @@
 **/.pytest_cache/
 .env
 /.flaskenv
+/flaskr/fftt_config.py

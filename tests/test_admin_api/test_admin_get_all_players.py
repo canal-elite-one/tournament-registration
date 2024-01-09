@@ -1,4 +1,7 @@
-data = {
+from conftest import BaseTest
+from http import HTTPStatus
+
+correct_admin_get_all_players_response = {
     "players": [
         {
             "bibNo": None,
@@ -22,6 +25,7 @@ data = {
                     "licenceNo": 9536504,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 5,
                     "registrationTime": "2023-10-05T17:19:56",
                 },
                 "E": {
@@ -29,6 +33,7 @@ data = {
                     "licenceNo": 9536504,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 2,
                     "registrationTime": "2023-03-29T01:20:10",
                 },
                 "G": {
@@ -36,6 +41,7 @@ data = {
                     "licenceNo": 9536504,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 43,
                     "registrationTime": "2023-11-11T00:10:20",
                 },
             },
@@ -62,6 +68,7 @@ data = {
                     "licenceNo": 3714960,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 35,
                     "registrationTime": "2023-10-07T03:27:15",
                 },
                 "F": {
@@ -69,6 +76,7 @@ data = {
                     "licenceNo": 3714960,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 8,
                     "registrationTime": "2023-04-20T20:50:03",
                 },
             },
@@ -95,6 +103,7 @@ data = {
                     "licenceNo": 7886249,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 1,
                     "registrationTime": "2023-03-17T17:28:30",
                 },
                 "6": {
@@ -102,6 +111,7 @@ data = {
                     "licenceNo": 7886249,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 9,
                     "registrationTime": "2023-08-19T11:54:22",
                 },
                 "D": {
@@ -109,6 +119,7 @@ data = {
                     "licenceNo": 7886249,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 7,
                     "registrationTime": "2023-04-23T07:48:10",
                 },
                 "F": {
@@ -116,6 +127,7 @@ data = {
                     "licenceNo": 7886249,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 31,
                     "registrationTime": "2023-10-22T21:56:22",
                 },
             },
@@ -142,6 +154,7 @@ data = {
                     "licenceNo": 5953737,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 11,
                     "registrationTime": "2023-06-07T16:55:16",
                 },
                 "G": {
@@ -149,6 +162,7 @@ data = {
                     "licenceNo": 5953737,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 5,
                     "registrationTime": "2023-04-16T02:29:58",
                 },
             },
@@ -175,6 +189,7 @@ data = {
                     "licenceNo": 5325784,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 17,
                     "registrationTime": "2023-09-01T08:30:35",
                 },
                 "G": {
@@ -182,6 +197,7 @@ data = {
                     "licenceNo": 5325784,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 31,
                     "registrationTime": "2023-09-16T11:57:48",
                 },
             },
@@ -208,6 +224,7 @@ data = {
                     "licenceNo": 9145837,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 4,
                     "registrationTime": "2023-05-03T04:36:35",
                 },
                 "B": {
@@ -215,6 +232,7 @@ data = {
                     "licenceNo": 9145837,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 43,
                     "registrationTime": "2023-11-12T05:49:35",
                 },
                 "G": {
@@ -222,6 +240,7 @@ data = {
                     "licenceNo": 9145837,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 27,
                     "registrationTime": "2023-08-30T03:59:17",
                 },
             },
@@ -248,6 +267,7 @@ data = {
                     "licenceNo": 4451551,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 6,
                     "registrationTime": "2023-05-01T05:06:36",
                 },
                 "B": {
@@ -255,6 +275,7 @@ data = {
                     "licenceNo": 4451551,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 16,
                     "registrationTime": "2023-06-17T07:02:01",
                 },
             },
@@ -281,6 +302,7 @@ data = {
                     "licenceNo": 7219314,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 3,
                     "registrationTime": "2023-07-07T21:38:35",
                 },
                 "A": {
@@ -288,6 +310,7 @@ data = {
                     "licenceNo": 7219314,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 7,
                     "registrationTime": "2023-05-12T21:18:02",
                 },
             },
@@ -314,6 +337,7 @@ data = {
                     "licenceNo": 9311764,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 38,
                     "registrationTime": "2023-10-19T06:24:53",
                 },
                 "G": {
@@ -321,6 +345,7 @@ data = {
                     "licenceNo": 9311764,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 38,
                     "registrationTime": "2023-10-04T00:10:29",
                 },
             },
@@ -347,6 +372,7 @@ data = {
                     "licenceNo": 7225133,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 2,
                     "registrationTime": "2023-06-26T12:14:03",
                 },
                 "A": {
@@ -354,6 +380,7 @@ data = {
                     "licenceNo": 7225133,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 5,
                     "registrationTime": "2023-04-26T03:11:26",
                 },
             },
@@ -380,6 +407,7 @@ data = {
                     "licenceNo": 7223032,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 12,
                     "registrationTime": "2023-08-17T13:08:47",
                 },
                 "6": {
@@ -387,6 +415,7 @@ data = {
                     "licenceNo": 7223032,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 0,
                     "registrationTime": "2023-03-03T04:01:07",
                 },
                 "D": {
@@ -394,6 +423,7 @@ data = {
                     "licenceNo": 7223032,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 34,
                     "registrationTime": "2023-10-03T23:49:51",
                 },
                 "F": {
@@ -401,6 +431,7 @@ data = {
                     "licenceNo": 7223032,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 29,
                     "registrationTime": "2023-10-19T06:57:42",
                 },
             },
@@ -427,6 +458,7 @@ data = {
                     "licenceNo": 3731932,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 6,
                     "registrationTime": "2023-03-27T16:54:23",
                 },
                 "F": {
@@ -434,6 +466,7 @@ data = {
                     "licenceNo": 3731932,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 22,
                     "registrationTime": "2023-08-14T10:03:24",
                 },
             },
@@ -460,6 +493,7 @@ data = {
                     "licenceNo": 9257964,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 18,
                     "registrationTime": "2023-11-05T19:18:58",
                 },
                 "6": {
@@ -467,6 +501,7 @@ data = {
                     "licenceNo": 9257964,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 6,
                     "registrationTime": "2023-07-12T08:39:31",
                 },
                 "D": {
@@ -474,6 +509,7 @@ data = {
                     "licenceNo": 9257964,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 10,
                     "registrationTime": "2023-04-28T06:44:16",
                 },
                 "F": {
@@ -481,6 +517,7 @@ data = {
                     "licenceNo": 9257964,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 3,
                     "registrationTime": "2023-03-28T00:39:03",
                 },
             },
@@ -507,6 +544,7 @@ data = {
                     "licenceNo": 7512693,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 10,
                     "registrationTime": "2023-08-03T23:07:38",
                 },
                 "4": {
@@ -514,6 +552,7 @@ data = {
                     "licenceNo": 7512693,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 11,
                     "registrationTime": "2023-11-14T16:36:10",
                 },
                 "B": {
@@ -521,6 +560,7 @@ data = {
                     "licenceNo": 7512693,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 12,
                     "registrationTime": "2023-05-13T15:04:32",
                 },
                 "D": {
@@ -528,6 +568,7 @@ data = {
                     "licenceNo": 7512693,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 9,
                     "registrationTime": "2023-04-26T03:55:09",
                 },
             },
@@ -554,6 +595,7 @@ data = {
                     "licenceNo": 722370,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 0,
                     "registrationTime": "2023-03-13T10:49:31",
                 },
                 "7": {
@@ -561,6 +603,7 @@ data = {
                     "licenceNo": 722370,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 5,
                     "registrationTime": "2023-09-17T05:10:51",
                 },
                 "A": {
@@ -568,6 +611,7 @@ data = {
                     "licenceNo": 722370,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 16,
                     "registrationTime": "2023-08-26T01:12:15",
                 },
             },
@@ -594,6 +638,7 @@ data = {
                     "licenceNo": 7223406,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 9,
                     "registrationTime": "2023-10-16T16:55:43",
                 },
                 "A": {
@@ -601,6 +646,7 @@ data = {
                     "licenceNo": 7223406,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 21,
                     "registrationTime": "2023-10-07T19:57:38",
                 },
             },
@@ -627,6 +673,7 @@ data = {
                     "licenceNo": 7224029,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 35,
                     "registrationTime": "2023-10-07T09:35:53",
                 },
             },
@@ -653,6 +700,7 @@ data = {
                     "licenceNo": 5324922,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 10,
                     "registrationTime": "2023-06-05T02:08:00",
                 },
                 "G": {
@@ -660,6 +708,7 @@ data = {
                     "licenceNo": 5324922,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 28,
                     "registrationTime": "2023-09-04T13:01:51",
                 },
             },
@@ -686,6 +735,7 @@ data = {
                     "licenceNo": 5325321,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 23,
                     "registrationTime": "2023-07-08T22:29:10",
                 },
                 "F": {
@@ -693,6 +743,7 @@ data = {
                     "licenceNo": 5325321,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 21,
                     "registrationTime": "2023-07-19T02:10:46",
                 },
             },
@@ -719,6 +770,7 @@ data = {
                     "licenceNo": 7216648,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 3,
                     "registrationTime": "2023-04-21T09:43:27",
                 },
                 "C": {
@@ -726,6 +778,7 @@ data = {
                     "licenceNo": 7216648,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 1,
                     "registrationTime": "2023-05-10T04:38:07",
                 },
                 "E": {
@@ -733,6 +786,7 @@ data = {
                     "licenceNo": 7216648,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 8,
                     "registrationTime": "2023-05-24T18:39:11",
                 },
                 "G": {
@@ -740,6 +794,7 @@ data = {
                     "licenceNo": 7216648,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 37,
                     "registrationTime": "2023-10-03T12:12:18",
                 },
             },
@@ -766,6 +821,7 @@ data = {
                     "licenceNo": 9143724,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 18,
                     "registrationTime": "2023-09-19T14:39:23",
                 },
                 "3": {
@@ -773,6 +829,7 @@ data = {
                     "licenceNo": 9143724,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 7,
                     "registrationTime": "2023-05-22T05:13:28",
                 },
                 "E": {
@@ -780,6 +837,7 @@ data = {
                     "licenceNo": 9143724,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 4,
                     "registrationTime": "2023-05-10T15:24:34",
                 },
                 "G": {
@@ -787,6 +845,7 @@ data = {
                     "licenceNo": 9143724,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 17,
                     "registrationTime": "2023-06-11T22:25:16",
                 },
             },
@@ -813,6 +872,7 @@ data = {
                     "licenceNo": 7218004,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 14,
                     "registrationTime": "2023-08-08T10:35:38",
                 },
                 "3": {
@@ -820,6 +880,7 @@ data = {
                     "licenceNo": 7218004,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 20,
                     "registrationTime": "2023-10-12T14:14:36",
                 },
                 "E": {
@@ -827,6 +888,7 @@ data = {
                     "licenceNo": 7218004,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 16,
                     "registrationTime": "2023-07-15T12:26:13",
                 },
                 "G": {
@@ -834,6 +896,7 @@ data = {
                     "licenceNo": 7218004,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 33,
                     "registrationTime": "2023-09-24T10:26:55",
                 },
             },
@@ -860,6 +923,7 @@ data = {
                     "licenceNo": 4531022,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 10,
                     "registrationTime": "2023-06-03T20:17:52",
                 },
                 "D": {
@@ -867,6 +931,7 @@ data = {
                     "licenceNo": 4531022,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 30,
                     "registrationTime": "2023-09-12T10:40:21",
                 },
             },
@@ -893,6 +958,7 @@ data = {
                     "licenceNo": 4427928,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 0,
                     "registrationTime": "2023-03-25T18:03:39",
                 },
                 "G": {
@@ -900,6 +966,7 @@ data = {
                     "licenceNo": 4427928,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 10,
                     "registrationTime": "2023-05-28T06:42:39",
                 },
             },
@@ -926,6 +993,7 @@ data = {
                     "licenceNo": 9241901,
                     "markedAsPaid": False,
                     "markedAsPresent": True,
+                    "rank": 27,
                     "registrationTime": "2024-11-08T22:03:59",
                 },
                 "3": {
@@ -933,6 +1001,7 @@ data = {
                     "licenceNo": 9241901,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 6,
                     "registrationTime": "2023-05-15T21:07:40",
                 },
                 "B": {
@@ -940,6 +1009,7 @@ data = {
                     "licenceNo": 9241901,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 14,
                     "registrationTime": "2023-05-17T21:17:58",
                 },
                 "G": {
@@ -947,6 +1017,7 @@ data = {
                     "licenceNo": 9241901,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 30,
                     "registrationTime": "2023-09-15T23:55:16",
                 },
             },
@@ -973,6 +1044,7 @@ data = {
                     "licenceNo": 723342,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 37,
                     "registrationTime": "2023-10-10T15:55:58",
                 },
                 "G": {
@@ -980,6 +1052,7 @@ data = {
                     "licenceNo": 723342,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 6,
                     "registrationTime": "2023-04-29T11:34:11",
                 },
             },
@@ -1006,6 +1079,7 @@ data = {
                     "licenceNo": 725492,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 26,
                     "registrationTime": "2023-07-25T04:26:02",
                 },
                 "G": {
@@ -1013,6 +1087,7 @@ data = {
                     "licenceNo": 725492,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 32,
                     "registrationTime": "2023-09-23T00:28:22",
                 },
             },
@@ -1039,6 +1114,7 @@ data = {
                     "licenceNo": 7220549,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 13,
                     "registrationTime": "2023-07-25T12:30:52",
                 },
                 "3": {
@@ -1046,6 +1122,7 @@ data = {
                     "licenceNo": 7220549,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 19,
                     "registrationTime": "2023-09-17T01:26:45",
                 },
                 "G": {
@@ -1053,6 +1130,7 @@ data = {
                     "licenceNo": 7220549,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 2,
                     "registrationTime": "2023-03-07T02:17:13",
                 },
             },
@@ -1079,6 +1157,7 @@ data = {
                     "licenceNo": 4519318,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 25,
                     "registrationTime": "2023-07-24T23:24:03",
                 },
                 "F": {
@@ -1086,6 +1165,7 @@ data = {
                     "licenceNo": 4519318,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 0,
                     "registrationTime": "2023-03-09T08:49:43",
                 },
             },
@@ -1112,6 +1192,7 @@ data = {
                     "licenceNo": 7224166,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 4,
                     "registrationTime": "2023-06-10T15:55:35",
                 },
                 "A": {
@@ -1119,6 +1200,7 @@ data = {
                     "licenceNo": 7224166,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 1,
                     "registrationTime": "2023-03-27T05:23:39",
                 },
             },
@@ -1145,6 +1227,7 @@ data = {
                     "licenceNo": 9538603,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 15,
                     "registrationTime": "2023-08-12T13:41:57",
                 },
                 "D": {
@@ -1152,6 +1235,7 @@ data = {
                     "licenceNo": 9538603,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 23,
                     "registrationTime": "2023-07-20T11:47:59",
                 },
             },
@@ -1178,6 +1262,7 @@ data = {
                     "licenceNo": 7214582,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 3,
                     "registrationTime": "2023-03-15T22:28:11",
                 },
                 "3": {
@@ -1185,6 +1270,7 @@ data = {
                     "licenceNo": 7214582,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 9,
                     "registrationTime": "2023-06-06T16:25:52",
                 },
                 "E": {
@@ -1192,6 +1278,7 @@ data = {
                     "licenceNo": 7214582,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 21,
                     "registrationTime": "2023-10-19T02:09:26",
                 },
                 "G": {
@@ -1199,6 +1286,7 @@ data = {
                     "licenceNo": 7214582,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 47,
                     "registrationTime": "2023-11-30T05:07:51",
                 },
             },
@@ -1225,6 +1313,7 @@ data = {
                     "licenceNo": 9247952,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 11,
                     "registrationTime": "2023-07-17T17:00:03",
                 },
                 "3": {
@@ -1232,6 +1321,7 @@ data = {
                     "licenceNo": 9247952,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 13,
                     "registrationTime": "2023-07-17T04:24:44",
                 },
                 "B": {
@@ -1239,6 +1329,7 @@ data = {
                     "licenceNo": 9247952,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 4,
                     "registrationTime": "2023-03-19T06:22:48",
                 },
                 "G": {
@@ -1246,6 +1337,7 @@ data = {
                     "licenceNo": 9247952,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 40,
                     "registrationTime": "2023-10-11T19:03:16",
                 },
             },
@@ -1272,6 +1364,7 @@ data = {
                     "licenceNo": 7217573,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 2,
                     "registrationTime": "2023-03-14T12:02:53",
                 },
                 "3": {
@@ -1279,6 +1372,7 @@ data = {
                     "licenceNo": 7217573,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 21,
                     "registrationTime": "2023-11-28T12:39:56",
                 },
                 "B": {
@@ -1286,6 +1380,7 @@ data = {
                     "licenceNo": 7217573,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 0,
                     "registrationTime": "2023-03-03T08:57:45",
                 },
                 "G": {
@@ -1293,6 +1388,7 @@ data = {
                     "licenceNo": 7217573,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 25,
                     "registrationTime": "2023-08-24T12:22:32",
                 },
             },
@@ -1319,6 +1415,7 @@ data = {
                     "licenceNo": 7219491,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 24,
                     "registrationTime": "2023-10-19T08:24:52",
                 },
                 "B": {
@@ -1326,6 +1423,7 @@ data = {
                     "licenceNo": 7219491,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 3,
                     "registrationTime": "2023-03-12T06:29:44",
                 },
                 "G": {
@@ -1333,6 +1431,7 @@ data = {
                     "licenceNo": 7219491,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 3,
                     "registrationTime": "2023-03-21T04:27:21",
                 },
             },
@@ -1359,6 +1458,7 @@ data = {
                     "licenceNo": 914291,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 14,
                     "registrationTime": "2023-06-07T23:08:21",
                 },
             },
@@ -1385,6 +1485,7 @@ data = {
                     "licenceNo": 7887928,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 8,
                     "registrationTime": "2023-07-15T10:33:24",
                 },
                 "6": {
@@ -1392,6 +1493,7 @@ data = {
                     "licenceNo": 7887928,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 10,
                     "registrationTime": "2023-09-08T14:02:05",
                 },
                 "D": {
@@ -1399,6 +1501,7 @@ data = {
                     "licenceNo": 7887928,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 5,
                     "registrationTime": "2023-04-12T22:35:27",
                 },
                 "F": {
@@ -1406,6 +1509,7 @@ data = {
                     "licenceNo": 7887928,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 5,
                     "registrationTime": "2023-04-14T07:48:28",
                 },
             },
@@ -1432,6 +1536,7 @@ data = {
                     "licenceNo": 5326543,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 22,
                     "registrationTime": "2023-07-08T05:22:32",
                 },
                 "F": {
@@ -1439,6 +1544,7 @@ data = {
                     "licenceNo": 5326543,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 7,
                     "registrationTime": "2023-04-20T02:16:50",
                 },
             },
@@ -1465,6 +1571,7 @@ data = {
                     "licenceNo": 5327528,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 2,
                     "registrationTime": "2023-03-06T06:41:28",
                 },
                 "F": {
@@ -1472,6 +1579,7 @@ data = {
                     "licenceNo": 5327528,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 17,
                     "registrationTime": "2023-07-02T15:10:20",
                 },
             },
@@ -1498,6 +1606,7 @@ data = {
                     "licenceNo": 5327529,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 14,
                     "registrationTime": "2023-08-12T11:22:11",
                 },
                 "D": {
@@ -1505,6 +1614,7 @@ data = {
                     "licenceNo": 5327529,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 29,
                     "registrationTime": "2023-09-10T05:05:10",
                 },
             },
@@ -1531,6 +1641,7 @@ data = {
                     "licenceNo": 9410780,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 23,
                     "registrationTime": "2023-10-09T05:51:46",
                 },
                 "3": {
@@ -1538,6 +1649,7 @@ data = {
                     "licenceNo": 9410780,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 4,
                     "registrationTime": "2023-04-22T11:58:39",
                 },
                 "G": {
@@ -1545,6 +1657,7 @@ data = {
                     "licenceNo": 9410780,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 41,
                     "registrationTime": "2023-10-15T19:55:34",
                 },
             },
@@ -1571,6 +1684,7 @@ data = {
                     "licenceNo": 4526611,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 9,
                     "registrationTime": "2023-06-03T21:29:45",
                 },
                 "G": {
@@ -1578,6 +1692,7 @@ data = {
                     "licenceNo": 4526611,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 46,
                     "registrationTime": "2023-11-22T07:55:10",
                 },
             },
@@ -1604,6 +1719,7 @@ data = {
                     "licenceNo": 7884741,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 7,
                     "registrationTime": "2023-07-05T23:06:14",
                 },
                 "B": {
@@ -1611,6 +1727,7 @@ data = {
                     "licenceNo": 7884741,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 39,
                     "registrationTime": "2023-10-25T20:19:13",
                 },
                 "F": {
@@ -1618,6 +1735,7 @@ data = {
                     "licenceNo": 7884741,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 12,
                     "registrationTime": "2023-05-27T12:54:13",
                 },
             },
@@ -1644,6 +1762,7 @@ data = {
                     "licenceNo": 5327556,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 5,
                     "registrationTime": "2023-05-17T05:23:33",
                 },
                 "G": {
@@ -1651,6 +1770,7 @@ data = {
                     "licenceNo": 5327556,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 7,
                     "registrationTime": "2023-05-07T22:55:18",
                 },
             },
@@ -1677,6 +1797,7 @@ data = {
                     "licenceNo": 3731597,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 1,
                     "registrationTime": "2023-03-04T11:12:38",
                 },
                 "F": {
@@ -1684,6 +1805,7 @@ data = {
                     "licenceNo": 3731597,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 4,
                     "registrationTime": "2023-04-03T18:08:13",
                 },
             },
@@ -1710,6 +1832,7 @@ data = {
                     "licenceNo": 6021038,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 12,
                     "registrationTime": "2023-07-03T22:15:34",
                 },
                 "E": {
@@ -1717,6 +1840,7 @@ data = {
                     "licenceNo": 6021038,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 14,
                     "registrationTime": "2023-07-07T08:44:55",
                 },
                 "G": {
@@ -1724,6 +1848,7 @@ data = {
                     "licenceNo": 6021038,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 16,
                     "registrationTime": "2023-06-11T13:50:48",
                 },
             },
@@ -1750,6 +1875,7 @@ data = {
                     "licenceNo": 4529052,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 9,
                     "registrationTime": "2023-05-22T03:47:54",
                 },
                 "D": {
@@ -1757,6 +1883,7 @@ data = {
                     "licenceNo": 4529052,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 2,
                     "registrationTime": "2023-03-14T08:47:17",
                 },
             },
@@ -1783,6 +1910,7 @@ data = {
                     "licenceNo": 4529053,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 32,
                     "registrationTime": "2023-09-29T07:10:31",
                 },
                 "F": {
@@ -1790,6 +1918,7 @@ data = {
                     "licenceNo": 4529053,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 1,
                     "registrationTime": "2023-03-15T13:55:25",
                 },
             },
@@ -1816,6 +1945,7 @@ data = {
                     "licenceNo": 9240480,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 6,
                     "registrationTime": "2023-09-07T08:44:36",
                 },
                 "6": {
@@ -1823,6 +1953,7 @@ data = {
                     "licenceNo": 9240480,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 7,
                     "registrationTime": "2023-07-19T14:27:45",
                 },
                 "A": {
@@ -1830,6 +1961,7 @@ data = {
                     "licenceNo": 9240480,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 11,
                     "registrationTime": "2023-06-30T03:46:51",
                 },
                 "D": {
@@ -1837,6 +1969,7 @@ data = {
                     "licenceNo": 9240480,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 8,
                     "registrationTime": "2023-04-24T11:33:12",
                 },
             },
@@ -1863,6 +1996,7 @@ data = {
                     "licenceNo": 4111546,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 16,
                     "registrationTime": "2023-10-16T13:49:07",
                 },
                 "5": {
@@ -1870,6 +2004,7 @@ data = {
                     "licenceNo": 4111546,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 4,
                     "registrationTime": "2023-11-08T02:00:30",
                 },
                 "B": {
@@ -1877,6 +2012,7 @@ data = {
                     "licenceNo": 4111546,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 36,
                     "registrationTime": "2023-10-10T10:07:53",
                 },
                 "C": {
@@ -1884,6 +2020,7 @@ data = {
                     "licenceNo": 4111546,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 0,
                     "registrationTime": "2023-03-11T07:13:20",
                 },
             },
@@ -1910,6 +2047,7 @@ data = {
                     "licenceNo": 1420954,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 15,
                     "registrationTime": "2023-10-14T10:17:16",
                 },
                 "6": {
@@ -1917,6 +2055,7 @@ data = {
                     "licenceNo": 1420954,
                     "markedAsPaid": True,
                     "markedAsPresent": True,
+                    "rank": 14,
                     "registrationTime": "2023-11-24T05:36:23",
                 },
                 "D": {
@@ -1924,6 +2063,7 @@ data = {
                     "licenceNo": 1420954,
                     "markedAsPaid": True,
                     "markedAsPresent": True,
+                    "rank": 4,
                     "registrationTime": "2023-04-05T02:14:15",
                 },
                 "F": {
@@ -1931,6 +2071,7 @@ data = {
                     "licenceNo": 1420954,
                     "markedAsPaid": False,
                     "markedAsPresent": True,
+                    "rank": 23,
                     "registrationTime": "2023-09-05T10:40:48",
                 },
             },
@@ -1957,6 +2098,7 @@ data = {
                     "licenceNo": 7225209,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 12,
                     "registrationTime": "2023-07-27T15:34:26",
                 },
                 "D": {
@@ -1964,6 +2106,7 @@ data = {
                     "licenceNo": 7225209,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 14,
                     "registrationTime": "2023-05-02T09:11:04",
                 },
             },
@@ -1990,6 +2133,7 @@ data = {
                     "licenceNo": 7221275,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 4,
                     "registrationTime": "2023-03-17T09:29:23",
                 },
                 "3": {
@@ -1997,6 +2141,7 @@ data = {
                     "licenceNo": 7221275,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 2,
                     "registrationTime": "2023-03-21T02:57:57",
                 },
                 "5": {
@@ -2004,6 +2149,7 @@ data = {
                     "licenceNo": 7221275,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 2,
                     "registrationTime": "2023-07-06T20:29:56",
                 },
             },
@@ -2030,6 +2176,7 @@ data = {
                     "licenceNo": 3524722,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 15,
                     "registrationTime": "2023-08-29T05:34:45",
                 },
             },
@@ -2056,6 +2203,7 @@ data = {
                     "licenceNo": 9242977,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 38,
                     "registrationTime": "2023-11-06T19:26:45",
                 },
                 "F": {
@@ -2063,6 +2211,7 @@ data = {
                     "licenceNo": 9242977,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 30,
                     "registrationTime": "2023-10-19T22:52:11",
                 },
             },
@@ -2089,6 +2238,7 @@ data = {
                     "licenceNo": 9252435,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 16,
                     "registrationTime": "2023-05-19T05:59:46",
                 },
                 "F": {
@@ -2096,6 +2246,7 @@ data = {
                     "licenceNo": 9252435,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 24,
                     "registrationTime": "2023-09-11T04:34:31",
                 },
             },
@@ -2122,6 +2273,7 @@ data = {
                     "licenceNo": 1425307,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 7,
                     "registrationTime": "2023-11-03T13:45:46",
                 },
                 "E": {
@@ -2129,6 +2281,7 @@ data = {
                     "licenceNo": 1425307,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 26,
                     "registrationTime": "2023-11-07T06:44:06",
                 },
             },
@@ -2155,6 +2308,7 @@ data = {
                     "licenceNo": 7213526,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 2,
                     "registrationTime": "2023-03-24T07:14:41",
                 },
                 "6": {
@@ -2162,6 +2316,7 @@ data = {
                     "licenceNo": 7213526,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 3,
                     "registrationTime": "2023-05-15T21:10:54",
                 },
                 "B": {
@@ -2169,6 +2324,7 @@ data = {
                     "licenceNo": 7213526,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 11,
                     "registrationTime": "2023-05-03T04:45:23",
                 },
                 "F": {
@@ -2176,6 +2332,7 @@ data = {
                     "licenceNo": 7213526,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 26,
                     "registrationTime": "2023-09-21T07:22:44",
                 },
             },
@@ -2202,6 +2359,7 @@ data = {
                     "licenceNo": 6021265,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 10,
                     "registrationTime": "2023-07-10T17:44:28",
                 },
                 "3": {
@@ -2209,6 +2367,7 @@ data = {
                     "licenceNo": 6021265,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 10,
                     "registrationTime": "2023-06-12T07:00:40",
                 },
                 "E": {
@@ -2216,6 +2375,7 @@ data = {
                     "licenceNo": 6021265,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 12,
                     "registrationTime": "2023-06-25T22:31:33",
                 },
                 "G": {
@@ -2223,6 +2383,7 @@ data = {
                     "licenceNo": 6021265,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 9,
                     "registrationTime": "2023-05-24T19:52:17",
                 },
             },
@@ -2249,6 +2410,7 @@ data = {
                     "licenceNo": 9256721,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 3,
                     "registrationTime": "2023-04-12T00:05:09",
                 },
                 "D": {
@@ -2256,6 +2418,7 @@ data = {
                     "licenceNo": 9256721,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 36,
                     "registrationTime": "2023-10-18T18:09:53",
                 },
             },
@@ -2282,6 +2445,7 @@ data = {
                     "licenceNo": 7221748,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 10,
                     "registrationTime": "2023-10-17T04:41:36",
                 },
             },
@@ -2308,6 +2472,7 @@ data = {
                     "licenceNo": 7731399,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 20,
                     "registrationTime": "2023-09-30T01:32:33",
                 },
                 "3": {
@@ -2315,6 +2480,7 @@ data = {
                     "licenceNo": 7731399,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 11,
                     "registrationTime": "2023-06-15T14:20:21",
                 },
                 "G": {
@@ -2322,6 +2488,7 @@ data = {
                     "licenceNo": 7731399,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 34,
                     "registrationTime": "2023-09-29T01:23:46",
                 },
             },
@@ -2348,6 +2515,7 @@ data = {
                     "licenceNo": 4530898,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 18,
                     "registrationTime": "2023-08-30T04:22:30",
                 },
                 "D": {
@@ -2355,6 +2523,7 @@ data = {
                     "licenceNo": 4530898,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 25,
                     "registrationTime": "2023-08-15T00:07:31",
                 },
             },
@@ -2381,6 +2550,7 @@ data = {
                     "licenceNo": 4935234,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 33,
                     "registrationTime": "2023-09-20T03:07:40",
                 },
                 "F": {
@@ -2388,6 +2558,7 @@ data = {
                     "licenceNo": 4935234,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 33,
                     "registrationTime": "2023-11-11T03:50:34",
                 },
             },
@@ -2414,6 +2585,7 @@ data = {
                     "licenceNo": 608834,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 1,
                     "registrationTime": "2023-03-20T00:24:12",
                 },
                 "E": {
@@ -2421,6 +2593,7 @@ data = {
                     "licenceNo": 608834,
                     "markedAsPaid": False,
                     "markedAsPresent": True,
+                    "rank": 23,
                     "registrationTime": "2023-11-02T18:50:24",
                 },
                 "G": {
@@ -2428,6 +2601,7 @@ data = {
                     "licenceNo": 608834,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 24,
                     "registrationTime": "2023-08-23T06:56:51",
                 },
             },
@@ -2454,6 +2628,7 @@ data = {
                     "licenceNo": 5324871,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 16,
                     "registrationTime": "2023-09-04T13:47:28",
                 },
                 "3": {
@@ -2461,6 +2636,7 @@ data = {
                     "licenceNo": 5324871,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 8,
                     "registrationTime": "2023-06-04T11:49:42",
                 },
                 "B": {
@@ -2468,6 +2644,7 @@ data = {
                     "licenceNo": 5324871,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 41,
                     "registrationTime": "2023-10-27T03:00:48",
                 },
             },
@@ -2494,6 +2671,7 @@ data = {
                     "licenceNo": 4435747,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 26,
                     "registrationTime": "2023-11-05T01:47:37",
                 },
                 "3": {
@@ -2501,6 +2679,7 @@ data = {
                     "licenceNo": 4435747,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 5,
                     "registrationTime": "2023-05-12T13:46:43",
                 },
                 "B": {
@@ -2508,6 +2687,7 @@ data = {
                     "licenceNo": 4435747,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 17,
                     "registrationTime": "2023-06-20T11:06:23",
                 },
                 "G": {
@@ -2515,6 +2695,7 @@ data = {
                     "licenceNo": 4435747,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 18,
                     "registrationTime": "2023-07-12T15:55:27",
                 },
             },
@@ -2541,6 +2722,7 @@ data = {
                     "licenceNo": 7222110,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 21,
                     "registrationTime": "2023-10-02T02:41:34",
                 },
                 "3": {
@@ -2548,6 +2730,7 @@ data = {
                     "licenceNo": 7222110,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 14,
                     "registrationTime": "2023-07-28T00:53:17",
                 },
                 "E": {
@@ -2555,6 +2738,7 @@ data = {
                     "licenceNo": 7222110,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 13,
                     "registrationTime": "2023-07-02T22:02:01",
                 },
                 "G": {
@@ -2562,6 +2746,7 @@ data = {
                     "licenceNo": 7222110,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 44,
                     "registrationTime": "2023-11-14T21:15:08",
                 },
             },
@@ -2588,6 +2773,7 @@ data = {
                     "licenceNo": 5328211,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 24,
                     "registrationTime": "2023-10-18T18:36:11",
                 },
                 "D": {
@@ -2595,6 +2781,7 @@ data = {
                     "licenceNo": 5328211,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 20,
                     "registrationTime": "2023-06-18T19:32:50",
                 },
             },
@@ -2621,6 +2808,7 @@ data = {
                     "licenceNo": 5615415,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 3,
                     "registrationTime": "2023-05-02T22:19:49",
                 },
             },
@@ -2647,6 +2835,7 @@ data = {
                     "licenceNo": 3712439,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 19,
                     "registrationTime": "2023-11-11T23:21:38",
                 },
                 "5": {
@@ -2654,6 +2843,7 @@ data = {
                     "licenceNo": 3712439,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 3,
                     "registrationTime": "2023-07-16T07:24:05",
                 },
                 "B": {
@@ -2661,6 +2851,7 @@ data = {
                     "licenceNo": 3712439,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 15,
                     "registrationTime": "2023-06-07T04:38:47",
                 },
                 "G": {
@@ -2668,6 +2859,7 @@ data = {
                     "licenceNo": 3712439,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 39,
                     "registrationTime": "2023-10-10T22:56:39",
                 },
             },
@@ -2694,6 +2886,7 @@ data = {
                     "licenceNo": 4939159,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 25,
                     "registrationTime": "2023-10-21T12:27:28",
                 },
                 "B": {
@@ -2701,6 +2894,7 @@ data = {
                     "licenceNo": 4939159,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 27,
                     "registrationTime": "2023-08-07T12:04:19",
                 },
                 "G": {
@@ -2708,6 +2902,7 @@ data = {
                     "licenceNo": 4939159,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 42,
                     "registrationTime": "2023-10-28T05:05:03",
                 },
             },
@@ -2734,6 +2929,7 @@ data = {
                     "licenceNo": 2814398,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 5,
                     "registrationTime": "2023-05-28T22:29:42",
                 },
                 "B": {
@@ -2741,6 +2937,7 @@ data = {
                     "licenceNo": 2814398,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 28,
                     "registrationTime": "2023-08-08T14:56:06",
                 },
                 "F": {
@@ -2748,6 +2945,7 @@ data = {
                     "licenceNo": 2814398,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 10,
                     "registrationTime": "2023-05-11T18:53:35",
                 },
             },
@@ -2774,6 +2972,7 @@ data = {
                     "licenceNo": 4529851,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 1,
                     "registrationTime": "2023-03-14T07:21:18",
                 },
                 "B": {
@@ -2781,6 +2980,7 @@ data = {
                     "licenceNo": 4529851,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 29,
                     "registrationTime": "2023-08-17T02:14:04",
                 },
                 "F": {
@@ -2788,6 +2988,7 @@ data = {
                     "licenceNo": 4529851,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 20,
                     "registrationTime": "2023-07-17T10:19:05",
                 },
             },
@@ -2814,6 +3015,7 @@ data = {
                     "licenceNo": 4527511,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 20,
                     "registrationTime": "2023-06-30T04:50:40",
                 },
                 "G": {
@@ -2821,6 +3023,7 @@ data = {
                     "licenceNo": 4527511,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 23,
                     "registrationTime": "2023-08-21T21:17:49",
                 },
             },
@@ -2847,6 +3050,7 @@ data = {
                     "licenceNo": 4532589,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 14,
                     "registrationTime": "2023-10-11T13:56:09",
                 },
                 "6": {
@@ -2854,6 +3058,7 @@ data = {
                     "licenceNo": 4532589,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 13,
                     "registrationTime": "2023-10-22T13:13:20",
                 },
                 "B": {
@@ -2861,6 +3066,7 @@ data = {
                     "licenceNo": 4532589,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 8,
                     "registrationTime": "2023-04-19T02:09:47",
                 },
                 "F": {
@@ -2868,6 +3074,7 @@ data = {
                     "licenceNo": 4532589,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 27,
                     "registrationTime": "2023-09-27T11:41:02",
                 },
             },
@@ -2894,6 +3101,7 @@ data = {
                     "licenceNo": 5324235,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 13,
                     "registrationTime": "2023-05-17T14:24:17",
                 },
                 "G": {
@@ -2901,6 +3109,7 @@ data = {
                     "licenceNo": 5324235,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 20,
                     "registrationTime": "2023-08-05T00:50:56",
                 },
             },
@@ -2927,6 +3136,7 @@ data = {
                     "licenceNo": 9321828,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 27,
                     "registrationTime": "2023-09-07T08:55:26",
                 },
                 "F": {
@@ -2934,6 +3144,7 @@ data = {
                     "licenceNo": 9321828,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 28,
                     "registrationTime": "2023-10-18T11:39:45",
                 },
             },
@@ -2960,6 +3171,7 @@ data = {
                     "licenceNo": 4530477,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 24,
                     "registrationTime": "2023-07-24T02:30:29",
                 },
                 "F": {
@@ -2967,6 +3179,7 @@ data = {
                     "licenceNo": 4530477,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 35,
                     "registrationTime": "2023-11-26T02:47:48",
                 },
             },
@@ -2993,6 +3206,7 @@ data = {
                     "licenceNo": 7222777,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 12,
                     "registrationTime": "2023-11-28T12:51:15",
                 },
                 "7": {
@@ -3000,6 +3214,7 @@ data = {
                     "licenceNo": 7222777,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 0,
                     "registrationTime": "2023-05-22T20:43:52",
                 },
                 "A": {
@@ -3007,6 +3222,7 @@ data = {
                     "licenceNo": 7222777,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 27,
                     "registrationTime": "2023-10-29T02:50:25",
                 },
                 "D": {
@@ -3014,6 +3230,7 @@ data = {
                     "licenceNo": 7222777,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 15,
                     "registrationTime": "2023-05-06T06:48:18",
                 },
             },
@@ -3040,6 +3257,7 @@ data = {
                     "licenceNo": 9321954,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 4,
                     "registrationTime": "2023-04-16T14:28:36",
                 },
                 "D": {
@@ -3047,6 +3265,7 @@ data = {
                     "licenceNo": 9321954,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 22,
                     "registrationTime": "2023-07-12T03:58:35",
                 },
             },
@@ -3073,6 +3292,7 @@ data = {
                     "licenceNo": 5327437,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 33,
                     "registrationTime": "2023-09-29T07:25:05",
                 },
                 "F": {
@@ -3080,6 +3300,7 @@ data = {
                     "licenceNo": 5327437,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 32,
                     "registrationTime": "2023-10-30T07:59:29",
                 },
             },
@@ -3106,6 +3327,7 @@ data = {
                     "licenceNo": 3727799,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 7,
                     "registrationTime": "2023-04-17T06:27:02",
                 },
                 "G": {
@@ -3113,6 +3335,7 @@ data = {
                     "licenceNo": 3727799,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 21,
                     "registrationTime": "2023-08-12T04:42:10",
                 },
             },
@@ -3139,6 +3362,7 @@ data = {
                     "licenceNo": 7210055,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 3,
                     "registrationTime": "2023-04-15T15:47:12",
                 },
                 "6": {
@@ -3146,6 +3370,7 @@ data = {
                     "licenceNo": 7210055,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 12,
                     "registrationTime": "2023-10-04T20:05:12",
                 },
             },
@@ -3172,6 +3397,7 @@ data = {
                     "licenceNo": 7214813,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 3,
                     "registrationTime": "2023-04-07T16:52:25",
                 },
                 "7": {
@@ -3179,6 +3405,7 @@ data = {
                     "licenceNo": 7214813,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 4,
                     "registrationTime": "2023-09-02T20:59:16",
                 },
             },
@@ -3205,6 +3432,7 @@ data = {
                     "licenceNo": 7219370,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 6,
                     "registrationTime": "2023-06-26T09:48:53",
                 },
                 "B": {
@@ -3212,6 +3440,7 @@ data = {
                     "licenceNo": 7219370,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 45,
                     "registrationTime": "2023-11-26T14:56:45",
                 },
                 "F": {
@@ -3219,6 +3448,7 @@ data = {
                     "licenceNo": 7219370,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 25,
                     "registrationTime": "2023-09-17T22:43:30",
                 },
             },
@@ -3245,6 +3475,7 @@ data = {
                     "licenceNo": 5325044,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 24,
                     "registrationTime": "2023-11-03T15:13:20",
                 },
                 "G": {
@@ -3252,6 +3483,7 @@ data = {
                     "licenceNo": 5325044,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 19,
                     "registrationTime": "2023-07-19T10:05:44",
                 },
             },
@@ -3278,6 +3510,7 @@ data = {
                     "licenceNo": 5326002,
                     "markedAsPaid": True,
                     "markedAsPresent": True,
+                    "rank": 32,
                     "registrationTime": "2023-09-19T15:04:30",
                 },
                 "G": {
@@ -3285,6 +3518,7 @@ data = {
                     "licenceNo": 5326002,
                     "markedAsPaid": False,
                     "markedAsPresent": True,
+                    "rank": 45,
                     "registrationTime": "2023-11-16T12:30:04",
                 },
             },
@@ -3311,6 +3545,7 @@ data = {
                     "licenceNo": 9322263,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 8,
                     "registrationTime": "2023-05-19T21:13:49",
                 },
                 "D": {
@@ -3318,6 +3553,7 @@ data = {
                     "licenceNo": 9322263,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 3,
                     "registrationTime": "2023-03-27T17:31:42",
                 },
             },
@@ -3344,6 +3580,7 @@ data = {
                     "licenceNo": 798720,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 16,
                     "registrationTime": "2023-09-06T03:28:45",
                 },
                 "C": {
@@ -3351,6 +3588,7 @@ data = {
                     "licenceNo": 798720,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 4,
                     "registrationTime": "2023-07-24T16:45:25",
                 },
                 "E": {
@@ -3358,6 +3596,7 @@ data = {
                     "licenceNo": 798720,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 7,
                     "registrationTime": "2023-05-23T06:44:59",
                 },
             },
@@ -3384,6 +3623,7 @@ data = {
                     "licenceNo": 9256846,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 17,
                     "registrationTime": "2023-10-29T22:57:29",
                 },
                 "6": {
@@ -3391,6 +3631,7 @@ data = {
                     "licenceNo": 9256846,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 2,
                     "registrationTime": "2023-05-14T15:38:29",
                 },
                 "B": {
@@ -3398,6 +3639,7 @@ data = {
                     "licenceNo": 9256846,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 21,
                     "registrationTime": "2023-06-30T07:05:50",
                 },
                 "F": {
@@ -3405,6 +3647,7 @@ data = {
                     "licenceNo": 9256846,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 9,
                     "registrationTime": "2023-04-29T02:14:59",
                 },
             },
@@ -3431,6 +3674,7 @@ data = {
                     "licenceNo": 7218763,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 0,
                     "registrationTime": "2023-03-01T22:13:51",
                 },
                 "6": {
@@ -3438,6 +3682,7 @@ data = {
                     "licenceNo": 7218763,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 1,
                     "registrationTime": "2023-03-18T16:45:19",
                 },
                 "D": {
@@ -3445,6 +3690,7 @@ data = {
                     "licenceNo": 7218763,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 37,
                     "registrationTime": "2023-11-02T07:55:11",
                 },
                 "F": {
@@ -3452,6 +3698,7 @@ data = {
                     "licenceNo": 7218763,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 6,
                     "registrationTime": "2023-04-17T05:41:05",
                 },
             },
@@ -3478,6 +3725,7 @@ data = {
                     "licenceNo": 5328103,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 23,
                     "registrationTime": "2023-10-14T08:18:39",
                 },
                 "D": {
@@ -3485,6 +3733,7 @@ data = {
                     "licenceNo": 5328103,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 26,
                     "registrationTime": "2023-08-20T15:39:52",
                 },
             },
@@ -3511,6 +3760,7 @@ data = {
                     "licenceNo": 4526124,
                     "markedAsPaid": False,
                     "markedAsPresent": True,
+                    "rank": 44,
                     "registrationTime": "2023-11-17T18:01:20",
                 },
                 "F": {
@@ -3518,6 +3768,7 @@ data = {
                     "licenceNo": 4526124,
                     "markedAsPaid": False,
                     "markedAsPresent": True,
+                    "rank": 34,
                     "registrationTime": "2023-11-25T21:56:50",
                 },
             },
@@ -3544,6 +3795,7 @@ data = {
                     "licenceNo": 5326610,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 17,
                     "registrationTime": "2023-08-28T06:29:15",
                 },
                 "D": {
@@ -3551,6 +3803,7 @@ data = {
                     "licenceNo": 5326610,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 11,
                     "registrationTime": "2023-04-28T18:04:35",
                 },
             },
@@ -3577,6 +3830,7 @@ data = {
                     "licenceNo": 3537537,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 27,
                     "registrationTime": "2023-11-18T02:15:51",
                 },
             },
@@ -3603,6 +3857,7 @@ data = {
                     "licenceNo": 7219456,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 0,
                     "registrationTime": "2023-03-02T08:47:03",
                 },
                 "3": {
@@ -3610,6 +3865,7 @@ data = {
                     "licenceNo": 7219456,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 18,
                     "registrationTime": "2023-09-12T03:36:33",
                 },
             },
@@ -3636,6 +3892,7 @@ data = {
                     "licenceNo": 7874062,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 7,
                     "registrationTime": "2023-05-10T18:00:42",
                 },
                 "B": {
@@ -3643,6 +3900,7 @@ data = {
                     "licenceNo": 7874062,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 30,
                     "registrationTime": "2023-08-25T21:44:46",
                 },
                 "F": {
@@ -3650,6 +3908,7 @@ data = {
                     "licenceNo": 7874062,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 14,
                     "registrationTime": "2023-06-23T13:53:55",
                 },
             },
@@ -3676,6 +3935,7 @@ data = {
                     "licenceNo": 9323439,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 0,
                     "registrationTime": "2023-03-08T16:24:50",
                 },
                 "D": {
@@ -3683,6 +3943,7 @@ data = {
                     "licenceNo": 9323439,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 39,
                     "registrationTime": "2023-11-15T19:13:49",
                 },
             },
@@ -3709,6 +3970,7 @@ data = {
                     "licenceNo": 5325867,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 28,
                     "registrationTime": "2023-11-24T05:06:08",
                 },
                 "G": {
@@ -3716,6 +3978,7 @@ data = {
                     "licenceNo": 5325867,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 36,
                     "registrationTime": "2023-10-02T22:31:13",
                 },
             },
@@ -3742,6 +4005,7 @@ data = {
                     "licenceNo": 4528713,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 9,
                     "registrationTime": "2023-07-25T04:24:38",
                 },
                 "4": {
@@ -3749,6 +4013,7 @@ data = {
                     "licenceNo": 4528713,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 5,
                     "registrationTime": "2023-07-14T14:57:04",
                 },
                 "D": {
@@ -3756,6 +4021,7 @@ data = {
                     "licenceNo": 4528713,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 31,
                     "registrationTime": "2023-09-14T10:33:31",
                 },
                 "F": {
@@ -3763,6 +4029,7 @@ data = {
                     "licenceNo": 4528713,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 15,
                     "registrationTime": "2023-06-24T14:58:51",
                 },
             },
@@ -3789,6 +4056,7 @@ data = {
                     "licenceNo": 9324241,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 13,
                     "registrationTime": "2023-08-08T01:46:27",
                 },
                 "D": {
@@ -3796,6 +4064,7 @@ data = {
                     "licenceNo": 9324241,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 28,
                     "registrationTime": "2023-09-07T13:36:36",
                 },
             },
@@ -3822,6 +4091,7 @@ data = {
                     "licenceNo": 4422906,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 8,
                     "registrationTime": "2023-06-14T23:36:12",
                 },
                 "B": {
@@ -3829,6 +4099,7 @@ data = {
                     "licenceNo": 4422906,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 5,
                     "registrationTime": "2023-03-25T00:35:57",
                 },
                 "G": {
@@ -3836,6 +4107,7 @@ data = {
                     "licenceNo": 4422906,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 12,
                     "registrationTime": "2023-06-05T04:06:42",
                 },
             },
@@ -3862,6 +4134,7 @@ data = {
                     "licenceNo": 3525635,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 5,
                     "registrationTime": "2023-04-12T10:51:28",
                 },
                 "B": {
@@ -3869,6 +4142,7 @@ data = {
                     "licenceNo": 3525635,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 18,
                     "registrationTime": "2023-06-27T20:43:25",
                 },
                 "G": {
@@ -3876,6 +4150,7 @@ data = {
                     "licenceNo": 3525635,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 15,
                     "registrationTime": "2023-06-11T01:37:41",
                 },
             },
@@ -3902,6 +4177,7 @@ data = {
                     "licenceNo": 5327901,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 42,
                     "registrationTime": "2023-11-07T16:12:51",
                 },
                 "C": {
@@ -3909,6 +4185,7 @@ data = {
                     "licenceNo": 5327901,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 6,
                     "registrationTime": "2023-10-13T08:05:43",
                 },
             },
@@ -3935,6 +4212,7 @@ data = {
                     "licenceNo": 4530487,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 28,
                     "registrationTime": "2023-11-05T05:11:56",
                 },
                 "D": {
@@ -3942,6 +4220,7 @@ data = {
                     "licenceNo": 4530487,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 0,
                     "registrationTime": "2023-03-05T08:56:04",
                 },
             },
@@ -3968,6 +4247,7 @@ data = {
                     "licenceNo": 9321971,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 1,
                     "registrationTime": "2023-03-30T20:23:08",
                 },
                 "6": {
@@ -3975,6 +4255,7 @@ data = {
                     "licenceNo": 9321971,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 4,
                     "registrationTime": "2023-05-25T11:08:29",
                 },
                 "D": {
@@ -3982,6 +4263,7 @@ data = {
                     "licenceNo": 9321971,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 40,
                     "registrationTime": "2023-11-17T11:08:16",
                 },
                 "F": {
@@ -3989,6 +4271,7 @@ data = {
                     "licenceNo": 9321971,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 18,
                     "registrationTime": "2023-07-06T15:27:18",
                 },
             },
@@ -4015,6 +4298,7 @@ data = {
                     "licenceNo": 4529838,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 2,
                     "registrationTime": "2023-06-21T13:56:31",
                 },
                 "G": {
@@ -4022,6 +4306,7 @@ data = {
                     "licenceNo": 4529838,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 4,
                     "registrationTime": "2023-04-11T01:36:27",
                 },
             },
@@ -4048,6 +4333,7 @@ data = {
                     "licenceNo": 4455748,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 22,
                     "registrationTime": "2023-10-05T00:37:08",
                 },
                 "3": {
@@ -4055,6 +4341,7 @@ data = {
                     "licenceNo": 4455748,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 22,
                     "registrationTime": "2023-11-29T13:53:22",
                 },
                 "E": {
@@ -4062,6 +4349,7 @@ data = {
                     "licenceNo": 4455748,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 19,
                     "registrationTime": "2023-09-13T18:02:13",
                 },
             },
@@ -4088,6 +4376,7 @@ data = {
                     "licenceNo": 9532616,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 6,
                     "registrationTime": "2023-05-22T11:43:05",
                 },
             },
@@ -4114,6 +4403,7 @@ data = {
                     "licenceNo": 5325506,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 25,
                     "registrationTime": "2023-11-03T16:24:48",
                 },
                 "G": {
@@ -4121,6 +4411,7 @@ data = {
                     "licenceNo": 5325506,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 11,
                     "registrationTime": "2023-05-29T07:34:37",
                 },
             },
@@ -4147,6 +4438,7 @@ data = {
                     "licenceNo": 7218408,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 7,
                     "registrationTime": "2023-09-13T16:25:33",
                 },
                 "7": {
@@ -4154,6 +4446,7 @@ data = {
                     "licenceNo": 7218408,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 6,
                     "registrationTime": "2023-09-18T07:27:04",
                 },
                 "A": {
@@ -4161,6 +4454,7 @@ data = {
                     "licenceNo": 7218408,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 20,
                     "registrationTime": "2023-09-11T18:00:12",
                 },
                 "D": {
@@ -4168,6 +4462,7 @@ data = {
                     "licenceNo": 7218408,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 1,
                     "registrationTime": "2023-03-06T01:26:26",
                 },
             },
@@ -4194,6 +4489,7 @@ data = {
                     "licenceNo": 9239990,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 2,
                     "registrationTime": "2023-04-02T12:07:20",
                 },
                 "7": {
@@ -4201,6 +4497,7 @@ data = {
                     "licenceNo": 9239990,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 1,
                     "registrationTime": "2023-06-04T03:25:32",
                 },
                 "A": {
@@ -4208,6 +4505,7 @@ data = {
                     "licenceNo": 9239990,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 6,
                     "registrationTime": "2023-05-03T11:38:39",
                 },
                 "D": {
@@ -4215,6 +4513,7 @@ data = {
                     "licenceNo": 9239990,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 12,
                     "registrationTime": "2023-04-29T01:29:32",
                 },
             },
@@ -4241,6 +4540,7 @@ data = {
                     "licenceNo": 9457149,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 22,
                     "registrationTime": "2023-10-20T13:21:31",
                 },
                 "G": {
@@ -4248,6 +4548,7 @@ data = {
                     "licenceNo": 9457149,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 13,
                     "registrationTime": "2023-06-05T22:25:38",
                 },
             },
@@ -4274,6 +4575,7 @@ data = {
                     "licenceNo": 4529894,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 25,
                     "registrationTime": "2023-10-24T20:50:04",
                 },
                 "D": {
@@ -4281,6 +4583,7 @@ data = {
                     "licenceNo": 4529894,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 6,
                     "registrationTime": "2023-04-19T04:42:15",
                 },
             },
@@ -4307,6 +4610,7 @@ data = {
                     "licenceNo": 4462320,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 9,
                     "registrationTime": "2023-04-21T12:30:19",
                 },
                 "F": {
@@ -4314,6 +4618,7 @@ data = {
                     "licenceNo": 4462320,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 2,
                     "registrationTime": "2023-03-23T17:31:18",
                 },
             },
@@ -4340,6 +4645,7 @@ data = {
                     "licenceNo": 7221154,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 19,
                     "registrationTime": "2023-09-25T06:16:33",
                 },
                 "3": {
@@ -4347,6 +4653,7 @@ data = {
                     "licenceNo": 7221154,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 17,
                     "registrationTime": "2023-09-07T04:20:46",
                 },
                 "E": {
@@ -4354,6 +4661,7 @@ data = {
                     "licenceNo": 7221154,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 15,
                     "registrationTime": "2023-07-11T22:50:23",
                 },
                 "G": {
@@ -4361,6 +4669,7 @@ data = {
                     "licenceNo": 7221154,
                     "markedAsPaid": False,
                     "markedAsPresent": True,
+                    "rank": 29,
                     "registrationTime": "2023-09-12T23:08:23",
                 },
             },
@@ -4387,6 +4696,7 @@ data = {
                     "licenceNo": 5318378,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 20,
                     "registrationTime": "2023-10-13T06:04:33",
                 },
                 "G": {
@@ -4394,6 +4704,7 @@ data = {
                     "licenceNo": 5318378,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 22,
                     "registrationTime": "2023-08-13T05:30:41",
                 },
             },
@@ -4420,6 +4731,7 @@ data = {
                     "licenceNo": 4527177,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 31,
                     "registrationTime": "2023-09-01T02:08:33",
                 },
                 "G": {
@@ -4427,6 +4739,7 @@ data = {
                     "licenceNo": 4527177,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 1,
                     "registrationTime": "2023-03-04T03:12:05",
                 },
             },
@@ -4453,6 +4766,7 @@ data = {
                     "licenceNo": 7527624,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 3,
                     "registrationTime": "2023-07-10T04:30:18",
                 },
                 "G": {
@@ -4460,6 +4774,7 @@ data = {
                     "licenceNo": 7527624,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 8,
                     "registrationTime": "2023-05-14T07:31:07",
                 },
             },
@@ -4486,6 +4801,7 @@ data = {
                     "licenceNo": 7216475,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 9,
                     "registrationTime": "2023-09-16T13:58:22",
                 },
                 "7": {
@@ -4493,6 +4809,7 @@ data = {
                     "licenceNo": 7216475,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 8,
                     "registrationTime": "2023-09-22T23:35:32",
                 },
                 "A": {
@@ -4500,6 +4817,7 @@ data = {
                     "licenceNo": 7216475,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 22,
                     "registrationTime": "2023-10-13T09:25:22",
                 },
             },
@@ -4526,6 +4844,7 @@ data = {
                     "licenceNo": 7221254,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 17,
                     "registrationTime": "2023-09-14T22:03:23",
                 },
                 "3": {
@@ -4533,6 +4852,7 @@ data = {
                     "licenceNo": 7221254,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 15,
                     "registrationTime": "2023-08-08T05:11:53",
                 },
                 "E": {
@@ -4540,6 +4860,7 @@ data = {
                     "licenceNo": 7221254,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 1,
                     "registrationTime": "2023-03-26T21:11:29",
                 },
                 "G": {
@@ -4547,6 +4868,7 @@ data = {
                     "licenceNo": 7221254,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 35,
                     "registrationTime": "2023-09-29T18:05:10",
                 },
             },
@@ -4573,6 +4895,7 @@ data = {
                     "licenceNo": 9221871,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 19,
                     "registrationTime": "2023-06-28T02:35:06",
                 },
                 "F": {
@@ -4580,6 +4903,7 @@ data = {
                     "licenceNo": 9221871,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 16,
                     "registrationTime": "2023-06-26T03:26:25",
                 },
             },
@@ -4606,6 +4930,7 @@ data = {
                     "licenceNo": 4527982,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 29,
                     "registrationTime": "2023-11-13T08:18:09",
                 },
                 "D": {
@@ -4613,6 +4938,7 @@ data = {
                     "licenceNo": 4527982,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 19,
                     "registrationTime": "2023-06-05T15:25:06",
                 },
             },
@@ -4639,6 +4965,7 @@ data = {
                     "licenceNo": 7216286,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 19,
                     "registrationTime": "2023-09-02T06:37:20",
                 },
                 "D": {
@@ -4646,6 +4973,7 @@ data = {
                     "licenceNo": 7216286,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 21,
                     "registrationTime": "2023-06-25T00:27:10",
                 },
             },
@@ -4672,6 +5000,7 @@ data = {
                     "licenceNo": 7217048,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 34,
                     "registrationTime": "2023-09-28T01:45:34",
                 },
                 "G": {
@@ -4679,6 +5008,7 @@ data = {
                     "licenceNo": 7217048,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 0,
                     "registrationTime": "2023-03-02T06:01:24",
                 },
             },
@@ -4705,6 +5035,7 @@ data = {
                     "licenceNo": 9426636,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 13,
                     "registrationTime": "2023-08-20T23:33:52",
                 },
                 "6": {
@@ -4712,6 +5043,7 @@ data = {
                     "licenceNo": 9426636,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 11,
                     "registrationTime": "2023-09-19T16:04:43",
                 },
                 "D": {
@@ -4719,6 +5051,7 @@ data = {
                     "licenceNo": 9426636,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 17,
                     "registrationTime": "2023-05-24T21:07:34",
                 },
                 "F": {
@@ -4726,6 +5059,7 @@ data = {
                     "licenceNo": 9426636,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 13,
                     "registrationTime": "2023-06-12T15:38:52",
                 },
             },
@@ -4752,6 +5086,7 @@ data = {
                     "licenceNo": 7225053,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 7,
                     "registrationTime": "2023-09-21T04:05:36",
                 },
                 "A": {
@@ -4759,6 +5094,7 @@ data = {
                     "licenceNo": 7225053,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 26,
                     "registrationTime": "2023-10-27T01:21:50",
                 },
             },
@@ -4785,6 +5121,7 @@ data = {
                     "licenceNo": 9245676,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 8,
                     "registrationTime": "2023-09-15T04:50:37",
                 },
                 "6": {
@@ -4792,6 +5129,7 @@ data = {
                     "licenceNo": 9245676,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 5,
                     "registrationTime": "2023-06-17T00:38:56",
                 },
                 "A": {
@@ -4799,6 +5137,7 @@ data = {
                     "licenceNo": 9245676,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 2,
                     "registrationTime": "2023-04-08T11:27:46",
                 },
                 "D": {
@@ -4806,6 +5145,7 @@ data = {
                     "licenceNo": 9245676,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 18,
                     "registrationTime": "2023-05-26T03:07:52",
                 },
             },
@@ -4832,6 +5172,7 @@ data = {
                     "licenceNo": 3726270,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 9,
                     "registrationTime": "2023-06-20T13:42:10",
                 },
                 "B": {
@@ -4839,6 +5180,7 @@ data = {
                     "licenceNo": 3726270,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 10,
                     "registrationTime": "2023-04-21T17:18:08",
                 },
                 "G": {
@@ -4846,6 +5188,7 @@ data = {
                     "licenceNo": 3726270,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 26,
                     "registrationTime": "2023-08-26T11:54:16",
                 },
             },
@@ -4872,6 +5215,7 @@ data = {
                     "licenceNo": 3727700,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 0,
                     "registrationTime": "2023-03-10T17:01:24",
                 },
                 "5": {
@@ -4879,6 +5223,7 @@ data = {
                     "licenceNo": 3727700,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 1,
                     "registrationTime": "2023-03-19T11:59:54",
                 },
                 "B": {
@@ -4886,6 +5231,7 @@ data = {
                     "licenceNo": 3727700,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 40,
                     "registrationTime": "2023-10-26T02:37:48",
                 },
             },
@@ -4912,6 +5258,7 @@ data = {
                     "licenceNo": 7525173,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 13,
                     "registrationTime": "2023-05-02T01:08:55",
                 },
                 "F": {
@@ -4919,6 +5266,7 @@ data = {
                     "licenceNo": 7525173,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 11,
                     "registrationTime": "2023-05-13T17:50:48",
                 },
             },
@@ -4945,6 +5293,7 @@ data = {
                     "licenceNo": 61624,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 12,
                     "registrationTime": "2023-07-21T02:12:18",
                 },
                 "3": {
@@ -4952,6 +5301,7 @@ data = {
                     "licenceNo": 61624,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 0,
                     "registrationTime": "2023-03-11T17:39:27",
                 },
                 "E": {
@@ -4959,6 +5309,7 @@ data = {
                     "licenceNo": 61624,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 18,
                     "registrationTime": "2023-09-03T08:33:50",
                 },
             },
@@ -4985,6 +5336,7 @@ data = {
                     "licenceNo": 9137160,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 11,
                     "registrationTime": "2023-08-09T11:37:51",
                 },
                 "6": {
@@ -4992,6 +5344,7 @@ data = {
                     "licenceNo": 9137160,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 8,
                     "registrationTime": "2023-08-04T06:57:48",
                 },
                 "B": {
@@ -4999,6 +5352,7 @@ data = {
                     "licenceNo": 9137160,
                     "markedAsPaid": True,
                     "markedAsPresent": False,
+                    "rank": 24,
                     "registrationTime": "2023-07-10T23:19:51",
                 },
                 "F": {
@@ -5006,9 +5360,293 @@ data = {
                     "licenceNo": 9137160,
                     "markedAsPaid": False,
                     "markedAsPresent": False,
+                    "rank": 19,
                     "registrationTime": "2023-07-07T08:10:32",
                 },
             },
         },
     ],
 }
+
+correct_admin_get_all_players_present_only_response = {
+    "players": [
+        {
+            "bibNo": None,
+            "club": "BOIS COLOMBES SPORTS",
+            "email": "sobsfewmas@mmzbwc.com",
+            "firstName": "Vtrgrdc",
+            "gender": "M",
+            "lastName": "ZBXLTMIV",
+            "licenceNo": 9241901,
+            "nbPoints": 1475,
+            "paymentStatus": {
+                "totalActualPaid": 0,
+                "totalPaid": 0,
+                "totalPresent": 8,
+                "totalRegistered": 29,
+            },
+            "phone": "+336535833023",
+            "registeredEntries": {
+                "1": {
+                    "entryFee": 8,
+                    "licenceNo": 9241901,
+                    "markedAsPaid": False,
+                    "markedAsPresent": True,
+                    "rank": 27,
+                    "registrationTime": "2024-11-08T22:03:59",
+                },
+                "3": {
+                    "entryFee": 7,
+                    "licenceNo": 9241901,
+                    "markedAsPaid": False,
+                    "markedAsPresent": False,
+                    "rank": 6,
+                    "registrationTime": "2023-05-15T21:07:40",
+                },
+                "B": {
+                    "entryFee": 7,
+                    "licenceNo": 9241901,
+                    "markedAsPaid": False,
+                    "markedAsPresent": False,
+                    "rank": 14,
+                    "registrationTime": "2023-05-17T21:17:58",
+                },
+                "G": {
+                    "entryFee": 7,
+                    "licenceNo": 9241901,
+                    "markedAsPaid": False,
+                    "markedAsPresent": False,
+                    "rank": 30,
+                    "registrationTime": "2023-09-15T23:55:16",
+                },
+            },
+        },
+        {
+            "bibNo": None,
+            "club": "LA CHAPELLE ALTT",
+            "email": "ivsiphdoxr@zwdzel.com",
+            "firstName": "Buqjuvk",
+            "gender": "M",
+            "lastName": "LNGPQTTV",
+            "licenceNo": 7221154,
+            "nbPoints": 1568,
+            "paymentStatus": {
+                "totalActualPaid": 0,
+                "totalPaid": 0,
+                "totalPresent": 7,
+                "totalRegistered": 31,
+            },
+            "phone": "+336674877385",
+            "registeredEntries": {
+                "1": {
+                    "entryFee": 7,
+                    "licenceNo": 7221154,
+                    "markedAsPaid": False,
+                    "markedAsPresent": False,
+                    "rank": 19,
+                    "registrationTime": "2023-09-25T06:16:33",
+                },
+                "3": {
+                    "entryFee": 7,
+                    "licenceNo": 7221154,
+                    "markedAsPaid": False,
+                    "markedAsPresent": False,
+                    "rank": 17,
+                    "registrationTime": "2023-09-07T04:20:46",
+                },
+                "E": {
+                    "entryFee": 10,
+                    "licenceNo": 7221154,
+                    "markedAsPaid": False,
+                    "markedAsPresent": False,
+                    "rank": 15,
+                    "registrationTime": "2023-07-11T22:50:23",
+                },
+                "G": {
+                    "entryFee": 7,
+                    "licenceNo": 7221154,
+                    "markedAsPaid": False,
+                    "markedAsPresent": True,
+                    "rank": 29,
+                    "registrationTime": "2023-09-12T23:08:23",
+                },
+            },
+        },
+        {
+            "bibNo": None,
+            "club": "USM OLIVET TENNIS DE TABLE",
+            "email": "nvzhltrsqr@mochsf.com",
+            "firstName": "Wihelbl",
+            "gender": "F",
+            "lastName": "EZWLKRWE",
+            "licenceNo": 4526124,
+            "nbPoints": 1149,
+            "paymentStatus": {
+                "totalActualPaid": 0,
+                "totalPaid": 0,
+                "totalPresent": 14,
+                "totalRegistered": 14,
+            },
+            "phone": "+336919756238",
+            "registeredEntries": {
+                "B": {
+                    "entryFee": 7,
+                    "licenceNo": 4526124,
+                    "markedAsPaid": False,
+                    "markedAsPresent": True,
+                    "rank": 44,
+                    "registrationTime": "2023-11-17T18:01:20",
+                },
+                "F": {
+                    "entryFee": 7,
+                    "licenceNo": 4526124,
+                    "markedAsPaid": False,
+                    "markedAsPresent": True,
+                    "rank": 34,
+                    "registrationTime": "2023-11-25T21:56:50",
+                },
+            },
+        },
+        {
+            "bibNo": None,
+            "club": "CABOURG TT",
+            "email": "stbznywcnu@orabso.com",
+            "firstName": "Smbhrdm",
+            "gender": "F",
+            "lastName": "KIGTDPBH",
+            "licenceNo": 1420954,
+            "nbPoints": 1019,
+            "paymentStatus": {
+                "totalActualPaid": 0,
+                "totalPaid": 14,
+                "totalPresent": 21,
+                "totalRegistered": 28,
+            },
+            "phone": "+336318836582",
+            "registeredEntries": {
+                "2": {
+                    "entryFee": 7,
+                    "licenceNo": 1420954,
+                    "markedAsPaid": False,
+                    "markedAsPresent": False,
+                    "rank": 15,
+                    "registrationTime": "2023-10-14T10:17:16",
+                },
+                "6": {
+                    "entryFee": 7,
+                    "licenceNo": 1420954,
+                    "markedAsPaid": True,
+                    "markedAsPresent": True,
+                    "rank": 14,
+                    "registrationTime": "2023-11-24T05:36:23",
+                },
+                "D": {
+                    "entryFee": 7,
+                    "licenceNo": 1420954,
+                    "markedAsPaid": True,
+                    "markedAsPresent": True,
+                    "rank": 4,
+                    "registrationTime": "2023-04-05T02:14:15",
+                },
+                "F": {
+                    "entryFee": 7,
+                    "licenceNo": 1420954,
+                    "markedAsPaid": False,
+                    "markedAsPresent": True,
+                    "rank": 23,
+                    "registrationTime": "2023-09-05T10:40:48",
+                },
+            },
+        },
+        {
+            "bibNo": None,
+            "club": "ERNEENNE Sport Tennis de Table",
+            "email": "zvsbcnurlb@ieppes.com",
+            "firstName": "Hoyhjni",
+            "gender": "M",
+            "lastName": "JTFLCUZD",
+            "licenceNo": 5326002,
+            "nbPoints": 1364,
+            "paymentStatus": {
+                "totalActualPaid": 7,
+                "totalPaid": 7,
+                "totalPresent": 14,
+                "totalRegistered": 14,
+            },
+            "phone": "+336368307553",
+            "registeredEntries": {
+                "B": {
+                    "entryFee": 7,
+                    "licenceNo": 5326002,
+                    "markedAsPaid": True,
+                    "markedAsPresent": True,
+                    "rank": 32,
+                    "registrationTime": "2023-09-19T15:04:30",
+                },
+                "G": {
+                    "entryFee": 7,
+                    "licenceNo": 5326002,
+                    "markedAsPaid": False,
+                    "markedAsPresent": True,
+                    "rank": 45,
+                    "registrationTime": "2023-11-16T12:30:04",
+                },
+            },
+        },
+        {
+            "bibNo": None,
+            "club": "U S ETREPAGNY T T",
+            "email": "wihnpztoim@tjbnck.com",
+            "firstName": "Nxovesf",
+            "gender": "F",
+            "lastName": "GZLDPNEH",
+            "licenceNo": 608834,
+            "nbPoints": 1721,
+            "paymentStatus": {
+                "totalActualPaid": 0,
+                "totalPaid": 0,
+                "totalPresent": 10,
+                "totalRegistered": 24,
+            },
+            "phone": "+336044431914",
+            "registeredEntries": {
+                "3": {
+                    "entryFee": 7,
+                    "licenceNo": 608834,
+                    "markedAsPaid": False,
+                    "markedAsPresent": False,
+                    "rank": 1,
+                    "registrationTime": "2023-03-20T00:24:12",
+                },
+                "E": {
+                    "entryFee": 10,
+                    "licenceNo": 608834,
+                    "markedAsPaid": False,
+                    "markedAsPresent": True,
+                    "rank": 23,
+                    "registrationTime": "2023-11-02T18:50:24",
+                },
+                "G": {
+                    "entryFee": 7,
+                    "licenceNo": 608834,
+                    "markedAsPaid": False,
+                    "markedAsPresent": False,
+                    "rank": 24,
+                    "registrationTime": "2023-08-23T06:56:51",
+                },
+            },
+        },
+    ],
+}
+
+
+class TestAPIGetAllPlayers(BaseTest):
+    def test_admin_get_all_players(self, client, reset_db, populate):
+        r = client.get("/api/admin/all_players?present_only=false")
+        assert r.status_code == HTTPStatus.OK, r.json
+        assert r.json == correct_admin_get_all_players_response, r.json
+
+    def test_admin_get_all_players_present_only(self, client, reset_db, populate):
+        r = client.get("/api/admin/all_players?present_only=true")
+        assert r.status_code == HTTPStatus.OK, r.json
+        assert r.json == correct_admin_get_all_players_present_only_response, r.json

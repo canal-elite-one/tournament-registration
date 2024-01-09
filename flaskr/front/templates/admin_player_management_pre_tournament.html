@@ -16,7 +16,7 @@
             </tr>
             <tr>
                 <th>Tableau</th>
-                <th>Nombre d'inscrits</th>
+                <th>Rang / max (surbook) (inscrits)</th>
                 <th>Limite de points</th>
                 <th>Féminin ?</th>
                 <th>Inscription</th>
@@ -31,7 +31,7 @@
             </tr>
             <tr>
                 <th>Tableau</th>
-                <th>Nombre d'inscrits</th>
+                <th>Rang / max (surbook) (inscrits)</th>
                 <th>Limite de points</th>
                 <th>Féminin ?</th>
                 <th>Inscription</th>
@@ -39,9 +39,11 @@
         </thead>
         <tbody id="sunday_table_body"></tbody>
     </table>
-    <button id="submit_entries_button" onclick="submitEntries()">Enregistrer les modifications</button>
+    <button id="submit_entries_button" onclick="submitAll()">Enregistrer les modifications</button>
 </div>
+{% endblock %}
 
+{% block scripts %}
 <script>const licence_no={{ licence_no }}</script>
 <script src="{{ url_for('static', filename='admin_player_management_pre_tournament.js') }}">
 </script>

@@ -28,11 +28,7 @@ const enToFr = {
 
 let playerObject;
 let categoriesData;
-let paymentStatus = {
-    'register_total': 0,
-    'present_total': 0,
-    'paid_total': 0,
-};
+let playerInDatabase;
 
 const relevantPlayerFields = ['licenceNo', 'firstName', 'lastName', 'gender', 'club', 'nbPoints', 'email', 'phone'];
 const relevantCategoriesFields = ['categoryId', 'color', 'entryCount', 'maxPlayers', 'overbookingPercentage', 'womenOnly', 'maxPoints', 'minPoints']
@@ -47,6 +43,8 @@ function initialChecked(checkbox) {
             return true;
         } else if (checkbox.getAttribute('data-checkbox-type') == 'present') {
             return playerObject['registeredEntries'][categoryId]['markedAsPresent'];
+        } else if (checkbox.getAttribute('data-checkbox-type') == 'absent') {
+            return playerObject['registeredEntries'][categoryId]['markedAsPresent'] === false;
         } else {
             return playerObject['registeredEntries'][categoryId]['markedAsPaid'];
         }
@@ -64,41 +62,58 @@ function currentFee(categoryId) {
     }
 }
 
-function processFeeChange(checkbox, futureChecked, oppositeFactor=1) {
-    let categoryId = checkbox.id.slice(-1);
-    let checkboxType = checkbox.getAttribute('data-checkbox-type');
-    if (futureChecked == checkbox.checked) { return; }
-    else if (futureChecked) {
-        paymentStatus[checkboxType + '_total'] += currentFee(categoryId) * oppositeFactor;
+function recomputePaymentStatus() {
+    const paymentStatus = {
+        'registerTotal': 0,
+        'presentTotal': 0,
+        'paidTotal': 0,
+    };
+
+    categoriesData.forEach(function (categoryObject) {
+        let categoryId = categoryObject['categoryId'];
+        let registerCheckbox = document.getElementById('register_checkbox_' + categoryId);
+        let presentCheckbox = document.getElementById('present_checkbox_' + categoryId);
+        let paidCheckbox = document.getElementById('paid_checkbox_' + categoryId);
+        if (registerCheckbox.checked) {
+            paymentStatus['registerTotal'] += currentFee(categoryId);
+            if (presentCheckbox.checked) {
+                paymentStatus['presentTotal'] += currentFee(categoryId);
+            }
+            if (paidCheckbox.checked) {
+                paymentStatus['paidTotal'] += currentFee(categoryId);
+            }
+        }
+        paymentStatus['currentActualTotal'] = paymentStatus['paidTotal'] - playerObject['paymentStatus']['totalActualPaid'];
+    });
+
+    document.getElementById('register_total').firstChild.nodeValue = paymentStatus['registerTotal'];
+    document.getElementById('present_total').firstChild.nodeValue = paymentStatus['presentTotal'];
+    document.getElementById('paid_total').firstChild.nodeValue = paymentStatus['paidTotal'];
+    let due_total_value = paymentStatus['presentTotal'] - playerObject['paymentStatus']['totalActualPaid'];
+    let due_total_cell = document.getElementById('due_total');
+    due_total_cell.firstChild.nodeValue = due_total_value;
+    due_total_cell.style.backgroundColor = due_total_value > 0 ? 'hsl(25, 100%, 80%)' : 'hsl(140, 100%, 80%)';
+
+    document.getElementById('actual_total_field').value = paymentStatus['currentActualTotal'];
+}
+
+
+function ableCheckbox(checkbox, able) {
+    if (checkbox == null) { return; }
+
+    if (able) {
+        if (!(checkbox.getAttribute('data-checkbox-type') == 'paid' && initialChecked(checkbox))) {
+            checkbox.removeAttribute('disabled');
+            checkbox.parentElement.style.backgroundColor = 'white';
+        }
+        checkbox.checked = initialChecked(checkbox);
+        onCheckboxChange(checkbox);
     } else {
-        paymentStatus[checkboxType + '_total'] -= currentFee(categoryId) * oppositeFactor;
+        checkbox.setAttribute('disabled', '');
+        checkbox.checked = false;
+        checkbox.parentElement.style.backgroundColor = '#d3d3d3';
+        onCheckboxChange(checkbox);
     }
-    document.getElementById(checkboxType + '_total').firstChild.nodeValue = paymentStatus[checkboxType + '_total'];
-    if (checkboxType == 'paid') {
-        currentPaymentField.value = paymentStatus['paid_total'] - playerObject['paymentStatus']['totalActualPaid'];
-    } else if (checkboxType == 'present') {
-        currentPaymentField.setAttribute('max', paymentStatus['present_total'] - playerObject['paymentStatus']['totalActualPaid']);
-    }
-}
-
-function disableCheckbox(checkbox) {
-    if (checkbox == null) { return; }
-    checkbox.setAttribute('disabled', '');
-    processFeeChange(checkbox, false);
-    checkbox.checked = false;
-    checkbox.parentElement.style.backgroundColor = '#d3d3d3';
-    onCheckboxChange(checkbox);
-}
-
-function enableCheckbox(checkbox) {
-    if (checkbox == null) { return; }
-    if (!(checkbox.getAttribute('data-checkbox-type') == 'paid' && initialChecked(checkbox))) {
-        checkbox.removeAttribute('disabled');
-        checkbox.parentElement.style.backgroundColor = 'white';
-    }
-    processFeeChange(checkbox, initialChecked(checkbox));
-    checkbox.checked = initialChecked(checkbox);
-    onCheckboxChange(checkbox);
 }
 
 function onCheckboxChange(checkbox) {
@@ -112,20 +127,33 @@ function onCheckboxChange(checkbox) {
         checkboxLabel.firstChild.nodeValue = ' ';
     }
 
-    let childCheckbox = null;
+    let childCheckboxes = [];
     if (checkboxType == 'register') {
-        childCheckbox = document.getElementById('present_checkbox_' + categoryId);
+        childCheckboxes = [
+            document.getElementById('present_checkbox_' + categoryId),
+            document.getElementById('absent_checkbox_' + categoryId),
+        ];
     } else if (checkboxType == 'present') {
-        childCheckbox = document.getElementById('paid_checkbox_' + categoryId);
+        childCheckboxes = [document.getElementById('paid_checkbox_' + categoryId)];
     } else {
         return;
     }
+
+    childCheckboxes.forEach(childCheckbox => ableCheckbox(childCheckbox, checkbox.checked));
+}
+
+function handlePresentAbsent(checkbox) {
+    let categoryId = checkbox.id.slice(-1);
+    let checkboxType = checkbox.getAttribute('data-checkbox-type');
+    onCheckboxChange(checkbox);
+
     if (checkbox.checked) {
-        enableCheckbox(childCheckbox);
-    } else {
-        disableCheckbox(childCheckbox);
+        let otherCheckbox = document.getElementById((checkboxType == 'absent' ? 'present' : 'absent') +'_checkbox_' + categoryId);
+        otherCheckbox.checked = false;
+        onCheckboxChange(otherCheckbox);
     }
 }
+
 
 function handleColor(checkbox) {
     let categoryId = checkbox.id.slice(-1);
@@ -134,7 +162,6 @@ function handleColor(checkbox) {
     if (categoryId in sameColor) {
         let otherCheckbox = document.getElementById('register_checkbox_' + sameColor[categoryId]);
         if (checkbox.checked) {
-            processFeeChange(otherCheckbox, false);
             otherCheckbox.checked = false;
             onCheckboxChange(otherCheckbox);
         }
@@ -143,12 +170,15 @@ function handleColor(checkbox) {
 
 function onclickCheckboxWrapper(checkboxType, categoryId) {
     let checkbox = document.getElementById(checkboxType + '_checkbox_' + categoryId);
-    processFeeChange(checkbox, !checkbox.checked, -1);
     if (checkboxType == 'register') {
         handleColor(checkbox);
+    } else if (checkboxType == 'present' || checkboxType == 'absent') {
+        handlePresentAbsent(checkbox);
     } else {
         onCheckboxChange(checkbox);
     }
+    recomputePaymentStatus();
+    addExitConfirmation();
 }
 
 function deletePlayer() {
@@ -159,30 +189,62 @@ function deletePlayer() {
         confirmMessage = "Voulez-vous vraiment supprimer cette compétitrice de la base de données ? Toutes les informations sur les inscriptions seront perdues";
     }
     if (confirm(confirmMessage)) {
-        fetch('/api/players/' + licence_no, {method: 'DELETE'}).then(() =>
+        fetch('/api/admin/players/' + licenceNo, {method: 'DELETE'}).then(() =>
         {
-            console.log('Successfully deleted player' + licence_no);
+            console.log('Successfully deleted player with licence n°:' + licenceNo);
             window.location.href = "/admin/inscrits";
         });
     }
 }
 
-function processPlayerInfo() {
-    console.log(playerObject);
-    let playerInfoTable = document.getElementById('player_info_table');
+async function generateBibNo() {
+    if (!playerInDatabase) {
+        let success = await submitPlayer();
+        if (!success) { return; }
+        else { playerInDatabase = true; }
+    }
 
-    document.getElementById('register_total').firstChild.nodeValue = playerObject['paymentStatus']['totalRegistered'];
-    document.getElementById('present_total').firstChild.nodeValue = playerObject['paymentStatus']['totalPresent'];
-    document.getElementById('paid_total').firstChild.nodeValue = playerObject['paymentStatus']['totalPaid'];
-    document.getElementById('previous_actual_total').firstChild.nodeValue = playerObject['paymentStatus']['totalActualPaid'];
-    currentPaymentField = document.getElementById('actual_total_field');
-    currentPaymentField.value = playerObject['paymentStatus']['totalPaid'] - playerObject['paymentStatus']['totalActualPaid'];
-    currentPaymentField.setAttribute('max', playerObject['paymentStatus']['totalPresent'] - playerObject['paymentStatus']['totalActualPaid']);
+    response = await fetch('/api/admin/bibs/' + licenceNo, {method: 'PUT'});
+    if (response.ok) {
+        let data = await response.json();
+        console.log('Successfully generated bib number');
+        let bibNoCell = document.getElementById('bib_no_cell');
+        bibNoCell.innerHTML = data['bibNo'];
+        bibNoCell.style.backgroundColor = 'white';
+    } else {
+        let data = await response.json();
+        window.alert('An unexpected error occured while trying to generate bib number:' + response.status + ' ' + JSON.stringify(data));
+    }
+}
+
+function processPlayerInfo() {
+    let playerInfoTable = document.getElementById('player_info_table');
 
     for (const categoryId in playerObject['registeredEntries']) {
         let registerCheckbox = document.getElementById('register_checkbox_' + categoryId);
         registerCheckbox.checked = true;
         onclickCheckboxWrapper('register', categoryId);
+    }
+
+    recomputePaymentStatus();
+
+    if (showBib) {
+        let row = document.createElement('tr');
+        row.appendChild(document.createElement('td').appendChild(document.createTextNode('N° dossard')));
+        let bibNoCell = document.createElement('td');
+        bibNoCell.setAttribute('id', 'bib_no_cell');
+
+        if (playerObject['bibNo'] === null) {
+            let generateBibNoButton = document.createElement('button');
+            generateBibNoButton.setAttribute('onclick', 'generateBibNo()');
+            generateBibNoButton.appendChild(document.createTextNode('Générer N° dossard'));
+            bibNoCell.appendChild(generateBibNoButton);
+            bibNoCell.style.backgroundColor = 'red';
+        } else {
+            bibNoCell.appendChild(document.createTextNode(playerObject['bibNo']));
+        }
+        row.appendChild(bibNoCell);
+        playerInfoTable.appendChild(row);
     }
 
     relevantPlayerFields.forEach(
@@ -192,7 +254,8 @@ function processPlayerInfo() {
             fieldNameCell.appendChild(document.createTextNode(enToFr[fieldName]));
             row.appendChild(fieldNameCell);
             let fieldValueCell = document.createElement('td');
-            fieldValueCell.appendChild(document.createTextNode(playerObject[fieldName]));
+            let fieldString = playerObject[fieldName] || (fieldName == 'email' ? `${playerObject['firstName'].toLowerCase()}@samplehost.com` : '+33000000000');
+            fieldValueCell.appendChild(document.createTextNode(fieldString));
             row.appendChild(fieldValueCell);
             playerInfoTable.appendChild(row);
         });
@@ -202,59 +265,73 @@ function processPlayerInfo() {
     } else {
         deleteButtonText = document.createTextNode('Supprimer compétiteur \uD83D\uDDD1');
     }
+
+    document.getElementById('previous_actual_total').firstChild.nodeValue = playerObject['paymentStatus']['totalActualPaid'];
+
     document.getElementById('delete_player_button').appendChild(deleteButtonText);
+}
+
+function createCheckboxCell(categoryId, checkboxType) {
+    let cell = document.createElement('td');
+    cell.setAttribute('id', checkboxType + '_cell_' + categoryId);
+    let checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.id = checkboxType + '_checkbox_' + categoryId;
+    checkbox.setAttribute('data-checkbox-type', checkboxType)
+    checkbox.setAttribute('oninput', 'onclickCheckboxWrapper("' + checkboxType + '", "' + categoryId + '")');
+    cell.appendChild(checkbox);
+    let label = document.createElement('label');
+    label.id = checkbox.id + '_label';
+    label.setAttribute('for', checkbox.id);
+    label.appendChild(document.createTextNode(' '));
+    cell.appendChild(label);
+
+    if (checkboxType != 'register') {
+        cell.style.backgroundColor = '#d3d3d3';
+        checkbox.setAttribute('disabled', '');
+    }
+
+    return cell;
+}
+
+function updateEntryCountCell(categoryObject, entryCountCell=null) {
+    let categoryId = categoryObject['categoryId'];
+
+    let entryCount = categoryObject['entryCount'];
+    let maxPlayers = categoryObject['maxPlayers'];
+    let maxOverbooked = Math.floor(categoryObject['maxPlayers'] * (1 + categoryObject['overbookingPercentage'] / 100.));
+
+    let rankOrCount = categoryId in playerObject['registeredEntries']
+    let relevantEntryCount = rankOrCount ? playerObject['registeredEntries'][categoryId]['rank'] + 1 : entryCount;
+
+    let cellString = rankOrCount ? `${relevantEntryCount + 1}e` : `${relevantEntryCount} inscrits`;
+
+    let entryCountColor;
+
+    if (relevantEntryCount < maxPlayers) {
+        entryCountColor = 'hsl(140, 100%, 80%)';
+    } else if (relevantEntryCount > maxOverbooked) {
+        entryCountColor = 'hsl(25, 100%, 80%)';
+    } else {
+        entryCountColor = 'hsl(60, 100%, 80%)';
+    }
+
+    if (entryCountCell === null) {
+        entryCountCell = document.getElementById('entry_count_cell_' + categoryId);
+    }
+    entryCountCell.innerHTML = cellString;
+
+    entryCountCell.style.backgroundColor = entryCountColor;
 }
 
 function createCategoryRow(categoryObject) {
     let row = document.createElement('tr');
     let categoryId = categoryObject['categoryId'];
 
-    let registerCell = document.createElement('td');
-    registerCell.setAttribute('id', 'register_cell_' + categoryId);
-    let registerCheckbox = document.createElement('input');
-    registerCheckbox.type = 'checkbox';
-    registerCheckbox.id = 'register_checkbox_' + categoryId;
-    registerCheckbox.setAttribute('data-checkbox-type', 'register')
-    registerCheckbox.setAttribute('oninput', 'onclickCheckboxWrapper("register", "' + categoryId + '")');
-    registerCell.appendChild(registerCheckbox);
-    let registerLabel = document.createElement('label');
-    registerLabel.id = registerCheckbox.id + '_label';
-    registerLabel.setAttribute('for', registerCheckbox.id);
-    registerLabel.appendChild(document.createTextNode(' '));
-    registerCell.appendChild(registerLabel);
-
-    let presentCell = document.createElement('td');
-    presentCell.setAttribute('id', 'present_cell_' + categoryId);
-    let presentCheckbox = document.createElement('input');
-    presentCheckbox.type = 'checkbox';
-    presentCheckbox.id = 'present_checkbox_' + categoryId;
-    presentCheckbox.setAttribute('data-checkbox-type', 'present')
-    presentCheckbox.setAttribute('oninput', 'onclickCheckboxWrapper("present", "' + categoryId + '")');
-    presentCell.appendChild(presentCheckbox);
-    let presentLabel = document.createElement('label');
-    presentLabel.id = presentCheckbox.id + '_label';
-    presentLabel.setAttribute('for', presentCheckbox.id);
-    presentLabel.appendChild(document.createTextNode(' '));
-    presentCell.appendChild(presentLabel);
-
-    let paidCell = document.createElement('td');
-    paidCell.setAttribute('id', 'paid_cell_' + categoryId);
-    let paidCheckbox = document.createElement('input');
-    paidCheckbox.type = 'checkbox';
-    paidCheckbox.id = 'paid_checkbox_' + categoryId;
-    paidCheckbox.setAttribute('data-checkbox-type', 'paid')
-    paidCheckbox.setAttribute('oninput', 'onclickCheckboxWrapper("paid", "' + categoryId + '")');
-    paidCell.appendChild(paidCheckbox);
-    let paidLabel = document.createElement('label');
-    paidLabel.id = paidCheckbox.id + '_label';
-    paidLabel.setAttribute('for', paidCheckbox.id);
-    paidLabel.appendChild(document.createTextNode(' '));
-    paidCell.appendChild(paidLabel);
-
-    presentCell.style.backgroundColor = '#d3d3d3';
-    presentCheckbox.setAttribute('disabled', '');
-    paidCell.style.backgroundColor = '#d3d3d3';
-    paidCheckbox.setAttribute('disabled', '');
+    let registerCell = createCheckboxCell(categoryId, 'register');
+    let presentCell = createCheckboxCell(categoryId, 'present');
+    let absentCell = createCheckboxCell(categoryId, 'absent');
+    let paidCell = createCheckboxCell(categoryId, 'paid');
 
     let idCell = document.createElement('td');
     idCell.setAttribute('id', 'id_cell_' + categoryId);
@@ -272,26 +349,17 @@ function createCategoryRow(categoryObject) {
         idCell.style.backgroundColor = color;
     };
 
-    let entryCount = categoryObject['entryCount'];
-    let maxPlayers = categoryObject['maxPlayers'];
-    let maxOverbooked = Math.floor(categoryObject['maxPlayers'] * (1 + categoryObject['overbookingPercentage'] / 100.));
-
-    let entryCountColor;
-
-    if (entryCount < maxPlayers) {
-        entryCountColor = 'hsl(140, 100%, 80%)';
-    } else if (entryCount > maxOverbooked) {
-        entryCountColor = 'hsl(25, 100%, 80%)';
-    } else {
-        entryCountColor = 'hsl(60, 100%, 80%)';
-    }
-
     let entryCountCell = document.createElement('td');
     entryCountCell.setAttribute('id', 'entry_count_cell_' + categoryId);
-    entryCountCell.appendChild(document.createTextNode(entryCount + ' / ' + maxPlayers + ' (' + maxOverbooked + ')'));
     row.appendChild(entryCountCell);
 
-    entryCountCell.style.backgroundColor = entryCountColor;
+    updateEntryCountCell(categoryObject, entryCountCell);
+
+    let maxPlayersCell = document.createElement('td');
+    maxPlayersCell.setAttribute('id', 'max_players_cell_' + categoryId);
+    maxOverbooked = Math.floor(categoryObject['maxPlayers'] * (1 + categoryObject['overbookingPercentage'] / 100.));
+    maxPlayersCell.appendChild(document.createTextNode(categoryObject['maxPlayers'] + ' (' + maxOverbooked + ')'));
+    row.appendChild(maxPlayersCell);
 
     let pointsCell = document.createElement('td');
     pointsCell.setAttribute('id', 'points_cell_' + categoryId);
@@ -307,7 +375,7 @@ function createCategoryRow(categoryObject) {
     if (playerObject['nbPoints'] < minPoints || playerObject['nbPoints'] > maxPoints) {
         pointsCell.style.backgroundColor = 'red';
         registerCell.style.backgroundColor = '#d3d3d3';
-        registerCheckbox.setAttribute('disabled', '');
+        registerCell.firstChild.setAttribute('disabled', '');
         pointsString = pointsString + ' \u2717';
     } else {
         pointsString = pointsString + ' \u2713';
@@ -322,11 +390,12 @@ function createCategoryRow(categoryObject) {
     if (categoryObject['womenOnly'] && playerObject['gender'] == 'M') {
         womenOnlyCell.style.backgroundColor = 'red';
         registerCell.style.backgroundColor = '#d3d3d3';
-        registerCheckbox.setAttribute('disabled', '');
+        registerCell.firstChild.setAttribute('disabled', '');
     }
 
     row.appendChild(registerCell);
     row.appendChild(presentCell);
+    row.appendChild(absentCell);
     row.appendChild(paidCell);
 
     return row;
@@ -362,71 +431,223 @@ function setUpCategoriesTable() {
         });
 }
 
-function submitEntries() {
-    let categoryIdsToRegister = [];
-    let categoryIdsToDelete = [];
+function exitConfirmation (e) {
+    let confirmationMessage = 'Voulez-vous vraiment quitter la page? Les changements non sauvegardés seront perdus';
+    (e).returnValue = confirmationMessage;
+    return confirmationMessage;
+}
 
-    categoriesData.forEach(function (categoryObject) {
-        let categoryId = categoryObject['categoryId'];
-        let checkbox = document.getElementById('register_checkbox_' + categoryId);
-        if (checkbox.checked) {
-            categoryIdsToRegister.push(categoryId);
-        } else if (initialRegisteredCategoryIds.includes(categoryId)) {
-            categoryIdsToDelete.push(categoryId);
+function addExitConfirmation() {
+    window.onbeforeunload = exitConfirmation;
+}
+
+function removeExitConfirmation() {
+    window.onbeforeunload = null;
+}
+
+async function submitPlayer() {
+    console.log("Submitting player");
+    let playerPayload = {
+        'licenceNo': playerObject.licenceNo,
+        'firstName': playerObject.firstName,
+        'lastName': playerObject.lastName,
+        'gender': playerObject.gender,
+        'club': playerObject.club,
+        'nbPoints': playerObject.nbPoints,
+        'email': `${playerObject['firstName'].toLowerCase()}@samplehost.com`,
+        'phone': '+33000000000'
+    };
+    try {
+        let response = await fetch('/api/admin/players', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(playerPayload)
+        })
+        if (response.ok) {
+            let responseData = await response.json();
+            console.log(responseData);
+            console.log("Player successfully added");
+            return true;
+        } else {
+            let responseData = await response.json();
+            console.error("Error:", responseData);
+            window.alert('An unexpected error occured while trying to submit player:' + response.status + ' ' + JSON.stringify(responseData));
+            return false;
         }
+
+    } catch (error) {
+        console.error("Error:", error);
+        window.alert('An unexpected error occured while trying to submit player:' + error);
+        return false;
+    }
+}
+
+async function deleteEntries(categoryIds) {
+    let response = await fetch('/api/admin/entries/' + licenceNo, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({"categoryIds": categoryIds}),
     });
 
-    let registerData = {
-        'categoryIds': categoryIdsToRegister,
-    };
+    if (response.ok) {
+        let data = await response.json();
+        console.log('Successfully deleted entries', data);
+        return true;
+    } else {
+        let data = await response.json();
+        window.alert('An unexpected error occured while trying to delete entries:' + response.status + ' ' + JSON.stringify(data));
+        return false;
+    }
+}
 
-    let deleteData = {
-        'categoryIds': categoryIdsToDelete,
-    };
-
-    fetch('/api/entries/' + licence_no, {
+async function registerEntries(categoryIds) {
+    let response = await fetch('/api/admin/entries/' + licenceNo, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(registerData),
-    }).then((response) => response.json())
-    .then((data) => {
-        if ('error' in data) {
-            console.error('Could not register new entries: ' + data.error);
-        } else {
-            console.log('Successfully registered new entries');
-            console.log(data);
-            fetch('/api/entries/' + licence_no, {
-                method: 'DELETE',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(deleteData),
-            }).then((response) => response.json())
-            .then((data) => {
-                if ('error' in data) {
-                    console.error('Could not delete entries: ' + data.error);
-                } else {
-                    console.log('Successfully deleted entries');
-                    window.location.href = "/admin/inscrits";
-                }
-            });
-        }
+        body: JSON.stringify({"categoryIds": categoryIds}),
     });
+
+    if (response.ok) {
+        let data = await response.json();
+        console.log('Successfully registered new entries', data);
+        return true;
+    } else {
+        let data = await response.json();
+        window.alert('An unexpected error occured while trying to registered entries:' + response.status + ' ' + JSON.stringify(data));
+        return false;
+    }
 }
 
-const categoriesPromise = fetch("/api/categories");
-const playerPromise = fetch("/api/players/" + licence_no);
+async function markAsPresent(categoryIdsPresence) {
+    let response = await fetch('/api/admin/present/' + licenceNo, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            "categoryIdsPresence": categoryIdsPresence,
+        }),
+    });
 
-Promise.all([categoriesPromise, playerPromise]).then(
-    async(responses) =>
-    {
-        categoriesData = await responses[0].json();
-        playerObject = await responses[1].json();
+    if (response.ok) {
+        let data = await response.json();
+        console.log('Successfully marked/unmarked entries as present', data);
+        return true;
+    } else {
+        let data = await response.json();
+        window.alert('An unexpected error occured while trying to mark/unmark entries as present:' + response.status + ' ' + JSON.stringify(data));
+        return false;
+    }
+}
+
+async function processPayments(categoryIds, totalActualPaid) {
+    let response = await fetch('/api/admin/pay/' + licenceNo, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            "categoryIds": categoryIds,
+            "totalActualPaid": totalActualPaid,
+        }),
+    });
+
+    if (response.ok) {
+        let data = await response.json();
+        console.log('Successfully processed payments', data);
+        return true;
+    } else {
+        let data = await response.json();
+        window.alert('An unexpected error occured while trying to process payments:' + response.status + ' ' + JSON.stringify(data));
+        return false;
+    }
+}
+
+async function submitChanges() {
+    removeExitConfirmation();
+    const categoryIdsToRegister = [];
+    const categoryIdsToDelete = [];
+    const categoryIdsPresence = {};
+    const categoryIdsToMarkAsPaid = [];
+
+    categoriesData.forEach(function (categoryObject) {
+        let categoryId = categoryObject['categoryId'];
+        let registerCheckbox = document.getElementById('register_checkbox_' + categoryId);
+        let presentCheckbox = document.getElementById('present_checkbox_' + categoryId);
+        let absentCheckbox = document.getElementById('absent_checkbox_' + categoryId);
+        let paidCheckbox = document.getElementById('paid_checkbox_' + categoryId);
+        if (registerCheckbox.checked) {
+            categoryIdsPresence[categoryId] = presentCheckbox.checked ? true : (absentCheckbox.checked ? false : null);
+            if (paidCheckbox.checked) {
+                categoryIdsToMarkAsPaid.push(categoryId);
+            }
+            categoryIdsToRegister.push(categoryId);
+        } else if (initialChecked(registerCheckbox)) {
+            categoryIdsToDelete.push(categoryId);
+        }
+    });
+
+    let totalActualPaid = parseInt(document.getElementById('actual_total_field').value) + playerObject['paymentStatus']['totalActualPaid'];
+
+    try {
+        if (!playerInDatabase) {
+            let success = await submitPlayer();
+            if (!success) { return; }
+        }
+        console.log('Submitting changes');
+        let success = await deleteEntries(categoryIdsToDelete);
+        if (!success) { return; }
+        success = await registerEntries(categoryIdsToRegister);
+        if (!success) { return; }
+        success = await markAsPresent(categoryIdsPresence);
+        if (!success) { return; }
+        success = await processPayments(categoryIdsToMarkAsPaid, totalActualPaid);
+        if (success) {
+            console.log('Successfully submitted changes');
+            window.location.reload();
+        }
+    } catch (error) {
+        window.alert('An unexpected error occured while trying to submit changes:' + error);
+        return;
+    }
+}
+
+async function fetchAll() {
+    let categoriesResponse = await fetch("/api/public/categories");
+    let playerResponse = await fetch("/api/admin/players/" + licenceNo);
+
+    if (categoriesResponse.ok && playerResponse.ok) {
+        categoriesData = await categoriesResponse.json();
         categoriesData = categoriesData["categories"];
-    }).then(() =>
-    {
+        playerObject = await playerResponse.json();
+        console.log(categoriesData);
+        console.log(playerObject);
+        playerInDatabase = !(playerObject['email'] === null);
         setUpCategoriesTable();
         processPlayerInfo();
-    });
+    } else if (!categoriesResponse.ok) {
+        if (categoriesResponse.status == 400) {
+            let data = await categoriesResponse.json();
+            console.error("400 Bad Request: " + data);
+        } else {
+            console.error("Could not fetch categories: " + categoriesResponse.status);
+        }
+    } else {
+        if (playerResponse.status == 400) {
+            let data = await playerResponse.json();
+            console.error("400 Bad Request: " + data);
+        } else {
+            console.error("Could not fetch player: " + playerResponse.status);
+        }
+    }
+}
+
+fetchAll().then(() => {
+    showContent();
+});

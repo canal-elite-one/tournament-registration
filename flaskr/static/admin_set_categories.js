@@ -224,7 +224,7 @@ function submitForm() {
             }
             payloadObject['categories'].push(categoryObject);
         }
-        fetch('/api/categories', {
+        fetch('/api/admin/categories', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -262,4 +262,11 @@ function processExistingCategories(data) {
     }
 }
 
-fetch('/api/categories').then((response) => response.json()).then((data) => processExistingCategories(data));
+document.getElementById('set_categories_navbar_link').setAttribute('class', 'navbar-link-current');
+
+fetch('/api/public/categories')
+    .then((response) => response.json())
+    .then((data) => {
+        console.log(data);
+        processExistingCategories(data);
+    }).then(() => showContent());

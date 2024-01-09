@@ -1,0 +1,350 @@
+let data;
+
+const searchCols = ["licenceNo", "firstName", "lastName", "club"];
+const numericCols = ["licenceNo", "nbPoints"];
+
+if (hasRegistrationEnded) {
+    searchCols.push("bibNo");
+    numericCols.push("bibNo");
+}
+
+function onclickRow(licenceNo) {
+    window.location.href = '/admin/inscrits/' + licenceNo;
+}
+
+function appendOneRow(categoryTableBody, entryObject, categoryId, searchString, classToAppend) {
+    let foundStringFlag = false;
+    for (let x in searchCols) {
+        let colName = searchCols[x];
+        let cellValue = (numericCols.includes(colName) ? entryObject[colName].toString() : entryObject[colName]).toLowerCase();
+        if (cellValue.startsWith(searchString)) {
+            foundStringFlag = true;
+            break;
+        }
+    }
+
+    if (!foundStringFlag) {
+        return 0;
+    }
+
+    let entryRow = document.createElement('tr');
+    entryRow.setAttribute('id', 'players_table_row_' + entryObject['licenceNo'] + '_' + categoryId);
+    entryRow.setAttribute('onclick', 'onclickRow(' + entryObject['licenceNo'] + ')');
+    entryRow.classList.add('players_table_row');
+    entryRow.classList.add(classToAppend + '_row_' + categoryId);
+
+    if (hasRegistrationEnded) {
+        let bibNoCell = document.createElement('td');
+        bibNoCell.innerHTML = entryObject['bibNo'] || '-';
+        entryRow.appendChild(bibNoCell);
+    }
+
+    let licenceNoCell = document.createElement('td');
+    licenceNoCell.innerHTML = entryObject['licenceNo'];
+    entryRow.appendChild(licenceNoCell);
+
+    let firstNameCell = document.createElement('td');
+    firstNameCell.innerHTML = entryObject['firstName'];
+    entryRow.appendChild(firstNameCell);
+
+    let lastNameCell = document.createElement('td');
+    lastNameCell.innerHTML = entryObject['lastName'];
+    entryRow.appendChild(lastNameCell);
+
+    let pointsCell = document.createElement('td');
+    pointsCell.innerHTML = entryObject['nbPoints'];
+    entryRow.appendChild(pointsCell);
+
+    let clubCell = document.createElement('td');
+    clubCell.innerHTML = entryObject['club'];
+    entryRow.appendChild(clubCell);
+
+    if (hasRegistrationEnded) {
+        let presentCell = document.createElement('td');
+        if (entryObject['markedAsPresent'] === null) {
+            presentCell.innerHTML = '?';
+        } else {
+            presentCell.innerHTML = entryObject['markedAsPresent'] ? 'Oui' : 'Non';
+        }
+        entryRow.appendChild(presentCell);
+
+        let paidCell = document.createElement('td');
+        paidCell.innerHTML = entryObject['markedAsPaid'] ? 'Oui' : 'Non';
+        entryRow.appendChild(paidCell);
+
+        if (entryObject['markedAsPresent'] && !entryObject['markedAsPaid']) {
+            presentCell.style.backgroundColor = '#ffcccc';
+            paidCell.style.backgroundColor = '#ffcccc';
+        }
+    }
+
+    let registrationDatetimeCell = document.createElement('td');
+    registrationDatetimeCell.innerHTML = entryObject['registrationTime'].replace('T', ' ').slice(0, 19);
+    entryRow.appendChild(registrationDatetimeCell);
+
+    categoryTableBody.appendChild(entryRow);
+    return 1;
+}
+
+function createSeparatorRow(separatorText, nbCols, categoryId, classToAppend) {
+    let separatorRow = document.createElement('tr');
+    let separator = document.createElement('th');
+    separator.setAttribute('colspan', nbCols);
+    separator.innerHTML = separatorText;
+    separator.setAttribute('class', 'players_table_separator');
+    separatorRow.appendChild(separator);
+    separatorRow.addEventListener('click', function() {
+        let rows = document.getElementsByClassName(classToAppend + '_row_' + categoryId);
+        for (let i=0; i<rows.length; i++) {
+            rows[i].style.display = rows[i].style.display === 'none' ? 'table-row' : 'none';
+        }
+    });
+    return separatorRow;
+}
+
+function collapseTable(categoryId) {
+    let categoryTableBody = document.getElementById('category_table_body_' + categoryId);
+    let categoryColumnsHeaderRow = document.getElementById('category_columns_header_row_' + categoryId);
+    if (categoryTableBody.style.display === 'none') {
+        categoryTableBody.style.display = 'table-row-group';
+        categoryColumnsHeaderRow.style.display = 'table-row';
+    } else {
+        categoryTableBody.style.display = 'none';
+        categoryColumnsHeaderRow.style.display = 'none';
+    }
+}
+
+
+function createOneTable(categoryObject, searchString="") {
+    let nbCols = hasRegistrationEnded ? 9 : 6;
+    let categoryId = categoryObject['categoryId'];
+
+    let categoryTableDiv = document.createElement('div');
+    categoryTableDiv.setAttribute('class', 'category_table_div');
+    categoryTableDiv.setAttribute('id', 'category_table_div_' + categoryId);
+
+    let categoryTable = document.createElement('table');
+    categoryTable.setAttribute('id', 'category_table_' + categoryId);
+    categoryTableDiv.appendChild(categoryTable);
+
+    let categoryTableHeader = document.createElement('thead');
+    categoryTable.appendChild(categoryTableHeader);
+    categoryTableHeader.setAttribute('onclick', 'collapseTable("' + categoryId + '")');
+
+    let titleString;
+    let columnsString;
+
+    if (hasRegistrationEnded) {
+        let nbPresentString = `Présents : ${categoryObject['presentEntryCount']}/${categoryObject['maxPlayers']}`;
+        let absentString = ' (absents : ' + categoryObject['absentEntries'].length + ', ';
+        let nbRegisteredString = 'inscrits : ' + categoryObject['entryCount'] + ')';
+        if (categoryObject['entryCount'] > categoryObject['maxPlayers']) {
+            nbRegisteredString = '<span style="color: red;">' + nbRegisteredString + '</span>';
+        }
+
+        titleString = 'Tableau ' + categoryId + ' - ' + nbPresentString + absentString + nbRegisteredString;
+        titleString += "<button onclick='downloadOneCsv(\"" + categoryId + "\")'>Générer CSV</button>";
+
+        columnsString =
+            `<tr>
+                <th>N° dossard</th>
+                <th>N° licence</th>
+                <th>Nom</th>
+                <th>Prénom</th>
+                <th>Points</th>
+                <th>Club</th>
+                <th>Présent</th>
+                <th>Payé</th>
+                <th>Date/heure d'inscription</th>
+            </tr>`;
+    } else {
+        titleString = 'Tableau ' + categoryId + ' - '
+        let registeredString = 'Inscrits : ' + categoryObject['entryCount'] + '/' + categoryObject['maxPlayers'];
+        if (categoryObject['entryCount'] > categoryObject['maxPlayers']) {
+            registeredString = '<span style="color: red;">' + registeredString + '</span>';
+        }
+        titleString += registeredString;
+        columnsString =
+        `<tr>
+            <th>N° licence</th>
+            <th>Nom</th>
+            <th>Prénom</th>
+            <th>Points</th>
+            <th>Club</th>
+            <th>Date/heure d'inscription</th>
+        </tr>`;
+    }
+
+    let categoryInfoHeaderRow = document.createElement('tr');
+    let categoryInfoHeader = document.createElement('th');
+    categoryInfoHeader.setAttribute('colspan', nbCols);
+    categoryInfoHeader.innerHTML = titleString;
+    categoryInfoHeaderRow.appendChild(categoryInfoHeader);
+    categoryTableHeader.appendChild(categoryInfoHeaderRow);
+
+    let categoryColumnsHeaderRow = document.createElement('tr');
+    categoryColumnsHeaderRow.setAttribute('id', 'category_columns_header_row_' + categoryId)
+    categoryColumnsHeaderRow.innerHTML = columnsString;
+    categoryTableHeader.appendChild(categoryColumnsHeaderRow);
+
+    let categoryTableBody = document.createElement('tbody');
+    categoryTableBody.setAttribute('id', 'category_table_body_' + categoryId);
+    categoryTable.appendChild(categoryTableBody);
+
+    let nbFiltered=0;
+
+    if (categoryObject['entryCount'] <= categoryObject['maxPlayers']) {
+        // If noone is absent, no need for a separator as there are no distinctions between registered players.
+        if (categoryObject['absentEntries'].length > 0) {
+            categoryTableBody.appendChild(createSeparatorRow('Inscrits (' + categoryObject['entries'].length + ')', nbCols, categoryId, 'entries'));
+        }
+        // categoryObject['entries'] contains all registered players except those who are absent.
+        categoryObject['entries'].forEach(entryObject => {
+            nbFiltered += appendOneRow(categoryTableBody, entryObject, categoryId, searchString, 'entries');
+        });
+    } else {
+        categoryTableBody.appendChild(createSeparatorRow('Hors liste d\'attente (' + categoryObject['normalEntries'].length + ')', nbCols, categoryId, 'normal'));
+
+        categoryObject['normalEntries'].forEach(entryObject => {
+            nbFiltered += appendOneRow(categoryTableBody, entryObject, categoryId, searchString, 'normal');
+        });
+
+        if (categoryObject['overridenEntries'].length > 0) {
+            categoryTableBody.appendChild(createSeparatorRow('Repêchés de la liste d\'attente (' + categoryObject['overridenEntries'].length + ')', nbCols, categoryId, 'overriden'));
+
+            categoryObject['overridenEntries'].forEach(entryObject => {
+                nbFiltered += appendOneRow(categoryTableBody, entryObject, categoryId, searchString, 'overriden');
+            });
+
+            categoryTableBody.appendChild(createSeparatorRow('Repoussés en liste d\'attente (' + categoryObject['squeezedEntries'].length + ')', nbCols, categoryId, 'squeezed'));
+
+            categoryObject['squeezedEntries'].forEach(entryObject => {
+                nbFiltered += appendOneRow(categoryTableBody, entryObject, categoryId, searchString, 'squeezed');
+            });
+        }
+        categoryTableBody.appendChild(createSeparatorRow('Liste d\'attente (' + categoryObject['waitingEntries'].length + ')', nbCols, categoryId, 'waiting'));
+
+        categoryObject['waitingEntries'].forEach(entryObject => {
+            nbFiltered += appendOneRow(categoryTableBody, entryObject, categoryId, searchString, 'waiting');
+        });
+    }
+
+    if (categoryObject['absentEntries'].length > 0) {
+        categoryTableBody.appendChild(createSeparatorRow('Absents (' + categoryObject['absentEntries'].length + ')', nbCols, categoryId, 'absent'));
+
+        categoryObject['absentEntries'].forEach(entryObject => {
+            nbFiltered += appendOneRow(categoryTableBody, entryObject, categoryId, searchString, 'absent');
+        });
+    }
+    if (nbFiltered === 0 && searchString.length > 0) {
+        return 0;
+    } else {
+        document.getElementById('players_by_category_div').appendChild(categoryTableDiv);
+        return 1;
+    }
+}
+
+function filterData() {
+    let searchString = document.getElementById('players_by_category_search').value.toLowerCase();
+    document.getElementById('players_by_category_div').innerHTML = "";
+
+    let nbFiltered = 0;
+    data.forEach(categoryObject => {
+        nbFiltered += createOneTable(categoryObject, searchString);
+    });
+    if (nbFiltered === 0 && searchString.length > 0) {
+        document.getElementById('players_by_category_div').innerHTML = "<p>Aucun joueur ne correspond à votre recherche.</p>";
+    }
+}
+
+function generateCsv(categoryId) {
+    if (!hasRegistrationEnded) {
+        return;
+    }
+
+    let csvContent = 'data:text/csv;charset=utf-8,';
+    csvContent += 'N° dossard,N° licence,Nom,Prénom,Points,Club\n';
+    let csvRows = [];
+
+    let categoryObject = data.find(categoryObject => categoryObject['categoryId'] === categoryId);
+
+    let relevantEntries = 'entries' in categoryObject ? categoryObject['entries'] : categoryObject['normalEntries'].concat(categoryObject['overridenEntries']);
+
+    relevantEntries.forEach(entryObject => {
+        if (entryObject['markedAsPresent']) {
+            let csvRow = [];
+            csvRow.push(entryObject['bibNo'] || '-');
+            csvRow.push(entryObject['licenceNo']);
+            csvRow.push(entryObject['lastName']);
+            csvRow.push(entryObject['firstName']);
+            csvRow.push(entryObject['nbPoints']);
+            csvRow.push(entryObject['club']);
+            csvRows.push(csvRow.join(','));
+        }
+    });
+    csvContent += csvRows.join('\n');
+    console.log(csvContent);
+    return csvContent;
+}
+
+function downloadOneCsv(categoryId) {
+    let csvContent = generateCsv(categoryId);
+    if (csvContent) {
+        let encodedUri = encodeURI(csvContent);
+        let link = document.createElement('a');
+        link.setAttribute('href', encodedUri);
+        link.setAttribute('download', 'tableau_' + categoryId + '.csv');
+        document.body.appendChild(link);
+        link.click();
+    }
+}
+
+async function downloadAll() {
+    /*
+    let zip = new JSZip();
+    let directory = zip.folder('inscrits_par_tableaux');
+    data.forEach(categoryObject => {
+        let categoryId = categoryObject['categoryId'];
+        let csvContent = generateCsv(categoryId);
+        if (csvContent) {
+            directory.file('tableau_' + categoryId + '.csv', csvContent);
+        }
+    });
+    let content = await zip.generateAsync({type:"blob"});
+    saveAs(content, 'inscrits_par_tableaux.zip');
+    */
+   return;
+}
+
+function processData() {
+    let categoriesNavbar = document.getElementById('categories_navbar');
+
+    data.forEach(categoryObject=> {
+        let categoryId = categoryObject['categoryId'];
+
+        categoriesNavbar.innerHTML += '<li class="navbar-element"><a class="navbar-link" href="#category_table_div_' + categoryId + '">' + categoryId + '</a></li>';
+
+        createOneTable(categoryObject);
+    });
+}
+
+async function fetchData() {
+    const start = new Date();
+    let response = await fetch('/api/admin/by_category');
+    if (!response.ok) {
+        console.error(response.status + ' ' + response.statusText);
+    } else {
+        let json = await response.json();
+        data = json['categories'];
+        console.log(data);
+        processData();
+    }
+}
+
+document.getElementById('players_by_category_search').value = "";
+
+document.getElementById('players_by_categories_navbar_link').setAttribute('class', 'navbar-link-current');
+
+fetchData().then(() => {
+    showContent();
+});

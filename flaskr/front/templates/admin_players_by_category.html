@@ -1,0 +1,29 @@
+{% extends 'base_admin.html' %}
+
+{% block title %}Inscrits par Tableaux{% endblock %}
+
+{% block navbar %}
+<nav>
+    <ul class="navbar" id="categories_navbar">
+        <li class="navbar-element">
+            <h3 class="navbar-element">Tableaux</h3>
+        </li>
+    </ul>
+</nav>
+<nav>
+    <div class="navbar">
+        <input type="search" id="players_by_category_search" class="players_table_search" placeholder="Recherche" autofocus oninput="filterData()">
+        <button id="export_all_button" onclick="downloadAll()" disabled>Télécharger tous les tableaux en csv</button>
+    </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div id="players_by_category_div"></div>
+{% endblock %}
+
+{% block scripts %}
+<script>const hasRegistrationEnded = {{ has_registration_ended|lower }};</script>
+<script src="{{ url_for('static', filename='jszip.min.js') }}"></script>
+<script src="{{ url_for('static', filename='admin_players_by_category.js') }}"></script>
+{% endblock %}

@@ -1,160 +1,15 @@
-import os
-import subprocess
 from datetime import datetime
-from functools import cached_property
 
-from sqlalchemy import create_engine, Table, select, func
-from sqlalchemy.orm import DeclarativeBase, Session, Mapped, relationship
 from marshmallow import (
     Schema,
     fields,
+    validate,
+    ValidationError,
     pre_load,
     post_load,
     post_dump,
-    validate,
-    ValidationError,
 )
-
-db_url = os.environ.get("DATABASE_URL")
-migration_directory = os.environ.get("MIGRATION_DIR")
-
-
-def execute_dbmate(command):
-    subprocess.run(
-        [
-            "dbmate",
-            "-d",
-            migration_directory,
-            "--no-dump-schema",
-            "--url",
-            db_url,
-            command,
-        ],
-        env=os.environ.copy(),
-    )
-
-
-execute_dbmate("up")
-engine = create_engine(db_url)
-
-session = Session(engine)
-
-
-class AppWideInfo:
-    @cached_property
-    def registration_cutoff(self):
-        tournament_start = session.scalar(select(func.min(Category.start_time)))
-        if tournament_start is None:
-            return None
-        return tournament_start.replace(
-            hour=0,
-            minute=0,
-            second=0,
-            microsecond=0,
-        )
-
-
-app_info = AppWideInfo()
-
-
-class Base(DeclarativeBase):
-    pass
-
-
-class Category(Base):
-    start_time: Mapped[datetime]
-    base_registration_fee: Mapped[int]
-    category_id: Mapped[str]
-    late_registration_fee: Mapped[int]
-
-    entries = relationship("Entry", back_populates="category")
-
-    __table__ = Table("categories", Base.metadata, autoload_with=engine)
-
-    def __repr__(self):
-        schema = CategorySchema()
-        return str(schema.dump(self))
-
-    def present_entries(self):
-        return filter(lambda x: x.marked_as_present, self.entries)
-
-    def current_fee(self):
-        result = self.base_registration_fee
-        if datetime.now() > app_info.registration_cutoff:
-            result += self.late_registration_fee
-        return result
-
-
-class Player(Base):
-    licence_no: Mapped[int]
-    bib_no: Mapped[int]
-    total_actual_paid: Mapped[int]
-
-    entries = relationship(
-        "Entry",
-        back_populates="player",
-        cascade="all, delete",
-        passive_deletes=True,
-    )
-
-    __table__ = Table("players", Base.metadata, autoload_with=engine)
-
-    def __repr__(self):
-        schema = PlayerSchema()
-        return str(schema.dump(self))
-
-    def paid_entries(self):
-        return filter(lambda x: x.marked_as_paid, self.entries)
-
-    def present_entries(self):
-        return filter(lambda x: x.marked_as_present, self.entries)
-
-    def _fees_total_registered(self):
-        return sum(entry.fee() for entry in self.entries)
-
-    def _fees_total_present(self):
-        return sum(entry.fee() for entry in self.present_entries())
-
-    def _fees_total_paid(self):
-        return sum(entry.fee() for entry in self.paid_entries())
-
-    def payment_status(self):
-        return {
-            "totalActualPaid": self.total_actual_paid,
-            "totalRegistered": self._fees_total_registered(),
-            "totalPresent": self._fees_total_present(),
-            "totalPaid": self._fees_total_paid(),
-        }
-
-
-def get_player_not_found_error(licence_no):
-    return {
-        "error": f"No player with licence number {licence_no} exists in the database.",
-    }
-
-
-class Entry(Base):
-    entry_id: Mapped[int]
-    marked_as_present: Mapped[bool]
-    category_id: Mapped[str]
-    licence_no: Mapped[int]
-    marked_as_paid: Mapped[bool]
-    registration_time: Mapped[datetime]
-
-    player = relationship("Player", back_populates="entries")
-    category = relationship("Category", back_populates="entries")
-
-    __table__ = Table("entries", Base.metadata, autoload_with=engine)
-
-    def __repr__(self):
-        schema = EntrySchema()
-        return str(schema.dump(self))
-
-    def fee(self):
-        result = self.category.base_registration_fee
-        if self.registration_time > app_info.registration_cutoff:
-            result += self.category.late_registration_fee
-        return result
+from flaskr.api.db import Category, Player, Entry, app_info
 
 
 class SchemaWithReset(Schema):
@@ -229,20 +84,88 @@ class CategorySchema(SchemaWithReset):
     @post_dump(pass_original=True)
     def add_entry_count_current_fee(self, data, original, **kwargs):
         data["entryCount"] = len(original.entries)
+        data["presentEntryCount"] = len(list(original.present_entries()))
         data["currentFee"] = original.current_fee()
         return data
 
     @post_dump(pass_original=True)
     def add_players_info(self, data, original, **kwargs):
         if self.context.get("include_players", False):
-            if self.context.get("present_only", False):
-                entries = original.present_entries()
-            else:
-                entries = original.entries
-            entries = sorted(entries, key=lambda x: x.registration_time)
             e_schema = EntrySchema(many=True)
             e_schema.context["include_player"] = True
-            data["entries"] = e_schema.dump(entries)
+            if self.context.get("present_only", False):
+                entries = original.present_entries()
+                entries = sorted(entries, key=lambda x: x.registration_time)
+                data["entries"] = e_schema.dump(entries)
+            elif len(original.entries) <= original.max_players:
+                data["absentEntries"] = e_schema.dump(
+                    [
+                        entry
+                        for entry in original.entries
+                        if entry.marked_as_present is False
+                    ],
+                )
+                data["entries"] = e_schema.dump(
+                    sorted(
+                        filter(
+                            lambda x: x.marked_as_present is not False,
+                            original.entries,
+                        ),
+                        key=lambda x: x.registration_time,
+                    ),
+                )
+            else:
+                entries = original.entries
+                data["absentEntries"] = e_schema.dump(
+                    [entry for entry in entries if entry.marked_as_present is False],
+                )
+                entries = sorted(
+                    filter(lambda x: x.marked_as_present is not False, entries),
+                    key=lambda x: x.registration_time,
+                )
+                data["overridenEntries"] = e_schema.dump(
+                    [
+                        entry
+                        for entry in entries[original.max_players :]
+                        if entry.marked_as_present is True
+                    ],
+                )
+                data["waitingEntries"] = e_schema.dump(
+                    [
+                        entry
+                        for entry in entries[original.max_players :]
+                        if entry.marked_as_present is None
+                    ],
+                )
+                unknown_entries = [
+                    entry
+                    for entry in entries[: original.max_players]
+                    if entry.marked_as_present is None
+                ]
+                data["squeezedEntries"] = (
+                    e_schema.dump(
+                        unknown_entries[-len(data["overridenEntries"]) :],
+                    )
+                    if data["overridenEntries"]
+                    else []
+                )
+                normal_present_entries = [
+                    entry
+                    for entry in entries[: original.max_players]
+                    if entry.marked_as_present is True
+                ]
+                remaining_unknowns = (
+                    unknown_entries[: -len(data["overridenEntries"])]
+                    if data["overridenEntries"]
+                    else unknown_entries
+                )
+                data["normalEntries"] = e_schema.dump(
+                    sorted(
+                        normal_present_entries + remaining_unknowns,
+                        key=lambda x: x.registration_time,
+                    ),
+                )
+
         return data
 
     @post_dump(pass_many=True)
@@ -273,14 +196,32 @@ class PlayerSchema(SchemaWithReset):
 
     @post_dump(pass_original=True)
     def add_entries_info(self, data, original, **kwargs):
-        if self.context.get("include_entries", False):
+        if self.context.get("simple_entries", False):
+            data["registeredEntries"] = ", ".join(
+                [
+                    entry.category.category_id
+                    for entry in sorted(
+                        original.entries,
+                        key=lambda x: x.category.start_time,
+                    )
+                ],
+            )
+        elif self.context.get("include_entries", False):
             e_schema = EntrySchema(many=True)
             e_schema.context["nest"] = True
+            e_schema.context["include_rank"] = True
             data["registeredEntries"] = e_schema.dump(
                 sorted(original.entries, key=lambda x: x.category.start_time),
             )
+        return data
+
+    @post_dump(pass_original=True)
+    def add_payment_status(self, data, original, **kwargs):
+        if self.context.get("include_payment_status", False):
             del data["totalActualPaid"]
-            data["paymentStatus"] = original.payment_status()
+            if datetime.now() > app_info.registration_cutoff:
+                data["paymentStatus"] = original.payment_status()
+                data["leftToPay"] = original.left_to_pay()
         return data
 
 
@@ -304,6 +245,13 @@ class EntrySchema(SchemaWithReset):
         return data
 
     @post_dump(pass_original=True)
+    def add_rank(self, data, original, **kwargs):
+        if self.context.get("include_rank", False):
+            data["rank"] = original.rank()
+            return data
+        return data
+
+    @post_dump(pass_original=True)
     def add_player_info(self, data, original, **kwargs):
         if self.context.get("include_player", False):
             player = original.player
@@ -313,6 +261,14 @@ class EntrySchema(SchemaWithReset):
             data["nbPoints"] = player.nb_points
             data["club"] = player.club
             del data["categoryId"]
+        return data
+
+    @post_dump(pass_original=True)
+    def add_category_info(self, data, original, **kwargs):
+        if self.context.get("include_category_info", True):
+            category = original.category
+            data["startTime"] = category.start_time.isoformat()
+            data["alternateName"] = category.alternate_name
         return data
 
     @post_dump(pass_many=True)
@@ -325,3 +281,35 @@ class EntrySchema(SchemaWithReset):
                 result[category_id] = entry
             return result
         return data
+
+
+"""
+These schemas are here to validate json payload for api requests.
+They only check for presence and correct formatting of field,
+as well as static value checking. They do not do dynamic value checking,
+i.e. they do not ensure consistency between different columns or table in the db.
+"""
+
+
+class MakePaymentSchema(Schema):
+    category_ids = fields.List(
+        fields.Str,
+        data_key="categoryIds",
+        required=True,
+        allow_none=False,
+    )
+    total_actual_paid = fields.Int(
+        data_key="totalActualPaid",
+        required=True,
+        allow_none=False,
+        validate=validate.Range(min=0),
+    )
+
+
+class CategoryIdsSchema(Schema):
+    category_ids = fields.List(
+        fields.Str,
+        data_key="categoryIds",
+        required=True,
+        allow_none=False,
+    )
