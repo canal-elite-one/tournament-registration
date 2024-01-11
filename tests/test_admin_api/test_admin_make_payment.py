@@ -1,166 +1,243 @@
-from conftest import BaseTest
+from freezegun import freeze_time
+
+from tests.conftest import BaseTest, before_cutoff, after_cutoff
 from http import HTTPStatus
 import pytest
 
-from flaskr.api.db import get_player_not_found_error
+import flaskr.api.api_errors as ae
 
 overall_incorrect_licence = 9999999
+origin = "api_admin_make_payment"
 
 correct_payment_pay_all = (
-    4526124,
-    {"categoryIds": ["B", "F"], "totalActualPaid": 14},
+    7219370,
+    after_cutoff,
+    {"categoryIds": ["2", "B", "F"], "totalActualPaid": 21},
     {
         "bibNo": None,
-        "club": "USM OLIVET TENNIS DE TABLE",
-        "email": "nvzhltrsqr@mochsf.com",
-        "firstName": "Wihelbl",
+        "club": "LE MANS SARTHE TENNIS DE TABLE",
+        "email": "ridjfnxjge@vdoxwg.com",
+        "firstName": "Qqunjol",
         "gender": "F",
-        "lastName": "EZWLKRWE",
-        "licenceNo": 4526124,
-        "nbPoints": 1149,
+        "lastName": "CHYTWBCJ",
+        "leftToPay": 0,
+        "licenceNo": 7219370,
+        "nbPoints": 1103,
         "paymentStatus": {
-            "totalActualPaid": 14,
-            "totalPaid": 14,
-            "totalPresent": 14,
-            "totalRegistered": 14,
+            "totalActualPaid": 21,
+            "totalPaid": 21,
+            "totalPresent": 21,
+            "totalRegistered": 21,
         },
-        "phone": "+336919756238",
+        "phone": "+336177732321",
         "registeredEntries": {
-            "B": {
+            "2": {
+                "alternateName": None,
                 "entryFee": 7,
-                "licenceNo": 4526124,
+                "licenceNo": 7219370,
+                "markedAsPaid": True,
+                "markedAsPresent": True,
+                "rank": 9,
+                "registrationTime": "2023-06-26T09:48:53",
+                "startTime": "2024-01-07T10:15:00",
+            },
+            "B": {
+                "alternateName": "< 1500",
+                "entryFee": 7,
+                "licenceNo": 7219370,
                 "markedAsPaid": True,
                 "markedAsPresent": True,
                 "rank": 44,
-                "registrationTime": "2023-11-17T18:01:20",
+                "registrationTime": "2023-11-26T14:56:45",
+                "startTime": "2024-01-06T10:15:00",
             },
             "F": {
+                "alternateName": "Pas open féminin",
                 "entryFee": 7,
-                "licenceNo": 4526124,
+                "licenceNo": 7219370,
                 "markedAsPaid": True,
                 "markedAsPresent": True,
-                "rank": 34,
-                "registrationTime": "2023-11-25T21:56:50",
+                "rank": 22,
+                "registrationTime": "2023-09-17T22:43:30",
+                "startTime": "2024-01-06T15:00:00",
             },
         },
     },
 )
 
 correct_payment_pay_partial = (
-    4526124,
+    7219370,
+    after_cutoff,
     {"categoryIds": ["B"], "totalActualPaid": 7},
     {
         "bibNo": None,
-        "club": "USM OLIVET TENNIS DE TABLE",
-        "email": "nvzhltrsqr@mochsf.com",
-        "firstName": "Wihelbl",
+        "club": "LE MANS SARTHE TENNIS DE TABLE",
+        "email": "ridjfnxjge@vdoxwg.com",
+        "firstName": "Qqunjol",
         "gender": "F",
-        "lastName": "EZWLKRWE",
-        "licenceNo": 4526124,
-        "nbPoints": 1149,
+        "lastName": "CHYTWBCJ",
+        "leftToPay": 14,
+        "licenceNo": 7219370,
+        "nbPoints": 1103,
         "paymentStatus": {
             "totalActualPaid": 7,
             "totalPaid": 7,
-            "totalPresent": 14,
-            "totalRegistered": 14,
+            "totalPresent": 21,
+            "totalRegistered": 21,
         },
-        "phone": "+336919756238",
+        "phone": "+336177732321",
         "registeredEntries": {
-            "B": {
+            "2": {
+                "alternateName": None,
                 "entryFee": 7,
-                "licenceNo": 4526124,
+                "licenceNo": 7219370,
+                "markedAsPaid": False,
+                "markedAsPresent": True,
+                "rank": 9,
+                "registrationTime": "2023-06-26T09:48:53",
+                "startTime": "2024-01-07T10:15:00",
+            },
+            "B": {
+                "alternateName": "< 1500",
+                "entryFee": 7,
+                "licenceNo": 7219370,
                 "markedAsPaid": True,
                 "markedAsPresent": True,
                 "rank": 44,
-                "registrationTime": "2023-11-17T18:01:20",
+                "registrationTime": "2023-11-26T14:56:45",
+                "startTime": "2024-01-06T10:15:00",
             },
             "F": {
+                "alternateName": "Pas open féminin",
                 "entryFee": 7,
-                "licenceNo": 4526124,
+                "licenceNo": 7219370,
                 "markedAsPaid": False,
                 "markedAsPresent": True,
-                "rank": 34,
-                "registrationTime": "2023-11-25T21:56:50",
+                "rank": 22,
+                "registrationTime": "2023-09-17T22:43:30",
+                "startTime": "2024-01-06T15:00:00",
             },
         },
     },
 )
 
 correct_payment_idempotent = (
-    5326002,
-    {"categoryIds": ["B"], "totalActualPaid": 7},
+    7213526,
+    after_cutoff,
+    {"categoryIds": ["F"], "totalActualPaid": 7},
     {
         "bibNo": None,
-        "club": "ERNEENNE Sport Tennis de Table",
-        "email": "zvsbcnurlb@ieppes.com",
-        "firstName": "Hoyhjni",
+        "club": "LE MANS VILLARET TT",
+        "email": "eixivpskia@sdzloz.com",
+        "firstName": "Fkwcbvs",
         "gender": "M",
-        "lastName": "JTFLCUZD",
-        "licenceNo": 5326002,
-        "nbPoints": 1364,
+        "lastName": "TYLANABF",
+        "leftToPay": 0,
+        "licenceNo": 7213526,
+        "nbPoints": 1106,
         "paymentStatus": {
             "totalActualPaid": 7,
             "totalPaid": 7,
-            "totalPresent": 14,
-            "totalRegistered": 14,
+            "totalPresent": 7,
+            "totalRegistered": 28,
         },
-        "phone": "+336368307553",
+        "phone": "+336291515263",
         "registeredEntries": {
-            "B": {
+            "2": {
+                "alternateName": None,
                 "entryFee": 7,
-                "licenceNo": 5326002,
+                "licenceNo": 7213526,
+                "markedAsPaid": False,
+                "markedAsPresent": None,
+                "rank": 4,
+                "registrationTime": "2023-03-24T07:14:41",
+                "startTime": "2024-01-07T10:15:00",
+            },
+            "6": {
+                "alternateName": None,
+                "entryFee": 7,
+                "licenceNo": 7213526,
+                "markedAsPaid": False,
+                "markedAsPresent": None,
+                "rank": 3,
+                "registrationTime": "2023-05-15T21:10:54",
+                "startTime": "2024-01-07T15:00:00",
+            },
+            "B": {
+                "alternateName": "< 1500",
+                "entryFee": 7,
+                "licenceNo": 7213526,
+                "markedAsPaid": False,
+                "markedAsPresent": None,
+                "rank": 11,
+                "registrationTime": "2023-05-03T04:45:23",
+                "startTime": "2024-01-06T10:15:00",
+            },
+            "F": {
+                "alternateName": "Pas open féminin",
+                "entryFee": 7,
+                "licenceNo": 7213526,
                 "markedAsPaid": True,
                 "markedAsPresent": True,
-                "rank": 32,
-                "registrationTime": "2023-09-19T15:04:30",
-            },
-            "G": {
-                "entryFee": 7,
-                "licenceNo": 5326002,
-                "markedAsPaid": False,
-                "markedAsPresent": True,
-                "rank": 45,
-                "registrationTime": "2023-11-16T12:30:04",
+                "rank": 23,
+                "registrationTime": "2023-09-21T07:22:44",
+                "startTime": "2024-01-06T15:00:00",
             },
         },
     },
 )
 
 correct_payment_nondefault_actual = (
-    4526124,
+    7219370,
+    after_cutoff,
     {"categoryIds": ["B"], "totalActualPaid": 6},
     {
         "bibNo": None,
-        "club": "USM OLIVET TENNIS DE TABLE",
-        "email": "nvzhltrsqr@mochsf.com",
-        "firstName": "Wihelbl",
+        "club": "LE MANS SARTHE TENNIS DE TABLE",
+        "email": "ridjfnxjge@vdoxwg.com",
+        "firstName": "Qqunjol",
         "gender": "F",
-        "lastName": "EZWLKRWE",
-        "licenceNo": 4526124,
-        "nbPoints": 1149,
+        "lastName": "CHYTWBCJ",
+        "leftToPay": 15,
+        "licenceNo": 7219370,
+        "nbPoints": 1103,
         "paymentStatus": {
             "totalActualPaid": 6,
             "totalPaid": 7,
-            "totalPresent": 14,
-            "totalRegistered": 14,
+            "totalPresent": 21,
+            "totalRegistered": 21,
         },
-        "phone": "+336919756238",
+        "phone": "+336177732321",
         "registeredEntries": {
-            "B": {
+            "2": {
+                "alternateName": None,
                 "entryFee": 7,
-                "licenceNo": 4526124,
+                "licenceNo": 7219370,
+                "markedAsPaid": False,
+                "markedAsPresent": True,
+                "rank": 9,
+                "registrationTime": "2023-06-26T09:48:53",
+                "startTime": "2024-01-07T10:15:00",
+            },
+            "B": {
+                "alternateName": "< 1500",
+                "entryFee": 7,
+                "licenceNo": 7219370,
                 "markedAsPaid": True,
                 "markedAsPresent": True,
                 "rank": 44,
-                "registrationTime": "2023-11-17T18:01:20",
+                "registrationTime": "2023-11-26T14:56:45",
+                "startTime": "2024-01-06T10:15:00",
             },
             "F": {
+                "alternateName": "Pas open féminin",
                 "entryFee": 7,
-                "licenceNo": 4526124,
+                "licenceNo": 7219370,
                 "markedAsPaid": False,
                 "markedAsPresent": True,
-                "rank": 34,
-                "registrationTime": "2023-11-25T21:56:50",
+                "rank": 22,
+                "registrationTime": "2023-09-17T22:43:30",
+                "startTime": "2024-01-06T15:00:00",
             },
         },
     },
@@ -175,60 +252,83 @@ correct_admin_make_payment = [
 
 incorrect_payment_missing_json_fields = (
     5326002,
+    after_cutoff,
     {},
-    {
-        "error": {
+    ae.InvalidDataError(
+        origin=origin,
+        error_message=ae.PAYMENT_FORMAT_MESSAGE,
+        payload={
             "categoryIds": ["Missing data for required field."],
             "totalActualPaid": ["Missing data for required field."],
         },
-    },
+    ),
 )
 
 incorrect_payment_misformatted_payload = (
     5326002,
+    after_cutoff,
     {"categoryIds": "B", "totalActualPaid": "a"},
-    {
-        "error": {
+    ae.InvalidDataError(
+        origin=origin,
+        error_message=ae.PAYMENT_FORMAT_MESSAGE,
+        payload={
             "categoryIds": ["Not a valid list."],
             "totalActualPaid": ["Not a valid integer."],
         },
-    },
+    ),
 )
 
 incorrect_payment_misformatted_payload_2 = (
     5326002,
+    after_cutoff,
     {"categoryIds": [[]], "totalActualPaid": -1},
-    {
-        "error": {
+    ae.InvalidDataError(
+        origin=origin,
+        error_message=ae.PAYMENT_FORMAT_MESSAGE,
+        payload={
             "categoryIds": {"0": ["Not a valid string."]},
             "totalActualPaid": ["Must be greater than or equal to 0."],
         },
-    },
+    ),
 )
 
 incorrect_payment_nonexisting_player = (
     overall_incorrect_licence,
+    after_cutoff,
     {"categoryIds": ["A"], "totalActualPaid": 7},
-    get_player_not_found_error(overall_incorrect_licence),
+    ae.PlayerNotFoundError(origin=origin, licence_no=overall_incorrect_licence),
 )
 
 incorrect_payment_invalid_categories = (
     7221154,
+    after_cutoff,
     {"categoryIds": ["AA", "A", "E", "G"], "totalActualPaid": 10},
-    {
-        "error": "Tried to pay the fee for some categories which either did not "
-        "exist, the player was not registered for, or was not marked "
-        "present: ['A', 'AA', 'E']",
-    },
+    ae.InvalidDataError(
+        origin=origin,
+        error_message=ae.INVALID_CATEGORY_ID_MESSAGES["payment"],
+        payload={"categoryIds": ["A", "AA"]},
+    ),
 )
 
 incorrect_payment_actual_payment_too_big = (
     4526124,
+    after_cutoff,
     {"categoryIds": ["B", "F"], "totalActualPaid": 15},
-    {
-        "error": "The 'totalActualPaid' field is higher than what the player must "
-        "currently pay for all categories he is marked as present",
-    },
+    ae.InvalidDataError(
+        origin=origin,
+        error_message=ae.ACTUAL_PAID_TOO_HIGH_MESSAGE,
+        payload={"totalActualPaid": 15, "totalPresent": 14},
+    ),
+)
+
+incorrect_payment_before_tournament = (
+    4526124,
+    before_cutoff,
+    {"categoryIds": ["B", "F"], "totalActualPaid": 14},
+    ae.RegistrationCutoffError(
+        origin=origin,
+        error_message=ae.REGISTRATION_MESSAGES["not_ended"],
+    ),
 )
 
 incorrect_admin_make_payment = [
@@ -238,12 +338,13 @@ incorrect_admin_make_payment = [
     incorrect_payment_nonexisting_player,
     incorrect_payment_invalid_categories,
     incorrect_payment_actual_payment_too_big,
+    incorrect_payment_before_tournament,
 ]
 
 
 class TestAPIMakePayment(BaseTest):
     @pytest.mark.parametrize(
-        "licence_no,payload,response",
+        "licence_no,now,payload,response",
         correct_admin_make_payment,
     )
     def test_correct_admin_make_payment(
@@ -252,15 +353,17 @@ class TestAPIMakePayment(BaseTest):
         reset_db,
         populate,
         licence_no,
+        now: str,
         payload,
         response,
     ):
-        r = client.put(f"/api/admin/pay/{licence_no}", json=payload)
-        assert r.status_code == HTTPStatus.OK, r.json
-        assert r.json == response, r.json
+        with freeze_time(now):
+            r = client.put(f"/api/admin/pay/{licence_no}", json=payload)
+            assert r.status_code == HTTPStatus.OK, r.json
+            assert r.json == response, r.json
 
     @pytest.mark.parametrize(
-        "licence_no,payload,error",
+        "licence_no,now,payload,error",
         incorrect_admin_make_payment,
     )
     def test_incorrect_admin_make_payment(
@@ -269,9 +372,11 @@ class TestAPIMakePayment(BaseTest):
         reset_db,
         populate,
         licence_no,
+        now: str,
         payload,
         error,
     ):
-        r = client.put(f"/api/admin/pay/{licence_no}", json=payload)
-        assert r.status_code == HTTPStatus.BAD_REQUEST, r.json
-        assert r.json == error, r.json
+        with freeze_time(now):
+            r = client.put(f"/api/admin/pay/{licence_no}", json=payload)
+            assert r.status_code == error.status_code, r.json
+            assert r.json == error.to_dict(), r.json

@@ -1,75 +1,92 @@
-from conftest import BaseTest
+from tests.conftest import BaseTest, before_cutoff, after_cutoff
 from http import HTTPStatus
 import pytest
 
-from flaskr.api.db import get_player_not_found_error
+import flaskr.api.api_errors as ae
+from freezegun import freeze_time
 
 
 overall_correct_licence = 722370
 overall_incorrect_licence = 555555
 
+origin = "api_public_register_entries"
+
 correct_registration = (
     4526124,
+    before_cutoff,
     {"categoryIds": ["1"]},
-    [
-        {
-            "categoryId": "B",
+    {
+        "1": {
+            "alternateName": None,
             "entryFee": 7,
             "licenceNo": 4526124,
             "markedAsPaid": False,
+            "markedAsPresent": None,
+            "rank": 0,
+            "registrationTime": "2023-01-01T00:00:00",
+            "startTime": "2024-01-07T09:00:00",
+        },
+        "B": {
+            "alternateName": "< 1500",
+            "entryFee": 7,
+            "licenceNo": 4526124,
+            "markedAsPaid": True,
+            "markedAsPresent": True,
+            "rank": 43,
             "registrationTime": "2023-11-17T18:01:20",
-            "markedAsPresent": True,
+            "startTime": "2024-01-06T10:15:00",
         },
-        {
-            "categoryId": "F",
+        "F": {
+            "alternateName": "Pas open féminin",
             "entryFee": 7,
             "licenceNo": 4526124,
-            "markedAsPaid": False,
+            "markedAsPaid": True,
+            "markedAsPresent": True,
+            "rank": 30,
             "registrationTime": "2023-11-25T21:56:50",
-            "markedAsPresent": True,
+            "startTime": "2024-01-06T15:00:00",
         },
-        {
-            "categoryId": "1",
-            "entryFee": 7,
-            "licenceNo": 4526124,
-            "markedAsPaid": False,
-            "registrationTime": "2023-11-30T12:18:21",
-            "markedAsPresent": False,
-        },
-    ],
+    },
 )
 
 correct_registration_with_duplicates = (
     4526124,
+    before_cutoff,
     {
         "categoryIds": ["1", "B", "F"],
     },
-    [
-        {
-            "categoryId": "B",
+    {
+        "1": {
+            "alternateName": None,
             "entryFee": 7,
             "licenceNo": 4526124,
             "markedAsPaid": False,
+            "markedAsPresent": None,
+            "rank": 0,
+            "registrationTime": "2023-01-01T00:00:00",
+            "startTime": "2024-01-07T09:00:00",
+        },
+        "B": {
+            "alternateName": "< 1500",
+            "entryFee": 7,
+            "licenceNo": 4526124,
+            "markedAsPaid": True,
+            "markedAsPresent": True,
+            "rank": 43,
             "registrationTime": "2023-11-17T18:01:20",
-            "markedAsPresent": True,
+            "startTime": "2024-01-06T10:15:00",
         },
-        {
-            "categoryId": "F",
+        "F": {
+            "alternateName": "Pas open féminin",
             "entryFee": 7,
             "licenceNo": 4526124,
-            "markedAsPaid": False,
+            "markedAsPaid": True,
+            "markedAsPresent": True,
+            "rank": 30,
             "registrationTime": "2023-11-25T21:56:50",
-            "markedAsPresent": True,
+            "startTime": "2024-01-06T15:00:00",
         },
-        {
-            "categoryId": "1",
-            "entryFee": 7,
-            "licenceNo": 4526124,
-            "markedAsPaid": False,
-            "registrationTime": "2023-11-30T12:18:21",
-            "markedAsPresent": False,
-        },
-    ],
+    },
 )
 
 correct_register_entries = [
@@ -79,48 +96,79 @@ correct_register_entries = [
 
 incorrect_registration_color_violation = (
     7886249,
+    before_cutoff,
     {"categoryIds": ["1"]},
-    {"error": "One or several potential entries violate color constraint."},
+    ae.InvalidDataError(
+        origin=origin,
+        error_message=ae.COLOR_VIOLATION_MESSAGE,
+    ),
 )
 
 incorrect_registration_gender_points_violation = (
     4526124,
+    before_cutoff,
     {
         "categoryIds": ["A"],
     },
-    {
-        "error": "Tried to register some entries violating either gender or points "
-        "conditions: ['A']",
-    },
+    ae.InvalidDataError(
+        origin=origin,
+        error_message=ae.GENDER_POINTS_VIOLATION_MESSAGE,
+        payload={"categoryIds": ["A"]},
+    ),
 )
 
 incorrect_registration_nonexisting_player = (
     overall_incorrect_licence,
+    before_cutoff,
     {"categoryIds": ["A"]},
-    get_player_not_found_error(overall_incorrect_licence),
+    ae.PlayerNotFoundError(
+        origin=origin,
+        licence_no=overall_incorrect_licence,
+    ),
 )
 
 incorrect_registrations_missing_categoryids_json_fields = (
     4526124,
+    before_cutoff,
     {},
-    {"error": {"categoryIds": ["Missing data for required field."]}},
+    ae.InvalidDataError(
+        origin=origin,
+        error_message=ae.REGISTRATION_FORMAT_MESSAGE,
+        payload={"categoryIds": ["Missing data for required field."]},
+    ),
 )
 
 incorrect_registration_empty_categories = (
     4526124,
+    before_cutoff,
     {"categoryIds": []},
-    {"error": "No categories to register entries in were sent."},
+    ae.InvalidDataError(
+        origin=origin,
+        error_message=ae.REGISTRATION_MISSING_IDS_MESSAGE,
+    ),
 )
 
 incorrect_registration_nonexisting_categories = (
     4526124,
+    before_cutoff,
     {
         "categoryIds": ["A", "a"],
     },
-    {
-        "error": "No categories with the following categoryIds ['a'] exist in the "
-        "database",
-    },
+    ae.InvalidDataError(
+        origin=origin,
+        error_message=ae.INVALID_CATEGORY_ID_MESSAGES["registration"],
+        payload={"categoryIds": ["a"]},
+    ),
+)
+
+incorrect_registration_after_cutoff = (
+    4526124,
+    after_cutoff,
+    {"categoryIds": ["1"]},
+    ae.RegistrationCutoffError(
+        origin=origin,
+        error_message=ae.REGISTRATION_MESSAGES["ended"],
+    ),
 )
 
 incorrect_register_entries = [
@@ -130,35 +178,43 @@ incorrect_register_entries = [
     incorrect_registrations_missing_categoryids_json_fields,
     incorrect_registration_empty_categories,
     incorrect_registration_nonexisting_categories,
+    incorrect_registration_after_cutoff,
 ]
 
 
 class TestRegisterEntries(BaseTest):
-    @pytest.mark.parametrize("licence_no,payload,response", correct_register_entries)
+    @pytest.mark.parametrize(
+        "licence_no,now,payload,response",
+        correct_register_entries,
+    )
     def test_correct_register_entries(
         self,
         client,
         reset_db,
         populate,
         licence_no,
+        now: str,
         payload,
         response,
     ):
-        r = client.post(f"/api/public/entries/{licence_no}", json=payload)
-        assert r.status_code == HTTPStatus.CREATED, r.json
-        assert "registeredEntries" in r.json, r.json
-        # TODO add correct test for response
+        with freeze_time(now):
+            r = client.post(f"/api/public/entries/{licence_no}", json=payload)
+            assert r.status_code == HTTPStatus.CREATED, r.json
+            assert "registeredEntries" in r.json, r.json
+            assert r.json["registeredEntries"] == response, r.json
 
-    @pytest.mark.parametrize("licence_no,payload,error", incorrect_register_entries)
+    @pytest.mark.parametrize("licence_no,now,payload,error", incorrect_register_entries)
     def test_incorrect_register_entries(
         self,
         client,
         reset_db,
         populate,
         licence_no,
+        now: str,
         payload,
         error,
     ):
-        r = client.post(f"/api/public/entries/{licence_no}", json=payload)
-        assert r.status_code == HTTPStatus.BAD_REQUEST, r.json
-        assert r.json == error, r.json
+        with freeze_time(now):
+            r = client.post(f"/api/public/entries/{licence_no}", json=payload)
+            assert r.status_code == error.status_code, r.json
+            assert r.json == error.to_dict(), r.json

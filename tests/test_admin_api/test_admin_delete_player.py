@@ -1,11 +1,13 @@
-from conftest import BaseTest
+from tests.conftest import BaseTest
 from http import HTTPStatus
 
-from flaskr.api.db import get_player_not_found_error
+import flaskr.api.api_errors as ae
 
 
 overall_correct_licence = 722370
 overall_incorrect_licence = 5555555
+
+origin = "api_admin_delete_player"
 
 
 class TestAPIDeletePlayer(BaseTest):
@@ -20,7 +22,9 @@ class TestAPIDeletePlayer(BaseTest):
         populate,
     ):
         r = client.delete(f"/api/admin/players/{overall_incorrect_licence}")
-        assert r.status_code == HTTPStatus.BAD_REQUEST, r.json
-        assert r.json == get_player_not_found_error(
-            overall_incorrect_licence,
-        ), r.json
+        error = ae.PlayerNotFoundError(
+            origin=origin,
+            licence_no=overall_incorrect_licence,
+        )
+        assert r.status_code == error.status_code, r.json
+        assert r.json == error.to_dict(), r.json

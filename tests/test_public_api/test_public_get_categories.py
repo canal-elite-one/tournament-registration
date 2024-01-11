@@ -1,10 +1,14 @@
-from conftest import BaseTest
+from tests.conftest import BaseTest, before_cutoff, after_cutoff
 from http import HTTPStatus
+
+import flaskr.api.api_errors as ae
+
+from freezegun import freeze_time
 
 correct_get_categories_response = {
     "categories": [
         {
-            "alternateName": None,
+            "alternateName": "< 900",
             "baseRegistrationFee": 7,
             "categoryId": "A",
             "color": "blue",
@@ -15,6 +19,7 @@ correct_get_categories_response = {
             "maxPoints": 900,
             "minPoints": 0,
             "overbookingPercentage": 20,
+            "presentEntryCount": 48,
             "rewardFirst": 70,
             "rewardQuarter": None,
             "rewardSecond": 35,
@@ -23,7 +28,7 @@ correct_get_categories_response = {
             "womenOnly": False,
         },
         {
-            "alternateName": None,
+            "alternateName": "< 1500",
             "baseRegistrationFee": 7,
             "categoryId": "B",
             "color": "blue",
@@ -34,6 +39,7 @@ correct_get_categories_response = {
             "maxPoints": 1500,
             "minPoints": 0,
             "overbookingPercentage": 15,
+            "presentEntryCount": 30,
             "rewardFirst": 140,
             "rewardQuarter": None,
             "rewardSecond": 70,
@@ -53,6 +59,7 @@ correct_get_categories_response = {
             "maxPoints": 4000,
             "minPoints": 1300,
             "overbookingPercentage": 10,
+            "presentEntryCount": 12,
             "rewardFirst": 300,
             "rewardQuarter": None,
             "rewardSecond": 150,
@@ -72,6 +79,7 @@ correct_get_categories_response = {
             "maxPoints": 1100,
             "minPoints": 0,
             "overbookingPercentage": 20,
+            "presentEntryCount": 27,
             "rewardFirst": 100,
             "rewardQuarter": None,
             "rewardSecond": 50,
@@ -91,6 +99,7 @@ correct_get_categories_response = {
             "maxPoints": 4000,
             "minPoints": 1500,
             "overbookingPercentage": 0,
+            "presentEntryCount": 32,
             "rewardFirst": 300,
             "rewardQuarter": None,
             "rewardSecond": 150,
@@ -99,7 +108,7 @@ correct_get_categories_response = {
             "womenOnly": False,
         },
         {
-            "alternateName": None,
+            "alternateName": "Pas open féminin",
             "baseRegistrationFee": 7,
             "categoryId": "F",
             "color": "#FF0000",
@@ -110,6 +119,7 @@ correct_get_categories_response = {
             "maxPoints": 1300,
             "minPoints": 0,
             "overbookingPercentage": 10,
+            "presentEntryCount": 24,
             "rewardFirst": 120,
             "rewardQuarter": None,
             "rewardSecond": 60,
@@ -129,6 +139,7 @@ correct_get_categories_response = {
             "maxPoints": 1900,
             "minPoints": 0,
             "overbookingPercentage": 15,
+            "presentEntryCount": 32,
             "rewardFirst": 180,
             "rewardQuarter": None,
             "rewardSecond": 90,
@@ -148,6 +159,7 @@ correct_get_categories_response = {
             "maxPoints": 1700,
             "minPoints": 0,
             "overbookingPercentage": 20,
+            "presentEntryCount": 48,
             "rewardFirst": 170,
             "rewardQuarter": None,
             "rewardSecond": 85,
@@ -167,6 +179,7 @@ correct_get_categories_response = {
             "maxPoints": 1400,
             "minPoints": 0,
             "overbookingPercentage": 0,
+            "presentEntryCount": 20,
             "rewardFirst": 130,
             "rewardQuarter": None,
             "rewardSecond": 65,
@@ -186,6 +199,7 @@ correct_get_categories_response = {
             "maxPoints": 2100,
             "minPoints": 0,
             "overbookingPercentage": 30,
+            "presentEntryCount": 22,
             "rewardFirst": 200,
             "rewardQuarter": None,
             "rewardSecond": 100,
@@ -205,6 +219,7 @@ correct_get_categories_response = {
             "maxPoints": 1000,
             "minPoints": 0,
             "overbookingPercentage": 20,
+            "presentEntryCount": 8,
             "rewardFirst": 90,
             "rewardQuarter": None,
             "rewardSecond": 45,
@@ -224,6 +239,7 @@ correct_get_categories_response = {
             "maxPoints": 1600,
             "minPoints": 0,
             "overbookingPercentage": 20,
+            "presentEntryCount": 3,
             "rewardFirst": 150,
             "rewardQuarter": None,
             "rewardSecond": 75,
@@ -243,6 +259,7 @@ correct_get_categories_response = {
             "maxPoints": 1200,
             "minPoints": 0,
             "overbookingPercentage": 15,
+            "presentEntryCount": 10,
             "rewardFirst": 110,
             "rewardQuarter": None,
             "rewardSecond": 55,
@@ -262,6 +279,7 @@ correct_get_categories_response = {
             "maxPoints": 800,
             "minPoints": 0,
             "overbookingPercentage": 10,
+            "presentEntryCount": 6,
             "rewardFirst": 60,
             "rewardQuarter": None,
             "rewardSecond": 30,
@@ -275,6 +293,17 @@ correct_get_categories_response = {
 
 class TestAPIGetCategories(BaseTest):
     def test_get(self, client, reset_db, populate):
-        r = client.get("/api/public/categories")
-        assert r.status_code == HTTPStatus.OK, r.json
-        assert r.json == correct_get_categories_response, r.json
+        with freeze_time(before_cutoff):
+            r = client.get("/api/public/categories")
+            assert r.status_code == HTTPStatus.OK, r.json
+            assert r.json == correct_get_categories_response, r.json
+
+    def test_get_after(self, client, reset_db, populate):
+        error = ae.RegistrationCutoffError(
+            origin="api_public_get_categories",
+            error_message=ae.REGISTRATION_MESSAGES["ended"],
+        )
+        with freeze_time(after_cutoff):
+            r = client.get("/api/public/categories")
+            assert r.status_code == error.status_code, r.json
+            assert r.json == error.to_dict(), r.json

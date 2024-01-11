@@ -1,11 +1,15 @@
-from conftest import BaseTest
+from tests.conftest import BaseTest, before_cutoff, after_cutoff
 from http import HTTPStatus
 import pytest
 
-from flaskr.api.db import get_player_not_found_error
+from freezegun import freeze_time
 
+import flaskr.api.api_errors as ae
 
 overall_incorrect_licence = 5555555
+overall_correct_licence = 9311764
+
+origin = "api_admin_assign_one_bib"
 
 correct_admin_assign_one = 9311764
 correct_assign_one_response = {
@@ -17,24 +21,25 @@ correct_assign_one_response = {
     "lastName": "ABJNNQES",
     "licenceNo": 9311764,
     "nbPoints": 1287,
-    "totalActualPaid": 0,
     "phone": "+336983296275",
-}
-
-incorrect_admin_assign_one_without_any_assigned_error = {
-    "error": "Cannot assign bib numbers manually before having assigned them in bulk",
+    "totalActualPaid": 7,
 }
 
 incorrect_admin_assign_one_nonexisting_player = (
     overall_incorrect_licence,
-    get_player_not_found_error(overall_incorrect_licence),
-    HTTPStatus.BAD_REQUEST,
+    ae.PlayerNotFoundError(
+        origin=origin,
+        licence_no=overall_incorrect_licence,
+    ),
 )
 
 incorrect_admin_assign_one_already_assigned = (
     722370,
-    {"error": "This player already has a bib assigned."},
-    HTTPStatus.CONFLICT,
+    ae.BibConflictError(
+        origin=origin,
+        error_message=ae.THIS_BIB_ALREADY_ASSIGNED_MESSAGE,
+        payload={"bibNo": 1, "licenceNo": 722370},
+    ),
 )
 
 incorrect_admin_assign_one = [
@@ -45,9 +50,10 @@ incorrect_admin_assign_one = [
 
 class TestAPIAssignOneBibNo(BaseTest):
     def test_correct_assign_one(self, client, reset_db, populate, set_a_few_bibs):
-        r = client.put(f"/api/admin/bibs/{correct_admin_assign_one}")
-        assert r.status_code == HTTPStatus.OK, r.json
-        assert r.json == correct_assign_one_response, r.json
+        with freeze_time(after_cutoff):
+            r = client.put(f"/api/admin/bibs/{correct_admin_assign_one}")
+            assert r.status_code == HTTPStatus.OK, r.json
+            assert r.json == correct_assign_one_response, r.json
 
     def test_incorrect_assign_one_without_any_assigned(
         self,
@@ -55,12 +61,33 @@ class TestAPIAssignOneBibNo(BaseTest):
         reset_db,
         populate,
     ):
-        r = client.put(f"/api/admin/bibs/{correct_admin_assign_one}")
-        assert r.status_code == HTTPStatus.CONFLICT, r.json
-        assert r.json == incorrect_admin_assign_one_without_any_assigned_error, r.json
+        error = ae.BibConflictError(
+            origin=origin,
+            error_message=ae.NO_BIBS_ASSIGNED_MESSAGE,
+        )
+        with freeze_time(after_cutoff):
+            r = client.put(f"/api/admin/bibs/{overall_correct_licence}")
+            assert r.status_code == error.status_code, r.json
+            assert r.json == error.to_dict(), r.json
+
+    def test_incorrect_assign_one_before_cutoff(
+        self,
+        client,
+        reset_db,
+        populate,
+        set_a_few_bibs,
+    ):
+        error = ae.RegistrationCutoffError(
+            origin=origin,
+            error_message=ae.REGISTRATION_MESSAGES["not_ended"],
+        )
+        with freeze_time(before_cutoff):
+            r = client.put(f"/api/admin/bibs/{correct_admin_assign_one}")
+            assert r.status_code == error.status_code, r.json
+            assert r.json == error.to_dict(), r.json
 
     @pytest.mark.parametrize(
-        "licence_no,error,status_code",
+        "licence_no,error",
         incorrect_admin_assign_one,
     )
     def test_incorrect_assign_one(
@@ -71,8 +98,8 @@ class TestAPIAssignOneBibNo(BaseTest):
         set_a_few_bibs,
         licence_no,
         error,
-        status_code,
     ):
-        r = client.put(f"/api/admin/bibs/{licence_no}")
-        assert r.status_code == status_code, r.json
-        assert r.json == error, r.json
+        with freeze_time(after_cutoff):
+            r = client.put(f"/api/admin/bibs/{licence_no}")
+            assert r.status_code == error.status_code, r.json
+            assert r.json == error.to_dict(), r.json

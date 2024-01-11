@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from marshmallow import (
     Schema,
     fields,
@@ -9,7 +7,7 @@ from marshmallow import (
     post_load,
     post_dump,
 )
-from flaskr.api.db import Category, Player, Entry, app_info
+from flaskr.api.db import Category, Player, Entry, is_before_cutoff
 
 
 class SchemaWithReset(Schema):
@@ -219,7 +217,7 @@ class PlayerSchema(SchemaWithReset):
     def add_payment_status(self, data, original, **kwargs):
         if self.context.get("include_payment_status", False):
             del data["totalActualPaid"]
-            if datetime.now() > app_info.registration_cutoff:
+            if not is_before_cutoff():
                 data["paymentStatus"] = original.payment_status()
                 data["leftToPay"] = original.left_to_pay()
         return data

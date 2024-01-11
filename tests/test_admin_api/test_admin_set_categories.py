@@ -1,8 +1,13 @@
 from datetime import datetime
-
-from conftest import BaseTest
 from http import HTTPStatus
+
+from tests.conftest import BaseTest
+import flaskr.api.api_errors as ae
+
 import pytest
+
+
+origin = "api_admin_set_categories"
 
 correct_categories = (
     {
@@ -74,13 +79,14 @@ correct_categories = (
                 "baseRegistrationFee": 10,
                 "categoryId": "a",
                 "color": "#FF0000",
-                "currentFee": 12,
+                "currentFee": 10,
                 "entryCount": 0,
                 "lateRegistrationFee": 2,
                 "maxPlayers": 40,
                 "maxPoints": 1500,
                 "minPoints": 0,
                 "overbookingPercentage": 0,
+                "presentEntryCount": 0,
                 "rewardFirst": 200,
                 "rewardQuarter": None,
                 "rewardSecond": 100,
@@ -93,13 +99,14 @@ correct_categories = (
                 "baseRegistrationFee": 20,
                 "categoryId": "b",
                 "color": "#FFFF00",
-                "currentFee": 24,
+                "currentFee": 20,
                 "entryCount": 0,
                 "lateRegistrationFee": 4,
                 "maxPlayers": 40,
                 "maxPoints": 4000,
                 "minPoints": 800,
                 "overbookingPercentage": 0,
+                "presentEntryCount": 0,
                 "rewardFirst": 200,
                 "rewardQuarter": None,
                 "rewardSecond": 100,
@@ -112,13 +119,14 @@ correct_categories = (
                 "baseRegistrationFee": 20,
                 "categoryId": "c",
                 "color": "#FFFFFF",
-                "currentFee": 24,
+                "currentFee": 20,
                 "entryCount": 0,
                 "lateRegistrationFee": 4,
                 "maxPlayers": 40,
                 "maxPoints": 2000,
                 "minPoints": 800,
                 "overbookingPercentage": 10,
+                "presentEntryCount": 0,
                 "rewardFirst": 200,
                 "rewardQuarter": None,
                 "rewardSecond": 100,
@@ -131,13 +139,14 @@ correct_categories = (
                 "baseRegistrationFee": 10,
                 "categoryId": "d",
                 "color": None,
-                "currentFee": 12,
+                "currentFee": 10,
                 "entryCount": 0,
                 "lateRegistrationFee": 2,
                 "maxPlayers": 40,
                 "maxPoints": 1500,
                 "minPoints": 0,
                 "overbookingPercentage": 0,
+                "presentEntryCount": 0,
                 "rewardFirst": 200,
                 "rewardQuarter": None,
                 "rewardSecond": 100,
@@ -151,13 +160,18 @@ correct_categories = (
 
 correct_admin_set_categories = [correct_categories]
 
-incorrect_set_categories_existing_entries = {
-    "error": "Tried to reset categories while registration has already started.",
-}
+incorrect_set_categories_existing_entries = ae.RegistrationCutoffError(
+    origin=origin,
+    error_message=ae.REGISTRATION_MESSAGES["started"],
+)
 
 incorrect_categories_missing_categories_field = (
     {},
-    {"error": {"json": ["json payload should have 'categories' field."]}},
+    ae.InvalidDataError(
+        origin=origin,
+        error_message=ae.CATEGORY_FORMAT_MESSAGE,
+        payload={"json": ["json payload should have 'categories' field."]},
+    ),
 )
 
 incorrect_categories_missing_badly_formatted_data = (
@@ -192,8 +206,10 @@ incorrect_categories_missing_badly_formatted_data = (
             {},
         ],
     },
-    {
-        "error": {
+    ae.InvalidDataError(
+        origin=origin,
+        error_message=ae.CATEGORY_FORMAT_MESSAGE,
+        payload={
             "0": {
                 "categoryId": ["Length must be 1."],
                 "color": ["Length must be 7."],
@@ -211,7 +227,7 @@ incorrect_categories_missing_badly_formatted_data = (
                 "startTime": ["Missing data for required field."],
             },
         },
-    },
+    ),
 )
 
 incorrect_categories_duplicate = (
@@ -247,7 +263,11 @@ incorrect_categories_duplicate = (
             },
         ],
     },
-    {"error": {"category_ids": ["Different categories cannot have the same id"]}},
+    ae.InvalidDataError(
+        origin=origin,
+        error_message=ae.CATEGORY_FORMAT_MESSAGE,
+        payload={"category_ids": ["Different categories cannot have the same id"]},
+    ),
 )
 
 incorrect_admin_set_categories = [
@@ -267,10 +287,10 @@ class TestAPISetCategories(BaseTest):
     def test_incorrect_existing_entries(self, client, reset_db, populate):
         r = client.post("/api/admin/categories", json=correct_categories[0])
         assert r.status_code == HTTPStatus.BAD_REQUEST, r.json
-        assert r.json == incorrect_set_categories_existing_entries, r.json
+        assert r.json == incorrect_set_categories_existing_entries.to_dict(), r.json
 
     @pytest.mark.parametrize("payload,error", incorrect_admin_set_categories)
     def test_incorrect_admin_set_categories(self, client, reset_db, payload, error):
         r = client.post("/api/admin/categories", json=payload)
         assert r.status_code == HTTPStatus.BAD_REQUEST, r.json
-        assert r.json == error, r.json
+        assert r.json == error.to_dict(), r.json

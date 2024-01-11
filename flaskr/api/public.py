@@ -3,7 +3,7 @@ from datetime import datetime
 from http import HTTPStatus
 from json import loads
 
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, current_app
 from sqlalchemy import select, text, or_
 from sqlalchemy.exc import DBAPIError
 from marshmallow import ValidationError
@@ -18,10 +18,10 @@ from flaskr.api.db import (
     Session,
     Category,
     Player,
-    get_player_not_found_error,
-    app_info,
 )
 from flaskr.api.fftt_api import get_player_fftt
+from flaskr.api.custom_decorators import before_cutoff
+import flaskr.api.api_errors as ae
 
 public_api_bp = Blueprint("public_api", __name__, url_prefix="/api/public")
 
@@ -31,7 +31,8 @@ p_schema = PlayerSchema()
 
 
 @public_api_bp.route("/categories", methods=["GET"])
-def api_get_categories():
+@before_cutoff
+def api_public_get_categories():
     c_schema.reset(many=True)
     with Session() as session:
         return (
@@ -47,20 +48,18 @@ def api_get_categories():
 
 
 @public_api_bp.route("/players", methods=["POST"])
-def api_add_player():
-    if datetime.now() > app_info.registration_cutoff:
-        return (
-            jsonify(
-                error="Public registration is closed.",
-            ),
-            HTTPStatus.BAD_REQUEST,
-        )
-
+@before_cutoff
+def api_public_add_player():
+    origin = "api_public_add_player"
     p_schema.reset()
     try:
         player = p_schema.load(request.json)
     except ValidationError as e:
-        return jsonify(error=e.messages), HTTPStatus.BAD_REQUEST
+        raise ae.InvalidDataError(
+            origin=origin,
+            error_message=ae.PLAYER_FORMAT_MESSAGE,
+            payload=e.messages,
+        )
 
     with Session() as session:
         try:
@@ -69,55 +68,44 @@ def api_add_player():
             return jsonify(p_schema.dump(player)), HTTPStatus.CREATED
         except DBAPIError:
             session.rollback()
-            return (
-                jsonify(
-                    error="A player with this licence already exists in the database. "
-                    "Player was not added.",
-                ),
-                HTTPStatus.BAD_REQUEST,
+            raise ae.InvalidDataError(
+                origin=origin,
+                error_message=ae.DUPLICATE_PLAYER_MESSAGE,
+                payload={"licenceNo": player.licence_no},
             )
 
 
 @public_api_bp.route("/players/<int:licence_no>", methods=["GET"])
-def api_get_player(licence_no):
+@before_cutoff
+def api_public_get_player(licence_no):
+    origin = "api_public_get_player"
     with Session() as session:
         if session.get(Player, licence_no) is not None:
-            return (
-                jsonify(
-                    {
-                        "PLAYER_ALREADY_REGISTERED_ERROR": f"Player with "
-                        f"licence no {licence_no} is already registered",
-                    },
-                ),
-                HTTPStatus.BAD_REQUEST,
+            raise ae.PlayerAlreadyRegisteredError(
+                origin=origin,
+                error_message=ae.PLAYER_ALREADY_REGISTERED_MESSAGE,
+                payload={"licenceNo": licence_no},
             )
 
     db_only = request.args.get("db_only", False, loads) is True
     if db_only:
-        return (
-            jsonify(get_player_not_found_error(licence_no)),
-            HTTPStatus.BAD_REQUEST,
-        )
+        raise ae.PlayerNotFoundError(origin=origin, licence_no=licence_no)
 
     player_dict = get_player_fftt(licence_no)
     if player_dict is None:
-        return (
-            jsonify(get_player_not_found_error(licence_no)),
-            HTTPStatus.BAD_REQUEST,
-        )
+        raise ae.PlayerNotFoundError(origin=origin, licence_no=licence_no)
     return jsonify(player_dict), HTTPStatus.OK
 
 
 @public_api_bp.route("/entries/<int:licence_no>", methods=["GET"])
-def api_get_entries(licence_no):
+def api_public_get_entries(licence_no):
+    origin = "api_public_get_entries"
     with Session() as session:
         player = session.get(Player, licence_no)
         if player is None:
-            return (
-                jsonify(
-                    get_player_not_found_error(licence_no),
-                ),
-                HTTPStatus.BAD_REQUEST,
+            raise ae.PlayerNotFoundError(
+                origin=origin,
+                licence_no=licence_no,
             )
 
         e_schema.reset(many=True)
@@ -126,46 +114,40 @@ def api_get_entries(licence_no):
 
 
 @public_api_bp.route("/entries/<int:licence_no>", methods=["POST"])
-def api_register_entries(licence_no):
-    if datetime.now() > app_info.registration_cutoff:
-        return (
-            jsonify(
-                error="Public registration is closed.",
-            ),
-            HTTPStatus.BAD_REQUEST,
-        )
-
+@before_cutoff
+def api_public_register_entries(licence_no):
+    origin = "api_public_register_entries"
     v_schema = CategoryIdsSchema()
     if error := v_schema.validate(request.json):
-        return jsonify(error=error), HTTPStatus.BAD_REQUEST
+        raise ae.InvalidDataError(
+            origin=origin,
+            error_message=ae.REGISTRATION_FORMAT_MESSAGE,
+            payload=error,
+        )
 
     category_ids = request.json["categoryIds"]
 
     if not category_ids:
-        return (
-            jsonify(error="No categories to register entries in were sent."),
-            HTTPStatus.BAD_REQUEST,
+        raise ae.InvalidDataError(
+            origin=origin,
+            error_message=ae.REGISTRATION_MISSING_IDS_MESSAGE,
         )
 
     with Session() as session:
         player = session.get(Player, licence_no)
         if player is None:
-            return (
-                jsonify(
-                    get_player_not_found_error(licence_no),
-                ),
-                HTTPStatus.BAD_REQUEST,
+            raise ae.PlayerNotFoundError(
+                origin=origin,
+                licence_no=licence_no,
             )
 
         if nonexisting_category_ids := set(category_ids).difference(
             session.scalars(select(Category.category_id)),
         ):
-            return (
-                jsonify(
-                    error=f"No categories with the following categoryIds "
-                    f"{sorted(nonexisting_category_ids)} exist in the database",
-                ),
-                HTTPStatus.BAD_REQUEST,
+            raise ae.InvalidDataError(
+                origin=origin,
+                error_message=ae.INVALID_CATEGORY_ID_MESSAGES["registration"],
+                payload={"categoryIds": sorted(nonexisting_category_ids)},
             )
 
         potential_categories = session.scalars(
@@ -181,12 +163,10 @@ def api_register_entries(licence_no):
             ):
                 violations.append(category.category_id)
         if violations:
-            return (
-                jsonify(
-                    error=f"Tried to register some entries violating either gender or "
-                    f"points conditions: {violations}",
-                ),
-                HTTPStatus.BAD_REQUEST,
+            raise ae.InvalidDataError(
+                origin=origin,
+                error_message=ae.GENDER_POINTS_VIOLATION_MESSAGE,
+                payload={"categoryIds": violations},
             )
 
         categories_including_previous_registrations = session.scalars(
@@ -200,39 +180,35 @@ def api_register_entries(licence_no):
             ),
         )
 
-        try:
-            if (
-                max(
-                    Counter(
-                        [
-                            category.start_time.date()
-                            for category in categories_including_previous_registrations
-                        ],
-                    ).values(),
-                )
-                > app_info.max_entries_per_day
-            ):
-                return (
-                    jsonify(
-                        error="Tried to register in too "
-                        "many categories on the same day.",
-                    ),
-                    HTTPStatus.BAD_REQUEST,
-                )
-        except Exception as e:
-            return (
-                jsonify(error=f"Unexpected error: {e}"),
-                HTTPStatus.CREATED,
+        if (
+            max(
+                Counter(
+                    [
+                        category.start_time.date()
+                        for category in categories_including_previous_registrations
+                    ],
+                ).values(),
+            )
+            > current_app.config["MAX_ENTRIES_PER_DAY"]
+        ):
+            raise ae.InvalidDataError(
+                origin=origin,
+                error_message=ae.MAX_ENTRIES_PER_DAY_MESSAGE,
             )
         temp_dicts = [
-            {"categoryId": category_id, "licenceNo": licence_no}
+            {
+                "categoryId": category_id,
+                "licenceNo": licence_no,
+                "registrationTime": datetime.now().isoformat(),
+            }
             for category_id in category_ids
         ]
 
         query_str = (
-            "INSERT INTO entries (category_id, licence_no, color) "
+            "INSERT INTO entries (category_id, licence_no, color, registration_time) "
             "VALUES (:categoryId, :licenceNo, "
-            "(SELECT color FROM categories WHERE category_id = :categoryId)) "
+            "(SELECT color FROM categories WHERE category_id = :categoryId),"
+            ":registrationTime) "
             "ON CONFLICT (category_id, licence_no) DO NOTHING;"
         )
         stmt = text(query_str)
@@ -245,9 +221,7 @@ def api_register_entries(licence_no):
             return jsonify(p_schema.dump(player)), HTTPStatus.CREATED
         except DBAPIError:
             session.rollback()
-            return (
-                jsonify(
-                    error="One or several potential entries violate color constraint.",
-                ),
-                HTTPStatus.BAD_REQUEST,
+            raise ae.InvalidDataError(
+                origin=origin,
+                error_message=ae.COLOR_VIOLATION_MESSAGE,
             )

@@ -1,3 +1,4 @@
+from datetime import datetime
 from io import BytesIO
 from json import loads
 from http import HTTPStatus
@@ -20,9 +21,10 @@ from flaskr.api.db import (
     Player,
     Entry,
     Session,
-    app_info,
-    get_player_not_found_error,
+    is_before_cutoff,
 )
+import flaskr.api.api_errors as ae
+from flaskr.api.custom_decorators import after_cutoff
 
 c_schema = CategorySchema()
 p_schema = PlayerSchema()
@@ -37,33 +39,32 @@ def api_admin_set_categories():
     passed unpacked to the category constructor. Don't forget to cast datetime types
     to some parsable string.
     """
+    origin = "api_admin_set_categories"
 
     c_schema.reset(many=True)
     try:
         categories = c_schema.load(request.json)
     except ValidationError as e:
-        return jsonify(error=e.messages), HTTPStatus.BAD_REQUEST
+        raise ae.InvalidDataError(
+            origin=origin,
+            error_message=ae.CATEGORY_FORMAT_MESSAGE,
+            payload=e.messages,
+        )
 
     with Session() as session:
         try:
             session.execute(delete(Category))
         except DBAPIError:
             session.rollback()
-            return (
-                jsonify(
-                    error="Tried to reset categories while "
-                    "registration has already started.",
-                ),
-                HTTPStatus.BAD_REQUEST,
+            raise ae.RegistrationCutoffError(
+                origin=origin,
+                error_message=ae.REGISTRATION_MESSAGES["started"],
             )
 
         try:
             for category in categories:
                 session.add(category)
             session.commit()
-
-            _ = app_info.registration_cutoff
-            del app_info.registration_cutoff
 
             return (
                 jsonify(
@@ -77,7 +78,26 @@ def api_admin_set_categories():
             )
         except DBAPIError as e:
             session.rollback()
-            return jsonify(error=str(e)), HTTPStatus.BAD_REQUEST
+            raise ae.UnexpectedDBError(
+                origin=origin,
+                exception=e,
+            )
+
+
+@admin_api_bp.route("/categories", methods=["GET"])
+def api_admin_get_categories():
+    c_schema.reset(many=True)
+    with Session() as session:
+        return (
+            jsonify(
+                c_schema.dump(
+                    session.scalars(
+                        select(Category).order_by(Category.start_time),
+                    ).all(),
+                ),
+            ),
+            HTTPStatus.OK,
+        )
 
 
 @admin_api_bp.route("/players/<int:licence_no>", methods=["GET"])
@@ -91,27 +111,33 @@ def api_admin_get_player(licence_no):
 
     db_only = request.args.get("db_only", False, loads) is True
     if db_only:
-        return (
-            jsonify(get_player_not_found_error(licence_no)),
-            HTTPStatus.BAD_REQUEST,
+        raise ae.PlayerNotFoundError(
+            origin="admin_get_player_db_only",
+            licence_no=licence_no,
         )
 
     player_dict = get_player_fftt(licence_no)
     if player_dict is None:
-        return (
-            jsonify(get_player_not_found_error(licence_no)),
-            HTTPStatus.BAD_REQUEST,
+        raise ae.PlayerNotFoundError(
+            origin="admin_get_player",
+            licence_no=licence_no,
         )
+
     return jsonify(player_dict), HTTPStatus.OK
 
 
 @admin_api_bp.route("/players", methods=["POST"])
 def api_admin_add_player():
+    origin = "api_admin_add_player"
     p_schema.reset()
     try:
         player = p_schema.load(request.json)
     except ValidationError as e:
-        return jsonify(error=e.messages), HTTPStatus.BAD_REQUEST
+        raise ae.InvalidDataError(
+            origin=origin,
+            error_message=ae.PLAYER_FORMAT_MESSAGE,
+            payload=e.messages,
+        )
 
     with Session() as session:
         try:
@@ -120,31 +146,33 @@ def api_admin_add_player():
             return jsonify(p_schema.dump(player)), HTTPStatus.CREATED
         except DBAPIError:
             session.rollback()
-            return (
-                jsonify(
-                    error="A player with this licence already exists in the database. "
-                    "Player was not added.",
-                ),
-                HTTPStatus.BAD_REQUEST,
+            raise ae.InvalidDataError(
+                origin=origin,
+                error_message=ae.DUPLICATE_PLAYER_MESSAGE,
+                payload={"licenceNo": player.licence_no},
             )
 
 
 @admin_api_bp.route("/entries/<int:licence_no>", methods=["POST"])
 def api_admin_register_entries(licence_no):
+    origin = "api_admin_register_entries"
+
     v_schema = CategoryIdsSchema()
     if error := v_schema.validate(request.json):
-        return jsonify(error=error), HTTPStatus.BAD_REQUEST
+        raise ae.InvalidDataError(
+            origin=origin,
+            error_message=ae.REGISTRATION_FORMAT_MESSAGE,
+            payload=error,
+        )
 
     category_ids = request.json["categoryIds"]
 
     with Session() as session:
         player = session.get(Player, licence_no)
         if player is None:
-            return (
-                jsonify(
-                    get_player_not_found_error(licence_no),
-                ),
-                HTTPStatus.BAD_REQUEST,
+            raise ae.PlayerNotFoundError(
+                origin=origin,
+                licence_no=licence_no,
             )
 
         if not category_ids:
@@ -156,12 +184,12 @@ def api_admin_register_entries(licence_no):
         if nonexisting_category_ids := set(category_ids).difference(
             session.scalars(select(Category.category_id)),
         ):
-            return (
-                jsonify(
-                    error=f"No categories with the following categoryIds "
-                    f"{sorted(nonexisting_category_ids)} exist in the database",
-                ),
-                HTTPStatus.BAD_REQUEST,
+            raise ae.InvalidDataError(
+                origin=origin,
+                error_message=ae.INVALID_CATEGORY_ID_MESSAGES["registration"],
+                payload={
+                    "categoryIds": sorted(nonexisting_category_ids),
+                },
             )
 
         potential_categories = session.scalars(
@@ -177,23 +205,28 @@ def api_admin_register_entries(licence_no):
             ):
                 violations.append(category.category_id)
         if violations:
-            return (
-                jsonify(
-                    error=f"Tried to register some entries violating either gender or "
-                    f"points conditions: {violations}",
-                ),
-                HTTPStatus.BAD_REQUEST,
+            raise ae.InvalidDataError(
+                origin=origin,
+                error_message=ae.GENDER_POINTS_VIOLATION_MESSAGE,
+                payload={
+                    "categoryIds": sorted(violations),
+                },
             )
 
         temp_dicts = [
-            {"categoryId": category_id, "licenceNo": licence_no}
+            {
+                "categoryId": category_id,
+                "licenceNo": licence_no,
+                "registrationTime": datetime.now(),
+            }
             for category_id in category_ids
         ]
 
         query_str = (
-            "INSERT INTO entries (category_id, licence_no, color) "
+            "INSERT INTO entries (category_id, licence_no, color, registration_time) "
             "VALUES (:categoryId, :licenceNo, "
-            "(SELECT color FROM categories WHERE category_id = :categoryId)) "
+            "(SELECT color FROM categories WHERE category_id = :categoryId),"
+            ":registrationTime) "
             "ON CONFLICT (category_id, licence_no) DO NOTHING;"
         )
         stmt = text(query_str)
@@ -207,77 +240,70 @@ def api_admin_register_entries(licence_no):
             return jsonify(p_schema.dump(player)), HTTPStatus.CREATED
         except DBAPIError:
             session.rollback()
-            return (
-                jsonify(
-                    error="One or several potential entries violate color constraint.",
-                ),
-                HTTPStatus.BAD_REQUEST,
+            raise ae.InvalidDataError(
+                origin=origin,
+                error_message=ae.COLOR_VIOLATION_MESSAGE,
             )
 
 
 @admin_api_bp.route("/pay/<int:licence_no>", methods=["PUT"])
+@after_cutoff
 def api_admin_make_payment(licence_no):
-    """
-    Requires both a 'categoryIds' and a 'totalActualPaid' field in json.
-    For each category_id, will update entry.marked_as_paid to True.
-    Will update player.total_actual_paid to value of 'totalActualPaid'.
-    Idempotent.
-
-    Will return BAD_REQUEST (and not change anything db-side) for:
-    - nonexisting licence_no.
-    - category_ids that either do not exist in db or the player is not registered for.
-    - WARNING: the corresponding entry is not marked_as_present = True.
-    - WARNING: if totalActualPaid > sum of the fees required
-        to pay for all entries with marked_as_present=True, or negative.
-    This last 400 is to enforce the fact that a player can never pay more
-    than the entries he has showed up for.
-    """
+    origin = "api_admin_make_payment"
 
     v_schema = MakePaymentSchema()
     if error := v_schema.validate(request.json):
-        return jsonify(error=error), HTTPStatus.BAD_REQUEST
+        raise ae.InvalidDataError(
+            origin=origin,
+            error_message=ae.PAYMENT_FORMAT_MESSAGE,
+            payload=error,
+        )
 
     with Session() as session:
         if (player := session.get(Player, licence_no)) is None:
-            return (
-                jsonify(get_player_not_found_error(licence_no)),
-                HTTPStatus.BAD_REQUEST,
+            raise ae.PlayerNotFoundError(
+                origin=origin,
+                licence_no=licence_no,
             )
 
         ids_to_pay = set(request.json["categoryIds"])
 
-        if nonexisting_unregistered_nonpresent_categories := ids_to_pay.difference(
+        if invalid_category_ids := ids_to_pay.difference(
             entry.category_id for entry in player.present_entries()
         ):
-            return (
-                jsonify(
-                    error=f"Tried to pay the fee for some categories which "
-                    f"either did not exist, the player was not "
-                    f"registered for, or was not marked present: "
-                    f"{sorted(nonexisting_unregistered_nonpresent_categories)}",
-                ),
-                HTTPStatus.BAD_REQUEST,
+            raise ae.InvalidDataError(
+                origin=origin,
+                error_message=ae.INVALID_CATEGORY_ID_MESSAGES["payment"],
+                payload={
+                    "categoryIds": sorted(invalid_category_ids),
+                },
             )
 
         for entry in player.present_entries():
             if entry.category_id in ids_to_pay:
                 entry.marked_as_paid = True
 
-        if player._fees_total_present() < request.json["totalActualPaid"]:
+        if player.fees_total_present() < request.json["totalActualPaid"]:
             session.rollback()
-            return (
-                jsonify(
-                    error="The 'totalActualPaid' field is "
-                    "higher than what the player must "
-                    "currently pay for all categories "
-                    "he is marked as present",
-                ),
-                HTTPStatus.BAD_REQUEST,
+            raise ae.InvalidDataError(
+                origin=origin,
+                error_message=ae.ACTUAL_PAID_TOO_HIGH_MESSAGE,
+                payload={
+                    "totalActualPaid": request.json["totalActualPaid"],
+                    "totalPresent": player.fees_total_present(),
+                },
             )
 
         player.total_actual_paid = request.json["totalActualPaid"]
 
-        session.commit()
+        try:
+            session.commit()
+        except DBAPIError as e:
+            session.rollback()
+            raise ae.UnexpectedDBError(
+                origin=origin,
+                exception=e,
+            )
 
         p_schema.reset()
         p_schema.context["include_entries"] = True
@@ -287,30 +313,34 @@ def api_admin_make_payment(licence_no):
 
 @admin_api_bp.route("/entries/<int:licence_no>", methods=["DELETE"])
 def api_admin_delete_entries(licence_no):
+    origin = "api_admin_delete_entries"
     v_schema = CategoryIdsSchema()
     if error := v_schema.validate(request.json):
-        return jsonify(error=error), HTTPStatus.BAD_REQUEST
+        raise ae.InvalidDataError(
+            origin=origin,
+            error_message=ae.DELETE_ENTRIES_FORMAT_MESSAGE,
+            payload=error,
+        )
 
     category_ids = request.json["categoryIds"]
 
     with Session() as session:
         player = session.get(Player, licence_no)
         if player is None:
-            return (
-                jsonify(get_player_not_found_error(licence_no)),
-                HTTPStatus.BAD_REQUEST,
+            raise ae.PlayerNotFoundError(
+                origin=origin,
+                licence_no=licence_no,
             )
 
         if unregistered_category_ids := set(category_ids).difference(
             entry.category_id for entry in player.entries
         ):
-            return (
-                jsonify(
-                    error=f"Tried to delete some entries which were not registered or "
-                    f"even for nonexisting categories: "
-                    f"{sorted(unregistered_category_ids)}.",
-                ),
-                HTTPStatus.BAD_REQUEST,
+            raise ae.InvalidDataError(
+                origin=origin,
+                error_message=ae.INVALID_CATEGORY_ID_MESSAGES["deletion"],
+                payload={
+                    "categoryIds": sorted(unregistered_category_ids),
+                },
             )
 
         try:
@@ -328,17 +358,21 @@ def api_admin_delete_entries(licence_no):
 
         except DBAPIError as e:
             session.rollback()
-            return jsonify(error=str(e)), HTTPStatus.BAD_REQUEST
+            raise ae.UnexpectedDBError(
+                origin=origin,
+                exception=e,
+            )
 
 
 @admin_api_bp.route("/players/<int:licence_no>", methods=["DELETE"])
 def api_admin_delete_player(licence_no):
+    origin = "api_admin_delete_player"
     with Session() as session:
         player = session.get(Player, licence_no)
         if player is None:
-            return (
-                jsonify(get_player_not_found_error(licence_no)),
-                HTTPStatus.BAD_REQUEST,
+            raise ae.PlayerNotFoundError(
+                origin=origin,
+                licence_no=licence_no,
             )
 
         try:
@@ -347,7 +381,10 @@ def api_admin_delete_player(licence_no):
             return Response(status=HTTPStatus.NO_CONTENT)
         except DBAPIError as e:
             session.rollback()
-            return jsonify(error=str(e)), HTTPStatus.BAD_REQUEST
+            raise ae.UnexpectedDBError(
+                origin=origin,
+                exception=e,
+            )
 
 
 @admin_api_bp.route("/present/<int:licence_no>", methods=["PUT"])
@@ -374,12 +411,13 @@ def api_admin_mark_present(licence_no):
     - nonexisting and/or unregistered category_ids
     - nonempty intersection between the two fields,
     """
+    origin = "api_admin_mark_present"
     with Session() as session:
         player = session.get(Player, licence_no)
         if player is None:
-            return (
-                jsonify(get_player_not_found_error(licence_no)),
-                HTTPStatus.BAD_REQUEST,
+            raise ae.PlayerNotFoundError(
+                origin=origin,
+                licence_no=licence_no,
             )
 
         all_ids_to_update = request.json.get("categoryIdsPresence", {})
@@ -387,14 +425,12 @@ def api_admin_mark_present(licence_no):
         if unregistered_nonexisting_categories := set(
             all_ids_to_update.keys(),
         ).difference(entry.category_id for entry in player.entries):
-            return (
-                jsonify(
-                    error=f"Tried to mark/unmark player "
-                    f"for categories which he was not "
-                    f"registered for or even non_existing catgories"
-                    f": {sorted(unregistered_nonexisting_categories)}",
-                ),
-                HTTPStatus.BAD_REQUEST,
+            raise ae.InvalidDataError(
+                origin=origin,
+                error_message=ae.INVALID_CATEGORY_ID_MESSAGES["present"],
+                payload={
+                    "categoryIds": sorted(unregistered_nonexisting_categories),
+                },
             )
 
         too_many_present_category_ids = []
@@ -408,29 +444,38 @@ def api_admin_mark_present(licence_no):
                     too_many_present_category_ids.append(category_id)
 
                 if too_many_present_category_ids:
-                    return (
-                        jsonify(
-                            error=f"Tried to mark player as "
-                            f"present for the following categories:"
-                            f" {sorted(too_many_present_category_ids)}, "
-                            f"but they already have "
-                            f"the maximum number of players marked as present.",
-                        ),
-                        HTTPStatus.BAD_REQUEST,
+                    raise ae.InvalidDataError(
+                        origin=origin,
+                        error_message=ae.CATEGORY_FULL_PRESENT_MESSAGE,
+                        payload={
+                            "categoryIds": sorted(too_many_present_category_ids),
+                        },
                     )
 
         for category_id, presence in all_ids_to_update.items():
             entry = session.get(Entry, (category_id, licence_no))
             entry.marked_as_present = presence
+            if presence and is_before_cutoff():
+                raise ae.RegistrationCutoffError(
+                    origin=origin,
+                    error_message=ae.REGISTRATION_MESSAGES["not_ended_mark_present"],
+                )
             if presence is None or presence is False:
                 entry.marked_as_paid = False
 
         player.total_actual_paid = min(
-            player._fees_total_present(),
+            player.fees_total_present(),
             player.total_actual_paid,
         )
 
-        session.commit()
+        try:
+            session.commit()
+        except DBAPIError as e:
+            session.rollback()
+            raise ae.UnexpectedDBError(
+                origin=origin,
+                exception=e,
+            )
 
         p_schema.reset()
         p_schema.context["include_entries"] = True
@@ -439,16 +484,20 @@ def api_admin_mark_present(licence_no):
 
 
 @admin_api_bp.route("/bibs", methods=["POST"])
+@after_cutoff
 def api_admin_assign_all_bibs():
+    origin = "api_admin_assign_all_bibs"
     with Session() as session:
-        if session.scalars(select(distinct(Player.bib_no))).all() not in [[None], []]:
-            return (
-                jsonify(
-                    error="Some bib numbers are already assigned. Either "
-                    "assign remaining bib_nos one by one, or reset bib_nos.",
-                ),
-                HTTPStatus.CONFLICT,
+        player_with_bibs = session.scalars(
+            select(Player.licence_no).where(Player.bib_no.isnot(None)),
+        ).all()
+        if player_with_bibs:
+            raise ae.BibConflictError(
+                origin=origin,
+                error_message=ae.SOME_BIBS_ALREADY_ASSIGNED_MESSAGE,
+                payload={"licenceNos": sorted(player_with_bibs)},
             )
+
         licence_nos = session.scalars(
             select(Player.licence_no)
             .join_from(Player, Entry)
@@ -460,36 +509,42 @@ def api_admin_assign_all_bibs():
             {"licence_no": licence_no, "bib_no": (i + 1)}
             for i, licence_no in enumerate(licence_nos)
         ]
-        session.execute(update(Player), assigned_bib_nos)
-        session.commit()
-
+        try:
+            session.execute(update(Player), assigned_bib_nos)
+            session.commit()
+        except DBAPIError as e:
+            session.rollback()
+            raise ae.UnexpectedDBError(
+                origin=origin,
+                exception=e,
+            )
     return jsonify(assignedBibs=assigned_bib_nos), HTTPStatus.OK
 
 
 @admin_api_bp.route("/bibs/<int:licence_no>", methods=["PUT"])
+@after_cutoff
 def api_admin_assign_one_bib(licence_no):
+    origin = "api_admin_assign_one_bib"
     with Session() as session:
         player = session.get(Player, licence_no)
 
         if player is None:
-            return (
-                jsonify(get_player_not_found_error(licence_no)),
-                HTTPStatus.BAD_REQUEST,
+            raise ae.PlayerNotFoundError(
+                origin=origin,
+                licence_no=licence_no,
             )
 
         if player.bib_no is not None:
-            return (
-                jsonify(error="This player already has a bib assigned."),
-                HTTPStatus.CONFLICT,
+            raise ae.BibConflictError(
+                origin=origin,
+                error_message=ae.THIS_BIB_ALREADY_ASSIGNED_MESSAGE,
+                payload={"licenceNo": licence_no, "bibNo": player.bib_no},
             )
 
         if session.scalars(select(distinct(Player.bib_no))).all() == [None]:
-            return (
-                jsonify(
-                    error="Cannot assign bib numbers manually "
-                    "before having assigned them in bulk",
-                ),
-                HTTPStatus.CONFLICT,
+            raise ae.BibConflictError(
+                origin=origin,
+                error_message=ae.NO_BIBS_ASSIGNED_MESSAGE,
             )
 
         session.execute(
@@ -500,22 +555,38 @@ def api_admin_assign_one_bib(licence_no):
             ),
             {"licence_no": player.licence_no},
         )
-        session.commit()
+        try:
+            session.commit()
+        except DBAPIError as e:
+            session.rollback()
+            raise ae.UnexpectedDBError(
+                origin=origin,
+                exception=e,
+            )
         p_schema.reset()
         return jsonify(p_schema.dump(player)), HTTPStatus.OK
 
 
 @admin_api_bp.route("/bibs", methods=["DELETE"])
+@after_cutoff
 def api_admin_reset_bibs():
+    origin = "api_admin_reset_bibs"
     confirmation = request.json.get("confirmation", None)
-    if confirmation != "Je suis sur! J'ai appelé Céline!":
-        return (
-            jsonify(error="Missing or incorrect confirmation message."),
-            HTTPStatus.FORBIDDEN,
+    if confirmation != ae.RESET_BIBS_CONFIRMATION:
+        raise ae.ConfirmationError(
+            origin=origin,
+            error_message=ae.RESET_BIBS_CONFIRMATION_MESSAGE,
         )
     with Session() as session:
-        session.execute(update(Player).values(bib_no=None))
-        session.commit()
+        try:
+            session.execute(update(Player).values(bib_no=None))
+            session.commit()
+        except DBAPIError as e:
+            session.rollback()
+            raise ae.UnexpectedDBError(
+                origin=origin,
+                exception=e,
+            )
 
     return jsonify(success="success"), HTTPStatus.NO_CONTENT
 

@@ -5,4 +5,7 @@
 **/.pytest_cache/
 .env
 /.flaskenv
-/flaskr/fftt_config.py
+fftt_config.py
+todo.txt
+temp_improve_tests.py
+sample_data.sql

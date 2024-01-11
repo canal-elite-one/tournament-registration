@@ -1,56 +1,66 @@
-from conftest import BaseTest
+from freezegun import freeze_time
+
+from tests.conftest import BaseTest, before_cutoff, after_cutoff
 from http import HTTPStatus
 import pytest
 
-from flaskr.api.db import get_player_not_found_error
-
+import flaskr.api.api_errors as ae
 
 overall_incorrect_licence = 5555555
 
+origin = "api_admin_mark_present"
 
 correct_mark_unmark_present_nothing = (
-    608834,
+    4422906,
+    after_cutoff,
     {},
     {
         "bibNo": None,
-        "club": "U S ETREPAGNY T T",
-        "email": "wihnpztoim@tjbnck.com",
-        "firstName": "Nxovesf",
+        "club": "PUTEAUX TT CSM",
+        "email": "sxeltzeokc@jrdstd.com",
+        "firstName": "Mzxyyfw",
         "gender": "F",
-        "lastName": "GZLDPNEH",
-        "licenceNo": 608834,
-        "nbPoints": 1721,
+        "lastName": "ITMZMIPM",
+        "leftToPay": 0,
+        "licenceNo": 4422906,
+        "nbPoints": 1310,
         "paymentStatus": {
             "totalActualPaid": 0,
             "totalPaid": 0,
-            "totalPresent": 10,
-            "totalRegistered": 24,
+            "totalPresent": 0,
+            "totalRegistered": 21,
         },
-        "phone": "+336044431914",
+        "phone": "+336072282639",
         "registeredEntries": {
-            "3": {
+            "1": {
+                "alternateName": None,
                 "entryFee": 7,
-                "licenceNo": 608834,
+                "licenceNo": 4422906,
                 "markedAsPaid": False,
-                "markedAsPresent": False,
-                "rank": 1,
-                "registrationTime": "2023-03-20T00:24:12",
+                "markedAsPresent": None,
+                "rank": 57,
+                "registrationTime": "2023-06-14T23:36:12",
+                "startTime": "2024-01-07T09:00:00",
             },
-            "E": {
-                "entryFee": 10,
-                "licenceNo": 608834,
+            "B": {
+                "alternateName": "< 1500",
+                "entryFee": 7,
+                "licenceNo": 4422906,
                 "markedAsPaid": False,
-                "markedAsPresent": True,
-                "rank": 23,
-                "registrationTime": "2023-11-02T18:50:24",
+                "markedAsPresent": None,
+                "rank": 5,
+                "registrationTime": "2023-03-25T00:35:57",
+                "startTime": "2024-01-06T10:15:00",
             },
             "G": {
+                "alternateName": None,
                 "entryFee": 7,
-                "licenceNo": 608834,
+                "licenceNo": 4422906,
                 "markedAsPaid": False,
-                "markedAsPresent": False,
-                "rank": 24,
-                "registrationTime": "2023-08-23T06:56:51",
+                "markedAsPresent": None,
+                "rank": 11,
+                "registrationTime": "2023-06-05T04:06:42",
+                "startTime": "2024-01-06T16:00:00",
             },
         },
     },
@@ -58,9 +68,13 @@ correct_mark_unmark_present_nothing = (
 
 correct_mark_unmark_present = (
     608834,
+    after_cutoff,
     {
-        "categoryIdsToMark": ["3"],
-        "categoryIdsToUnmark": ["E"],
+        "categoryIdsPresence": {
+            "E": False,
+            "3": None,
+            "G": True,
+        },
     },
     {
         "bibNo": None,
@@ -69,10 +83,11 @@ correct_mark_unmark_present = (
         "firstName": "Nxovesf",
         "gender": "F",
         "lastName": "GZLDPNEH",
+        "leftToPay": 0,
         "licenceNo": 608834,
         "nbPoints": 1721,
         "paymentStatus": {
-            "totalActualPaid": 0,
+            "totalActualPaid": 7,
             "totalPaid": 0,
             "totalPresent": 7,
             "totalRegistered": 24,
@@ -80,28 +95,34 @@ correct_mark_unmark_present = (
         "phone": "+336044431914",
         "registeredEntries": {
             "3": {
+                "alternateName": None,
                 "entryFee": 7,
                 "licenceNo": 608834,
                 "markedAsPaid": False,
-                "markedAsPresent": True,
-                "rank": 1,
+                "markedAsPresent": None,
+                "rank": 2,
                 "registrationTime": "2023-03-20T00:24:12",
+                "startTime": "2024-01-07T11:30:00",
             },
             "E": {
+                "alternateName": None,
                 "entryFee": 10,
                 "licenceNo": 608834,
                 "markedAsPaid": False,
                 "markedAsPresent": False,
-                "rank": 23,
+                "rank": 36,
                 "registrationTime": "2023-11-02T18:50:24",
+                "startTime": "2024-01-06T14:00:00",
             },
             "G": {
+                "alternateName": None,
                 "entryFee": 7,
                 "licenceNo": 608834,
                 "markedAsPaid": False,
-                "markedAsPresent": False,
-                "rank": 24,
+                "markedAsPresent": True,
+                "rank": 23,
                 "registrationTime": "2023-08-23T06:56:51",
+                "startTime": "2024-01-06T16:00:00",
             },
         },
     },
@@ -109,6 +130,7 @@ correct_mark_unmark_present = (
 
 correct_mark_unmark_present_idempotent = (
     608834,
+    after_cutoff,
     {
         "categoryIdsToMark": ["3", "E"],
     },
@@ -119,39 +141,97 @@ correct_mark_unmark_present_idempotent = (
         "firstName": "Nxovesf",
         "gender": "F",
         "lastName": "GZLDPNEH",
+        "leftToPay": 0,
         "licenceNo": 608834,
         "nbPoints": 1721,
         "paymentStatus": {
-            "totalActualPaid": 0,
-            "totalPaid": 0,
+            "totalActualPaid": 17,
+            "totalPaid": 17,
             "totalPresent": 17,
             "totalRegistered": 24,
         },
         "phone": "+336044431914",
         "registeredEntries": {
             "3": {
+                "alternateName": None,
+                "entryFee": 7,
+                "licenceNo": 608834,
+                "markedAsPaid": True,
+                "markedAsPresent": True,
+                "rank": 2,
+                "registrationTime": "2023-03-20T00:24:12",
+                "startTime": "2024-01-07T11:30:00",
+            },
+            "E": {
+                "alternateName": None,
+                "entryFee": 10,
+                "licenceNo": 608834,
+                "markedAsPaid": True,
+                "markedAsPresent": True,
+                "rank": 36,
+                "registrationTime": "2023-11-02T18:50:24",
+                "startTime": "2024-01-06T14:00:00",
+            },
+            "G": {
+                "alternateName": None,
                 "entryFee": 7,
                 "licenceNo": 608834,
                 "markedAsPaid": False,
+                "markedAsPresent": None,
+                "rank": 23,
+                "registrationTime": "2023-08-23T06:56:51",
+                "startTime": "2024-01-06T16:00:00",
+            },
+        },
+    },
+)
+
+correct_marked_absent_before = (
+    608834,
+    before_cutoff,
+    {
+        "categoryIdsPresence": {"G": False},
+    },
+    {
+        "bibNo": None,
+        "club": "U S ETREPAGNY T T",
+        "email": "wihnpztoim@tjbnck.com",
+        "firstName": "Nxovesf",
+        "gender": "F",
+        "lastName": "GZLDPNEH",
+        "licenceNo": 608834,
+        "nbPoints": 1721,
+        "phone": "+336044431914",
+        "registeredEntries": {
+            "3": {
+                "alternateName": None,
+                "entryFee": 7,
+                "licenceNo": 608834,
+                "markedAsPaid": True,
                 "markedAsPresent": True,
-                "rank": 1,
+                "rank": 2,
                 "registrationTime": "2023-03-20T00:24:12",
+                "startTime": "2024-01-07T11:30:00",
             },
             "E": {
+                "alternateName": None,
                 "entryFee": 10,
                 "licenceNo": 608834,
-                "markedAsPaid": False,
+                "markedAsPaid": True,
                 "markedAsPresent": True,
-                "rank": 23,
+                "rank": 36,
                 "registrationTime": "2023-11-02T18:50:24",
+                "startTime": "2024-01-06T14:00:00",
             },
             "G": {
+                "alternateName": None,
                 "entryFee": 7,
                 "licenceNo": 608834,
                 "markedAsPaid": False,
                 "markedAsPresent": False,
-                "rank": 24,
+                "rank": 23,
                 "registrationTime": "2023-08-23T06:56:51",
+                "startTime": "2024-01-06T16:00:00",
             },
         },
     },
@@ -161,46 +241,62 @@ correct_admin_mark_present = [
     correct_mark_unmark_present_nothing,
     correct_mark_unmark_present,
     correct_mark_unmark_present_idempotent,
+    correct_marked_absent_before,
 ]
 
 incorrect_mark_present_nonexisting_player = (
     overall_incorrect_licence,
+    after_cutoff,
     {},
-    get_player_not_found_error(overall_incorrect_licence),
+    ae.PlayerNotFoundError(
+        origin=origin,
+        licence_no=overall_incorrect_licence,
+    ),
 )
 
 incorrect_mark_present_invalid_category = (
     7221154,
-    {"categoryIdsToMark": ["AA", "A", "E"], "categoryIdsToUnmark": ["BB", "B", "E"]},
+    after_cutoff,
     {
-        "error": "Tried to mark/unmark player for categories which he was not "
-        "registered for or even non_existing catgories: ['A', 'AA', 'B', "
-        "'BB']",
+        "categoryIdsPresence": {
+            "AA": True,
+            "A": True,
+            "E": True,
+            "BB": False,
+            "B": False,
+        },
     },
+    ae.InvalidDataError(
+        origin=origin,
+        error_message=ae.INVALID_CATEGORY_ID_MESSAGES["present"],
+        payload={"categoryIds": ["A", "AA", "B", "BB"]},
+    ),
 )
 
-incorrect_mark_present_mark_unmark_same_ids = (
-    608834,
+incorrect_mark_present_before = (
+    7221154,
+    before_cutoff,
     {
-        "categoryIdsToMark": ["E"],
-        "categoryIdsToUnmark": ["E"],
+        "categoryIdsPresence": {
+            "E": True,
+        },
     },
-    {
-        "error": "Tried to mark and unmark player as present for same categories: "
-        "['E']",
-    },
+    ae.RegistrationCutoffError(
+        origin=origin,
+        error_message=ae.REGISTRATION_MESSAGES["not_ended_mark_present"],
+    ),
 )
 
 incorrect_admin_mark_present = [
     incorrect_mark_present_nonexisting_player,
     incorrect_mark_present_invalid_category,
-    incorrect_mark_present_mark_unmark_same_ids,
+    incorrect_mark_present_before,
 ]
 
 
 class TestAPIMarkPresent(BaseTest):
     @pytest.mark.parametrize(
-        "licence_no,payload,response",
+        "licence_no,now,payload,response",
         correct_admin_mark_present,
     )
     def test_correct_admin_mark_present(
@@ -209,15 +305,17 @@ class TestAPIMarkPresent(BaseTest):
         reset_db,
         populate,
         licence_no,
+        now: str,
         payload,
         response,
     ):
-        r = client.put(f"/api/admin/present/{licence_no}", json=payload)
-        assert r.status_code == HTTPStatus.OK, r.json
-        assert r.json == response, r.json
+        with freeze_time(now):
+            r = client.put(f"/api/admin/present/{licence_no}", json=payload)
+            assert r.status_code == HTTPStatus.OK, r.json
+            assert r.json == response, r.json
 
     @pytest.mark.parametrize(
-        "licence_no,payload,error",
+        "licence_no,now,payload,error",
         incorrect_admin_mark_present,
     )
     def test_incorrect_admin_mark_present(
@@ -226,9 +324,11 @@ class TestAPIMarkPresent(BaseTest):
         reset_db,
         populate,
         licence_no,
+        now: str,
         payload,
         error,
     ):
-        r = client.put(f"/api/admin/present/{licence_no}", json=payload)
-        assert r.status_code == HTTPStatus.BAD_REQUEST, r.json
-        assert r.json == error, r.json
+        with freeze_time(now):
+            r = client.put(f"/api/admin/present/{licence_no}", json=payload)
+            assert r.status_code == error.status_code, r.json
+            assert r.json == error.to_dict(), r.json

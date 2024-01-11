@@ -1,8 +1,8 @@
 import os
 import subprocess
 from datetime import datetime
-from functools import cached_property
 
+from flask import current_app
 from sqlalchemy import create_engine, Table, select, func, not_
 from sqlalchemy.orm import DeclarativeBase, sessionmaker, Mapped, relationship
 
@@ -31,29 +31,8 @@ engine = create_engine(db_url)
 Session = sessionmaker(engine)
 
 
-class AppWideInfo:
-    def __init__(self):
-        self.max_entries_per_day = int(os.environ.get("MAX_ENTRIES_PER_DAY", 3))
-
-    @cached_property
-    def registration_cutoff(self):
-        if os.environ.get("TOURNAMENT_REGISTRATION_CUTOFF") is not None:
-            return datetime.fromisoformat(
-                os.environ.get("TOURNAMENT_REGISTRATION_CUTOFF"),
-            )
-        with Session() as session:
-            tournament_start = session.scalar(select(func.min(Category.start_time)))
-        if tournament_start is None:
-            return None
-        return tournament_start.replace(
-            hour=0,
-            minute=0,
-            second=0,
-            microsecond=0,
-        )
-
-
-app_info = AppWideInfo()
+def is_before_cutoff():
+    return datetime.now() < current_app.config["TOURNAMENT_REGISTRATION_CUTOFF"]
 
 
 class Base(DeclarativeBase):
@@ -75,7 +54,7 @@ class Category(Base):
 
     def current_fee(self):
         result = self.base_registration_fee
-        if datetime.now() > app_info.registration_cutoff:
+        if not is_before_cutoff():
             result += self.late_registration_fee
         return result
 
@@ -103,7 +82,7 @@ class Player(Base):
     def _fees_total_registered(self):
         return sum(entry.fee() for entry in self.entries)
 
-    def _fees_total_present(self):
+    def fees_total_present(self):
         return sum(entry.fee() for entry in self.present_entries())
 
     def _fees_total_paid(self):
@@ -113,12 +92,12 @@ class Player(Base):
         return {
             "totalActualPaid": self.total_actual_paid,
             "totalRegistered": self._fees_total_registered(),
-            "totalPresent": self._fees_total_present(),
+            "totalPresent": self.fees_total_present(),
             "totalPaid": self._fees_total_paid(),
         }
 
     def left_to_pay(self):
-        return self._fees_total_present() - self._fees_total_paid()
+        return self.fees_total_present() - self.total_actual_paid
 
 
 def get_player_not_found_error(licence_no):
@@ -143,7 +122,10 @@ class Entry(Base):
 
     def fee(self):
         result = self.category.base_registration_fee
-        if self.registration_time > app_info.registration_cutoff:
+        if (
+            self.registration_time
+            > current_app.config["TOURNAMENT_REGISTRATION_CUTOFF"]
+        ):
             result += self.category.late_registration_fee
         return result
 

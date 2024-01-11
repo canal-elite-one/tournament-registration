@@ -2,15 +2,19 @@ from pytest import fixture
 from sqlalchemy import text
 
 from flaskr import create_app
-from flaskr.api.db import Session, execute_dbmate, app_info
+from flaskr.api.db import Session, execute_dbmate
 
 SAMPLE_DATA_PATH = "./tests/sample_data/"
+
+
+before_cutoff = "2023-01-01 00:00:00"
+after_cutoff = "2025-01-01 00:00:00"
 
 
 class BaseTest:
     @fixture(scope="session")
     def app(self):
-        return create_app()
+        return create_app(debug=True)
 
     @fixture(scope="session")
     def client(self, app):
@@ -19,8 +23,6 @@ class BaseTest:
     @fixture
     def reset_db(self, request):
         execute_dbmate("up")
-        _ = app_info.registration_cutoff
-        del app_info.registration_cutoff
 
         def tear_down():
             with Session() as session:

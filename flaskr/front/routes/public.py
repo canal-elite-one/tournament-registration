@@ -1,6 +1,5 @@
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, current_app
 from datetime import datetime
-from flaskr.api.db import app_info
 
 
 public_bp = Blueprint(
@@ -13,7 +12,7 @@ public_bp = Blueprint(
 
 @public_bp.route("/", methods=["GET"])
 def index_page():
-    if datetime.now() > app_info.registration_cutoff:
+    if datetime.now() > current_app.config["TOURNAMENT_REGISTRATION_CUTOFF"]:
         return render_template("/public_late_index.html")
     return render_template("/public_index.html")
 
@@ -28,7 +27,7 @@ def player_page(licence_no):
     return render_template(
         "/public_player.html",
         licence_no=licence_no,
-        max_entries_per_day=app_info.max_entries_per_day,
+        max_entries_per_day=current_app.config["MAX_ENTRIES_PER_DAY"],
     )
 
 
