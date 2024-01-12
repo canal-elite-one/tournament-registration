@@ -300,20 +300,13 @@ function downloadOneCsv(categoryId) {
 }
 
 async function downloadAll() {
-    /*
-    let zip = new JSZip();
-    let directory = zip.folder('inscrits_par_tableaux');
-    data.forEach(categoryObject => {
-        let categoryId = categoryObject['categoryId'];
-        let csvContent = generateCsv(categoryId);
-        if (csvContent) {
-            directory.file('tableau_' + categoryId + '.csv', csvContent);
-        }
-    });
-    let content = await zip.generateAsync({type:"blob"});
-    saveAs(content, 'inscrits_par_tableaux.zip');
-    */
-   return;
+    let downloadLink = document.createElement('a');
+    downloadLink.setAttribute('href', '/api/admin/csv?by_category=true');
+    downloadLink.setAttribute('download', 'competiteurs_par_tableau.zip');
+    downloadLink.style.display = 'none';
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
 }
 
 function processData() {

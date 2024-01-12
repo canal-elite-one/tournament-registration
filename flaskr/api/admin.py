@@ -630,72 +630,76 @@ def api_admin_get_all_players():
         )
 
 
+def create_zip_file(filenames: list[str], players: list[list], zip_name: str):
+    zip_file = BytesIO()
+
+    def player_str(player_object):
+        return (
+            f"{player_object.bib_no},{player_object.licence_no},"
+            f"{player_object.last_name},{player_object.first_name},"
+            f"{player_object.nb_points},{player_object.club}\n"
+        )
+
+    with ZipFile(zip_file, "a") as zip_zip:
+        for filename, player_list in zip(filenames, players):
+            content = ["N° dossard, N° licence, Nom, Prénom, Points, Club\n"]
+            content.extend(player_str(player) for player in player_list)
+            zip_zip.writestr(
+                filename,
+                "".join(content),
+            )
+
+    zip_file.seek(0)
+    return Response(
+        zip_file.getvalue(),
+        mimetype="application/zip",
+        headers={
+            "Content-Disposition": f"attachment;filename={zip_name}.zip",
+        },
+    )
+
+
 @admin_api_bp.route("/csv", methods=["GET"])
 def api_admin_get_csv_zip():
     by_category = request.args.get("by_category", False, loads) is True
-    if by_category:
-        return None
 
     with Session() as session:
-        categories = session.scalars(select(Category)).all()
-        saturday_category_ids = [
-            category.category_id
-            for category in categories
-            if category.start_time.weekday() == 5
-        ]
-        sunday_category_ids = [
-            category.category_id
-            for category in categories
-            if category.start_time.weekday() == 6
-        ]
-        saturday_players = session.scalars(
-            select(Player)
-            .distinct()
-            .join(Entry)
-            .where(Entry.category_id.in_(saturday_category_ids)),
-        ).all()
-        sunday_players = session.scalars(
-            select(Player)
-            .distinct()
-            .join(Entry)
-            .where(Entry.category_id.in_(sunday_category_ids)),
-        ).all()
+        if by_category:
+            players = []
+            filenames = []
+            for category in session.scalars(
+                select(Category).order_by(Category.start_time),
+            ).all():
+                players.append([entry.player for entry in category.entries])
+                filenames.append(f"competiteurs_tableau_{category.category_id}.csv")
+            zip_name = "competiteurs_par_tableaux"
+        else:
+            categories = session.scalars(select(Category)).all()
+            saturday_category_ids = [
+                category.category_id
+                for category in categories
+                if category.start_time.weekday() == 5
+            ]
+            sunday_category_ids = [
+                category.category_id
+                for category in categories
+                if category.start_time.weekday() == 6
+            ]
+            saturday_players = session.scalars(
+                select(Player)
+                .distinct()
+                .join(Entry)
+                .where(Entry.category_id.in_(saturday_category_ids)),
+            ).all()
+            sunday_players = session.scalars(
+                select(Player)
+                .distinct()
+                .join(Entry)
+                .where(Entry.category_id.in_(sunday_category_ids)),
+            ).all()
 
-        saturday_csv = BytesIO()
-        saturday_csv.write(
-            "N° dossard, N° licence, Nom, Prénom, Points, Club\n".encode(),
-        )
+            players = [saturday_players, sunday_players]
+            filenames = ["competiteurs_samedi.csv", "competiteurs_dimanche.csv"]
+            zip_name = "competiteurs_samedi_dimanche"
 
-        for player in saturday_players:
-            saturday_csv.write(
-                f"{player.bib_no},{player.licence_no},{player.last_name},{player.first_name},"
-                f"{player.nb_points},{player.club}\n".encode(),
-            )
-
-        sunday_csv = BytesIO()
-
-        sunday_csv.write(
-            "N° dossard, N° licence, Nom, Prénom, Points, Club\n".encode(),
-        )
-        for player in sunday_players:
-            sunday_csv.write(
-                f"{player.bib_no},{player.licence_no},{player.last_name},{player.first_name},"
-                f"{player.nb_points},{player.club}\n".encode(),
-            )
-
-        saturday_csv.seek(0)
-        sunday_csv.seek(0)
-
-        zip_file = BytesIO()
-        with ZipFile(zip_file, "w") as zip_zip:
-            zip_zip.writestr("competiteurs_samedi.csv", saturday_csv.read())
-            zip_zip.writestr("competiteurs_dimanche.csv", sunday_csv.read())
-
-        return Response(
-            zip_file.getvalue(),
-            mimetype="application/zip",
-            headers={
-                "Content-Disposition": "attachment;filename"
-                "=competiteurs_samedi_dimanche.zip",
-            },
-        )
+        return create_zip_file(filenames, players, zip_name)

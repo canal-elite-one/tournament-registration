@@ -619,7 +619,7 @@ async function submitChanges() {
 }
 
 async function fetchAll() {
-    let categoriesResponse = await fetch("/api/public/categories");
+    let categoriesResponse = await fetch("/api/admin/categories");
     let playerResponse = await fetch("/api/admin/players/" + licenceNo);
 
     if (categoriesResponse.ok && playerResponse.ok) {

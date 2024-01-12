@@ -38,8 +38,6 @@ if (!hasRegistrationEnded) {
     delete frToEn['N° dossard'];
     delete frToEn['Montant dû (€)'];
 } else {
-    searchCols.push("bibNo");
-    numericCols.push("bibNo");
     numericCols.push("leftToPay");
 }
 
@@ -142,7 +140,7 @@ let currentSort = {"colName": null, "ascending": true};
 
 
 function sortByColumn(colName) {
-    if (dontSort.includes(colName)) {
+    if (dontSort.includes(colName) || (colName == "bibNo" && !bibsSet)) {
         return null;
     }
 
@@ -237,6 +235,10 @@ function areBibsSet() {
             result = true;
         }
     });
+    if (result) {
+        searchCols.push("bibNo");
+        numericCols.push("bibNo");
+    }
     return result;
 }
 
