@@ -1,0 +1,89 @@
+{% extends 'base_public.html' %}
+
+{% block title %}Inscription{% endblock %}
+
+{% block content %}
+<table id="player_info_table">
+    <tr>
+        <th>N° licence</th>
+        <td id="licence_no_cell"></td>
+    </tr>
+    <tr>
+        <th>Prénom</th>
+        <td id="first_name_cell"></td>
+    </tr>
+    <tr>
+        <th>Nom de famille</th>
+        <td id="last_name_cell"></td>
+    </tr>
+    <tr>
+        <th>Genre</th>
+        <td id="gender_cell"></td>
+    </tr>
+    <tr>
+        <th>Club</th>
+        <td id="club_cell"></td>
+    </tr>
+    <tr>
+        <th>Classement</th>
+        <td id="points_cell"></td>
+    </tr>
+    <tr>
+        <th>Addresse courriel</th>
+        <td id="email_cell"></td>
+    </tr>
+    <tr>
+        <th>Numéro de téléphone</th>
+        <td id="phone_cell"></td>
+    </tr>
+</table>
+
+<div id="admin_entry_management">
+    <table id="saturday_table">
+        <thead>
+            <tr>
+                <th colspan="5">Samedi</th>
+            </tr>
+            <tr>
+                <th>Tableau</th>
+                <th>Liste d'attente ?</th>
+                <th>Limite de points</th>
+                <th>Féminin ?</th>
+                <th>Inscription</th>
+            </tr>
+        </thead>
+        <tbody id="saturday_table_body"></tbody>
+    </table>
+    <table id="sunday_table">
+        <thead>
+            <tr>
+                <th colspan="5">Dimanche</th>
+            </tr>
+            <tr>
+                <th>Tableau</th>
+                <th>Liste d'attente ?</th>
+                <th>Limite de points</th>
+                <th>Féminin ?</th>
+                <th>Inscription</th>
+            </tr>
+        </thead>
+        <tbody id="sunday_table_body"></tbody>
+    </table>
+</div>
+
+<!--
+<div id="recap_entries_div" class="recap_notification">
+    <p id="recap_message">test</p>
+    <ul id="recap_list"></ul>
+    <button id="close_recap_button" onclick="closeRecap()">Fermer</button>
+</div>
+-->
+
+<button id="submit_button" onclick="submitAll()" disabled title="Vous devez vous inscrire à au moins un tableau." style="cursor: disabled;">S'inscrire</button>
+{% endblock %}
+
+{% block scripts %}
+<script>const licenceNo={{ licence_no }}</script>
+<script>const maxEntriesPerDay={{ max_entries_per_day }}</script>
+<script src="{{ url_for('static', filename='public_player.js') }}"></script>
+{% endblock %}
