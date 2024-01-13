@@ -6,11 +6,12 @@
 <nav>
     <ul class="navbar" id="categories_navbar">
         <li class="navbar-element">
-            <h3 class="navbar-element">Tableaux</h3>
+            <h4 class="navbar-element">Tableaux :</h4>
+        </li>
+        <li class="navbar-element">
+            <span id="show_span_all" class="navbar-link show_table_span navbar-link-current" onclick="showTables()">Tous</span>
         </li>
     </ul>
-</nav>
-<nav>
     <div class="navbar">
         <input type="search" id="players_by_category_search" class="players_table_search" placeholder="Recherche" autofocus oninput="filterData()">
         <button id="export_all_button" onclick="downloadAll()">Télécharger tous les tableaux en csv</button>
@@ -19,7 +20,9 @@
 {% endblock %}
 
 {% block content %}
-<div id="players_by_category_div"></div>
+<p id="no_results_p" style="display: none;">Aucun résultat ne correspond à votre recherche.</p>
+<div id="players_by_category_div">
+</div>
 {% endblock %}
 
 {% block scripts %}

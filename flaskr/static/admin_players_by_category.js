@@ -114,8 +114,9 @@ function collapseTable(categoryId) {
     }
 }
 
+const nbResults = {};
 
-function createOneTable(categoryObject, searchString="") {
+function createOneTable(categoryObject, searchString="", show=true) {
     let nbCols = hasRegistrationEnded ? 9 : 6;
     let categoryId = categoryObject['categoryId'];
 
@@ -123,8 +124,13 @@ function createOneTable(categoryObject, searchString="") {
     categoryTableDiv.setAttribute('class', 'category_table_div');
     categoryTableDiv.setAttribute('id', 'category_table_div_' + categoryId);
 
+    if (!show) {
+        categoryTableDiv.style.display = 'none';
+    }
+
     let categoryTable = document.createElement('table');
     categoryTable.setAttribute('id', 'category_table_' + categoryId);
+    categoryTable.setAttribute('class', 'players_table');
     categoryTableDiv.appendChild(categoryTable);
 
     let categoryTableHeader = document.createElement('thead');
@@ -236,10 +242,12 @@ function createOneTable(categoryObject, searchString="") {
             nbFiltered += appendOneRow(categoryTableBody, entryObject, categoryId, searchString, 'absent');
         });
     }
+
+    nbResults[categoryId] = nbFiltered;
+    document.getElementById('players_by_category_div').appendChild(categoryTableDiv);
     if (nbFiltered === 0 && searchString.length > 0) {
         return 0;
     } else {
-        document.getElementById('players_by_category_div').appendChild(categoryTableDiv);
         return 1;
     }
 }
@@ -248,14 +256,64 @@ function filterData() {
     let searchString = document.getElementById('players_by_category_search').value.toLowerCase();
     document.getElementById('players_by_category_div').innerHTML = "";
 
+    let tableSpans = Array.from(document.getElementsByClassName('show_table_span'));
+    let currentDisplayed = tableSpans.filter(span => span.classList.contains('navbar-link-current'));
+    let currentCategoryId = currentDisplayed.length > 0 ? currentDisplayed[0].id.replace('show_span_', '') : null;
+
+    if (currentCategoryId === null) {
+        currentCategoryId = "all";
+        console.error("No category is currently displayed.");
+    }
+
     let nbFiltered = 0;
     data.forEach(categoryObject => {
-        nbFiltered += createOneTable(categoryObject, searchString);
+        let show = currentCategoryId == "all" || categoryObject['categoryId'] === currentCategoryId;
+        nbFiltered += createOneTable(categoryObject, searchString, show);
     });
-    if (nbFiltered === 0 && searchString.length > 0) {
-        document.getElementById('players_by_category_div').innerHTML = "<p>Aucun joueur ne correspond à votre recherche.</p>";
-    }
+    checkIfResults(currentCategoryId);
 }
+
+function checkIfResults(categoryId=null) {
+    if (categoryId === null || categoryId === "all") {
+        for (let categoryId in nbResults) {
+            if (nbResults[categoryId] > 0) {
+                document.getElementById('no_results_p').style.display = 'none';
+                return;
+            }
+        }
+
+    } else {
+        if (categoryId in nbResults && nbResults[categoryId] > 0) {
+            document.getElementById('no_results_p').style.display = 'none';
+            return;
+        } else {
+            document.getElementById('category_table_div_' + categoryId).style.display = 'none';
+        }
+    }
+    document.getElementById('no_results_p').style.display = 'block';
+}
+
+function showTables(categoryId=null) {
+    let tables = document.getElementsByClassName('category_table_div');
+    let links = document.getElementsByClassName('show_table_span');
+    if (categoryId === null) {
+        for (let i=0; i<tables.length; i++) {
+            tables[i].style.display = 'block';
+            links[i].classList.remove('navbar-link-current');
+        }
+        document.getElementById("show_span_all").classList.add('navbar-link-current');
+    } else {
+        for (let i=0; i<tables.length; i++) {
+            tables[i].style.display = 'none';
+            links[i+1].classList.remove('navbar-link-current');
+        }
+        document.getElementById("show_span_all").classList.remove('navbar-link-current');
+        document.getElementById("show_span_" + categoryId).classList.add('navbar-link-current');
+        document.getElementById('category_table_div_' + categoryId).style.display = 'block';
+    }
+    checkIfResults(categoryId);
+}
+
 
 function generateCsv(categoryId) {
     if (!hasRegistrationEnded) {
@@ -315,7 +373,17 @@ function processData() {
     data.forEach(categoryObject=> {
         let categoryId = categoryObject['categoryId'];
 
-        categoriesNavbar.innerHTML += '<li class="navbar-element"><a class="navbar-link" href="#category_table_div_' + categoryId + '">' + categoryId + '</a></li>';
+        let listElement = document.createElement('li');
+        listElement.setAttribute('class', 'navbar-element');
+
+        let linkElement = document.createElement('span');
+        linkElement.setAttribute('class', 'navbar-link');
+        linkElement.classList.add('show_table_span');
+        linkElement.setAttribute('id', 'show_span_' + categoryId);
+        linkElement.setAttribute('onclick', 'showTables("' + categoryId + '")');
+        linkElement.innerHTML = categoryId;
+        listElement.appendChild(linkElement);
+        categoriesNavbar.appendChild(listElement);
 
         createOneTable(categoryObject);
     });
@@ -331,6 +399,7 @@ async function fetchData() {
         data = json['categories'];
         console.log(data);
         processData();
+        showTables();
     }
 }
 

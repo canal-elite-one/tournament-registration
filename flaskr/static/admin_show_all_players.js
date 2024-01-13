@@ -37,6 +37,7 @@ const searchCols = ["licenceNo", "firstName", "lastName", "club"];
 if (!hasRegistrationEnded) {
     delete frToEn['N° dossard'];
     delete frToEn['Montant dû (€)'];
+    document.getElementById("after_cutoff_navbar").style.display = "none";
 } else {
     numericCols.push("leftToPay");
 }
@@ -86,6 +87,7 @@ function putDataInTable(data, elementId) {
     const columns = Object.getOwnPropertyNames(frToEn);
     const table = document.createElement('table');
     table.id = "players_table";
+    table.setAttribute("class", "players_table");
     const body = document.createElement('tbody');
     const head = document.createElement('thead');
 
@@ -184,7 +186,7 @@ function filterData() {
     })
 
     let searchFfttButton = document.getElementById("search_fftt_button");
-    if (!isNaN(searchString)) {
+    if (!isNaN(searchString) && searchString.length > 0) {
         searchFfttButton.removeAttribute("disabled");
     } else {
         searchFfttButton.setAttribute("disabled", "");
@@ -212,6 +214,7 @@ searchField.addEventListener("keypress", function(event) {
 });
 
 searchField.value = "";
+document.getElementById("search_fftt_button").setAttribute("disabled", "");
 
 document.getElementById('all_players_navbar_link').setAttribute('class', 'navbar-link-current');
 if (!hasRegistrationEnded) {
@@ -236,8 +239,13 @@ function areBibsSet() {
         }
     });
     if (result) {
+        document.getElementById("set_all_bibs_button").style.display = "none";
+        document.getElementById("reset_all_bibs_button").style.display = "inline-block";
         searchCols.push("bibNo");
         numericCols.push("bibNo");
+    } else {
+        document.getElementById("set_all_bibs_button").style.display = "inline-block";
+        document.getElementById("reset_all_bibs_button").style.display = "none";
     }
     return result;
 }

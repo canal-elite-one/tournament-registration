@@ -6,6 +6,12 @@ def handle_api_error(error):
     return jsonify(error.to_dict()), error.status_code
 
 
+class FFTTAPIError(Exception):
+    def __init__(self, payload=None):
+        super().__init__()
+        self.payload = payload
+
+
 class APIError(Exception):
     """Base class for API errors"""
 
@@ -191,7 +197,7 @@ NO_BIBS_ASSIGNED_MESSAGE = (
 
 
 class UnexpectedAPIError(APIError):
-    """Base class for 500 errors"""
+    """Base class for Python 500 errors"""
 
     status_code = HTTPStatus.INTERNAL_SERVER_ERROR
 
@@ -211,4 +217,16 @@ class UnexpectedDBError(UnexpectedAPIError):
             origin=origin,
             error_message="An unexpected error occurred while accessing the database",
             exception=exception,
+        )
+
+
+class UnexpectedFFTTError(APIError):
+    status_code = HTTPStatus.INTERNAL_SERVER_ERROR
+    error_type = "UNEXPECTED_FFTT_ERROR"
+
+    def __init__(self, origin=None, payload=None):
+        super().__init__(
+            origin=origin,
+            error_message="An unexpected error occurred while accessing the FFTT API",
+            payload=payload,
         )

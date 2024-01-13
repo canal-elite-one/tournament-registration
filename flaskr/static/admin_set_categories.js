@@ -264,7 +264,7 @@ function processExistingCategories(data) {
 
 document.getElementById('set_categories_navbar_link').setAttribute('class', 'navbar-link-current');
 
-fetch('/api/public/categories')
+fetch('/api/admin/categories')
     .then((response) => response.json())
     .then((data) => {
         console.log(data);

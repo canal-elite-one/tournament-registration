@@ -360,23 +360,9 @@ async function fetchCategoriesAndPlayer() {
             processPlayer();
             return true;
         } else if (!categoriesResponse.ok) {
-            categoriesPayload = await categoriesResponse.json();
-            console.error("Error:", categoriesPayload);
-            window.location.href = "/public/erreur";
+            publicHandleBadResponse(categoriesResponse);
         } else {
-            playerPayload = await playerResponse.json();
-            if ('FFTT_API_ERROR' in playerPayload) {
-                console.error("Error:", playerPayload);
-                window.location.href = "/public/erreur";
-            } else if ('PLAYER_NOT_FOUND_ERROR' in playerPayload) {
-                alert("Aucun licencié avec ce numéro de licence n'a été trouvé.");
-                window.location.href = "/public";
-            } else if ('PLAYER_ALREADY_REGISTERED_ERROR' in playerPayload) {
-                window.location.href = "/public/deja_inscrit/" + licenceNo;
-            } else {
-                console.error("Error:", playerPayload);
-                window.location.href = "/public/erreur";
-            }
+            publicHandleBadResponse(playerResponse);
         }
     } catch (error) {
         console.error("Error:", error);

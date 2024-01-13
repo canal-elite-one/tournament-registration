@@ -91,9 +91,14 @@ def api_public_get_player(licence_no):
     if db_only:
         raise ae.PlayerNotFoundError(origin=origin, licence_no=licence_no)
 
-    player_dict = get_player_fftt(licence_no)
+    try:
+        player_dict = get_player_fftt(licence_no)
+    except ae.FFTTAPIError as e:
+        raise ae.UnexpectedFFTTError(origin=origin, payload=e.payload)
+
     if player_dict is None:
         raise ae.PlayerNotFoundError(origin=origin, licence_no=licence_no)
+
     return jsonify(player_dict), HTTPStatus.OK
 
 

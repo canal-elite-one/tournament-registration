@@ -1,9 +1,32 @@
+body {
+  font-family: Tahoma,Verdana,Segoe,sans-serif;
+}
+
 h1 {
 color: blue;
 font-size: 60px;
 text-align: center;
 border: 1px solid grey;
-font-family: Tahoma,Verdana,Segoe,sans-serif;
+}
+
+.players_table {
+  width: 100%;
+}
+
+#players_table_div {
+  margin: auto;
+  padding-left: 25px;
+  padding-right: 25px;
+  padding-top: 5px;
+  padding-bottom: 10px;
+}
+
+#players_by_category_div {
+  margin: auto;
+  padding-left: 25px;
+  padding-right: 25px;
+  padding-top: 5px;
+  padding-bottom: 10px;
 }
 
 .players_table_row:nth-child(even) {
@@ -42,9 +65,10 @@ padding-right: 5px;
   margin-top: -8px;
   padding-left: 0px;
   padding-bottom: 0px;
+  margin-right: -8px;
+  padding-right: 0px;
   position: sticky;
   top: 0;
-  width: 100%;
   border-bottom: 1px solid #ccc;
   box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
 }
@@ -57,10 +81,12 @@ padding-right: 5px;
 }
 
 .navbar-element {
+  border-radius: 3px;
   display: inline;
+  cursor: pointer;
 }
 
-.navbar-element:hover {
+.navbar-link:hover {
   background-color: #d6d6d6;
 }
 
@@ -69,18 +95,36 @@ padding-right: 5px;
 }
 
 .navbar-link {
+  border-radius: 3px;
   padding-left: 10px;
   padding-right: 10px;
   text-decoration: none;
   color: rgb(0, 38, 255);
   font-family: Tahoma,Verdana,Segoe,sans-serif;
+  cursor: pointer;
 }
 
 .navbar-link-current {
+  border-radius: 3px;
+  padding-left: 10px;
+  padding-right: 10px;
+  padding-top: 3px;
+  padding-bottom: 3px;
   text-decoration: none;
   color: rgb(255, 255, 255);
   font-family: Tahoma,Verdana,Segoe,sans-serif;
   background-color: rgb(0, 38, 255);
+  cursor: pointer;
+  box-shadow: 1px 1px 1px #cacaca;
+}
+
+.navbar-link-current:hover {
+  background-color: rgb(0, 38, 255);
+}
+
+.link-button {
+  background-color: #e2e2e2;
+  cursor: pointer;
 }
 
 thead {
@@ -101,11 +145,6 @@ thead {
   margin: auto;
 }
 
-#players_table_div {
-  margin: auto;
-  padding: 5px;
-}
-
 .recap_notification {
   position: fixed;
   bottom: 10px;
@@ -121,4 +160,8 @@ thead {
   margin: auto;
   padding: 5px;
   scroll-margin-top: 120px;
+}
+
+#content_div {
+  padding-top: 10px;
 }

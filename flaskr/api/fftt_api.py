@@ -1,10 +1,14 @@
 import requests
-from flaskr.api.fftt_config import serial_no, app_id, password
+
 import hashlib
 import hmac
+
 from datetime import datetime
 
 from xml.etree import ElementTree
+
+from flaskr.api.fftt_config import serial_no, app_id, password
+from flaskr.api.api_errors import FFTTAPIError
 
 
 def get_current_formatted_timestamp() -> str:
@@ -36,7 +40,12 @@ def get_player_fftt(licence_no):
     response = requests.get(url, params=params)
 
     if response.status_code != 200:
-        return {"FFTT_API_ERROR": response.status_code}
+        payload = None
+        # try:
+        #     payload = response.json()
+        # except ValueError:
+        #     pass
+        raise FFTTAPIError(payload=payload)
 
     xml = response.content.decode("utf-8")
     root = ElementTree.fromstring(xml).find("licence")

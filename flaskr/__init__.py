@@ -2,6 +2,7 @@ import os
 from datetime import datetime
 
 from flask import Flask
+
 from flaskr.api.admin import admin_api_bp
 from flaskr.api.public import public_api_bp
 from flaskr.front.routes.public import public_bp, not_found_page
@@ -28,5 +29,8 @@ def create_app(debug=False):
 
 
 if __name__ == "__main__":
+    # with freeze_time("2021-01-01"):
+    #     app = create_app()
+    #     app.run(debug=True)
     app = create_app()
     app.run(debug=True)
