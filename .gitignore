@@ -5,7 +5,3 @@
 **/.pytest_cache/
 .env
 /.flaskenv
-fftt_config.py
-todo.txt
-temp_improve_tests.py
-sample_data.sql
