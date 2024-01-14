@@ -290,18 +290,20 @@ def api_admin_make_payment(licence_no):
             if entry.category_id in ids_to_pay:
                 entry.marked_as_paid = True
 
-        if player.fees_total_present() < request.json["totalActualPaid"]:
+        total_actual_paid = request.json["totalActualPaid"]
+
+        if player.fees_total_present() < total_actual_paid:
             session.rollback()
             raise ae.InvalidDataError(
                 origin=origin,
                 error_message=ae.ACTUAL_PAID_TOO_HIGH_MESSAGE,
                 payload={
-                    "totalActualPaid": request.json["totalActualPaid"],
+                    "totalActualPaid": total_actual_paid,
                     "totalPresent": player.fees_total_present(),
                 },
             )
 
-        player.total_actual_paid = request.json["totalActualPaid"]
+        player.total_actual_paid = total_actual_paid
 
         try:
             session.commit()
@@ -397,13 +399,7 @@ def api_admin_delete_player(licence_no):
 @api_bp.route("/present/<int:licence_no>", methods=["PUT"])
 def api_admin_mark_present(licence_no):
     """
-    Expects json fields "categoryIdsToMark" and "categoryIdsToUnmark"
-    with a list of categoryIds in each.
-    For each category_id in the fields, will update value of
-    player.marked_as_present to True/False,
-    depending on which field it is in. Idempotent.
-
-    Additionally, this is the only way to unpay an entry:
+    This is the only way to unpay an entry:
     It is assumed that the only valid transitions paid=True -> paid=False
     are of the form paid=True, present=True -> paid=False, present=False.
     The case paid=True, present=False -> Any is already prevented by hypothesis,
