@@ -26,8 +26,8 @@ class BaseTest:
         return public_app.test_client()
 
     @fixture(scope="session")
-    def admin_client(self, public_app):
-        return public_app.test_client()
+    def admin_client(self, admin_app):
+        return admin_app.test_client()
 
     @fixture
     def reset_db(self, request):

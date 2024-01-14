@@ -29,10 +29,10 @@ from shared.api.custom_decorators import after_cutoff
 c_schema = CategorySchema()
 p_schema = PlayerSchema()
 
-admin_api_bp = Blueprint("admin_api", __name__, url_prefix="/api/admin")
+api_bp = Blueprint("admin_api", __name__, url_prefix="/api/admin")
 
 
-@admin_api_bp.route("/categories", methods=["POST"])
+@api_bp.route("/categories", methods=["POST"])
 def api_admin_set_categories():
     """
     Expects a jsonified list of dicts in the "categories" field of the json that can be
@@ -84,7 +84,7 @@ def api_admin_set_categories():
             )
 
 
-@admin_api_bp.route("/categories", methods=["GET"])
+@api_bp.route("/categories", methods=["GET"])
 def api_admin_get_categories():
     c_schema.reset(many=True)
     with Session() as session:
@@ -100,7 +100,7 @@ def api_admin_get_categories():
         )
 
 
-@admin_api_bp.route("/players/<int:licence_no>", methods=["GET"])
+@api_bp.route("/players/<int:licence_no>", methods=["GET"])
 def api_admin_get_player(licence_no):
     with Session() as session:
         if (player := session.get(Player, licence_no)) is not None:
@@ -126,7 +126,7 @@ def api_admin_get_player(licence_no):
     return jsonify(player_dict), HTTPStatus.OK
 
 
-@admin_api_bp.route("/players", methods=["POST"])
+@api_bp.route("/players", methods=["POST"])
 def api_admin_add_player():
     origin = "api_admin_add_player"
     p_schema.reset()
@@ -153,7 +153,7 @@ def api_admin_add_player():
             )
 
 
-@admin_api_bp.route("/entries/<int:licence_no>", methods=["POST"])
+@api_bp.route("/entries/<int:licence_no>", methods=["POST"])
 def api_admin_register_entries(licence_no):
     origin = "api_admin_register_entries"
 
@@ -246,7 +246,7 @@ def api_admin_register_entries(licence_no):
             )
 
 
-@admin_api_bp.route("/pay/<int:licence_no>", methods=["PUT"])
+@api_bp.route("/pay/<int:licence_no>", methods=["PUT"])
 @after_cutoff
 def api_admin_make_payment(licence_no):
     origin = "api_admin_make_payment"
@@ -311,7 +311,7 @@ def api_admin_make_payment(licence_no):
         return jsonify(p_schema.dump(player)), HTTPStatus.OK
 
 
-@admin_api_bp.route("/entries/<int:licence_no>", methods=["DELETE"])
+@api_bp.route("/entries/<int:licence_no>", methods=["DELETE"])
 def api_admin_delete_entries(licence_no):
     origin = "api_admin_delete_entries"
     v_schema = CategoryIdsSchema()
@@ -364,7 +364,7 @@ def api_admin_delete_entries(licence_no):
             )
 
 
-@admin_api_bp.route("/players/<int:licence_no>", methods=["DELETE"])
+@api_bp.route("/players/<int:licence_no>", methods=["DELETE"])
 def api_admin_delete_player(licence_no):
     origin = "api_admin_delete_player"
     with Session() as session:
@@ -387,7 +387,7 @@ def api_admin_delete_player(licence_no):
             )
 
 
-@admin_api_bp.route("/present/<int:licence_no>", methods=["PUT"])
+@api_bp.route("/present/<int:licence_no>", methods=["PUT"])
 def api_admin_mark_present(licence_no):
     """
     Expects json fields "categoryIdsToMark" and "categoryIdsToUnmark"
@@ -483,7 +483,7 @@ def api_admin_mark_present(licence_no):
         return jsonify(p_schema.dump(player)), HTTPStatus.OK
 
 
-@admin_api_bp.route("/bibs", methods=["POST"])
+@api_bp.route("/bibs", methods=["POST"])
 @after_cutoff
 def api_admin_assign_all_bibs():
     origin = "api_admin_assign_all_bibs"
@@ -521,7 +521,7 @@ def api_admin_assign_all_bibs():
     return jsonify(assignedBibs=assigned_bib_nos), HTTPStatus.OK
 
 
-@admin_api_bp.route("/bibs/<int:licence_no>", methods=["PUT"])
+@api_bp.route("/bibs/<int:licence_no>", methods=["PUT"])
 @after_cutoff
 def api_admin_assign_one_bib(licence_no):
     origin = "api_admin_assign_one_bib"
@@ -567,7 +567,7 @@ def api_admin_assign_one_bib(licence_no):
         return jsonify(p_schema.dump(player)), HTTPStatus.OK
 
 
-@admin_api_bp.route("/bibs", methods=["DELETE"])
+@api_bp.route("/bibs", methods=["DELETE"])
 @after_cutoff
 def api_admin_reset_bibs():
     origin = "api_admin_reset_bibs"
@@ -591,7 +591,7 @@ def api_admin_reset_bibs():
     return jsonify(success="success"), HTTPStatus.NO_CONTENT
 
 
-@admin_api_bp.route("/by_category", methods=["GET"])
+@api_bp.route("/by_category", methods=["GET"])
 def api_admin_get_players_by_category():
     present_only = request.args.get("present_only", False, loads) is True
     c_schema.reset(many=True)
@@ -605,7 +605,7 @@ def api_admin_get_players_by_category():
         return jsonify(c_schema.dump(categories)), HTTPStatus.OK
 
 
-@admin_api_bp.route("/all_players", methods=["GET"])
+@api_bp.route("/all_players", methods=["GET"])
 def api_admin_get_all_players():
     present_only = request.args.get("present_only", False, loads) is True
 
@@ -659,7 +659,7 @@ def create_zip_file(filenames: list[str], players: list[list], zip_name: str):
     )
 
 
-@admin_api_bp.route("/csv", methods=["GET"])
+@api_bp.route("/csv", methods=["GET"])
 def api_admin_get_csv_zip():
     by_category = request.args.get("by_category", False, loads) is True
 
