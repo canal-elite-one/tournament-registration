@@ -1,7 +1,8 @@
-from tests.conftest import BaseTest, before_cutoff
 from http import HTTPStatus
 
 from freezegun import freeze_time
+
+from tests.conftest import BaseTest, before_cutoff
 
 
 correct_admin_get_by_cat_response = {
@@ -13883,13 +13884,13 @@ correct_admin_get_by_cat_present_only_response = {
 
 
 class TestAPIGetPlayersByCategories(BaseTest):
-    def test_admin_get_by_cat(self, client, reset_db, populate):
+    def test_admin_get_by_cat(self, admin_client, reset_db, populate):
         with freeze_time(before_cutoff):
-            r = client.get("/api/admin/by_category?present_only=false")
+            r = admin_client.get("/api/admin/by_category?present_only=false")
             assert r.status_code == HTTPStatus.OK, r.json
             assert r.json == correct_admin_get_by_cat_response, r.json
 
-    def test_admin_get_by_cat_present_only(self, client, reset_db, populate):
-        r = client.get("/api/admin/by_category?present_only=true")
+    def test_admin_get_by_cat_present_only(self, admin_client, reset_db, populate):
+        r = admin_client.get("/api/admin/by_category?present_only=true")
         assert r.status_code == HTTPStatus.OK, r.json
         assert r.json == correct_admin_get_by_cat_present_only_response, r.json

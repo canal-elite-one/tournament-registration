@@ -1,9 +1,11 @@
-from tests.conftest import BaseTest, before_cutoff, after_cutoff
 from http import HTTPStatus
+
 import pytest
 from freezegun import freeze_time
 
-import flaskr.api.api_errors as ae
+import shared.api.api_errors as ae
+
+from tests.conftest import BaseTest, before_cutoff, after_cutoff
 
 origin = "api_public_add_player"
 
@@ -103,7 +105,7 @@ class TestAPIAddPlayer(BaseTest):
     @pytest.mark.parametrize("payload,now,response", correct_add_player)
     def test_correct_add_player(
         self,
-        client,
+        public_client,
         reset_db,
         populate,
         payload,
@@ -111,14 +113,14 @@ class TestAPIAddPlayer(BaseTest):
         response,
     ):
         with freeze_time(now):
-            r = client.post("/api/public/players", json=payload)
+            r = public_client.post("/api/public/players", json=payload)
             assert r.status_code == HTTPStatus.CREATED, r.json
             assert r.json == response, r.json
 
     @pytest.mark.parametrize("payload,now,error", incorrect_add_player)
     def test_incorrect_add_player(
         self,
-        client,
+        public_client,
         reset_db,
         populate,
         payload,
@@ -126,6 +128,6 @@ class TestAPIAddPlayer(BaseTest):
         error,
     ):
         with freeze_time(now):
-            r = client.post("/api/public/players", json=payload)
+            r = public_client.post("/api/public/players", json=payload)
             assert r.status_code == error.status_code, r.json
             assert r.json == error.to_dict(), r.json

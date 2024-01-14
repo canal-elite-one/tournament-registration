@@ -8,20 +8,20 @@ from sqlalchemy import select, text, or_
 from sqlalchemy.exc import DBAPIError
 from marshmallow import ValidationError
 
-from flaskr.api.marshmallow_schemas import (
+from shared.api.marshmallow_schemas import (
     CategorySchema,
     EntrySchema,
     PlayerSchema,
     CategoryIdsSchema,
 )
-from flaskr.api.db import (
+from shared.api.db import (
     Session,
     Category,
     Player,
 )
-from flaskr.api.fftt_api import get_player_fftt
-from flaskr.api.custom_decorators import before_cutoff
-import flaskr.api.api_errors as ae
+from shared.api.fftt_api import get_player_fftt
+from shared.api.custom_decorators import before_cutoff
+import shared.api.api_errors as ae
 
 public_api_bp = Blueprint("public_api", __name__, url_prefix="/api/public")
 

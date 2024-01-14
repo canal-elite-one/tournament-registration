@@ -1,10 +1,12 @@
-from freezegun import freeze_time
-
-from tests.conftest import BaseTest, before_cutoff, after_cutoff
 from http import HTTPStatus
+
+from freezegun import freeze_time
 import pytest
 
-import flaskr.api.api_errors as ae
+import shared.api.api_errors as ae
+
+from tests.conftest import BaseTest, before_cutoff, after_cutoff
+
 
 overall_incorrect_licence = 5555555
 
@@ -301,7 +303,7 @@ class TestAPIMarkPresent(BaseTest):
     )
     def test_correct_admin_mark_present(
         self,
-        client,
+        admin_client,
         reset_db,
         populate,
         licence_no,
@@ -310,7 +312,7 @@ class TestAPIMarkPresent(BaseTest):
         response,
     ):
         with freeze_time(now):
-            r = client.put(f"/api/admin/present/{licence_no}", json=payload)
+            r = admin_client.put(f"/api/admin/present/{licence_no}", json=payload)
             assert r.status_code == HTTPStatus.OK, r.json
             assert r.json == response, r.json
 
@@ -320,7 +322,7 @@ class TestAPIMarkPresent(BaseTest):
     )
     def test_incorrect_admin_mark_present(
         self,
-        client,
+        admin_client,
         reset_db,
         populate,
         licence_no,
@@ -329,6 +331,6 @@ class TestAPIMarkPresent(BaseTest):
         error,
     ):
         with freeze_time(now):
-            r = client.put(f"/api/admin/present/{licence_no}", json=payload)
+            r = admin_client.put(f"/api/admin/present/{licence_no}", json=payload)
             assert r.status_code == error.status_code, r.json
             assert r.json == error.to_dict(), r.json

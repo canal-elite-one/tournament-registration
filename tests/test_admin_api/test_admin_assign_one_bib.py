@@ -1,10 +1,12 @@
-from tests.conftest import BaseTest, before_cutoff, after_cutoff
 from http import HTTPStatus
-import pytest
 
+import pytest
 from freezegun import freeze_time
 
-import flaskr.api.api_errors as ae
+import shared.api.api_errors as ae
+
+from tests.conftest import BaseTest, before_cutoff, after_cutoff
+
 
 overall_incorrect_licence = 5555555
 overall_correct_licence = 9311764
@@ -49,15 +51,15 @@ incorrect_admin_assign_one = [
 
 
 class TestAPIAssignOneBibNo(BaseTest):
-    def test_correct_assign_one(self, client, reset_db, populate, set_a_few_bibs):
+    def test_correct_assign_one(self, admin_client, reset_db, populate, set_a_few_bibs):
         with freeze_time(after_cutoff):
-            r = client.put(f"/api/admin/bibs/{correct_admin_assign_one}")
+            r = admin_client.put(f"/api/admin/bibs/{correct_admin_assign_one}")
             assert r.status_code == HTTPStatus.OK, r.json
             assert r.json == correct_assign_one_response, r.json
 
     def test_incorrect_assign_one_without_any_assigned(
         self,
-        client,
+        admin_client,
         reset_db,
         populate,
     ):
@@ -66,13 +68,13 @@ class TestAPIAssignOneBibNo(BaseTest):
             error_message=ae.NO_BIBS_ASSIGNED_MESSAGE,
         )
         with freeze_time(after_cutoff):
-            r = client.put(f"/api/admin/bibs/{overall_correct_licence}")
+            r = admin_client.put(f"/api/admin/bibs/{overall_correct_licence}")
             assert r.status_code == error.status_code, r.json
             assert r.json == error.to_dict(), r.json
 
     def test_incorrect_assign_one_before_cutoff(
         self,
-        client,
+        admin_client,
         reset_db,
         populate,
         set_a_few_bibs,
@@ -82,7 +84,7 @@ class TestAPIAssignOneBibNo(BaseTest):
             error_message=ae.REGISTRATION_MESSAGES["not_ended"],
         )
         with freeze_time(before_cutoff):
-            r = client.put(f"/api/admin/bibs/{correct_admin_assign_one}")
+            r = admin_client.put(f"/api/admin/bibs/{correct_admin_assign_one}")
             assert r.status_code == error.status_code, r.json
             assert r.json == error.to_dict(), r.json
 
@@ -92,7 +94,7 @@ class TestAPIAssignOneBibNo(BaseTest):
     )
     def test_incorrect_assign_one(
         self,
-        client,
+        admin_client,
         reset_db,
         populate,
         set_a_few_bibs,
@@ -100,6 +102,6 @@ class TestAPIAssignOneBibNo(BaseTest):
         error,
     ):
         with freeze_time(after_cutoff):
-            r = client.put(f"/api/admin/bibs/{licence_no}")
+            r = admin_client.put(f"/api/admin/bibs/{licence_no}")
             assert r.status_code == error.status_code, r.json
             assert r.json == error.to_dict(), r.json

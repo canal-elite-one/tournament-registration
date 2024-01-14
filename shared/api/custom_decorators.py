@@ -1,5 +1,5 @@
-from flaskr.api.api_errors import RegistrationCutoffError, REGISTRATION_MESSAGES
-from flaskr.api.db import is_before_cutoff
+from shared.api.api_errors import RegistrationCutoffError, REGISTRATION_MESSAGES
+from shared.api.db import is_before_cutoff
 
 
 def before_cutoff(endpoint):

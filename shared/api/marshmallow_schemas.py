@@ -7,7 +7,7 @@ from marshmallow import (
     post_load,
     post_dump,
 )
-from flaskr.api.db import Category, Player, Entry, is_before_cutoff
+from shared.api.db import Category, Player, Entry, is_before_cutoff
 
 
 class SchemaWithReset(Schema):

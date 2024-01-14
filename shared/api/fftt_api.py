@@ -7,8 +7,8 @@ from datetime import datetime
 
 from xml.etree import ElementTree
 
-from flaskr.api.fftt_config import serial_no, app_id, password
-from flaskr.api.api_errors import FFTTAPIError
+from shared.api.fftt_config import serial_no, app_id, password
+from shared.api.api_errors import FFTTAPIError
 
 
 def get_current_formatted_timestamp() -> str:

@@ -1,11 +1,12 @@
-from freezegun import freeze_time
-
-from tests.conftest import BaseTest, before_cutoff, after_cutoff
-import flaskr.api.api_errors as ae
-
 from http import HTTPStatus
 
+from freezegun import freeze_time
 import pytest
+
+import shared.api.api_errors as ae
+
+from tests.conftest import BaseTest, before_cutoff, after_cutoff
+
 
 origin = "api_admin_add_player"
 
@@ -115,7 +116,7 @@ class TestAPIAdminAddPlayer(BaseTest):
     @pytest.mark.parametrize("payload,now,response", correct_add_player)
     def test_add_player_correct(
         self,
-        client,
+        admin_client,
         reset_db,
         populate,
         payload,
@@ -123,12 +124,19 @@ class TestAPIAdminAddPlayer(BaseTest):
         response,
     ):
         with freeze_time(now):
-            r = client.post("/api/admin/players", json=payload)
+            r = admin_client.post("/api/admin/players", json=payload)
             assert r.status_code == HTTPStatus.CREATED, r.json
             assert r.json == response, r.json
 
     @pytest.mark.parametrize("payload,error", incorrect_add_player)
-    def test_add_player_incorrect(self, client, reset_db, populate, payload, error):
-        r = client.post("/api/admin/players", json=payload)
+    def test_add_player_incorrect(
+        self,
+        admin_client,
+        reset_db,
+        populate,
+        payload,
+        error,
+    ):
+        r = admin_client.post("/api/admin/players", json=payload)
         assert r.status_code == HTTPStatus.BAD_REQUEST, r.json
         assert r.json == error.to_dict(), r.json

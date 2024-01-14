@@ -1,10 +1,11 @@
-from freezegun import freeze_time
-
-from tests.conftest import BaseTest, before_cutoff, after_cutoff
 from http import HTTPStatus
+
+from freezegun import freeze_time
 import pytest
 
-import flaskr.api.api_errors as ae
+import shared.api.api_errors as ae
+
+from tests.conftest import BaseTest, before_cutoff, after_cutoff
 
 overall_incorrect_licence = 9999999
 origin = "api_admin_make_payment"
@@ -349,7 +350,7 @@ class TestAPIMakePayment(BaseTest):
     )
     def test_correct_admin_make_payment(
         self,
-        client,
+        admin_client,
         reset_db,
         populate,
         licence_no,
@@ -358,7 +359,7 @@ class TestAPIMakePayment(BaseTest):
         response,
     ):
         with freeze_time(now):
-            r = client.put(f"/api/admin/pay/{licence_no}", json=payload)
+            r = admin_client.put(f"/api/admin/pay/{licence_no}", json=payload)
             assert r.status_code == HTTPStatus.OK, r.json
             assert r.json == response, r.json
 
@@ -368,7 +369,7 @@ class TestAPIMakePayment(BaseTest):
     )
     def test_incorrect_admin_make_payment(
         self,
-        client,
+        admin_client,
         reset_db,
         populate,
         licence_no,
@@ -377,6 +378,6 @@ class TestAPIMakePayment(BaseTest):
         error,
     ):
         with freeze_time(now):
-            r = client.put(f"/api/admin/pay/{licence_no}", json=payload)
+            r = admin_client.put(f"/api/admin/pay/{licence_no}", json=payload)
             assert r.status_code == error.status_code, r.json
             assert r.json == error.to_dict(), r.json
