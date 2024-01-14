@@ -307,35 +307,20 @@ async function submitEntries() {
             payload['categoryIds'].push(categoryId);
         }
     });
-    try {
-        let response = await fetch('/api/public/entries/' + licenceNo, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(payload)
-        })
-        if (response.ok) {
-            let responseData = await response.json();
-            console.log(responseData);
-            console.log("Entries successfully added");
-            /*
-            let recapList = document.getElementById('recap-list');
-            recapList.innerHTML = '';
-            for (categoryId in responseData['registeredEntries']) {
-                recapList.appendChild(document.createElement('li')).appendChild(document.createTextNode(categoryId));
-            };
-            document.getElementById('recap-entries-div').style.display = 'block';
-            */
-            window.location.href = "/public/deja_inscrit/" + licenceNo;
-        } else {
-            let responseData = await response.json();
-            console.error("Error:", responseData);
-            window.location.href = "/public/erreur";
-        }
-    } catch (error) {
-        console.error("Error:", error);
-        window.location.href = "/public/erreur";
+    let response = await fetch('/api/public/entries/' + licenceNo, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+    })
+    if (response.ok) {
+        let responseData = await response.json();
+        console.log(responseData);
+        console.log("Entries successfully added");
+        window.location.href = "/public/deja_inscrit/" + licenceNo;
+    } else {
+        publicHandleBadResponse(response);
     }
 }
 
@@ -343,34 +328,26 @@ function closeRecap() {
     document.getElementById('recap-entries-div').style.display = 'none';
 }
 
-// TODO: redirect if fetch from db succeeds
 async function fetchCategoriesAndPlayer() {
-    try {
-        const categoriesPromise = fetch("/api/public/categories");
-        const playerPromise = fetch("/api/public/players/" + licenceNo);
-        const [categoriesResponse, playerResponse] = await Promise.all([categoriesPromise, playerPromise]);
+    const categoriesPromise = fetch("/api/public/categories");
+    const playerPromise = fetch("/api/public/players/" + licenceNo);
+    const [categoriesResponse, playerResponse] = await Promise.all([categoriesPromise, playerPromise]);
 
-        if (categoriesResponse.ok && playerResponse.ok) {
-            categoriesData = await categoriesResponse.json();
-            categoriesData = categoriesData['categories'];
-            playerObject = await playerResponse.json();
-            console.log(categoriesData);
-            console.log(playerObject);
-            setUpCategoriesTable();
-            processPlayer();
-            return true;
-        } else if (!categoriesResponse.ok) {
-            publicHandleBadResponse(categoriesResponse);
-        } else {
-            publicHandleBadResponse(playerResponse);
-        }
-    } catch (error) {
-        console.error("Error:", error);
-        window.location.href = "/public/erreur";
+    if (categoriesResponse.ok && playerResponse.ok) {
+        categoriesData = await categoriesResponse.json();
+        categoriesData = categoriesData['categories'];
+        playerObject = await playerResponse.json();
+        console.log(categoriesData);
+        console.log(playerObject);
+        setUpCategoriesTable();
+        processPlayer();
+        return true;
+    } else if (!categoriesResponse.ok) {
+        return publicHandleBadResponse(categoriesResponse);
+    } else {
+        return publicHandleBadResponse(playerResponse);
     }
 }
-
-// document.getElementById('recap-entries-div').style.display = 'none';
 
 fetchCategoriesAndPlayer().then((flag) => {
     if (flag) { showContent(); }
