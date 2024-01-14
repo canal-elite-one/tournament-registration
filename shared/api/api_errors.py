@@ -66,15 +66,15 @@ CATEGORY_FORMAT_MESSAGE = "Some category data is missing or badly formatted"
 PLAYER_FORMAT_MESSAGE = "Some player data is missing or badly formatted"
 REGISTRATION_FORMAT_MESSAGE = "Some registration data is missing or badly formatted"
 DELETE_ENTRIES_FORMAT_MESSAGE = (
-    "Some data for entry deletion" " is missing or badly formatted"
+    "Some data for entry deletion is missing or badly formatted"
 )
 PAYMENT_FORMAT_MESSAGE = "Some payment data is missing or badly formatted"
 
 GENDER_POINTS_VIOLATION_MESSAGE = (
-    "Tried to register some entries " "violating either gender or points conditions"
+    "Tried to register some entries violating either gender or points conditions"
 )
 COLOR_VIOLATION_MESSAGE = (
-    "Tried to register some entries " "violating the color constraint"
+    "Tried to register some entries violating the color constraint"
 )
 
 REGISTRATION_MISSING_IDS_MESSAGE = "No category ids to register to were provided"
@@ -82,7 +82,7 @@ REGISTRATION_MISSING_IDS_MESSAGE = "No category ids to register to were provided
 
 INVALID_CATEGORY_ID_MESSAGES = {
     "registration": (
-        "Some category ids do not correspond " "to any category in the database"
+        "Some category ids do not correspond to any category in the database"
     ),
     "deletion": (
         "Some category ids either do not correspond to any category "
@@ -105,7 +105,7 @@ ACTUAL_PAID_TOO_HIGH_MESSAGE = (
 )
 
 DUPLICATE_PLAYER_MESSAGE = (
-    "A player with this licence number " "already exists in the database"
+    "A player with this licence number already exists in the database"
 )
 
 CATEGORY_FULL_PRESENT_MESSAGE = (
@@ -114,7 +114,7 @@ CATEGORY_FULL_PRESENT_MESSAGE = (
 )
 
 MAX_ENTRIES_PER_DAY_MESSAGE = (
-    "Tried to register more than the maximum number " "of categories for a single day"
+    "Tried to register more than the maximum number of categories for a single day"
 )
 
 """
@@ -137,7 +137,7 @@ class PlayerAlreadyRegisteredError(APIForbiddenError):
 
 
 PLAYER_ALREADY_REGISTERED_MESSAGE = (
-    "This player is already registered, " "can only fetch entries"
+    "This player is already registered, can only fetch entries"
 )
 
 RESET_BIBS_CONFIRMATION = "Je suis sur! J'ai appelé Céline!"
@@ -187,7 +187,7 @@ class BibConflictError(APIConflictError):
 SOME_BIBS_ALREADY_ASSIGNED_MESSAGE = "Some players already have a bib number assigned"
 THIS_BIB_ALREADY_ASSIGNED_MESSAGE = "This player already has a bib number assigned"
 NO_BIBS_ASSIGNED_MESSAGE = (
-    "No bib numbers have been assigned yet, " "cannot assign them individually"
+    "No bib numbers have been assigned yet, cannot assign them individually"
 )
 
 
