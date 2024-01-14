@@ -3,6 +3,8 @@ from json import loads
 from flask import Blueprint, render_template, redirect, url_for, request, current_app
 from datetime import datetime
 
+from shared.api.db import is_before_cutoff
+
 front_bp = Blueprint(
     "admin",
     __name__,
@@ -20,9 +22,7 @@ def index():
 def show_all_players():
     return render_template(
         "/admin_show_all_players.html",
-        has_registration_ended=(
-            datetime.now() > current_app.config["TOURNAMENT_REGISTRATION_CUTOFF"]
-        ),
+        has_registration_ended=not is_before_cutoff(),
     )
 
 
@@ -33,7 +33,7 @@ def set_categories():
 
 @front_bp.route("/inscrits/<int:licence_no>", methods=["GET"])
 def player_page(licence_no):
-    if datetime.now() > current_app.config["TOURNAMENT_REGISTRATION_CUTOFF"]:
+    if not is_before_cutoff():
         show_bib = request.args.get("bib", True, loads)
         return render_template(
             "/admin_player_management_during_tournament.html",

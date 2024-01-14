@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, current_app
-from datetime import datetime
 
+from shared.api.db import is_before_cutoff
 
 public_bp = Blueprint(
     "public",
@@ -12,7 +12,7 @@ public_bp = Blueprint(
 
 @public_bp.route("/", methods=["GET"])
 def index_page():
-    if datetime.now() > current_app.config["TOURNAMENT_REGISTRATION_CUTOFF"]:
+    if not is_before_cutoff():
         return render_template("/public_late_index.html")
     return render_template("/public_index.html")
 

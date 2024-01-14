@@ -218,7 +218,7 @@ def api_admin_register_entries(licence_no):
             {
                 "categoryId": category_id,
                 "licenceNo": licence_no,
-                "registrationTime": datetime.now(),
+                "registrationTime": datetime.now().isoformat(),
             }
             for category_id in category_ids
         ]
