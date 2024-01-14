@@ -8,7 +8,7 @@ import shared.api.api_errors as ae
 
 from tests.conftest import BaseTest, before_cutoff, after_cutoff
 
-origin = "admin_get_player"
+origin = "api_admin_get_player"
 
 correct_db_before = (
     9943272,
@@ -115,7 +115,7 @@ incorrect_licence_db_only = (
     7513006,
     True,
     ae.PlayerNotFoundError(
-        origin="admin_get_player_db_only",
+        origin=origin + "_db_only",
         licence_no=7513006,
     ),
 )
@@ -135,7 +135,7 @@ class TestAPIAdminGetPlayer(BaseTest):
         now: str,
         response,
     ):
-        with freeze_time(now) and requests_mock.Mocker() as m:
+        with freeze_time(now), requests_mock.Mocker() as m:
             m.get(
                 f"{admin_app.config.get('FFTT_API_URL')}/xml_licence.php",
                 status_code=HTTPStatus.OK,
@@ -176,3 +176,19 @@ class TestAPIAdminGetPlayer(BaseTest):
             )
             assert r.status_code == error.status_code
             assert r.json == error.to_dict(), r.json
+
+    def test_get_player_fftt_error(
+        self,
+        admin_app,
+        admin_client,
+        reset_db,
+        populate,
+    ):
+        with requests_mock.Mocker() as m:
+            m.get(
+                f"{admin_app.config.get('FFTT_API_URL')}/xml_licence.php",
+                status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+            )
+            r = admin_client.get("/api/admin/players/1234567")
+            assert r.status_code == HTTPStatus.INTERNAL_SERVER_ERROR, r.json
+            assert r.json == ae.UnexpectedFFTTError(origin=origin).to_dict(), r.json

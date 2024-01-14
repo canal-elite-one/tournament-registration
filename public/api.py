@@ -1,7 +1,6 @@
 from collections import Counter
 from datetime import datetime
 from http import HTTPStatus
-from json import loads
 
 from flask import Blueprint, request, jsonify, current_app
 from sqlalchemy import select, text, or_
@@ -86,10 +85,6 @@ def api_public_get_player(licence_no):
                 error_message=ae.PLAYER_ALREADY_REGISTERED_MESSAGE,
                 payload={"licenceNo": licence_no},
             )
-
-    db_only = request.args.get("db_only", False, loads) is True
-    if db_only:
-        raise ae.PlayerNotFoundError(origin=origin, licence_no=licence_no)
 
     try:
         player_dict = get_player_fftt(licence_no)

@@ -46,12 +46,7 @@ def get_player_fftt(licence_no):
     response = requests.get(url, params=params)
 
     if response.status_code != 200:
-        payload = None
-        # try:
-        #     payload = response.json()
-        # except ValueError:
-        #     pass
-        raise FFTTAPIError(payload=payload)
+        raise FFTTAPIError()
 
     xml = response.content.decode("utf-8")
     root = ElementTree.fromstring(xml).find("licence")

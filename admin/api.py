@@ -110,14 +110,20 @@ def api_admin_get_player(licence_no):
             p_schema.context["include_payment_status"] = True
             return jsonify(p_schema.dump(player)), HTTPStatus.OK
 
-    db_only = request.args.get("db_only", False, loads) is True
-    if db_only:
+    if request.args.get("db_only", False, loads) is True:
         raise ae.PlayerNotFoundError(
-            origin=origin + "(db_only)",
+            origin=origin + "_db_only",
             licence_no=licence_no,
         )
 
-    player_dict = get_player_fftt(licence_no)
+    try:
+        player_dict = get_player_fftt(licence_no)
+    except ae.FFTTAPIError:
+        raise ae.UnexpectedFFTTError(
+            origin=origin,
+            payload=None,
+        )
+
     if player_dict is None:
         raise ae.PlayerNotFoundError(
             origin=origin,

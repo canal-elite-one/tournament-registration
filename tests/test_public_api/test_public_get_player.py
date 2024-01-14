@@ -102,7 +102,7 @@ class TestGetPlayer(BaseTest):
         now,
         response,
     ):
-        with freeze_time(now) and requests_mock.Mocker() as m:
+        with freeze_time(now), requests_mock.Mocker() as m:
             m.get(
                 f"{public_app.config.get('FFTT_API_URL')}/xml_licence.php",
                 status_code=HTTPStatus.OK,
@@ -135,7 +135,7 @@ class TestGetPlayer(BaseTest):
         url = f"/api/public/players/{licence_no}"
         if db_only:
             url += "?db_only=true"
-        with freeze_time(now) and requests_mock.Mocker() as m:
+        with freeze_time(now), requests_mock.Mocker() as m:
             m.get(
                 f"{public_app.config.get('FFTT_API_URL')}/xml_licence.php",
                 status_code=HTTPStatus.OK,
@@ -144,3 +144,19 @@ class TestGetPlayer(BaseTest):
             r = public_client.get(url)
             assert r.status_code == error.status_code, r.json
             assert r.json == error.to_dict(), r.json
+
+    def test_get_player_fftt_error(
+        self,
+        public_app,
+        public_client,
+        reset_db,
+        populate,
+    ):
+        with freeze_time(before_cutoff), requests_mock.Mocker() as m:
+            m.get(
+                f"{public_app.config.get('FFTT_API_URL')}/xml_licence.php",
+                status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+            )
+            r = public_client.get("/api/public/players/1234567")
+            assert r.status_code == HTTPStatus.INTERNAL_SERVER_ERROR, r.json
+            assert r.json == ae.UnexpectedFFTTError(origin=origin).to_dict(), r.json
