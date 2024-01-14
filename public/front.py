@@ -1,3 +1,5 @@
+from http import HTTPStatus
+
 from flask import Blueprint, render_template, current_app
 
 from shared.api.db import is_before_cutoff
@@ -38,8 +40,11 @@ def already_registered_page(licence_no):
 
 @public_bp.route("/erreur", methods=["GET"])
 def error_page():
-    return render_template("/public_unexpected_error.html"), 500
+    return (
+        render_template("/public_unexpected_error.html"),
+        HTTPStatus.INTERNAL_SERVER_ERROR,
+    )
 
 
 def not_found_page(e):
-    return render_template("/public_not_found.html"), 404
+    return render_template("/public_not_found.html"), HTTPStatus.NOT_FOUND
