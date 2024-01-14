@@ -108,8 +108,7 @@ def api_public_get_entries(licence_no):
                 licence_no=licence_no,
             )
 
-        e_schema.reset(many=True)
-        e_schema.context["include_category_info"] = True
+        e_schema.reset(many=True, include_category_info=True)
         return jsonify(e_schema.dump(player.entries)), HTTPStatus.OK
 
 
@@ -216,8 +215,7 @@ def api_public_register_entries(licence_no):
         try:
             session.execute(stmt, temp_dicts)
             session.commit()
-            p_schema.reset()
-            p_schema.context["include_entries"] = True
+            p_schema.reset(include_entries=True)
             return jsonify(p_schema.dump(player)), HTTPStatus.CREATED
         except DBAPIError:
             session.rollback()

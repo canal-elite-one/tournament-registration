@@ -105,9 +105,7 @@ def api_admin_get_player(licence_no):
     origin = api_admin_get_player.__name__
     with Session() as session:
         if (player := session.get(Player, licence_no)) is not None:
-            p_schema.reset()
-            p_schema.context["include_entries"] = True
-            p_schema.context["include_payment_status"] = True
+            p_schema.reset(include_entries=True, include_payment_status=True)
             return jsonify(p_schema.dump(player)), HTTPStatus.OK
 
     if request.args.get("db_only", False, loads) is True:
@@ -183,9 +181,7 @@ def api_admin_register_entries(licence_no):
             )
 
         if not category_ids:
-            p_schema.reset()
-            p_schema.context["include_entries"] = True
-            p_schema.context["include_payment_status"] = True
+            p_schema.reset(include_entries=True, include_payment_status=True)
             return jsonify(p_schema.dump(player)), HTTPStatus.CREATED
 
         if nonexisting_category_ids := set(category_ids).difference(
@@ -241,9 +237,7 @@ def api_admin_register_entries(licence_no):
         try:
             session.execute(stmt, temp_dicts)
             session.commit()
-            p_schema.reset()
-            p_schema.context["include_entries"] = True
-            p_schema.context["include_payment_status"] = True
+            p_schema.reset(include_entries=True, include_payment_status=True)
             return jsonify(p_schema.dump(player)), HTTPStatus.CREATED
         except DBAPIError:
             session.rollback()
@@ -314,9 +308,7 @@ def api_admin_make_payment(licence_no):
                 exception=e,
             )
 
-        p_schema.reset()
-        p_schema.context["include_entries"] = True
-        p_schema.context["include_payment_status"] = True
+        p_schema.reset(include_entries=True, include_payment_status=True)
         return jsonify(p_schema.dump(player)), HTTPStatus.OK
 
 
@@ -360,9 +352,7 @@ def api_admin_delete_entries(licence_no):
                 ),
             )
             session.commit()
-            p_schema.reset()
-            p_schema.context["include_entries"] = True
-            p_schema.context["include_payment_status"] = True
+            p_schema.reset(include_entries=True, include_payment_status=True)
             return jsonify(p_schema.dump(player)), HTTPStatus.OK
 
         except DBAPIError as e:
@@ -480,9 +470,7 @@ def api_admin_mark_present(licence_no):
                 exception=e,
             )
 
-        p_schema.reset()
-        p_schema.context["include_entries"] = True
-        p_schema.context["include_payment_status"] = True
+        p_schema.reset(include_entries=True, include_payment_status=True)
         return jsonify(p_schema.dump(player)), HTTPStatus.OK
 
 
@@ -597,9 +585,7 @@ def api_admin_reset_bibs():
 @api_bp.route("/by_category", methods=["GET"])
 def api_admin_get_players_by_category():
     present_only = request.args.get("present_only", False, loads) is True
-    c_schema.reset(many=True)
-    c_schema.context["include_players"] = True
-    c_schema.context["present_only"] = present_only
+    c_schema.reset(many=True, include_players=True, present_only=present_only)
 
     with Session() as session:
         categories = session.scalars(
@@ -622,9 +608,7 @@ def api_admin_get_all_players():
     else:
         query = select(Player)
 
-    p_schema.reset(many=True)
-    p_schema.context["simple_entries"] = True
-    p_schema.context["include_payment_status"] = True
+    p_schema.reset(many=True, simple_entries=True, include_payment_status=True)
 
     with Session() as session:
         return (

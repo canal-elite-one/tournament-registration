@@ -14,9 +14,9 @@ class SchemaWithReset(Schema):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-    def reset(self, many=False):
+    def reset(self, many=False, **kwargs):
         self.many = many
-        self.context = {}
+        self.context = dict(kwargs.items())
 
 
 class CategorySchema(SchemaWithReset):

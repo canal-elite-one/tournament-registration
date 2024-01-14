@@ -2,11 +2,11 @@ from datetime import datetime
 from http import HTTPStatus
 
 import pytest
+from freezegun import freeze_time
 
 import shared.api.api_errors as ae
 
-from tests.conftest import BaseTest
-
+from tests.conftest import BaseTest, before_cutoff
 
 origin = "api_admin_set_categories"
 
@@ -287,9 +287,10 @@ class TestAPISetCategories(BaseTest):
         payload,
         response,
     ):
-        r = admin_client.post("/api/admin/categories", json=payload)
-        assert r.status_code == HTTPStatus.CREATED, r.json
-        assert r.json == response, r.json
+        with freeze_time(before_cutoff):
+            r = admin_client.post("/api/admin/categories", json=payload)
+            assert r.status_code == HTTPStatus.CREATED, r.json
+            assert r.json == response, r.json
 
     def test_incorrect_existing_entries(self, admin_client, reset_db, populate):
         r = admin_client.post("/api/admin/categories", json=correct_categories[0])
