@@ -1,9 +1,10 @@
-from tests.conftest import BaseTest, before_cutoff, after_cutoff
 from http import HTTPStatus
 
 from freezegun import freeze_time
 
-import flaskr.api.api_errors as ae
+import shared.api.api_errors as ae
+
+from tests.conftest import BaseTest, before_cutoff, after_cutoff
 
 
 origin = "api_admin_assign_all_bibs"
@@ -362,15 +363,15 @@ already_set_bib_nos = {"licenceNos": [722370, 5325506]}
 
 
 class TestAPIAssignAllBibNos(BaseTest):
-    def test_correct_assign_all(self, client, reset_db, populate):
+    def test_correct_assign_all(self, admin_client, reset_db, populate):
         with freeze_time(after_cutoff):
-            r = client.post("/api/admin/bibs")
+            r = admin_client.post("/api/admin/bibs")
             assert r.status_code == HTTPStatus.OK, r.json
             assert r.json == correct_admin_assign_all_response, r.json
 
     def test_incorrect_assign_all_already_set(
         self,
-        client,
+        admin_client,
         reset_db,
         populate,
         set_a_few_bibs,
@@ -381,16 +382,16 @@ class TestAPIAssignAllBibNos(BaseTest):
             payload=already_set_bib_nos,
         )
         with freeze_time(after_cutoff):
-            r = client.post("/api/admin/bibs")
+            r = admin_client.post("/api/admin/bibs")
             assert r.status_code == error.status_code, r.json
             assert r.json == error.to_dict(), r.json
 
-    def test_incorrect_assign_before_cutoff(self, client, reset_db, populate):
+    def test_incorrect_assign_before_cutoff(self, admin_client, reset_db, populate):
         error = ae.RegistrationCutoffError(
             origin=origin,
             error_message=ae.REGISTRATION_MESSAGES["not_ended"],
         )
         with freeze_time(before_cutoff):
-            r = client.post("/api/admin/bibs")
+            r = admin_client.post("/api/admin/bibs")
             assert r.status_code == error.status_code, r.json
             assert r.json == error.to_dict(), r.json

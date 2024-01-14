@@ -1,11 +1,11 @@
-from tests.conftest import BaseTest, before_cutoff, after_cutoff
-import flaskr.api.api_errors as ae
-
 from http import HTTPStatus
 
 import pytest
 from freezegun import freeze_time
 
+import shared.api.api_errors as ae
+
+from tests.conftest import BaseTest, before_cutoff, after_cutoff
 
 origin = "admin_get_player"
 
@@ -126,7 +126,7 @@ class TestAPIAdminGetPlayer(BaseTest):
     @pytest.mark.parametrize("licence_no,now,response", correct_licences)
     def test_get_player_correct(
         self,
-        client,
+        admin_client,
         reset_db,
         populate,
         licence_no,
@@ -134,21 +134,21 @@ class TestAPIAdminGetPlayer(BaseTest):
         response,
     ):
         with freeze_time(now):
-            r = client.get(f"/api/admin/players/{licence_no}")
+            r = admin_client.get(f"/api/admin/players/{licence_no}")
             assert r.status_code == HTTPStatus.OK, r.json
             assert r.json == response, r.json
 
     @pytest.mark.parametrize("licence_no,db_only,error", incorrect_licences)
     def test_get_player_incorrect(
         self,
-        client,
+        admin_client,
         reset_db,
         populate,
         licence_no,
         db_only,
         error,
     ):
-        r = client.get(
+        r = admin_client.get(
             f"/api/admin/players/{licence_no}?db_only={'true' if db_only else 'false'}",
         )
         assert r.status_code == error.status_code

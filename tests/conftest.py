@@ -1,8 +1,9 @@
 from pytest import fixture
 from sqlalchemy import text
 
-from flaskr import create_app
-from flaskr.api.db import Session, execute_dbmate
+import public
+import admin
+from shared.api.db import Session, execute_dbmate
 
 SAMPLE_DATA_PATH = "./tests/sample_data/"
 
@@ -13,12 +14,20 @@ after_cutoff = "2025-01-01 00:00:00"
 
 class BaseTest:
     @fixture(scope="session")
-    def app(self):
-        return create_app(debug=True)
+    def public_app(self):
+        return public.create_app(debug=True)
 
     @fixture(scope="session")
-    def client(self, app):
-        return app.test_client()
+    def admin_app(self):
+        return admin.create_app(debug=True)
+
+    @fixture(scope="session")
+    def public_client(self, public_app):
+        return public_app.test_client()
+
+    @fixture(scope="session")
+    def admin_client(self, public_app):
+        return public_app.test_client()
 
     @fixture
     def reset_db(self, request):

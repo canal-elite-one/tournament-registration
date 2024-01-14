@@ -1,7 +1,8 @@
-from tests.conftest import BaseTest
 from http import HTTPStatus
 
-import flaskr.api.api_errors as ae
+import shared.api.api_errors as ae
+
+from tests.conftest import BaseTest
 
 
 overall_correct_licence = 722370
@@ -11,17 +12,17 @@ origin = "api_admin_delete_player"
 
 
 class TestAPIDeletePlayer(BaseTest):
-    def test_correct_admin_delete_player(self, client, reset_db, populate):
-        r = client.delete(f"/api/admin/players/{overall_correct_licence}")
+    def test_correct_admin_delete_player(self, admin_client, reset_db, populate):
+        r = admin_client.delete(f"/api/admin/players/{overall_correct_licence}")
         assert r.status_code == HTTPStatus.NO_CONTENT, r.json
 
     def test_incorrect_admin_delete_player(
         self,
-        client,
+        admin_client,
         reset_db,
         populate,
     ):
-        r = client.delete(f"/api/admin/players/{overall_incorrect_licence}")
+        r = admin_client.delete(f"/api/admin/players/{overall_incorrect_licence}")
         error = ae.PlayerNotFoundError(
             origin=origin,
             licence_no=overall_incorrect_licence,

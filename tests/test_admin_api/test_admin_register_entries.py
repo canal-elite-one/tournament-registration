@@ -1,11 +1,11 @@
-from freezegun import freeze_time
-
-from tests.conftest import BaseTest, before_cutoff, after_cutoff
 from http import HTTPStatus
+
+from freezegun import freeze_time
 import pytest
 
-import flaskr.api.api_errors as ae
+import shared.api.api_errors as ae
 
+from tests.conftest import BaseTest, before_cutoff, after_cutoff
 
 overall_correct_licence = 722370
 overall_incorrect_licence = 555555
@@ -236,7 +236,7 @@ class TestRegisterEntries(BaseTest):
     )
     def test_correct_register_entries(
         self,
-        client,
+        admin_client,
         reset_db,
         populate,
         licence_no,
@@ -245,20 +245,20 @@ class TestRegisterEntries(BaseTest):
         response,
     ):
         with freeze_time(now):
-            r = client.post(f"/api/admin/entries/{licence_no}", json=payload)
+            r = admin_client.post(f"/api/admin/entries/{licence_no}", json=payload)
             assert r.status_code == HTTPStatus.CREATED, r.json
             assert r.json == response, r.json
 
     @pytest.mark.parametrize("licence_no,payload,error", incorrect_register_entries)
     def test_incorrect_register_entries(
         self,
-        client,
+        admin_client,
         reset_db,
         populate,
         licence_no,
         payload,
         error,
     ):
-        r = client.post(f"/api/admin/entries/{licence_no}", json=payload)
+        r = admin_client.post(f"/api/admin/entries/{licence_no}", json=payload)
         assert r.status_code == error.status_code, r.json
         assert r.json == error.to_dict(), r.json

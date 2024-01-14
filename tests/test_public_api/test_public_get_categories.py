@@ -1,9 +1,9 @@
-from tests.conftest import BaseTest, before_cutoff, after_cutoff
 from http import HTTPStatus
 
-import flaskr.api.api_errors as ae
-
 from freezegun import freeze_time
+
+from tests.conftest import BaseTest, before_cutoff, after_cutoff
+import shared.api.api_errors as ae
 
 correct_get_categories_response = {
     "categories": [
@@ -292,18 +292,18 @@ correct_get_categories_response = {
 
 
 class TestAPIGetCategories(BaseTest):
-    def test_get(self, client, reset_db, populate):
+    def test_get(self, public_client, reset_db, populate):
         with freeze_time(before_cutoff):
-            r = client.get("/api/public/categories")
+            r = public_client.get("/api/public/categories")
             assert r.status_code == HTTPStatus.OK, r.json
             assert r.json == correct_get_categories_response, r.json
 
-    def test_get_after(self, client, reset_db, populate):
+    def test_get_after(self, public_client, reset_db, populate):
         error = ae.RegistrationCutoffError(
             origin="api_public_get_categories",
             error_message=ae.REGISTRATION_MESSAGES["ended"],
         )
         with freeze_time(after_cutoff):
-            r = client.get("/api/public/categories")
+            r = public_client.get("/api/public/categories")
             assert r.status_code == error.status_code, r.json
             assert r.json == error.to_dict(), r.json

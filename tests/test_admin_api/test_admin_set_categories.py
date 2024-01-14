@@ -1,10 +1,11 @@
 from datetime import datetime
 from http import HTTPStatus
 
-from tests.conftest import BaseTest
-import flaskr.api.api_errors as ae
-
 import pytest
+
+import shared.api.api_errors as ae
+
+from tests.conftest import BaseTest
 
 
 origin = "api_admin_set_categories"
@@ -279,18 +280,30 @@ incorrect_admin_set_categories = [
 
 class TestAPISetCategories(BaseTest):
     @pytest.mark.parametrize("payload,response", correct_admin_set_categories)
-    def test_correct_admin_set_categories(self, client, reset_db, payload, response):
-        r = client.post("/api/admin/categories", json=payload)
+    def test_correct_admin_set_categories(
+        self,
+        admin_client,
+        reset_db,
+        payload,
+        response,
+    ):
+        r = admin_client.post("/api/admin/categories", json=payload)
         assert r.status_code == HTTPStatus.CREATED, r.json
         assert r.json == response, r.json
 
-    def test_incorrect_existing_entries(self, client, reset_db, populate):
-        r = client.post("/api/admin/categories", json=correct_categories[0])
+    def test_incorrect_existing_entries(self, admin_client, reset_db, populate):
+        r = admin_client.post("/api/admin/categories", json=correct_categories[0])
         assert r.status_code == HTTPStatus.BAD_REQUEST, r.json
         assert r.json == incorrect_set_categories_existing_entries.to_dict(), r.json
 
     @pytest.mark.parametrize("payload,error", incorrect_admin_set_categories)
-    def test_incorrect_admin_set_categories(self, client, reset_db, payload, error):
-        r = client.post("/api/admin/categories", json=payload)
+    def test_incorrect_admin_set_categories(
+        self,
+        admin_client,
+        reset_db,
+        payload,
+        error,
+    ):
+        r = admin_client.post("/api/admin/categories", json=payload)
         assert r.status_code == HTTPStatus.BAD_REQUEST, r.json
         assert r.json == error.to_dict(), r.json

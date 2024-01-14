@@ -1,9 +1,12 @@
-from tests.conftest import BaseTest, before_cutoff, after_cutoff
 from http import HTTPStatus
+from freezegun import freeze_time
+
 import pytest
 
-import flaskr.api.api_errors as ae
-from freezegun import freeze_time
+import shared.api.api_errors as ae
+
+from tests.conftest import BaseTest, before_cutoff, after_cutoff
+
 
 overall_incorrect_licence = 5555555
 
@@ -127,7 +130,7 @@ class TestAPIGetEntries(BaseTest):
     @pytest.mark.parametrize("licence_no,now,response", correct_get_entries)
     def test_correct_get_entries(
         self,
-        client,
+        public_client,
         reset_db,
         populate,
         licence_no,
@@ -135,14 +138,14 @@ class TestAPIGetEntries(BaseTest):
         response,
     ):
         with freeze_time(now):
-            r = client.get(f"/api/public/entries/{licence_no}")
+            r = public_client.get(f"/api/public/entries/{licence_no}")
             assert r.status_code == HTTPStatus.OK
             assert r.json == response
 
     @pytest.mark.parametrize("licence_no,now,error", incorrect_get_entries)
     def test_incorrect_get_entries(
         self,
-        client,
+        public_client,
         reset_db,
         populate,
         licence_no,
@@ -154,6 +157,6 @@ class TestAPIGetEntries(BaseTest):
             licence_no=licence_no,
         )
         with freeze_time(now):
-            r = client.get(f"/api/public/entries/{licence_no}")
+            r = public_client.get(f"/api/public/entries/{licence_no}")
             assert r.status_code == error.status_code
             assert r.json == error.to_dict()
