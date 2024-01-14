@@ -1,0 +1,20 @@
+{% extends 'base_public.html' %}
+
+{% block title %}Contact{% endblock %}
+
+{% block content %}
+<p>Vous pouvez contacter les organisateurs du tournoi de la façon suivante :</p>
+<ul>
+    <li>Par mail : <a href="mailto:"></a></li>
+    <li>Par téléphone : </li>
+    <li><a href="https://www.uskb.fr">Site web de l'USKB</a></li>
+</ul>
+
+<img id="categories_recap" src="{{ url_for('static', filename='categories_recap.jpg') }}">
+<script src="{{ url_for('static', filename='public_index.js') }}">
+</script>
+{% endblock %}
+
+{% block scripts %}
+<script>showContent();</script>
+{% endblock %}

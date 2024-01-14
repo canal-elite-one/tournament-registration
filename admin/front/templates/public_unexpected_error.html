@@ -1,0 +1,12 @@
+{% extends 'base_public.html' %}
+
+{% block title %}Erreur{% endblock %}
+
+{% block content %}
+<p>Une erreur inattendue est survenue. Vous pouvez réessayer de vous inscrire un peu plus tard ou contacter les organisateurs :
+    <a href="{{ url_for('public.contact_page') }}">Contact</a></p>
+{% endblock %}
+
+{% block scripts %}
+<script>showContent();</script>
+{% endblock %}

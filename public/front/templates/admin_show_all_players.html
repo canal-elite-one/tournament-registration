@@ -1,0 +1,30 @@
+{% extends 'base_admin.html' %}
+
+{% block title %}Liste des inscrits{% endblock %}
+
+{% block navbar %}
+<nav id="after_cutoff_navbar">
+    <div class="navbar">
+        <button id="csv_export_button" onclick="downloadCsv()">Télécharger listes en CSV pour les JA</button>
+        <button id="set_all_bibs_button" onclick="setAllBibs()">Générer les n° de dossards</button>
+        <button id="reset_all_bibs_button" onclick="resetAllBibs()">&#x26A0; Supprimer les n° de dossards existants &#x26A0;</button>
+    </div>
+</nav>
+<nav>
+    <div class="navbar">
+        <input type="search" id="players_table_search" class="players_table_search" placeholder="Recherche" autofocus oninput="filterData()">
+        <button id="search_fftt_button" onclick="onEnterSearch()" disabled>Trouver la licence sur l'API FFTT</button>
+    </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div id="players_table_div">
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>const hasRegistrationEnded={{ has_registration_ended|lower }}</script>
+<script src="{{ url_for('static', filename='admin_show_all_players.js') }}">
+</script>
+{% endblock %}
