@@ -39,7 +39,7 @@ def api_admin_set_categories():
     passed unpacked to the category constructor. Don't forget to cast datetime types
     to some parsable string.
     """
-    origin = "api_admin_set_categories"
+    origin = api_admin_set_categories.__name__
 
     c_schema.reset(many=True)
     try:
@@ -102,6 +102,7 @@ def api_admin_get_categories():
 
 @api_bp.route("/players/<int:licence_no>", methods=["GET"])
 def api_admin_get_player(licence_no):
+    origin = api_admin_get_player.__name__
     with Session() as session:
         if (player := session.get(Player, licence_no)) is not None:
             p_schema.reset()
@@ -112,14 +113,14 @@ def api_admin_get_player(licence_no):
     db_only = request.args.get("db_only", False, loads) is True
     if db_only:
         raise ae.PlayerNotFoundError(
-            origin="admin_get_player_db_only",
+            origin=origin + "(db_only)",
             licence_no=licence_no,
         )
 
     player_dict = get_player_fftt(licence_no)
     if player_dict is None:
         raise ae.PlayerNotFoundError(
-            origin="admin_get_player",
+            origin=origin,
             licence_no=licence_no,
         )
 
@@ -128,7 +129,7 @@ def api_admin_get_player(licence_no):
 
 @api_bp.route("/players", methods=["POST"])
 def api_admin_add_player():
-    origin = "api_admin_add_player"
+    origin = api_admin_add_player.__name__
     p_schema.reset()
     try:
         player = p_schema.load(request.json)
@@ -155,7 +156,7 @@ def api_admin_add_player():
 
 @api_bp.route("/entries/<int:licence_no>", methods=["POST"])
 def api_admin_register_entries(licence_no):
-    origin = "api_admin_register_entries"
+    origin = api_admin_register_entries.__name__
 
     v_schema = CategoryIdsSchema()
     if error := v_schema.validate(request.json):
@@ -249,7 +250,7 @@ def api_admin_register_entries(licence_no):
 @api_bp.route("/pay/<int:licence_no>", methods=["PUT"])
 @after_cutoff
 def api_admin_make_payment(licence_no):
-    origin = "api_admin_make_payment"
+    origin = api_admin_make_payment.__name__
 
     v_schema = MakePaymentSchema()
     if error := v_schema.validate(request.json):
@@ -313,7 +314,7 @@ def api_admin_make_payment(licence_no):
 
 @api_bp.route("/entries/<int:licence_no>", methods=["DELETE"])
 def api_admin_delete_entries(licence_no):
-    origin = "api_admin_delete_entries"
+    origin = api_admin_delete_entries.__name__
     v_schema = CategoryIdsSchema()
     if error := v_schema.validate(request.json):
         raise ae.InvalidDataError(
@@ -366,7 +367,7 @@ def api_admin_delete_entries(licence_no):
 
 @api_bp.route("/players/<int:licence_no>", methods=["DELETE"])
 def api_admin_delete_player(licence_no):
-    origin = "api_admin_delete_player"
+    origin = api_admin_delete_player.__name__
     with Session() as session:
         player = session.get(Player, licence_no)
         if player is None:
@@ -411,7 +412,7 @@ def api_admin_mark_present(licence_no):
     - nonexisting and/or unregistered category_ids
     - nonempty intersection between the two fields,
     """
-    origin = "api_admin_mark_present"
+    origin = api_admin_mark_present.__name__
     with Session() as session:
         player = session.get(Player, licence_no)
         if player is None:
@@ -486,7 +487,7 @@ def api_admin_mark_present(licence_no):
 @api_bp.route("/bibs", methods=["POST"])
 @after_cutoff
 def api_admin_assign_all_bibs():
-    origin = "api_admin_assign_all_bibs"
+    origin = api_admin_assign_all_bibs.__name__
     with Session() as session:
         player_with_bibs = session.scalars(
             select(Player.licence_no).where(Player.bib_no.isnot(None)),
@@ -524,7 +525,7 @@ def api_admin_assign_all_bibs():
 @api_bp.route("/bibs/<int:licence_no>", methods=["PUT"])
 @after_cutoff
 def api_admin_assign_one_bib(licence_no):
-    origin = "api_admin_assign_one_bib"
+    origin = api_admin_assign_one_bib.__name__
     with Session() as session:
         player = session.get(Player, licence_no)
 
@@ -570,7 +571,7 @@ def api_admin_assign_one_bib(licence_no):
 @api_bp.route("/bibs", methods=["DELETE"])
 @after_cutoff
 def api_admin_reset_bibs():
-    origin = "api_admin_reset_bibs"
+    origin = api_admin_reset_bibs.__name__
     confirmation = request.json.get("confirmation", None)
     if confirmation != ae.RESET_BIBS_CONFIRMATION:
         raise ae.ConfirmationError(

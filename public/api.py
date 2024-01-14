@@ -50,7 +50,7 @@ def api_public_get_categories():
 @public_api_bp.route("/players", methods=["POST"])
 @before_cutoff
 def api_public_add_player():
-    origin = "api_public_add_player"
+    origin = api_public_add_player.__name__
     p_schema.reset()
     try:
         player = p_schema.load(request.json)
@@ -78,7 +78,7 @@ def api_public_add_player():
 @public_api_bp.route("/players/<int:licence_no>", methods=["GET"])
 @before_cutoff
 def api_public_get_player(licence_no):
-    origin = "api_public_get_player"
+    origin = api_public_get_player.__name__
     with Session() as session:
         if session.get(Player, licence_no) is not None:
             raise ae.PlayerAlreadyRegisteredError(
@@ -104,7 +104,7 @@ def api_public_get_player(licence_no):
 
 @public_api_bp.route("/entries/<int:licence_no>", methods=["GET"])
 def api_public_get_entries(licence_no):
-    origin = "api_public_get_entries"
+    origin = api_public_get_entries.__name__
     with Session() as session:
         player = session.get(Player, licence_no)
         if player is None:
@@ -121,7 +121,7 @@ def api_public_get_entries(licence_no):
 @public_api_bp.route("/entries/<int:licence_no>", methods=["POST"])
 @before_cutoff
 def api_public_register_entries(licence_no):
-    origin = "api_public_register_entries"
+    origin = api_public_register_entries.__name__
     v_schema = CategoryIdsSchema()
     if error := v_schema.validate(request.json):
         raise ae.InvalidDataError(
