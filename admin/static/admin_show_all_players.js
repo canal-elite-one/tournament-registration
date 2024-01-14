@@ -251,7 +251,7 @@ function areBibsSet() {
 }
 
 async function fetchPlayers() {
-    let response = await fetch("/api/admin/all_players");
+    let response = await fetch("/api/admin/players/all");
     if (!response.ok) {
         if (response.status == 400) {
             data = await response.json();

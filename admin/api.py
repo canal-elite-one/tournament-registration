@@ -596,7 +596,7 @@ def api_admin_get_players_by_category():
         return jsonify(c_schema.dump(categories)), HTTPStatus.OK
 
 
-@api_bp.route("/all_players", methods=["GET"])
+@api_bp.route("/players/all", methods=["GET"])
 def api_admin_get_all_players():
     present_only = request.args.get("present_only", False, loads) is True
 

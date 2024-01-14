@@ -5644,11 +5644,11 @@ correct_admin_get_all_players_present_only_response = {
 
 class TestAPIGetAllPlayers(BaseTest):
     def test_admin_get_all_players(self, admin_client, reset_db, populate):
-        r = admin_client.get("/api/admin/all_players?present_only=false")
+        r = admin_client.get("/api/admin/players/all?present_only=false")
         assert r.status_code == HTTPStatus.OK, r.json
         assert r.json == correct_admin_get_all_players_response, r.json
 
     def test_admin_get_all_players_present_only(self, admin_client, reset_db, populate):
-        r = admin_client.get("/api/admin/all_players?present_only=true")
+        r = admin_client.get("/api/admin/players/all?present_only=true")
         assert r.status_code == HTTPStatus.OK, r.json
         assert r.json == correct_admin_get_all_players_present_only_response, r.json
