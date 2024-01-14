@@ -619,35 +619,6 @@ def api_admin_get_all_players():
         )
 
 
-def create_zip_file(filenames: list[str], players: list[list], zip_name: str):
-    zip_file = BytesIO()
-
-    def player_str(player_object):
-        return (
-            f"{player_object.bib_no},{player_object.licence_no},"
-            f"{player_object.last_name},{player_object.first_name},"
-            f"{player_object.nb_points},{player_object.club}\n"
-        )
-
-    with ZipFile(zip_file, "a") as zip_zip:
-        for filename, player_list in zip(filenames, players):
-            content = ["N° dossard, N° licence, Nom, Prénom, Points, Club\n"]
-            content.extend(player_str(player) for player in player_list)
-            zip_zip.writestr(
-                filename,
-                "".join(content),
-            )
-
-    zip_file.seek(0)
-    return Response(
-        zip_file.getvalue(),
-        mimetype="application/zip",
-        headers={
-            "Content-Disposition": f"attachment;filename={zip_name}.zip",
-        },
-    )
-
-
 @api_bp.route("/csv", methods=["GET"])
 def api_admin_get_csv_zip():
     by_category = request.args.get("by_category", False, loads) is True
@@ -692,3 +663,32 @@ def api_admin_get_csv_zip():
             zip_name = "competiteurs_samedi_dimanche"
 
         return create_zip_file(filenames, players, zip_name)
+
+
+def create_zip_file(filenames: list[str], players: list[list], zip_name: str):
+    zip_file = BytesIO()
+
+    def player_str(player_object):
+        return (
+            f"{player_object.bib_no},{player_object.licence_no},"
+            f"{player_object.last_name},{player_object.first_name},"
+            f"{player_object.nb_points},{player_object.club}\n"
+        )
+
+    with ZipFile(zip_file, "w") as zip_zip:
+        for filename, player_list in zip(filenames, players):
+            content = ["N° dossard, N° licence, Nom, Prénom, Points, Club\n"]
+            content.extend(player_str(player) for player in player_list)
+            zip_zip.writestr(
+                filename,
+                "".join(content),
+            )
+
+    zip_file.seek(0)
+    return Response(
+        zip_file.getvalue(),
+        mimetype="application/zip",
+        headers={
+            "Content-Disposition": f"attachment;filename={zip_name}.zip",
+        },
+    )
