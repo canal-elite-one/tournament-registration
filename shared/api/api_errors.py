@@ -1,3 +1,5 @@
+import traceback
+
 from flask import jsonify
 from http import HTTPStatus
 
@@ -205,6 +207,7 @@ class UnexpectedAPIError(APIError):
         payload = {
             "exceptionType": type(exception).__name__,
             "exceptionMessage": str(exception),
+            "traceback": traceback.format_exc(),
         }
         super().__init__(origin=origin, error_message=error_message, payload=payload)
 
