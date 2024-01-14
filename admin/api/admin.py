@@ -9,22 +9,22 @@ from marshmallow import ValidationError
 from sqlalchemy import select, delete, distinct, func, update, text
 from sqlalchemy.exc import DBAPIError
 
-from flaskr.api.fftt_api import get_player_fftt
-from flaskr.api.marshmallow_schemas import (
+from shared.api.fftt_api import get_player_fftt
+from shared.api.marshmallow_schemas import (
     CategorySchema,
     PlayerSchema,
     MakePaymentSchema,
     CategoryIdsSchema,
 )
-from flaskr.api.db import (
+from shared.api.db import (
     Category,
     Player,
     Entry,
     Session,
     is_before_cutoff,
 )
-import flaskr.api.api_errors as ae
-from flaskr.api.custom_decorators import after_cutoff
+import shared.api.api_errors as ae
+from shared.api.custom_decorators import after_cutoff
 
 c_schema = CategorySchema()
 p_schema = PlayerSchema()
