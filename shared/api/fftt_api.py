@@ -27,7 +27,8 @@ def get_encrypted_timestamp(pwd: str, timestamp: str) -> str:
 
 
 def get_player_fftt(licence_no):
-    url = "https://www.fftt.com/mobile/pxml/xml_licence.php"
+    url = current_app.config.get("FFTT_API_URL") + "/xml_licence.php"
+
     tm = get_current_formatted_timestamp()
 
     serial_no = current_app.config["FFTT_SERIAL_NO"]

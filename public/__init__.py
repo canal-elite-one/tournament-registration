@@ -3,7 +3,7 @@ from flask import Flask
 from public.api.public import public_api_bp
 from public.front.routes.public import public_bp, not_found_page
 from shared.api.api_errors import handle_api_error, APIError
-from shared import get_config
+from shared import get_config_from_env
 
 
 def create_app(debug=None):
@@ -13,7 +13,7 @@ def create_app(debug=None):
     app.register_error_handler(404, not_found_page)
     app.register_error_handler(APIError, handle_api_error)
 
-    app.config.update(get_config())
+    app.config.update(get_config_from_env())
 
     if debug is not None:
         app.config["DEBUG"] = debug

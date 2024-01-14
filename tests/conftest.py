@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pytest import fixture
 from sqlalchemy import text
 
@@ -11,15 +13,28 @@ SAMPLE_DATA_PATH = "./tests/sample_data/"
 before_cutoff = "2023-01-01 00:00:00"
 after_cutoff = "2025-01-01 00:00:00"
 
+config = {
+    "TOURNAMENT_REGISTRATION_CUTOFF": datetime.fromisoformat("2024-01-01 00:00:00"),
+    "MAX_ENTRIES_PER_DAY": 3,
+    "FFTT_API_URL": "http://fake_url",
+    "FFTT_SERIAL_NO": "jfdqklmqoidufqids",
+    "FFTT_APP_ID": "aezuiraop",
+    "FFTT_PASSWORD": "aeuirpodisqfhqmkd",
+}
+
 
 class BaseTest:
     @fixture(scope="session")
     def public_app(self):
-        return public.create_app(debug=True)
+        app = public.create_app(debug=True)
+        app.config.update(config)
+        return app
 
     @fixture(scope="session")
     def admin_app(self):
-        return admin.create_app(debug=True)
+        app = admin.create_app(debug=True)
+        app.config.update(config)
+        return app
 
     @fixture(scope="session")
     def public_client(self, public_app):
