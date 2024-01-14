@@ -71,9 +71,9 @@ function recomputePaymentStatus() {
 
     categoriesData.forEach(function (categoryObject) {
         let categoryId = categoryObject['categoryId'];
-        let registerCheckbox = document.getElementById('register_checkbox_' + categoryId);
-        let presentCheckbox = document.getElementById('present_checkbox_' + categoryId);
-        let paidCheckbox = document.getElementById('paid_checkbox_' + categoryId);
+        let registerCheckbox = document.getElementById('register-checkbox-' + categoryId);
+        let presentCheckbox = document.getElementById('present-checkbox-' + categoryId);
+        let paidCheckbox = document.getElementById('paid-checkbox-' + categoryId);
         if (registerCheckbox.checked) {
             paymentStatus['registerTotal'] += currentFee(categoryId);
             if (presentCheckbox.checked) {
@@ -86,15 +86,15 @@ function recomputePaymentStatus() {
         paymentStatus['currentActualTotal'] = paymentStatus['paidTotal'] - playerObject['paymentStatus']['totalActualPaid'];
     });
 
-    document.getElementById('register_total').firstChild.nodeValue = paymentStatus['registerTotal'];
-    document.getElementById('present_total').firstChild.nodeValue = paymentStatus['presentTotal'];
-    document.getElementById('paid_total').firstChild.nodeValue = paymentStatus['paidTotal'];
-    let due_total_value = paymentStatus['presentTotal'] - playerObject['paymentStatus']['totalActualPaid'];
-    let due_total_cell = document.getElementById('due_total');
-    due_total_cell.firstChild.nodeValue = due_total_value;
-    due_total_cell.style.backgroundColor = due_total_value > 0 ? 'hsl(25, 100%, 80%)' : 'hsl(140, 100%, 80%)';
+    document.getElementById('register-total').firstChild.nodeValue = paymentStatus['registerTotal'];
+    document.getElementById('present-total').firstChild.nodeValue = paymentStatus['presentTotal'];
+    document.getElementById('paid-total').firstChild.nodeValue = paymentStatus['paidTotal'];
+    let dueTotalValue = paymentStatus['presentTotal'] - playerObject['paymentStatus']['totalActualPaid'];
+    let dueTotalCell = document.getElementById('due-total');
+    dueTotalCell.firstChild.nodeValue = dueTotalValue;
+    dueTotalCell.style.backgroundColor = dueTotalValue > 0 ? 'hsl(25, 100%, 80%)' : 'hsl(140, 100%, 80%)';
 
-    document.getElementById('actual_total_field').value = paymentStatus['currentActualTotal'];
+    document.getElementById('actual-total-field').value = paymentStatus['currentActualTotal'];
 }
 
 
@@ -120,7 +120,7 @@ function onCheckboxChange(checkbox) {
     let checkboxType = checkbox.getAttribute('data-checkbox-type');
     let categoryId = checkbox.id.slice(-1);
 
-    let checkboxLabel = document.getElementById(checkbox.id + '_label');
+    let checkboxLabel = document.getElementById(checkbox.id + '-label');
     if (!checkbox.checked && initialChecked(checkbox)) {
         checkboxLabel.firstChild.nodeValue = ' \u26A0';
     } else {
@@ -130,11 +130,11 @@ function onCheckboxChange(checkbox) {
     let childCheckboxes = [];
     if (checkboxType == 'register') {
         childCheckboxes = [
-            document.getElementById('present_checkbox_' + categoryId),
-            document.getElementById('absent_checkbox_' + categoryId),
+            document.getElementById('present-checkbox-' + categoryId),
+            document.getElementById('absent-checkbox-' + categoryId),
         ];
     } else if (checkboxType == 'present') {
-        childCheckboxes = [document.getElementById('paid_checkbox_' + categoryId)];
+        childCheckboxes = [document.getElementById('paid-checkbox-' + categoryId)];
     } else {
         return;
     }
@@ -148,7 +148,7 @@ function handlePresentAbsent(checkbox) {
     onCheckboxChange(checkbox);
 
     if (checkbox.checked) {
-        let otherCheckbox = document.getElementById((checkboxType == 'absent' ? 'present' : 'absent') +'_checkbox_' + categoryId);
+        let otherCheckbox = document.getElementById((checkboxType == 'absent' ? 'present' : 'absent') +'-checkbox-' + categoryId);
         otherCheckbox.checked = false;
         onCheckboxChange(otherCheckbox);
     }
@@ -160,7 +160,7 @@ function handleColor(checkbox) {
     onCheckboxChange(checkbox);
 
     if (categoryId in sameColor) {
-        let otherCheckbox = document.getElementById('register_checkbox_' + sameColor[categoryId]);
+        let otherCheckbox = document.getElementById('register-checkbox-' + sameColor[categoryId]);
         if (checkbox.checked) {
             otherCheckbox.checked = false;
             onCheckboxChange(otherCheckbox);
@@ -169,7 +169,7 @@ function handleColor(checkbox) {
 }
 
 function onclickCheckboxWrapper(checkboxType, categoryId) {
-    let checkbox = document.getElementById(checkboxType + '_checkbox_' + categoryId);
+    let checkbox = document.getElementById(checkboxType + '-checkbox-' + categoryId);
     if (checkboxType == 'register') {
         handleColor(checkbox);
     } else if (checkboxType == 'present' || checkboxType == 'absent') {
@@ -208,7 +208,7 @@ async function generateBibNo() {
     if (response.ok) {
         let data = await response.json();
         console.log('Successfully generated bib number');
-        let bibNoCell = document.getElementById('bib_no_cell');
+        let bibNoCell = document.getElementById('bib-no-cell');
         bibNoCell.innerHTML = data['bibNo'];
         bibNoCell.style.backgroundColor = 'white';
     } else {
@@ -218,10 +218,10 @@ async function generateBibNo() {
 }
 
 function processPlayerInfo() {
-    let playerInfoTable = document.getElementById('player_info_table');
+    let playerInfoTable = document.getElementById('player-info-table');
 
     for (const categoryId in playerObject['registeredEntries']) {
-        let registerCheckbox = document.getElementById('register_checkbox_' + categoryId);
+        let registerCheckbox = document.getElementById('register-checkbox-' + categoryId);
         registerCheckbox.checked = true;
         onclickCheckboxWrapper('register', categoryId);
     }
@@ -232,7 +232,7 @@ function processPlayerInfo() {
         let row = document.createElement('tr');
         row.appendChild(document.createElement('td').appendChild(document.createTextNode('N° dossard')));
         let bibNoCell = document.createElement('td');
-        bibNoCell.setAttribute('id', 'bib_no_cell');
+        bibNoCell.setAttribute('id', 'bib-no-cell');
 
         if (playerObject['bibNo'] === null) {
             let generateBibNoButton = document.createElement('button');
@@ -266,22 +266,22 @@ function processPlayerInfo() {
         deleteButtonText = document.createTextNode('Supprimer compétiteur \uD83D\uDDD1');
     }
 
-    document.getElementById('previous_actual_total').firstChild.nodeValue = playerObject['paymentStatus']['totalActualPaid'];
+    document.getElementById('previous-actual-total').firstChild.nodeValue = playerObject['paymentStatus']['totalActualPaid'];
 
-    document.getElementById('delete_player_button').appendChild(deleteButtonText);
+    document.getElementById('delete-player-button').appendChild(deleteButtonText);
 }
 
 function createCheckboxCell(categoryId, checkboxType) {
     let cell = document.createElement('td');
-    cell.setAttribute('id', checkboxType + '_cell_' + categoryId);
+    cell.setAttribute('id', checkboxType + '-cell-' + categoryId);
     let checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
-    checkbox.id = checkboxType + '_checkbox_' + categoryId;
+    checkbox.id = checkboxType + '-checkbox-' + categoryId;
     checkbox.setAttribute('data-checkbox-type', checkboxType)
     checkbox.setAttribute('oninput', 'onclickCheckboxWrapper("' + checkboxType + '", "' + categoryId + '")');
     cell.appendChild(checkbox);
     let label = document.createElement('label');
-    label.id = checkbox.id + '_label';
+    label.id = checkbox.id + '-label';
     label.setAttribute('for', checkbox.id);
     label.appendChild(document.createTextNode(' '));
     cell.appendChild(label);
@@ -317,7 +317,7 @@ function updateEntryCountCell(categoryObject, entryCountCell=null) {
     }
 
     if (entryCountCell === null) {
-        entryCountCell = document.getElementById('entry_count_cell_' + categoryId);
+        entryCountCell = document.getElementById('entry-count-cell-' + categoryId);
     }
     entryCountCell.innerHTML = cellString;
 
@@ -334,7 +334,7 @@ function createCategoryRow(categoryObject) {
     let paidCell = createCheckboxCell(categoryId, 'paid');
 
     let idCell = document.createElement('td');
-    idCell.setAttribute('id', 'id_cell_' + categoryId);
+    idCell.setAttribute('id', 'id-cell-' + categoryId);
     idCell.appendChild(document.createTextNode(categoryId));
     row.appendChild(idCell);
 
@@ -350,19 +350,19 @@ function createCategoryRow(categoryObject) {
     };
 
     let entryCountCell = document.createElement('td');
-    entryCountCell.setAttribute('id', 'entry_count_cell_' + categoryId);
+    entryCountCell.setAttribute('id', 'entry-count-cell-' + categoryId);
     row.appendChild(entryCountCell);
 
     updateEntryCountCell(categoryObject, entryCountCell);
 
     let maxPlayersCell = document.createElement('td');
-    maxPlayersCell.setAttribute('id', 'max_players_cell_' + categoryId);
+    maxPlayersCell.setAttribute('id', 'max-players-cell-' + categoryId);
     maxOverbooked = Math.floor(categoryObject['maxPlayers'] * (1 + categoryObject['overbookingPercentage'] / 100.));
     maxPlayersCell.appendChild(document.createTextNode(categoryObject['maxPlayers'] + ' (' + maxOverbooked + ')'));
     row.appendChild(maxPlayersCell);
 
     let pointsCell = document.createElement('td');
-    pointsCell.setAttribute('id', 'points_cell_' + categoryId);
+    pointsCell.setAttribute('id', 'points-cell-' + categoryId);
     let maxPoints = categoryObject['maxPoints'];
     let minPoints = categoryObject['minPoints'];
     let pointsString;
@@ -384,7 +384,7 @@ function createCategoryRow(categoryObject) {
     row.appendChild(pointsCell);
 
     let womenOnlyCell = document.createElement('td');
-    womenOnlyCell.setAttribute('id', 'women_only_cell_' + categoryId);
+    womenOnlyCell.setAttribute('id', 'women-only-cell-' + categoryId);
     womenOnlyCell.appendChild(document.createTextNode(categoryObject['womenOnly'] ? 'Oui' : 'Non'));
     row.appendChild(womenOnlyCell);
     if (categoryObject['womenOnly'] && playerObject['gender'] == 'M') {
@@ -414,9 +414,9 @@ function setUpCategoriesTable() {
         }
     });
 
-    let saturdayBody = document.getElementById('saturday_table_body');
+    let saturdayBody = document.getElementById('saturday-table-body');
 
-    let sundayBody = document.getElementById('sunday_table_body');
+    let sundayBody = document.getElementById('sunday-table-body');
 
     saturdayCategories.forEach(
         function (categoryObject) {
@@ -578,10 +578,10 @@ async function submitChanges() {
 
     categoriesData.forEach(function (categoryObject) {
         let categoryId = categoryObject['categoryId'];
-        let registerCheckbox = document.getElementById('register_checkbox_' + categoryId);
-        let presentCheckbox = document.getElementById('present_checkbox_' + categoryId);
-        let absentCheckbox = document.getElementById('absent_checkbox_' + categoryId);
-        let paidCheckbox = document.getElementById('paid_checkbox_' + categoryId);
+        let registerCheckbox = document.getElementById('register-checkbox-' + categoryId);
+        let presentCheckbox = document.getElementById('present-checkbox-' + categoryId);
+        let absentCheckbox = document.getElementById('absent-checkbox-' + categoryId);
+        let paidCheckbox = document.getElementById('paid-checkbox-' + categoryId);
         if (registerCheckbox.checked) {
             categoryIdsPresence[categoryId] = presentCheckbox.checked ? true : (absentCheckbox.checked ? false : null);
             if (paidCheckbox.checked) {
@@ -593,7 +593,7 @@ async function submitChanges() {
         }
     });
 
-    let totalActualPaid = parseInt(document.getElementById('actual_total_field').value) + playerObject['paymentStatus']['totalActualPaid'];
+    let totalActualPaid = parseInt(document.getElementById('actual-total-field').value) + playerObject['paymentStatus']['totalActualPaid'];
 
     try {
         if (!playerInDatabase) {

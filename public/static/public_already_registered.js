@@ -1,5 +1,5 @@
 function fillEntries(entries) {
-    let registeredList = document.getElementById('already_registered_list');
+    let registeredList = document.getElementById('already-registered-list');
     entries.forEach(entryObject => {
         let entry = document.createElement('li');
         let entryString = "Tableau " + entryObject['categoryId']

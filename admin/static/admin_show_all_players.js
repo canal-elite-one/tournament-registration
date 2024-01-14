@@ -37,7 +37,7 @@ const searchCols = ["licenceNo", "firstName", "lastName", "club"];
 if (!hasRegistrationEnded) {
     delete frToEn['N° dossard'];
     delete frToEn['Montant dû (€)'];
-    document.getElementById("after_cutoff_navbar").style.display = "none";
+    document.getElementById("after-cutoff-navbar").style.display = "none";
 } else {
     numericCols.push("leftToPay");
 }
@@ -86,8 +86,8 @@ function resetAllBibs() {
 function putDataInTable(data, elementId) {
     const columns = Object.getOwnPropertyNames(frToEn);
     const table = document.createElement('table');
-    table.id = "players_table";
-    table.setAttribute("class", "players_table");
+    table.id = "players-table";
+    table.setAttribute("class", "players-table");
     const body = document.createElement('tbody');
     const head = document.createElement('thead');
 
@@ -102,7 +102,7 @@ function putDataInTable(data, elementId) {
 
     data.forEach(function(playerObject) {
         let row = document.createElement('tr');
-        row.setAttribute("class", "players_table_row")
+        row.setAttribute("class", "players-table-row")
         columns.forEach(function(colName) {
             let dataCell = document.createElement('td');
             if (colName == 'Tableaux') {;
@@ -166,12 +166,12 @@ function sortByColumn(colName) {
         sortedArray.reverse();
         filteredArray.reverse();
     }
-    document.getElementById("players_table").remove();
-    putDataInTable(filteredArray, "players_table_div");
+    document.getElementById("players-table").remove();
+    putDataInTable(filteredArray, "players-table-div");
 }
 
 function filterData() {
-    searchString = document.getElementById("players_table_search").value.toLowerCase();
+    searchString = document.getElementById("players-table-search").value.toLowerCase();
     filteredArray = [];
     let cellValue;
     sortedArray.forEach(function(playerObject) {
@@ -185,19 +185,19 @@ function filterData() {
         };
     })
 
-    let searchFfttButton = document.getElementById("search_fftt_button");
+    let searchFfttButton = document.getElementById("search-fftt-button");
     if (!isNaN(searchString) && searchString.length > 0) {
         searchFfttButton.removeAttribute("disabled");
     } else {
         searchFfttButton.setAttribute("disabled", "");
     }
 
-    document.getElementById("players_table").remove();
-    putDataInTable(filteredArray, "players_table_div");
+    document.getElementById("players-table").remove();
+    putDataInTable(filteredArray, "players-table-div");
 }
 
 function onEnterSearch() {
-    let searchString = document.getElementById("players_table_search").value;
+    let searchString = document.getElementById("players-table-search").value;
     if (filteredArray.length == 1) {
         goToPlayerPage(filteredArray[0]["licenceNo"]);
     } else if (searchString.length > 0 && !isNaN(searchString)) {
@@ -205,7 +205,7 @@ function onEnterSearch() {
     }
 }
 
-const searchField = document.getElementById("players_table_search");
+const searchField = document.getElementById("players-table-search");
 searchField.addEventListener("keypress", function(event) {
     if (event.key === "Enter") {
         event.preventDefault();
@@ -214,11 +214,11 @@ searchField.addEventListener("keypress", function(event) {
 });
 
 searchField.value = "";
-document.getElementById("search_fftt_button").setAttribute("disabled", "");
+document.getElementById("search-fftt-button").setAttribute("disabled", "");
 
-document.getElementById('all_players_navbar_link').setAttribute('class', 'navbar-link-current');
+document.getElementById('all-players-navbar-link').setAttribute('class', 'navbar-link-current');
 if (!hasRegistrationEnded) {
-    document.getElementById("csv_export_button").style.display = "none";
+    document.getElementById("csv-export-button").style.display = "none";
 }
 
 async function downloadCsv() {
@@ -239,13 +239,13 @@ function areBibsSet() {
         }
     });
     if (result) {
-        document.getElementById("set_all_bibs_button").style.display = "none";
-        document.getElementById("reset_all_bibs_button").style.display = "inline-block";
+        document.getElementById("set-all-bibs-button").style.display = "none";
+        document.getElementById("reset-all-bibs-button").style.display = "inline-block";
         searchCols.push("bibNo");
         numericCols.push("bibNo");
     } else {
-        document.getElementById("set_all_bibs_button").style.display = "inline-block";
-        document.getElementById("reset_all_bibs_button").style.display = "none";
+        document.getElementById("set-all-bibs-button").style.display = "inline-block";
+        document.getElementById("reset-all-bibs-button").style.display = "none";
     }
     return result;
 }
@@ -266,7 +266,7 @@ async function fetchPlayers() {
         sortedArray.sort(function(a, b){return a['licenceNo'] - b['licenceNo']});
         filteredArray = [...sortedArray];
         bibsSet = areBibsSet();
-        putDataInTable(dataJson["players"], "players_table_div");
+        putDataInTable(dataJson["players"], "players-table-div");
     }
 }
 

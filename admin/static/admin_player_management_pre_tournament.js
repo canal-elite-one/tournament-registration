@@ -51,25 +51,25 @@ function removeExitConfirmation() {
 
 function handleCheckbox(categoryId) {
     addExitConfirmation();
-    checkbox = document.getElementById('register_checkbox_' + categoryId);
+    checkbox = document.getElementById('register-checkbox-' + categoryId);
 
     if (!(categoryId in sameColor)) {
         if (categoryId in playerObject['registeredEntries'] && !checkbox.checked) {
-            let label = document.getElementById(checkbox.id + '_label')
+            let label = document.getElementById(checkbox.id + '-label')
             label.firstChild.data = '\u26A0';
         } else if (categoryId in playerObject['registeredEntries'] && checkbox.checked) {
-            let label = document.getElementById(checkbox.id + '_label')
+            let label = document.getElementById(checkbox.id + '-label')
             label.firstChild.data = ' ';
         }
         return null;
     }
 
-    otherCheckbox = document.getElementById('register_checkbox_' + sameColor[categoryId]);
+    otherCheckbox = document.getElementById('register-checkbox-' + sameColor[categoryId]);
     if (checkbox.checked) {
         otherCheckbox.checked = false;
     }
     if (categoryId in playerObject['registeredEntries']) {
-        let label = document.getElementById(checkbox.id + '_label')
+        let label = document.getElementById(checkbox.id + '-label')
         if (checkbox.checked) {
             label.firstChild.data = ' ';
         } else {
@@ -77,7 +77,7 @@ function handleCheckbox(categoryId) {
         }
     }
     if (sameColor[categoryId] in playerObject['registeredEntries']) {
-        let label = document.getElementById(otherCheckbox.id + '_label')
+        let label = document.getElementById(otherCheckbox.id + '-label')
         if (otherCheckbox.checked) {
             label.firstChild.data = ' ';
         } else {
@@ -94,16 +94,16 @@ function deletePlayer() {
         confirmMessage = "Voulez-vous vraiment supprimer cette compétitrice de la base de données ? Toutes les informations sur les inscriptions seront perdues";
     }
     if (confirm(confirmMessage)) {
-        fetch('/api/admin/players/' + licence_no, {method: 'DELETE'}).then(() =>
+        fetch('/api/admin/players/' + licenceNo, {method: 'DELETE'}).then(() =>
         {
-            console.log('Successfully deleted player' + licence_no);
+            console.log('Successfully deleted player' + licenceNo);
             window.location.href = "/admin/inscrits";
         });
     }
 }
 
 function processPlayerInfo() {
-    let playerInfoTable = document.getElementById('player_info_table');
+    let playerInfoTable = document.getElementById('player-info-table');
 
     relevantPlayerFields.forEach(
         function(fieldName) {
@@ -115,7 +115,7 @@ function processPlayerInfo() {
             if (playerObject[fieldName] === null) {
                 let fieldInput = document.createElement('input');
                 fieldInput.type = (fieldName == 'email') ? 'email' : ((fieldName == 'phone') ? 'tel' : 'text');
-                fieldInput.id = 'field_input_' + fieldName;
+                fieldInput.id = 'field-input-' + fieldName;
                 fieldInput.value = '';
                 fieldInput.setAttribute('required', '');
                 fieldInput.setAttribute('onchange', 'addExitConfirmation()');
@@ -132,7 +132,7 @@ function processPlayerInfo() {
     } else {
         deleteButtonText = document.createTextNode('Supprimer compétiteur \uD83D\uDDD1');
     }
-    document.getElementById('delete_player_button').appendChild(deleteButtonText);
+    document.getElementById('delete-player-button').appendChild(deleteButtonText);
 }
 
 function createEntryCountCell(categoryObject) {
@@ -165,7 +165,7 @@ function createEntryCountCell(categoryObject) {
     }
 
     let entryCountCell = document.createElement('td');
-    entryCountCell.setAttribute('id', 'entry_count_cell_' + categoryId);
+    entryCountCell.setAttribute('id', 'entry-count-cell-' + categoryId);
     entryCountCell.appendChild(document.createTextNode(entryCountString));
 
     entryCountCell.style.backgroundColor = entryCountColor;
@@ -178,23 +178,23 @@ function createCategoryRow(categoryObject) {
     let categoryId = categoryObject['categoryId'];
 
     let registerCell = document.createElement('td');
-    registerCell.setAttribute('id', 'register_cell_' + categoryId);
+    registerCell.setAttribute('id', 'register-cell-' + categoryId);
     let registerCheckbox = document.createElement('input');
     registerCheckbox.type = 'checkbox';
-    registerCheckbox.id = 'register_checkbox_' + categoryId;
+    registerCheckbox.id = 'register-checkbox-' + categoryId;
     registerCheckbox.setAttribute('oninput', 'handleCheckbox("' + categoryId + '")');
     if (categoryId in playerObject['registeredEntries']) {
         registerCheckbox.checked = true;
     }
     registerCell.appendChild(registerCheckbox);
     let registerLabel = document.createElement('label');
-    registerLabel.id = registerCheckbox.id + '_label';
+    registerLabel.id = registerCheckbox.id + '-label';
     registerLabel.setAttribute('for', registerCheckbox.id);
     registerLabel.appendChild(document.createTextNode(' '));
     registerCell.appendChild(registerLabel);
 
     let idCell = document.createElement('td');
-    idCell.setAttribute('id', 'id_cell_' + categoryId);
+    idCell.setAttribute('id', 'id-cell-' + categoryId);
     idCell.appendChild(document.createTextNode(categoryId));
     row.appendChild(idCell);
 
@@ -212,7 +212,7 @@ function createCategoryRow(categoryObject) {
     row.appendChild(createEntryCountCell(categoryObject));
 
     let pointsCell = document.createElement('td');
-    pointsCell.setAttribute('id', 'points_cell_' + categoryId);
+    pointsCell.setAttribute('id', 'points-cell-' + categoryId);
     let maxPoints = categoryObject['maxPoints'];
     let minPoints = categoryObject['minPoints'];
     let pointsString;
@@ -234,7 +234,7 @@ function createCategoryRow(categoryObject) {
     row.appendChild(pointsCell);
 
     let womenOnlyCell = document.createElement('td');
-    womenOnlyCell.setAttribute('id', 'women_only_cell_' + categoryId);
+    womenOnlyCell.setAttribute('id', 'women-only-cell-' + categoryId);
     womenOnlyCell.appendChild(document.createTextNode(categoryObject['womenOnly'] ? 'Oui' : 'Non'));
     row.appendChild(womenOnlyCell);
     if (categoryObject['womenOnly'] && playerObject['gender'] == 'M') {
@@ -260,9 +260,9 @@ function setUpCategoriesTable() {
         }
     });
 
-    let saturdayBody = document.getElementById('saturday_table_body');
+    let saturdayBody = document.getElementById('saturday-table-body');
 
-    let sundayBody = document.getElementById('sunday_table_body');
+    let sundayBody = document.getElementById('sunday-table-body');
 
     saturdayCategories.forEach(
         function (categoryObject) {
@@ -279,8 +279,8 @@ function setUpCategoriesTable() {
 
 async function submitPlayer() {
 
-    let emailInput = document.getElementById('field_input_email');
-    let phoneInput = document.getElementById('field_input_phone');
+    let emailInput = document.getElementById('field-input-email');
+    let phoneInput = document.getElementById('field-input-phone');
     let isValid = emailInput.reportValidity() && phoneInput.reportValidity();
     if (!isValid) {
         return;
@@ -329,7 +329,7 @@ async function submitEntries() {
 
     categoriesData.forEach(function (categoryObject) {
         let categoryId = categoryObject['categoryId'];
-        let checkbox = document.getElementById('register_checkbox_' + categoryId);
+        let checkbox = document.getElementById('register-checkbox-' + categoryId);
         if (checkbox.checked) {
             categoryIdsToRegister.push(categoryId);
         } else if (categoryId in playerObject['registeredEntries']) {
@@ -345,7 +345,7 @@ async function submitEntries() {
         'categoryIds': categoryIdsToDelete,
     };
 
-    let registerResponse = await fetch('/api/admin/entries/' + licence_no, {
+    let registerResponse = await fetch('/api/admin/entries/' + licenceNo, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -362,7 +362,7 @@ async function submitEntries() {
     let data = await registerResponse.json();
     console.log(data);
 
-    let deleteResponse = await fetch('/api/admin/entries/' + licence_no, {
+    let deleteResponse = await fetch('/api/admin/entries/' + licenceNo, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -400,7 +400,7 @@ async function submitAll() {
 
 async function fetchAll() {
     let categoriesResponse = await fetch("/api/admin/categories");
-    let playerResponse = await fetch("/api/admin/players/" + licence_no);
+    let playerResponse = await fetch("/api/admin/players/" + licenceNo);
 
     if (categoriesResponse.ok && playerResponse.ok) {
         categoriesData = await categoriesResponse.json();

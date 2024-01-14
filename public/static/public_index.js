@@ -1,4 +1,4 @@
-const licenceField = document.getElementById("licence_no_field");
+const licenceField = document.getElementById("licence-no-field");
 licenceField.addEventListener("keypress", function(event) {
     if (event.key === "Enter") {
         event.preventDefault();
@@ -10,6 +10,6 @@ licenceField.value = "";
 
 
 function findPlayer() {
-    let licenceNo = document.getElementById("licence_no_field").value;
+    let licenceNo = document.getElementById("licence-no-field").value;
     window.location.href = "/public/joueur/" + licenceNo;
 }

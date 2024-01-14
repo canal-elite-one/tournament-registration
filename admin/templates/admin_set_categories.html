@@ -3,9 +3,9 @@
 {% block title %}Saisir Tableaux{% endblock %}
 
 {% block content %}
-<div id="categories_table_div">
-    <form id="categories_form">
-        <table id="categories_table">
+<div id="categories-table-div">
+    <form id="categories-form">
+        <table id="categories-table">
             <thead>
                 <tr>
                     <th>Identifiant</th>
@@ -25,12 +25,12 @@
                     <th>Surbooking (%)</th>
                 </tr>
             </thead>
-                <tbody id="categories_table_body"></tbody>
+                <tbody id="categories-table-body"></tbody>
         </table>
     </form>
     <button onclick="removeFormRow()">-</button>
     <button onclick="addFormRow()" formnovalidate="true">+</button>
-    <button id="submit_categories_button" onclick="submitForm()">Enregistrer les catégories</button>
+    <button id="submit-categories-button" onclick="submitForm()">Enregistrer les catégories</button>
 </div>
 {% endblock %}
 

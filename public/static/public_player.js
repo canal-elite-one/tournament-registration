@@ -8,45 +8,45 @@ function ifFfttApiError() {
 }
 
 function processPlayer() {
-    document.getElementById("licence_no_cell").innerHTML = playerObject.licenceNo;
-    document.getElementById("first_name_cell").innerHTML = playerObject.firstName;
-    document.getElementById("last_name_cell").innerHTML = playerObject.lastName;
-    document.getElementById("gender_cell").innerHTML = playerObject.gender;
-    document.getElementById("club_cell").innerHTML = playerObject.club;
-    document.getElementById("points_cell").innerHTML = playerObject.nbPoints;
+    document.getElementById("licence-no-cell").innerHTML = playerObject.licenceNo;
+    document.getElementById("first-name-cell").innerHTML = playerObject.firstName;
+    document.getElementById("last-name-cell").innerHTML = playerObject.lastName;
+    document.getElementById("gender-cell").innerHTML = playerObject.gender;
+    document.getElementById("club-cell").innerHTML = playerObject.club;
+    document.getElementById("points-cell").innerHTML = playerObject.nbPoints;
 
     /*
     if (playerObject['gender'] == 'M') {
-        document.getElementById('recap_message').innerHTML = 'Vous êtes inscrit aux tableaux suivants :';
+        document.getElementById('recap-message').innerHTML = 'Vous êtes inscrit aux tableaux suivants :';
     } else {
-        document.getElementById('recap_message').innerHTML = 'Vous êtes inscrite aux tableaux suivants :';
+        document.getElementById('recap-message').innerHTML = 'Vous êtes inscrite aux tableaux suivants :';
     }
     */
 
-    emailCell = document.getElementById("email_cell");
+    emailCell = document.getElementById("email-cell");
     if (playerObject.email) {
         emailCell.innerHTML = playerObject.email;
     } else {
         let emailField = document.createElement('input');
         emailField.setAttribute('type', 'email');
-        emailField.setAttribute('id', 'email_field');
+        emailField.setAttribute('id', 'email-field');
         emailField.setAttribute('required', '');
         emailCell.appendChild(emailField);
     }
 
-    phoneCell = document.getElementById("phone_cell");
+    phoneCell = document.getElementById("phone-cell");
     if (playerObject.phone) {
         phoneCell.innerHTML = playerObject.phone;
     } else {
         let phoneField = document.createElement('input');
         phoneField.setAttribute('type', 'tel');
-        phoneField.setAttribute('id', 'phone_field');
+        phoneField.setAttribute('id', 'phone-field');
         phoneField.setAttribute('required', '');
         phoneCell.appendChild(phoneField);
     }
 
     for (let categoryId in playerObject['registeredEntries']) {
-        let registerCheckbox = document.getElementById('register_checkbox_' + categoryId);
+        let registerCheckbox = document.getElementById('register-checkbox-' + categoryId);
         registerCheckbox.checked = true;
         if (registerCheckbox.getAttribute('data-day') == 'saturday') {
             nbEntriesSaturday += 1;
@@ -54,12 +54,12 @@ function processPlayer() {
             nbEntriesSunday += 1;
         }
         registerCheckbox.setAttribute('disabled', '');
-        document.getElementById('register_cell_' + categoryId).style.backgroundColor = '#d3d3d3';
+        document.getElementById('register-cell-' + categoryId).style.backgroundColor = '#d3d3d3';
         if (categoryId in sameColor) {
-            let otherCheckbox = document.getElementById('register_checkbox_' + sameColor[categoryId]);
+            let otherCheckbox = document.getElementById('register-checkbox-' + sameColor[categoryId]);
             otherCheckbox.checked = false;
             otherCheckbox.setAttribute('disabled', '');
-            document.getElementById('register_cell_' + sameColor[categoryId]).style.backgroundColor = '#d3d3d3';
+            document.getElementById('register-cell-' + sameColor[categoryId]).style.backgroundColor = '#d3d3d3';
         }
     };
 }
@@ -70,10 +70,10 @@ let nbEntriesSaturday = 0;
 let nbEntriesSunday = 0;
 
 function handleCheckbox(categoryId) {
-    let registerCheckbox = document.getElementById('register_checkbox_' + categoryId);
+    let registerCheckbox = document.getElementById('register-checkbox-' + categoryId);
     let nbEntriesChange = registerCheckbox.checked ? 1 : -1;
     if (sameColor[categoryId] && registerCheckbox.checked) {
-        let otherCheckbox = document.getElementById('register_checkbox_' + sameColor[categoryId]);
+        let otherCheckbox = document.getElementById('register-checkbox-' + sameColor[categoryId]);
         if (otherCheckbox.checked) {
             nbEntriesChange -= 1;
         }
@@ -85,7 +85,7 @@ function handleCheckbox(categoryId) {
     } else {
         nbEntriesSunday += nbEntriesChange;
     }
-    let submitButton = document.getElementById('submit_button');
+    let submitButton = document.getElementById('submit-button');
     if (nbEntriesSaturday > maxEntriesPerDay || nbEntriesSunday > maxEntriesPerDay) {
         submitButton.disabled = true;
         submitButton.style.cursor = 'not-allowed';
@@ -108,10 +108,10 @@ function createCategoryRow(categoryObject) {
     let categoryId = categoryObject['categoryId'];
 
     let registerCell = document.createElement('td');
-    registerCell.setAttribute('id', 'register_cell_' + categoryId);
+    registerCell.setAttribute('id', 'register-cell-' + categoryId);
     let registerCheckbox = document.createElement('input');
     registerCheckbox.type = 'checkbox';
-    registerCheckbox.id = 'register_checkbox_' + categoryId;
+    registerCheckbox.id = 'register-checkbox-' + categoryId;
     registerCheckbox.setAttribute('data-checkbox-type', 'register')
     registerCheckbox.setAttribute('oninput', 'handleCheckbox("' + categoryId + '")');
     registerCell.appendChild(registerCheckbox);
@@ -121,13 +121,13 @@ function createCategoryRow(categoryObject) {
         registerCheckbox.setAttribute('data-day', 'sunday');
     }
     let registerLabel = document.createElement('label');
-    registerLabel.id = registerCheckbox.id + '_label';
+    registerLabel.id = registerCheckbox.id + '-label';
     registerLabel.setAttribute('for', registerCheckbox.id);
     registerLabel.appendChild(document.createTextNode(' '));
     registerCell.appendChild(registerLabel);
 
     let idCell = document.createElement('td');
-    idCell.setAttribute('id', 'id_cell_' + categoryId);
+    idCell.setAttribute('id', 'id-cell-' + categoryId);
     idCell.appendChild(document.createTextNode(categoryId));
     row.appendChild(idCell);
 
@@ -155,11 +155,11 @@ function createCategoryRow(categoryObject) {
     }
 
 
-    entryCountCell.setAttribute('id', 'entry_count_cell_' + categoryId);
+    entryCountCell.setAttribute('id', 'entry-count-cell-' + categoryId);
     row.appendChild(entryCountCell);
 
     let pointsCell = document.createElement('td');
-    pointsCell.setAttribute('id', 'points_cell_' + categoryId);
+    pointsCell.setAttribute('id', 'points-cell-' + categoryId);
     let maxPoints = categoryObject['maxPoints'];
     let minPoints = categoryObject['minPoints'];
     let pointsString;
@@ -181,7 +181,7 @@ function createCategoryRow(categoryObject) {
     row.appendChild(pointsCell);
 
     let womenOnlyCell = document.createElement('td');
-    womenOnlyCell.setAttribute('id', 'women_only_cell_' + categoryId);
+    womenOnlyCell.setAttribute('id', 'women-only-cell-' + categoryId);
     womenOnlyCell.appendChild(document.createTextNode(categoryObject['womenOnly'] ? 'Oui' : 'Non'));
     row.appendChild(womenOnlyCell);
     if (categoryObject['womenOnly'] && playerObject['gender'] == 'M') {
@@ -208,9 +208,9 @@ function setUpCategoriesTable() {
         }
     });
 
-    let saturdayBody = document.getElementById('saturday_table_body');
+    let saturdayBody = document.getElementById('saturday-table-body');
 
-    let sundayBody = document.getElementById('sunday_table_body');
+    let sundayBody = document.getElementById('sunday-table-body');
 
     saturdayCategories.forEach(
         function (categoryObject) {
@@ -230,7 +230,7 @@ function submitAll() {
     let nbSundayEntries = 0;
     categoriesData.forEach(function (categoryObject) {
         let categoryId = categoryObject['categoryId'];
-        let registerCheckbox = document.getElementById('register_checkbox_' + categoryId);
+        let registerCheckbox = document.getElementById('register-checkbox-' + categoryId);
         if (registerCheckbox.checked) {
             if (new Date(categoryObject['startTime']).getDate() == 6) {
                 nbSaturdayEntries += 1;
@@ -256,8 +256,8 @@ function submitAll() {
 
 async function submitPlayer() {
     console.log("Submitting player");
-    let emailField = document.getElementById("email_field");
-    let phoneField = document.getElementById("phone_field");
+    let emailField = document.getElementById("email-field");
+    let phoneField = document.getElementById("phone-field");
     let isValid = emailField.reportValidity() && phoneField.reportValidity();
     if (isValid) {
         playerPayload = {
@@ -302,7 +302,7 @@ async function submitEntries() {
     };
     categoriesData.forEach(function (categoryObject) {
         let categoryId = categoryObject['categoryId'];
-        let registerCheckbox = document.getElementById('register_checkbox_' + categoryId);
+        let registerCheckbox = document.getElementById('register-checkbox-' + categoryId);
         if (registerCheckbox.checked) {
             payload['categoryIds'].push(categoryId);
         }
@@ -320,12 +320,12 @@ async function submitEntries() {
             console.log(responseData);
             console.log("Entries successfully added");
             /*
-            let recapList = document.getElementById('recap_list');
+            let recapList = document.getElementById('recap-list');
             recapList.innerHTML = '';
             for (categoryId in responseData['registeredEntries']) {
                 recapList.appendChild(document.createElement('li')).appendChild(document.createTextNode(categoryId));
             };
-            document.getElementById('recap_entries_div').style.display = 'block';
+            document.getElementById('recap-entries-div').style.display = 'block';
             */
             window.location.href = "/public/deja_inscrit/" + licenceNo;
         } else {
@@ -340,7 +340,7 @@ async function submitEntries() {
 }
 
 function closeRecap() {
-    document.getElementById('recap_entries_div').style.display = 'none';
+    document.getElementById('recap-entries-div').style.display = 'none';
 }
 
 // TODO: redirect if fetch from db succeeds
@@ -370,7 +370,7 @@ async function fetchCategoriesAndPlayer() {
     }
 }
 
-// document.getElementById('recap_entries_div').style.display = 'none';
+// document.getElementById('recap-entries-div').style.display = 'none';
 
 fetchCategoriesAndPlayer().then((flag) => {
     if (flag) { showContent(); }

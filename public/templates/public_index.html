@@ -4,11 +4,11 @@
 
 {% block content %}
 <label>Entrez votre numéro de licence :
-    <input type="number" id="licence_no_field" autofocus>
-    <button id="search_licence_no" onclick="findPlayer()">Recherche</button>
+    <input type="number" id="licence-no-field" autofocus>
+    <button id="search-licence-no" onclick="findPlayer()">Recherche</button>
 </label>
 
-<img id="categories_recap" src="{{ url_for('static', filename='categories_recap.jpg') }}">
+<img id="categories-recap" src="{{ url_for('static', filename='categories_recap.jpg') }}">
 <script src="{{ url_for('static', filename='public_index.js') }}">
 </script>
 {% endblock %}

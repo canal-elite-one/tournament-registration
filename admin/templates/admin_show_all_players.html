@@ -3,23 +3,23 @@
 {% block title %}Liste des inscrits{% endblock %}
 
 {% block navbar %}
-<nav id="after_cutoff_navbar">
+<nav id="after-cutoff-navbar">
     <div class="navbar">
-        <button id="csv_export_button" onclick="downloadCsv()">Télécharger listes en CSV pour les JA</button>
-        <button id="set_all_bibs_button" onclick="setAllBibs()">Générer les n° de dossards</button>
-        <button id="reset_all_bibs_button" onclick="resetAllBibs()">&#x26A0; Supprimer les n° de dossards existants &#x26A0;</button>
+        <button id="csv-export-button" onclick="downloadCsv()">Télécharger listes en CSV pour les JA</button>
+        <button id="set-all-bibs-button" onclick="setAllBibs()">Générer les n° de dossards</button>
+        <button id="reset-all-bibs-button" onclick="resetAllBibs()">&#x26A0; Supprimer les n° de dossards existants &#x26A0;</button>
     </div>
 </nav>
 <nav>
     <div class="navbar">
-        <input type="search" id="players_table_search" class="players_table_search" placeholder="Recherche" autofocus oninput="filterData()">
-        <button id="search_fftt_button" onclick="onEnterSearch()" disabled>Trouver la licence sur l'API FFTT</button>
+        <input type="search" id="players-table-search" class="players-table-search" placeholder="Recherche" autofocus oninput="filterData()">
+        <button id="search-fftt-button" onclick="onEnterSearch()" disabled>Trouver la licence sur l'API FFTT</button>
     </div>
 </nav>
 {% endblock %}
 
 {% block content %}
-<div id="players_table_div">
+<div id="players-table-div">
 </div>
 {% endblock %}
 
