@@ -199,14 +199,12 @@ def api_admin_register_entries(licence_no):
             select(Category).where(Category.category_id.in_(category_ids)),
         )
 
-        violations = []
-        for category in potential_categories:
-            if (
-                (category.women_only and player.gender != "F")
-                or (player.nb_points > category.max_points)
-                or (player.nb_points < category.min_points)
-            ):
-                violations.append(category.category_id)
+        violations = [
+            category.category_id
+            for category in potential_categories
+            if not player.respects_gender_points_constraints(category)
+        ]
+
         if violations:
             raise ae.InvalidDataError(
                 origin=origin,

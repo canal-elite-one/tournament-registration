@@ -5,6 +5,15 @@ VALUES
     (5325784, NULL, 'Ypwwkdf', 'JRBIKZES', 'wemnllhvjg@wvzlim.com', '+336586819466',
     'M', 1535, 'LAVAL Francs Archers', 0);
 
+
+INSERT INTO players
+    (licence_no, bib_no, first_name, last_name, email, phone,
+    gender, nb_points, club, total_actual_paid)
+VALUES
+    (7897897, NULL, 'NoEntries', 'NOENTRIES', 'noentries@noentries.com', '+33600000000',
+    'M', 900, 'LAVAL Francs Archers', 0);
+
+
 INSERT INTO players
     (licence_no, bib_no, first_name, last_name, email, phone,
     gender, nb_points, club, total_actual_paid)

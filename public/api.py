@@ -3,7 +3,7 @@ from datetime import datetime
 from http import HTTPStatus
 
 from flask import Blueprint, request, jsonify, current_app
-from sqlalchemy import select, text, or_
+from sqlalchemy import select, text
 from sqlalchemy.exc import DBAPIError
 from marshmallow import ValidationError
 
@@ -149,18 +149,23 @@ def api_public_register_entries(licence_no):
                 payload={"categoryIds": sorted(nonexisting_category_ids)},
             )
 
+        if player.entries:
+            raise ae.PlayerAlreadyRegisteredError(
+                origin=origin,
+                error_message=ae.PLAYER_ALREADY_REGISTERED_MESSAGE,
+                payload={"licenceNo": licence_no},
+            )
+
         potential_categories = session.scalars(
             select(Category).where(Category.category_id.in_(category_ids)),
-        )
+        ).all()
 
-        violations = []
-        for category in potential_categories:
-            if (
-                (category.women_only and player.gender != "F")
-                or (player.nb_points > category.max_points)
-                or (player.nb_points < category.min_points)
-            ):
-                violations.append(category.category_id)
+        violations = [
+            category.category_id
+            for category in potential_categories
+            if not player.respects_gender_points_constraints(category)
+        ]
+
         if violations:
             raise ae.InvalidDataError(
                 origin=origin,
@@ -168,24 +173,10 @@ def api_public_register_entries(licence_no):
                 payload={"categoryIds": violations},
             )
 
-        categories_including_previous_registrations = session.scalars(
-            select(Category).where(
-                or_(
-                    Category.category_id.in_(category_ids),
-                    Category.category_id.in_(
-                        [entry.category_id for entry in player.entries],
-                    ),
-                ),
-            ),
-        )
-
         if (
             max(
                 Counter(
-                    [
-                        category.start_time.date()
-                        for category in categories_including_previous_registrations
-                    ],
+                    [category.start_time.date() for category in potential_categories],
                 ).values(),
             )
             > current_app.config["MAX_ENTRIES_PER_DAY"]

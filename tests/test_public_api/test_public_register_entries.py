@@ -15,92 +15,31 @@ overall_incorrect_licence = 555555
 origin = "api_public_register_entries"
 
 correct_registration = (
-    4526124,
+    7897897,
     before_cutoff,
-    {"categoryIds": ["1"]},
+    {"categoryIds": ["A"]},
     {
-        "1": {
-            "alternateName": None,
+        "A": {
+            "alternateName": "< 900",
             "entryFee": 7,
-            "licenceNo": 4526124,
+            "licenceNo": 7897897,
             "markedAsPaid": False,
             "markedAsPresent": None,
             "rank": 0,
             "registrationTime": "2023-01-01T00:00:00",
-            "startTime": "2024-01-07T09:00:00",
-        },
-        "B": {
-            "alternateName": "< 1500",
-            "entryFee": 7,
-            "licenceNo": 4526124,
-            "markedAsPaid": True,
-            "markedAsPresent": True,
-            "rank": 43,
-            "registrationTime": "2023-11-17T18:01:20",
-            "startTime": "2024-01-06T10:15:00",
-        },
-        "F": {
-            "alternateName": "Pas open féminin",
-            "entryFee": 7,
-            "licenceNo": 4526124,
-            "markedAsPaid": True,
-            "markedAsPresent": True,
-            "rank": 30,
-            "registrationTime": "2023-11-25T21:56:50",
-            "startTime": "2024-01-06T15:00:00",
-        },
-    },
-)
-
-correct_registration_with_duplicates = (
-    4526124,
-    before_cutoff,
-    {
-        "categoryIds": ["1", "B", "F"],
-    },
-    {
-        "1": {
-            "alternateName": None,
-            "entryFee": 7,
-            "licenceNo": 4526124,
-            "markedAsPaid": False,
-            "markedAsPresent": None,
-            "rank": 0,
-            "registrationTime": "2023-01-01T00:00:00",
-            "startTime": "2024-01-07T09:00:00",
-        },
-        "B": {
-            "alternateName": "< 1500",
-            "entryFee": 7,
-            "licenceNo": 4526124,
-            "markedAsPaid": True,
-            "markedAsPresent": True,
-            "rank": 43,
-            "registrationTime": "2023-11-17T18:01:20",
-            "startTime": "2024-01-06T10:15:00",
-        },
-        "F": {
-            "alternateName": "Pas open féminin",
-            "entryFee": 7,
-            "licenceNo": 4526124,
-            "markedAsPaid": True,
-            "markedAsPresent": True,
-            "rank": 30,
-            "registrationTime": "2023-11-25T21:56:50",
-            "startTime": "2024-01-06T15:00:00",
+            "startTime": "2024-01-06T09:00:00",
         },
     },
 )
 
 correct_register_entries = [
     correct_registration,
-    correct_registration_with_duplicates,
 ]
 
 incorrect_registration_color_violation = (
-    7886249,
+    7897897,
     before_cutoff,
-    {"categoryIds": ["1"]},
+    {"categoryIds": ["A", "B"]},
     ae.InvalidDataError(
         origin=origin,
         error_message=ae.COLOR_VIOLATION_MESSAGE,
@@ -108,15 +47,15 @@ incorrect_registration_color_violation = (
 )
 
 incorrect_registration_gender_points_violation = (
-    4526124,
+    7897897,
     before_cutoff,
     {
-        "categoryIds": ["A"],
+        "categoryIds": ["C"],
     },
     ae.InvalidDataError(
         origin=origin,
         error_message=ae.GENDER_POINTS_VIOLATION_MESSAGE,
-        payload={"categoryIds": ["A"]},
+        payload={"categoryIds": ["C"]},
     ),
 )
 

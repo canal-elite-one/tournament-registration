@@ -1,4 +1,5 @@
 import requests
+from http import HTTPStatus
 
 import hashlib
 import hmac
@@ -45,7 +46,7 @@ def get_player_fftt(licence_no):
     }
     response = requests.get(url, params=params)
 
-    if response.status_code != 200:
+    if response.status_code != HTTPStatus.OK:
         raise FFTTAPIError()
 
     xml = response.content.decode("utf-8")

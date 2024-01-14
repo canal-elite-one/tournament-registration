@@ -31,8 +31,10 @@ engine = create_engine(db_url)
 Session = sessionmaker(engine)
 
 
-def is_before_cutoff():
-    return datetime.now() < current_app.config["TOURNAMENT_REGISTRATION_CUTOFF"]
+def is_before_cutoff(dt=None):
+    if dt is None:
+        dt = datetime.now()
+    return dt < current_app.config["TOURNAMENT_REGISTRATION_CUTOFF"]
 
 
 class Base(DeclarativeBase):
@@ -63,6 +65,8 @@ class Player(Base):
     licence_no: Mapped[int]
     bib_no: Mapped[int]
     total_actual_paid: Mapped[int]
+    gender: Mapped[str]
+    nb_points: Mapped[int]
 
     entries = relationship(
         "Entry",
@@ -72,6 +76,11 @@ class Player(Base):
     )
 
     __table__ = Table("players", Base.metadata, autoload_with=engine)
+
+    def respects_gender_points_constraints(self, category):
+        return (not category.women_only or self.gender == "F") and (
+            category.min_points <= self.nb_points <= category.max_points
+        )
 
     def paid_entries(self):
         return filter(lambda x: x.marked_as_paid, self.entries)
@@ -100,13 +109,6 @@ class Player(Base):
         return self.fees_total_present() - self.total_actual_paid
 
 
-def get_player_not_found_error(licence_no):
-    return {
-        "PLAYER_NOT_FOUND_ERROR": f"No player with licence "
-        f"number {licence_no} exists in the database.",
-    }
-
-
 class Entry(Base):
     entry_id: Mapped[int]
     marked_as_present: Mapped[bool]
@@ -122,10 +124,7 @@ class Entry(Base):
 
     def fee(self):
         result = self.category.base_registration_fee
-        if (
-            self.registration_time
-            > current_app.config["TOURNAMENT_REGISTRATION_CUTOFF"]
-        ):
+        if not is_before_cutoff(self.registration_time):
             result += self.category.late_registration_fee
         return result
 
