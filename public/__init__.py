@@ -1,7 +1,7 @@
 from flask import Flask
 
-from public.api.public import public_api_bp
-from public.front.routes.public import public_bp, not_found_page
+from public.api import public_api_bp
+from public.front import public_bp, not_found_page
 from shared.api.api_errors import handle_api_error, APIError
 from shared import get_config_from_env
 
