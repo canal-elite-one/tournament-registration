@@ -427,27 +427,20 @@ def api_admin_mark_present(licence_no):
             )
 
         too_many_present_category_ids = []
-        for category_id, presence in all_ids_to_update.items():
-            if presence is True:
-                category = session.get(Category, category_id)
-                if (
-                    len(list(category.present_entries())) > category.max_players
-                    and session.get(Entry, (category_id, licence_no)) is None
-                ):
-                    too_many_present_category_ids.append(category_id)
-
-                if too_many_present_category_ids:
-                    raise ae.InvalidDataError(
-                        origin=origin,
-                        error_message=ae.CATEGORY_FULL_PRESENT_MESSAGE,
-                        payload={
-                            "categoryIds": sorted(too_many_present_category_ids),
-                        },
-                    )
 
         for category_id, presence in all_ids_to_update.items():
+            category = session.get(Category, category_id)
+            # checks that category does not already have max_players present players
+            if (
+                presence is True
+                and session.get(Entry, (category_id, licence_no)) is None
+                and len(list(category.present_entries())) > category.max_players
+            ):
+                too_many_present_category_ids.append(category_id)
+
             entry = session.get(Entry, (category_id, licence_no))
             entry.marked_as_present = presence
+            # checks that you are not marking a player as present before cutoff
             if presence and is_before_cutoff():
                 raise ae.RegistrationCutoffError(
                     origin=origin,
@@ -455,6 +448,15 @@ def api_admin_mark_present(licence_no):
                 )
             if presence is None or presence is False:
                 entry.marked_as_paid = False
+
+        if too_many_present_category_ids:
+            raise ae.InvalidDataError(
+                origin=origin,
+                error_message=ae.CATEGORY_FULL_PRESENT_MESSAGE,
+                payload={
+                    "categoryIds": sorted(too_many_present_category_ids),
+                },
+            )
 
         player.total_actual_paid = min(
             player.fees_total_present(),
