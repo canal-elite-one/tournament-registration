@@ -1,3 +1,4 @@
+import os
 from datetime import datetime
 
 from pytest import fixture
@@ -57,16 +58,17 @@ class BaseTest:
 
     @fixture
     def populate(self):
-        with Session() as session:
-            with open(SAMPLE_DATA_PATH + "categories.sql") as categories_sql:
-                session.execute(text(categories_sql.read()))
-                session.commit()
-            with open(SAMPLE_DATA_PATH + "players.sql") as players_sql:
-                session.execute(text(players_sql.read()))
-                session.commit()
-            with open(SAMPLE_DATA_PATH + "entries.sql") as entries_sql:
-                session.execute(text(entries_sql.read()))
-                session.commit()
+        with Session() as session, open(
+            os.path.join(SAMPLE_DATA_PATH, "categories.sql"),
+        ) as categories_sql, open(
+            os.path.join(SAMPLE_DATA_PATH, "players.sql"),
+        ) as players_sql, open(
+            os.path.join(SAMPLE_DATA_PATH, "entries.sql"),
+        ) as entries_sql:
+            session.execute(text(categories_sql.read()))
+            session.execute(text(players_sql.read()))
+            session.execute(text(entries_sql.read()))
+            session.commit()
 
     @fixture
     def set_a_few_bibs(self):
