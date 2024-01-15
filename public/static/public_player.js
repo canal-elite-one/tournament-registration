@@ -1,12 +1,6 @@
 let playerObject;
 let categoriesData;
 
-function ifFfttApiError() {
-    window.alert("Une erreur est survenue. Vous pouvez réessayer de vous réinscrire plus tard ou envoyer un courriel aux organisateurs du tournoi.");
-
-    window.location.href = "/public";
-}
-
 function processPlayer() {
     document.getElementById("licence-no-cell").innerHTML = playerObject.licenceNo;
     document.getElementById("first-name-cell").innerHTML = playerObject.firstName;
@@ -15,53 +9,19 @@ function processPlayer() {
     document.getElementById("club-cell").innerHTML = playerObject.club;
     document.getElementById("points-cell").innerHTML = playerObject.nbPoints;
 
-    /*
-    if (playerObject['gender'] == 'M') {
-        document.getElementById('recap-message').innerHTML = 'Vous êtes inscrit aux tableaux suivants :';
-    } else {
-        document.getElementById('recap-message').innerHTML = 'Vous êtes inscrite aux tableaux suivants :';
-    }
-    */
+    let emailCell = document.getElementById("email-cell");
+    let emailField = document.createElement('input');
+    emailField.setAttribute('type', 'email');
+    emailField.setAttribute('id', 'email-field');
+    emailField.setAttribute('required', '');
+    emailCell.appendChild(emailField);
 
-    emailCell = document.getElementById("email-cell");
-    if (playerObject.email) {
-        emailCell.innerHTML = playerObject.email;
-    } else {
-        let emailField = document.createElement('input');
-        emailField.setAttribute('type', 'email');
-        emailField.setAttribute('id', 'email-field');
-        emailField.setAttribute('required', '');
-        emailCell.appendChild(emailField);
-    }
-
-    phoneCell = document.getElementById("phone-cell");
-    if (playerObject.phone) {
-        phoneCell.innerHTML = playerObject.phone;
-    } else {
-        let phoneField = document.createElement('input');
-        phoneField.setAttribute('type', 'tel');
-        phoneField.setAttribute('id', 'phone-field');
-        phoneField.setAttribute('required', '');
-        phoneCell.appendChild(phoneField);
-    }
-
-    for (let categoryId in playerObject['registeredEntries']) {
-        let registerCheckbox = document.getElementById('register-checkbox-' + categoryId);
-        registerCheckbox.checked = true;
-        if (registerCheckbox.getAttribute('data-day') == 'saturday') {
-            nbEntriesSaturday += 1;
-        } else {
-            nbEntriesSunday += 1;
-        }
-        registerCheckbox.setAttribute('disabled', '');
-        document.getElementById('register-cell-' + categoryId).style.backgroundColor = '#d3d3d3';
-        if (categoryId in sameColor) {
-            let otherCheckbox = document.getElementById('register-checkbox-' + sameColor[categoryId]);
-            otherCheckbox.checked = false;
-            otherCheckbox.setAttribute('disabled', '');
-            document.getElementById('register-cell-' + sameColor[categoryId]).style.backgroundColor = '#d3d3d3';
-        }
-    };
+    let phoneCell = document.getElementById("phone-cell");
+    let phoneField = document.createElement('input');
+    phoneField.setAttribute('type', 'tel');
+    phoneField.setAttribute('id', 'phone-field');
+    phoneField.setAttribute('required', '');
+    phoneCell.appendChild(phoneField);
 }
 
 const categoryIdByColor = {};
@@ -99,8 +59,6 @@ function handleCheckbox(categoryId) {
         submitButton.style.cursor = 'auto';
         submitButton.setAttribute('title', '');
     }
-
-
 }
 
 function createCategoryRow(categoryObject) {
@@ -112,7 +70,6 @@ function createCategoryRow(categoryObject) {
     let registerCheckbox = document.createElement('input');
     registerCheckbox.type = 'checkbox';
     registerCheckbox.id = 'register-checkbox-' + categoryId;
-    registerCheckbox.setAttribute('data-checkbox-type', 'register')
     registerCheckbox.setAttribute('oninput', 'handleCheckbox("' + categoryId + '")');
     registerCell.appendChild(registerCheckbox);
     if (new Date(categoryObject['startTime']).getDate() == 6) {
@@ -138,7 +95,6 @@ function createCategoryRow(categoryObject) {
             sameColor[categoryId] = categoryIdByColor[color];
             sameColor[categoryIdByColor[color]] = categoryId;
         } else { categoryIdByColor[color] = categoryId; }
-        // registerCell.style.backgroundColor = categoryObject['color'];
         idCell.style.backgroundColor = color;
     };
 
@@ -146,12 +102,14 @@ function createCategoryRow(categoryObject) {
     let maxOverbooked = Math.floor(categoryObject['maxPlayers'] * (1 + categoryObject['overbookingPercentage'] / 100.));
     let entryCountCell = document.createElement('td');
 
-    if (entryCount < maxOverbooked || (categoryId in playerObject['registeredEntries'] && playerObject['registeredEntries'][categoryId]['rank'] < maxOverbooked)) {
+    if (entryCount < maxOverbooked) {
         entryCountCell.appendChild(document.createTextNode('Places disponibles'));
-        entryCountCell.style.backgroundColor = 'hsl(140, 100%, 80%)';
+        entryCountCell.classList.add('non-waiting-list-cell');
+        entryCountCell.classList.remove('waiting-list-cell');
     } else {
         entryCountCell.appendChild(document.createTextNode('Liste d\'attente'));
-        entryCountCell.style.backgroundColor = 'hsl(60, 100%, 80%)';
+        entryCountCell.classList.add('waiting-list-cell');
+        entryCountCell.classList.remove('non-waiting-list-cell');
     }
 
 
@@ -167,7 +125,7 @@ function createCategoryRow(categoryObject) {
         pointsString = '< ' + maxPoints;
     } else if (minPoints > 0) {
         pointsString = '> ' + minPoints;
-    } else { pointsString = ' -'}
+    } else { pointsString = '-'}
 
     if (playerObject['nbPoints'] < minPoints || playerObject['nbPoints'] > maxPoints) {
         pointsCell.style.backgroundColor = 'red';
@@ -240,22 +198,15 @@ function submitAll() {
         }
     });
 
-    console.log(maxEntriesPerDay);
-
     if (nbSaturdayEntries > maxEntriesPerDay || nbSundayEntries > maxEntriesPerDay) {
         window.alert("Vous ne pouvez pas vous inscrire à plus de " + maxEntriesPerDay + " tableaux par jour.");
         return;
     }
 
-    if (!playerObject.email) {
-        submitPlayer();
-    } else {
-        submitEntries();
-    }
+    submitPlayer();
 }
 
 async function submitPlayer() {
-    console.log("Submitting player");
     let emailField = document.getElementById("email-field");
     let phoneField = document.getElementById("phone-field");
     let isValid = emailField.reportValidity() && phoneField.reportValidity();
@@ -270,28 +221,18 @@ async function submitPlayer() {
             'email': emailField.value,
             'phone': phoneField.value
         };
-        try {
-            let response = await fetch('/api/public/players', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(playerPayload)
-            })
-            if (response.ok) {
-                let responseData = await response.json();
-                console.log(responseData);
-                console.log("Player successfully added");
-                submitEntries();
-            } else {
-                let responseData = await response.json();
-                console.error("Error:", responseData);
-                window.location.href = "/public/erreur";
-            }
-
-        } catch (error) {
-            console.error("Error:", error);
-            window.location.href = "/public/erreur";
+        let response = await fetch('/api/public/players', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(playerPayload)
+        })
+        if (response.ok) {
+            console.log("Player successfully added");
+            submitEntries();
+        } else {
+            publicHandleBadResponse(response);
         }
     }
 }
@@ -315,8 +256,6 @@ async function submitEntries() {
         body: JSON.stringify(payload)
     })
     if (response.ok) {
-        let responseData = await response.json();
-        console.log(responseData);
         console.log("Entries successfully added");
         window.location.href = "/public/deja_inscrit/" + licenceNo;
     } else {

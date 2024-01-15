@@ -132,6 +132,14 @@ thead {
   color: white;
 }
 
+.waiting-list-cell {
+  background-color: hsl(60, 100%, 80%);
+}
+
+.non-waiting-list-cell {
+  background-color: hsl(140, 100%, 80%);
+}
+
 #delete-player-button {
   background-color: red;
   font-size: large;
