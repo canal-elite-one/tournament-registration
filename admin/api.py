@@ -100,7 +100,7 @@ def api_admin_get_categories():
         )
 
 
-@api_bp.route("/players/<int:licence_no>", methods=["GET"])
+@api_bp.route("/players/<licence_no>", methods=["GET"])
 def api_admin_get_player(licence_no):
     origin = api_admin_get_player.__name__
     with Session() as session:
@@ -158,7 +158,7 @@ def api_admin_add_player():
             )
 
 
-@api_bp.route("/entries/<int:licence_no>", methods=["POST"])
+@api_bp.route("/entries/<licence_no>", methods=["POST"])
 def api_admin_register_entries(licence_no):
     origin = api_admin_register_entries.__name__
 
@@ -245,7 +245,7 @@ def api_admin_register_entries(licence_no):
             )
 
 
-@api_bp.route("/pay/<int:licence_no>", methods=["PUT"])
+@api_bp.route("/pay/<licence_no>", methods=["PUT"])
 @after_cutoff
 def api_admin_make_payment(licence_no):
     origin = api_admin_make_payment.__name__
@@ -310,7 +310,7 @@ def api_admin_make_payment(licence_no):
         return jsonify(p_schema.dump(player)), HTTPStatus.OK
 
 
-@api_bp.route("/entries/<int:licence_no>", methods=["DELETE"])
+@api_bp.route("/entries/<licence_no>", methods=["DELETE"])
 def api_admin_delete_entries(licence_no):
     origin = api_admin_delete_entries.__name__
     v_schema = CategoryIdsSchema()
@@ -361,7 +361,7 @@ def api_admin_delete_entries(licence_no):
             )
 
 
-@api_bp.route("/players/<int:licence_no>", methods=["DELETE"])
+@api_bp.route("/players/<licence_no>", methods=["DELETE"])
 def api_admin_delete_player(licence_no):
     origin = api_admin_delete_player.__name__
     with Session() as session:
@@ -384,7 +384,7 @@ def api_admin_delete_player(licence_no):
             )
 
 
-@api_bp.route("/present/<int:licence_no>", methods=["PUT"])
+@api_bp.route("/present/<licence_no>", methods=["PUT"])
 def api_admin_mark_present(licence_no):
     """
     This is the only way to unpay an entry:
@@ -512,7 +512,7 @@ def api_admin_assign_all_bibs():
     return jsonify(assignedBibs=assigned_bib_nos), HTTPStatus.OK
 
 
-@api_bp.route("/bibs/<int:licence_no>", methods=["PUT"])
+@api_bp.route("/bibs/<licence_no>", methods=["PUT"])
 @after_cutoff
 def api_admin_assign_one_bib(licence_no):
     origin = api_admin_assign_one_bib.__name__
@@ -608,7 +608,11 @@ def api_admin_get_all_players():
     else:
         query = select(Player)
 
-    p_schema.reset(many=True, simple_entries=True, include_payment_status=True)
+    p_schema.reset(
+        many=True,
+        simple_entries=True,
+        include_payment_status=not is_before_cutoff(),
+    )
 
     with Session() as session:
         return (

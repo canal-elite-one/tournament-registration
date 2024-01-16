@@ -8,12 +8,12 @@ import shared.api.api_errors as ae
 from tests.conftest import BaseTest, before_cutoff, after_cutoff
 
 
-overall_correct_licence = 722370
-overall_incorrect_licence = 5555555
+overall_correct_licence = "722370"
+overall_incorrect_licence = "5555555"
 origin = "api_admin_delete_entries"
 
 correct_delete_entries_all = (
-    722370,
+    "722370",
     before_cutoff,
     {"categoryIds": ["A", "5", "7"]},
     {
@@ -23,7 +23,7 @@ correct_delete_entries_all = (
         "firstName": "Dpwsaob",
         "gender": "F",
         "lastName": "ORHCWRNU",
-        "licenceNo": 722370,
+        "licenceNo": "722370",
         "nbPoints": 689,
         "phone": "+336769763133",
         "registeredEntries": {},
@@ -31,7 +31,7 @@ correct_delete_entries_all = (
 )
 
 correct_delete_entries_partial = (
-    722370,
+    "722370",
     before_cutoff,
     {"categoryIds": ["A", "5"]},
     {
@@ -41,14 +41,14 @@ correct_delete_entries_partial = (
         "firstName": "Dpwsaob",
         "gender": "F",
         "lastName": "ORHCWRNU",
-        "licenceNo": 722370,
+        "licenceNo": "722370",
         "nbPoints": 689,
         "phone": "+336769763133",
         "registeredEntries": {
             "7": {
                 "alternateName": None,
                 "entryFee": 7,
-                "licenceNo": 722370,
+                "licenceNo": "722370",
                 "markedAsPaid": False,
                 "markedAsPresent": None,
                 "rank": 5,
@@ -60,7 +60,7 @@ correct_delete_entries_partial = (
 )
 
 correct_delete_entries_after = (
-    722370,
+    "722370",
     after_cutoff,
     {"categoryIds": ["A", "5"]},
     {
@@ -71,7 +71,7 @@ correct_delete_entries_after = (
         "gender": "F",
         "lastName": "ORHCWRNU",
         "leftToPay": -3,
-        "licenceNo": 722370,
+        "licenceNo": "722370",
         "nbPoints": 689,
         "paymentStatus": {
             "totalActualPaid": 3,
@@ -84,7 +84,7 @@ correct_delete_entries_after = (
             "7": {
                 "alternateName": None,
                 "entryFee": 7,
-                "licenceNo": 722370,
+                "licenceNo": "722370",
                 "markedAsPaid": False,
                 "markedAsPresent": None,
                 "rank": 5,
@@ -121,7 +121,7 @@ incorrect_delete_entries_nonexisting_player = (
 )
 
 incorrect_delete_entries_invalid_categories = (
-    722370,
+    "722370",
     {"categoryIds": ["P", "B", "5"]},
     ae.InvalidDataError(
         origin=origin,

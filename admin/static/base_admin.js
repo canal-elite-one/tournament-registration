@@ -11,8 +11,8 @@ function hideContent() {
 
 async function adminHandleBadResponse(response) {
     try {
-        if (!response.headers.get("Content-Type") != "application/json") {
-            alert("Une erreur non gérée par le serveur est survenue...", response.status, response.statusText)
+        if (response.headers.get("Content-Type") != "application/json") {
+            alert("Une erreur non gérée par le serveur est survenue..." + response.status + response.statusText)
             window.location.href = "/admin";
             return false;
         }

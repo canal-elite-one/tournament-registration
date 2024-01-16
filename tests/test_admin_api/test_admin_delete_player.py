@@ -5,8 +5,8 @@ import shared.api.api_errors as ae
 from tests.conftest import BaseTest
 
 
-overall_correct_licence = 722370
-overall_incorrect_licence = 5555555
+overall_correct_licence = "722370"
+overall_incorrect_licence = "5555555"
 
 origin = "api_admin_delete_player"
 

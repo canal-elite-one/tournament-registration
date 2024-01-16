@@ -74,7 +74,7 @@ def api_public_add_player():
             )
 
 
-@public_api_bp.route("/players/<int:licence_no>", methods=["GET"])
+@public_api_bp.route("/players/<licence_no>", methods=["GET"])
 @before_cutoff
 def api_public_get_player(licence_no):
     origin = api_public_get_player.__name__
@@ -97,7 +97,7 @@ def api_public_get_player(licence_no):
     return jsonify(player_dict), HTTPStatus.OK
 
 
-@public_api_bp.route("/entries/<int:licence_no>", methods=["GET"])
+@public_api_bp.route("/entries/<licence_no>", methods=["GET"])
 def api_public_get_entries(licence_no):
     origin = api_public_get_entries.__name__
     with Session() as session:
@@ -112,7 +112,7 @@ def api_public_get_entries(licence_no):
         return jsonify(e_schema.dump(player.entries)), HTTPStatus.OK
 
 
-@public_api_bp.route("/entries/<int:licence_no>", methods=["POST"])
+@public_api_bp.route("/entries/<licence_no>", methods=["POST"])
 @before_cutoff
 def api_public_register_entries(licence_no):
     origin = api_public_register_entries.__name__

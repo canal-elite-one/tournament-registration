@@ -11,7 +11,7 @@ origin = "api_public_add_player"
 
 correct_player = (
     {
-        "licenceNo": 555555,
+        "licenceNo": "555555",
         "firstName": "Fjhgzg",
         "lastName": "MHIHOBB",
         "email": "dfqkjqpoe@aieop.com",
@@ -28,7 +28,7 @@ correct_player = (
         "firstName": "Fjhgzg",
         "gender": "F",
         "lastName": "MHIHOBB",
-        "licenceNo": 555555,
+        "licenceNo": "555555",
         "nbPoints": 1500,
         "phone": "33489653754",
         "totalActualPaid": 0,
@@ -39,7 +39,7 @@ correct_add_player = [correct_player]
 
 incorrect_player_missing_badly_formatted_data = (
     {
-        "licenceNo": 55555,
+        "licenceNo": "55555",
         "lastName": "QSDJKFLQZ",
         "phone": "33688261003",
         "gender": "F",
@@ -59,7 +59,7 @@ incorrect_player_missing_badly_formatted_data = (
 
 incorrect_player_duplicate = (
     {
-        "licenceNo": 4526124,
+        "licenceNo": "4526124",
         "firstName": "Wihelbl",
         "lastName": "EZWLKRWE",
         "email": "nvzhltrsqr@mochsf.com",
@@ -72,13 +72,13 @@ incorrect_player_duplicate = (
     ae.InvalidDataError(
         origin=origin,
         error_message=ae.DUPLICATE_PLAYER_MESSAGE,
-        payload={"licenceNo": 4526124},
+        payload={"licenceNo": "4526124"},
     ),
 )
 
 incorrect_after = (
     {
-        "licenceNo": 555555,
+        "licenceNo": "555555",
         "firstName": "Fjhgzg",
         "lastName": "MHIHOBB",
         "email": "fdsqjklq@dfjhk.com",

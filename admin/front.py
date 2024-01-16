@@ -31,7 +31,7 @@ def set_categories():
     return render_template("admin_set_categories.html")
 
 
-@front_bp.route("/inscrits/<int:licence_no>", methods=["GET"])
+@front_bp.route("/inscrits/<licence_no>", methods=["GET"])
 def player_page(licence_no):
     if not is_before_cutoff():
         show_bib = request.args.get("bib", True, loads)

@@ -14,6 +14,6 @@
 {% endblock %}
 
 {% block scripts %}
-<script>const licenceNo={{ licence_no }}</script>
+<script>const licenceNo="{{ licence_no }}"</script>
 <script src="{{ url_for('static', filename='public_already_registered.js') }}"></script>
 {% endblock %}

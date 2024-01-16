@@ -11,7 +11,7 @@ from tests.conftest import BaseTest, before_cutoff, after_cutoff
 origin = "api_admin_get_player"
 
 correct_db_before = (
-    9943272,
+    "9943272",
     before_cutoff,
     {
         "bibNo": None,
@@ -20,14 +20,14 @@ correct_db_before = (
         "firstName": "Player24",
         "gender": "M",
         "lastName": "AERGTHVI",
-        "licenceNo": 9943272,
+        "licenceNo": "9943272",
         "nbPoints": 1583,
         "phone": "+33806956124",
         "registeredEntries": {
             "E": {
                 "alternateName": None,
                 "entryFee": 10,
-                "licenceNo": 9943272,
+                "licenceNo": "9943272",
                 "markedAsPaid": False,
                 "markedAsPresent": None,
                 "rank": 44,
@@ -39,7 +39,7 @@ correct_db_before = (
 )
 
 correct_db_after = (
-    9943272,
+    "9943272",
     after_cutoff,
     {
         "bibNo": None,
@@ -49,7 +49,7 @@ correct_db_after = (
         "gender": "M",
         "lastName": "AERGTHVI",
         "leftToPay": 0,
-        "licenceNo": 9943272,
+        "licenceNo": "9943272",
         "nbPoints": 1583,
         "paymentStatus": {
             "totalActualPaid": 0,
@@ -62,7 +62,7 @@ correct_db_after = (
             "E": {
                 "alternateName": None,
                 "entryFee": 10,
-                "licenceNo": 9943272,
+                "licenceNo": "9943272",
                 "markedAsPaid": False,
                 "markedAsPresent": None,
                 "rank": 44,
@@ -74,7 +74,7 @@ correct_db_after = (
 )
 
 correct_fftt_before = (
-    7513006,
+    "7513006",
     before_cutoff,
     {
         "bibNo": None,
@@ -83,7 +83,7 @@ correct_fftt_before = (
         "firstName": "Celine",
         "gender": "F",
         "lastName": "LAY",
-        "licenceNo": 7513006,
+        "licenceNo": "7513006",
         "nbPoints": 1232,
         "paymentStatus": {
             "totalActualPaid": 0,
@@ -103,20 +103,20 @@ correct_licences = [
 ]
 
 incorrect_licence = (
-    1234567,
+    "1234567",
     False,
     ae.PlayerNotFoundError(
         origin=origin,
-        licence_no=1234567,
+        licence_no="1234567",
     ),
 )
 
 incorrect_licence_db_only = (
-    7513006,
+    "7513006",
     True,
     ae.PlayerNotFoundError(
         origin=origin + "_db_only",
-        licence_no=7513006,
+        licence_no="7513006",
     ),
 )
 

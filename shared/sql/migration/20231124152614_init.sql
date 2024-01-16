@@ -18,7 +18,7 @@ CREATE TABLE categories (
 );
 
 CREATE TABLE players (
-    licence_no INT PRIMARY KEY NOT NULL,
+    licence_no VARCHAR(20) PRIMARY KEY NOT NULL,
     bib_no INT UNIQUE DEFAULT NULL,
     first_name VARCHAR(64) NOT NULL,
     last_name VARCHAR(64) NOT NULL,
@@ -32,7 +32,7 @@ CREATE TABLE players (
 
 CREATE TABLE entries (
     category_id CHAR NOT NULL,
-    licence_no INT NOT NULL,
+    licence_no VARCHAR(20) NOT NULL,
     color VARCHAR(7),
     registration_time TIMESTAMP NOT NULL DEFAULT NOW(),
     marked_as_present BOOL,

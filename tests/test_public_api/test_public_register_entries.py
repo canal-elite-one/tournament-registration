@@ -9,20 +9,20 @@ import shared.api.api_errors as ae
 from tests.conftest import BaseTest, before_cutoff, after_cutoff
 
 
-overall_correct_licence = 722370
-overall_incorrect_licence = 555555
+overall_correct_licence = "722370"
+overall_incorrect_licence = "555555"
 
 origin = "api_public_register_entries"
 
 correct_registration = (
-    7897897,
+    "7897897",
     before_cutoff,
     {"categoryIds": ["A"]},
     {
         "A": {
             "alternateName": "< 900",
             "entryFee": 7,
-            "licenceNo": 7897897,
+            "licenceNo": "7897897",
             "markedAsPaid": False,
             "markedAsPresent": None,
             "rank": 0,
@@ -37,7 +37,7 @@ correct_register_entries = [
 ]
 
 incorrect_registration_color_violation = (
-    7897897,
+    "7897897",
     before_cutoff,
     {"categoryIds": ["A", "B"]},
     ae.InvalidDataError(
@@ -47,7 +47,7 @@ incorrect_registration_color_violation = (
 )
 
 incorrect_registration_gender_points_violation = (
-    7897897,
+    "7897897",
     before_cutoff,
     {
         "categoryIds": ["C"],
@@ -70,7 +70,7 @@ incorrect_registration_nonexisting_player = (
 )
 
 incorrect_registrations_missing_categoryids_json_fields = (
-    4526124,
+    "4526124",
     before_cutoff,
     {},
     ae.InvalidDataError(
@@ -81,7 +81,7 @@ incorrect_registrations_missing_categoryids_json_fields = (
 )
 
 incorrect_registration_empty_categories = (
-    4526124,
+    "4526124",
     before_cutoff,
     {"categoryIds": []},
     ae.InvalidDataError(
@@ -91,7 +91,7 @@ incorrect_registration_empty_categories = (
 )
 
 incorrect_registration_nonexisting_categories = (
-    4526124,
+    "4526124",
     before_cutoff,
     {
         "categoryIds": ["A", "a"],
@@ -104,7 +104,7 @@ incorrect_registration_nonexisting_categories = (
 )
 
 incorrect_registration_after_cutoff = (
-    4526124,
+    "4526124",
     after_cutoff,
     {"categoryIds": ["1"]},
     ae.RegistrationCutoffError(

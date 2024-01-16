@@ -7,12 +7,12 @@ import shared.api.api_errors as ae
 
 from tests.conftest import BaseTest, before_cutoff, after_cutoff
 
-overall_correct_licence = 722370
-overall_incorrect_licence = 555555
+overall_correct_licence = "722370"
+overall_incorrect_licence = "555555"
 origin = "api_admin_register_entries"
 
 correct_registration_before = (
-    4526124,
+    "4526124",
     before_cutoff,
     {"categoryIds": ["1"]},
     {
@@ -22,14 +22,14 @@ correct_registration_before = (
         "firstName": "Wihelbl",
         "gender": "F",
         "lastName": "EZWLKRWE",
-        "licenceNo": 4526124,
+        "licenceNo": "4526124",
         "nbPoints": 1149,
         "phone": "+336919756238",
         "registeredEntries": {
             "1": {
                 "alternateName": None,
                 "entryFee": 7,
-                "licenceNo": 4526124,
+                "licenceNo": "4526124",
                 "markedAsPaid": False,
                 "markedAsPresent": None,
                 "rank": 0,
@@ -39,7 +39,7 @@ correct_registration_before = (
             "B": {
                 "alternateName": "< 1500",
                 "entryFee": 7,
-                "licenceNo": 4526124,
+                "licenceNo": "4526124",
                 "markedAsPaid": True,
                 "markedAsPresent": True,
                 "rank": 43,
@@ -49,7 +49,7 @@ correct_registration_before = (
             "F": {
                 "alternateName": "Pas open féminin",
                 "entryFee": 7,
-                "licenceNo": 4526124,
+                "licenceNo": "4526124",
                 "markedAsPaid": True,
                 "markedAsPresent": True,
                 "rank": 30,
@@ -61,7 +61,7 @@ correct_registration_before = (
 )
 
 correct_registration_after = (
-    4526124,
+    "4526124",
     after_cutoff,
     {"categoryIds": ["1"]},
     {
@@ -72,7 +72,7 @@ correct_registration_after = (
         "gender": "F",
         "lastName": "EZWLKRWE",
         "leftToPay": 0,
-        "licenceNo": 4526124,
+        "licenceNo": "4526124",
         "nbPoints": 1149,
         "paymentStatus": {
             "totalActualPaid": 14,
@@ -85,7 +85,7 @@ correct_registration_after = (
             "1": {
                 "alternateName": None,
                 "entryFee": 8,
-                "licenceNo": 4526124,
+                "licenceNo": "4526124",
                 "markedAsPaid": False,
                 "markedAsPresent": None,
                 "rank": 136,
@@ -95,7 +95,7 @@ correct_registration_after = (
             "B": {
                 "alternateName": "< 1500",
                 "entryFee": 7,
-                "licenceNo": 4526124,
+                "licenceNo": "4526124",
                 "markedAsPaid": True,
                 "markedAsPresent": True,
                 "rank": 43,
@@ -105,7 +105,7 @@ correct_registration_after = (
             "F": {
                 "alternateName": "Pas open féminin",
                 "entryFee": 7,
-                "licenceNo": 4526124,
+                "licenceNo": "4526124",
                 "markedAsPaid": True,
                 "markedAsPresent": True,
                 "rank": 30,
@@ -117,7 +117,7 @@ correct_registration_after = (
 )
 
 correct_registration_with_duplicates = (
-    4526124,
+    "4526124",
     before_cutoff,
     {
         "categoryIds": ["1", "B", "F"],
@@ -129,14 +129,14 @@ correct_registration_with_duplicates = (
         "firstName": "Wihelbl",
         "gender": "F",
         "lastName": "EZWLKRWE",
-        "licenceNo": 4526124,
+        "licenceNo": "4526124",
         "nbPoints": 1149,
         "phone": "+336919756238",
         "registeredEntries": {
             "1": {
                 "alternateName": None,
                 "entryFee": 7,
-                "licenceNo": 4526124,
+                "licenceNo": "4526124",
                 "markedAsPaid": False,
                 "markedAsPresent": None,
                 "rank": 0,
@@ -146,7 +146,7 @@ correct_registration_with_duplicates = (
             "B": {
                 "alternateName": "< 1500",
                 "entryFee": 7,
-                "licenceNo": 4526124,
+                "licenceNo": "4526124",
                 "markedAsPaid": True,
                 "markedAsPresent": True,
                 "rank": 43,
@@ -156,7 +156,7 @@ correct_registration_with_duplicates = (
             "F": {
                 "alternateName": "Pas open féminin",
                 "entryFee": 7,
-                "licenceNo": 4526124,
+                "licenceNo": "4526124",
                 "markedAsPaid": True,
                 "markedAsPresent": True,
                 "rank": 30,
@@ -174,7 +174,7 @@ correct_register_entries = [
 ]
 
 incorrect_registration_color_violation = (
-    7886249,
+    "7886249",
     {"categoryIds": ["1"]},
     ae.InvalidDataError(
         origin=origin,
@@ -183,7 +183,7 @@ incorrect_registration_color_violation = (
 )
 
 incorrect_registration_gender_points_violation = (
-    4526124,
+    "4526124",
     {"categoryIds": ["A"]},
     ae.InvalidDataError(
         origin=origin,
@@ -199,7 +199,7 @@ incorrect_registration_nonexisting_player = (
 )
 
 incorrect_registrations_missing_categoryids_json_fields = (
-    4526124,
+    "4526124",
     {},
     ae.InvalidDataError(
         origin=origin,
@@ -209,7 +209,7 @@ incorrect_registrations_missing_categoryids_json_fields = (
 )
 
 incorrect_registration_nonexisting_categories = (
-    4526124,
+    "4526124",
     {
         "categoryIds": ["A", "a"],
     },

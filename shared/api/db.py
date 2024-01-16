@@ -62,7 +62,7 @@ class Category(Base):
 
 
 class Player(Base):
-    licence_no: Mapped[int]
+    licence_no: Mapped[str]
     bib_no: Mapped[int]
     total_actual_paid: Mapped[int]
     gender: Mapped[str]
@@ -113,7 +113,7 @@ class Entry(Base):
     entry_id: Mapped[int]
     marked_as_present: Mapped[bool]
     category_id: Mapped[str]
-    licence_no: Mapped[int]
+    licence_no: Mapped[str]
     marked_as_paid: Mapped[bool]
     registration_time: Mapped[datetime]
 

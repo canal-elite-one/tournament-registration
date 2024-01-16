@@ -74,7 +74,7 @@
 {% endblock %}
 
 {% block scripts %}
-<script>const licenceNo={{ licence_no }}</script>
+<script>const licenceNo="{{ licence_no }}"</script>
 <script>const maxEntriesPerDay={{ max_entries_per_day }}</script>
 <script src="{{ url_for('static', filename='public_player.js') }}"></script>
 {% endblock %}

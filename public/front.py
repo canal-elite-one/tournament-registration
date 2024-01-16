@@ -24,7 +24,7 @@ def contact_page():
     return render_template("/public_contact.html")
 
 
-@public_bp.route("/joueur/<int:licence_no>", methods=["GET"])
+@public_bp.route("/joueur/<licence_no>", methods=["GET"])
 def player_page(licence_no):
     return render_template(
         "/public_player.html",
@@ -33,7 +33,7 @@ def player_page(licence_no):
     )
 
 
-@public_bp.route("/deja_inscrit/<int:licence_no>", methods=["GET"])
+@public_bp.route("/deja_inscrit/<licence_no>", methods=["GET"])
 def already_registered_page(licence_no):
     return render_template("/public_already_registered.html", licence_no=licence_no)
 

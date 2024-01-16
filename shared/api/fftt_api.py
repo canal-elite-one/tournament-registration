@@ -56,7 +56,7 @@ def get_player_fftt(licence_no):
         return None
 
     return {
-        "licenceNo": int(root.find("licence").text),
+        "licenceNo": root.find("licence").text,
         "firstName": root.find("prenom").text,
         "lastName": root.find("nom").text,
         "club": root.find("nomclub").text,

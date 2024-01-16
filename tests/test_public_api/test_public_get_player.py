@@ -9,13 +9,13 @@ import shared.api.api_errors as ae
 from tests.conftest import BaseTest, before_cutoff, after_cutoff
 
 
-overall_incorrect_licence = 5555555
+overall_incorrect_licence = "5555555"
 
 origin = "api_public_get_player"
 
 
 correct_get_player_existing = (
-    7513006,
+    "7513006",
     before_cutoff,
     {
         "bibNo": None,
@@ -24,7 +24,7 @@ correct_get_player_existing = (
         "firstName": "Celine",
         "gender": "F",
         "lastName": "LAY",
-        "licenceNo": 7513006,
+        "licenceNo": "7513006",
         "nbPoints": 1232,
         "paymentStatus": {
             "totalActualPaid": 0,
@@ -52,29 +52,29 @@ incorrect_get_player_nonexisting = (
 )
 
 incorrect_get_player_db_only = (
-    7513006,
+    "7513006",
     True,
     before_cutoff,
     ae.PlayerNotFoundError(
         origin=origin,
-        licence_no=7513006,
+        licence_no="7513006",
     ),
 )
 
 incorrect_already_registered = (
-    4526124,
+    "4526124",
     False,
     before_cutoff,
     ae.PlayerAlreadyRegisteredError(
         origin=origin,
         error_message=ae.PLAYER_ALREADY_REGISTERED_MESSAGE,
-        payload={"licenceNo": 4526124},
+        payload={"licenceNo": "4526124"},
     ),
 )
 
 
 incorrect_after = (
-    7513006,
+    "7513006",
     False,
     after_cutoff,
     ae.RegistrationCutoffError(

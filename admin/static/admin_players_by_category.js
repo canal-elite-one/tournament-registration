@@ -1,7 +1,7 @@
 let data;
 
 const searchCols = ["licenceNo", "firstName", "lastName", "club"];
-const numericCols = ["licenceNo", "nbPoints"];
+const numericCols = ["nbPoints"];
 
 if (hasRegistrationEnded) {
     searchCols.push("bibNo");
@@ -29,7 +29,7 @@ function appendOneRow(categoryTableBody, entryObject, categoryId, searchString, 
 
     let entryRow = document.createElement('tr');
     entryRow.setAttribute('id', 'players-table-row-' + entryObject['licenceNo'] + '-' + categoryId);
-    entryRow.setAttribute('onclick', 'onclickRow(' + entryObject['licenceNo'] + ')');
+    entryRow.setAttribute('onclick', 'onclickRow("' + entryObject['licenceNo'] + '")');
     entryRow.classList.add('players-table-row');
     entryRow.classList.add(classToAppend + '-row-' + categoryId);
 

@@ -13,7 +13,7 @@ const frToEn = {
 }
 
 
-const numericCols = ["licenceNo", "nbPoints"];
+const numericCols = ["nbPoints"];
 const dontSort = ["registeredEntries", "phone"];
 
 const searchCols = ["licenceNo", "firstName", "lastName", "club"];
@@ -101,7 +101,7 @@ function putDataInTable(data, elementId) {
             row.appendChild(dataCell);
         });
 
-        row.setAttribute('onclick', "goToPlayerPage(" + playerObject['licenceNo'] + ")");
+        row.setAttribute('onclick', "goToPlayerPage('" + playerObject['licenceNo'] + "')");
 
         body.appendChild(row);
     });
@@ -124,6 +124,24 @@ function goToPlayerPage(licenceNo) {
 
 let currentSort = {"colName": null, "ascending": true};
 
+function strCompare(colname) {
+    function innercompare (a, b){
+        let x = a[colname].toLowerCase();
+        let y = b[colname].toLowerCase();
+        if (x > y) { return 1; }
+        if (x < y) { return -1; }
+        return 0;
+    }
+    return innercompare;
+}
+
+function numericCompare(colName) {
+    function innercompare (a, b){
+        return a[colName] - b[colName];
+    }
+    return innercompare;
+}
+
 
 function sortByColumn(colName) {
     if (dontSort.includes(colName) || (colName == "bibNo" && !bibsSet)) {
@@ -132,20 +150,11 @@ function sortByColumn(colName) {
 
     currentSort["ascending"] = (colName == currentSort["colName"]) ? (!(currentSort["ascending"])) : true;
     currentSort["colName"] = colName;
-    if (numericCols.includes(colName)) {
-        sortedArray.sort(function(a, b){return a[colName] - b[colName]});
-        filteredArray.sort(function(a, b){return a[colName] - b[colName]});
-    } else {
-        function strCompare(a, b){
-            let x = a[colName].toLowerCase();
-            let y = b[colName].toLowerCase();
-            if (x > y) { return 1; }
-            if (x < y) { return -1; }
-            return 0;
-        }
-        sortedArray.sort(strCompare);
-        filteredArray.sort(strCompare);
-    }
+    let compareFunction = (numericCols.includes(colName) ? numericCompare(colName) : strCompare(colName));
+
+    sortedArray.sort(compareFunction);
+    filteredArray.sort(compareFunction);
+
     if (!(currentSort["ascending"])) {
         sortedArray.reverse();
         filteredArray.reverse();
@@ -160,8 +169,9 @@ function filterData() {
     let cellValue;
     sortedArray.forEach(function(playerObject) {
         for (let x in searchCols) {
-            colName = searchCols[x];
-            cellValue = (numericCols.includes(colName) ? playerObject[colName].toString() : playerObject[colName]).toLowerCase();
+            let colName = searchCols[x];
+            let cellValue = playerObject[colName] === null ? '-' : playerObject[colName];
+            cellValue = cellValue.toString().toLowerCase();
             if (cellValue.startsWith(searchString)) {
                 filteredArray.push(playerObject);
                 break;
@@ -232,7 +242,7 @@ async function fetchPlayers() {
         let dataJson = await response.json();
         console.log(dataJson);
         sortedArray = dataJson["players"];
-        sortedArray.sort(function(a, b){return a['licenceNo'] - b['licenceNo']});
+        sortedArray.sort(strCompare("licenceNo"));
         filteredArray = [...sortedArray];
         bibsSet = areBibsSet();
         putDataInTable(dataJson["players"], "players-table-div");

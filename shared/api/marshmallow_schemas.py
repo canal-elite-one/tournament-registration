@@ -174,7 +174,7 @@ class CategorySchema(SchemaWithReset):
 
 
 class PlayerSchema(SchemaWithReset):
-    licence_no = fields.Int(data_key="licenceNo", required=True, allow_none=False)
+    licence_no = fields.Str(data_key="licenceNo", required=True, allow_none=False)
     bib_no = fields.Int(data_key="bibNo", dump_only=True)
     first_name = fields.Str(data_key="firstName", required=True, allow_none=False)
     last_name = fields.Str(data_key="lastName", required=True, allow_none=False)
@@ -225,7 +225,7 @@ class PlayerSchema(SchemaWithReset):
 
 class EntrySchema(SchemaWithReset):
     category_id = fields.Str(data_key="categoryId")
-    licence_no = fields.Int(data_key="licenceNo")
+    licence_no = fields.Str(data_key="licenceNo")
     color = fields.Str(load_only=True)
     registration_time = fields.DateTime(data_key="registrationTime")
     marked_as_paid = fields.Bool(data_key="markedAsPaid")

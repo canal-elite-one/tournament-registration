@@ -75,8 +75,8 @@ class BaseTest:
         with Session() as session:
             session.execute(
                 text(
-                    "UPDATE players SET bib_no = 1 WHERE licence_no = 722370;"
-                    "UPDATE players SET bib_no = 2 WHERE licence_no = 5325506;",
+                    "UPDATE players SET bib_no = 1 WHERE licence_no = '722370';"
+                    "UPDATE players SET bib_no = 2 WHERE licence_no = '5325506';",
                 ),
             )
             session.commit()

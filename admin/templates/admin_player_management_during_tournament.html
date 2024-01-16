@@ -79,7 +79,7 @@
 {% endblock %}
 
 {% block scripts %}
-<script>const licenceNo={{ licence_no }}</script>
+<script>const licenceNo="{{ licence_no }}"</script>
 <script>const showBib={{ show_bib|lower }}</script>
 <script src="{{ url_for('static', filename='admin_player_management_during_tournament.js') }}">
 </script>
