@@ -13,7 +13,7 @@ border: 1px solid grey;
   width: 100%;
 }
 
-#disabled-cell {
+.disabled-cell {
   background-color: #d3d3d3;
 }
 

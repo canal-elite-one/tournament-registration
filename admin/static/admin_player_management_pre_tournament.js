@@ -1,31 +1,3 @@
-const frToEn = {
-    'N° licence':'licenceNo',
-    'Prénom':'firstName',
-    'Nom de Famille':'lastName',
-    'N° dossard': 'bibNo',
-    'Club':'club',
-    'Adresse Mail':'email',
-    'Genre':'gender',
-    'Classement':'nbPoints',
-    'Surplus de paiement':'paymentDiff',
-    'N° téléphone':'phone',
-    'Tableaux':'registeredEntries'
-};
-
-const enToFr = {
-    'bibNo':'N° dossard',
-    'club':'Club',
-    'email': 'Adresse Mail',
-    'firstName':'Prénom',
-    'gender': 'Genre',
-    'lastName':'Nom de Famille',
-    'licenceNo': 'N° licence',
-    'nbPoints': 'Classement',
-    'paymentDiff': 'Surplus de paiement',
-    'phone': 'N° téléphone',
-    'registeredEntries': 'Tableaux'
-}
-
 let playerObject;
 let categoriesData;
 
@@ -34,20 +6,6 @@ const relevantCategoriesFields = ['categoryId', 'color', 'entryCount', 'maxPlaye
 
 const categoryIdByColor = {};
 const sameColor = {};
-
-function exitConfirmation (e) {
-    let confirmationMessage = 'Voulez-vous vraiment quitter la page? Les changements non sauvegardés seront perdus';
-    (e).returnValue = confirmationMessage;
-    return confirmationMessage;
-}
-
-function addExitConfirmation() {
-    window.onbeforeunload = exitConfirmation;
-}
-
-function removeExitConfirmation() {
-    window.onbeforeunload = null;
-}
 
 function handleCheckbox(categoryId) {
     addExitConfirmation();
@@ -83,22 +41,6 @@ function handleCheckbox(categoryId) {
         } else {
             label.firstChild.data = '\u26A0';
         }
-    }
-}
-
-function deletePlayer() {
-    let confirmMessage
-    if (playerObject['gender'] == 'M') {
-        confirmMessage = "Voulez-vous vraiment supprimer ce compétiteur de la base de données ? Toutes les informations sur les inscriptions seront perdues";
-    } else {
-        confirmMessage = "Voulez-vous vraiment supprimer cette compétitrice de la base de données ? Toutes les informations sur les inscriptions seront perdues";
-    }
-    if (confirm(confirmMessage)) {
-        fetch('/api/admin/players/' + licenceNo, {method: 'DELETE'}).then(() =>
-        {
-            console.log('Successfully deleted player' + licenceNo);
-            window.location.href = "/admin/inscrits";
-        });
     }
 }
 
@@ -200,12 +142,11 @@ function createCategoryRow(categoryObject) {
 
     let color = categoryObject['color'];
 
-    if (!(color === null)) {
+    if (color !== null) {
         if (color in categoryIdByColor) {
             sameColor[categoryId] = categoryIdByColor[color];
             sameColor[categoryIdByColor[color]] = categoryId;
         } else { categoryIdByColor[color] = categoryId; }
-        // registerCell.style.backgroundColor = categoryObject['color'];
         idCell.style.backgroundColor = color;
     };
 
@@ -220,7 +161,7 @@ function createCategoryRow(categoryObject) {
         pointsString = '< ' + maxPoints;
     } else if (minPoints > 0) {
         pointsString = '> ' + minPoints;
-    } else { pointsString = ' -'}
+    } else { pointsString = '-'}
 
     if (playerObject['nbPoints'] < minPoints || playerObject['nbPoints'] > maxPoints) {
         pointsCell.style.backgroundColor = 'red';
@@ -296,29 +237,18 @@ async function submitPlayer() {
         'email': emailInput.value,
         'phone': phoneInput.value
     };
-    try {
-        let response = await fetch('/api/admin/players', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(playerPayload)
-        })
-        if (response.ok) {
-            let responseData = await response.json();
-            console.log(responseData);
-            console.log("Player successfully added");
-            return true;
-        } else {
-            let responseData = await response.json();
-            console.error("Error:", responseData);
-            window.alert('An unexpected error occured while trying to submit player:' + response.status + ' ' + JSON.stringify(responseData));
-            return false;
-        }
 
-    } catch (error) {
-        console.error("Error:", error);
-        window.alert('An unexpected error occured while trying to submit player:' + error);
+    let response = await fetch('/api/admin/players', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(playerPayload)
+    })
+    if (response.ok) {
+        return true;
+    } else {
+        adminHandleBadResponse(response);
         return false;
     }
 }
@@ -354,13 +284,9 @@ async function submitEntries() {
     });
 
     if (!registerResponse.ok) {
-        let data = await registerResponse.json();
-        console.alert('An unexpected error occured while trying to register entries:' + registerResponse.status + ' ' + JSON.stringify(data));
+        adminHandleBadResponse(registerResponse);
         return false;
     }
-    console.log('Successfully registered new entries');
-    let data = await registerResponse.json();
-    console.log(data);
 
     let deleteResponse = await fetch('/api/admin/entries/' + licenceNo, {
         method: 'DELETE',
@@ -371,24 +297,16 @@ async function submitEntries() {
     });
 
     if (!deleteResponse.ok) {
-        let data = await deleteResponse.json();
-        console.alert('An unexpected error occured while trying to delete entries:' + deleteResponse.status + ' ' + JSON.stringify(data));
+        adminHandleBadResponse(deleteResponse);
         return false;
     }
-    console.log('Successfully deleted entries');
-    data = await deleteResponse.json();
-    console.log(data);
     return true;
 }
 
 async function submitAll() {
     removeExitConfirmation();
-    let playerSubmitted;
-    if (playerObject['email'] === null) {
-        playerSubmitted = await submitPlayer();
-    } else {
-        playerSubmitted = true;
-    }
+    let playerSubmitted = playerObject['email'] === null ? await submitPlayer() : true;
+
     if (playerSubmitted) {
         let entriesSubmitted = await submitEntries();
         if (entriesSubmitted) {
@@ -411,19 +329,9 @@ async function fetchAll() {
         setUpCategoriesTable();
         processPlayerInfo();
     } else if (!categoriesResponse.ok) {
-        if (categoriesResponse.status == 400) {
-            let data = await categoriesResponse.json();
-            console.error("400 Bad Request: " + data);
-        } else {
-            console.error("Could not fetch categories: " + categoriesResponse.status);
-        }
+        adminHandleBadResponse(categoriesResponse)
     } else {
-        if (playerResponse.status == 400) {
-            let data = await playerResponse.json();
-            console.error("400 Bad Request: " + data);
-        } else {
-            console.error("Could not fetch player: " + playerResponse.status);
-        }
+        adminHandleBadResponse(playerResponse)
     }
 }
 

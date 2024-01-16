@@ -9,7 +9,7 @@ function removeFormRow() {
 }
 
 function addFormRow(rowData = null) {
-    let fillValues = !(rowData === null);
+    let fillValues = rowData !== null;
 
     let row = document.createElement('tr');
 

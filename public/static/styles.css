@@ -122,7 +122,7 @@ padding-right: 5px;
   background-color: rgb(0, 38, 255);
 }
 
-#disabled-cell {
+.disabled-cell {
   background-color: #d3d3d3;
 }
 

@@ -116,8 +116,10 @@ function collapseTable(categoryId) {
 
 const nbResults = {};
 
+const columnsBeforeCutoff = ['N° licence', 'Nom', 'Prénom', 'Points', 'Club', 'Date/heure d\'inscription'];
+const columnsAfterCutoff = ['N° dossard', 'N° licence', 'Nom', 'Prénom', 'Points', 'Club', 'Présent', 'Payé', 'Date/heure d\'inscription'];
+
 function createOneTable(categoryObject, searchString="", show=true) {
-    let nbCols = hasRegistrationEnded ? 9 : 6;
     let categoryId = categoryObject['categoryId'];
 
     let categoryTableDiv = document.createElement('div');
@@ -138,7 +140,6 @@ function createOneTable(categoryObject, searchString="", show=true) {
     categoryTableHeader.setAttribute('onclick', 'collapseTable("' + categoryId + '")');
 
     let titleString;
-    let columnsString;
 
     if (hasRegistrationEnded) {
         let nbPresentString = `Présents : ${categoryObject['presentEntryCount']}/${categoryObject['maxPlayers']}`;
@@ -150,19 +151,6 @@ function createOneTable(categoryObject, searchString="", show=true) {
 
         titleString = 'Tableau ' + categoryId + ' - ' + nbPresentString + absentString + nbRegisteredString;
         titleString += "<button onclick='downloadOneCsv(\"" + categoryId + "\")'>Générer CSV</button>";
-
-        columnsString =
-            `<tr>
-                <th>N° dossard</th>
-                <th>N° licence</th>
-                <th>Nom</th>
-                <th>Prénom</th>
-                <th>Points</th>
-                <th>Club</th>
-                <th>Présent</th>
-                <th>Payé</th>
-                <th>Date/heure d'inscription</th>
-            </tr>`;
     } else {
         titleString = 'Tableau ' + categoryId + ' - '
         let registeredString = 'Inscrits : ' + categoryObject['entryCount'] + '/' + categoryObject['maxPlayers'];
@@ -170,16 +158,10 @@ function createOneTable(categoryObject, searchString="", show=true) {
             registeredString = '<span style="color: red;">' + registeredString + '</span>';
         }
         titleString += registeredString;
-        columnsString =
-        `<tr>
-            <th>N° licence</th>
-            <th>Nom</th>
-            <th>Prénom</th>
-            <th>Points</th>
-            <th>Club</th>
-            <th>Date/heure d'inscription</th>
-        </tr>`;
     }
+
+    let columnsList = hasRegistrationEnded ? columnsAfterCutoff : columnsBeforeCutoff;
+    let nbCols = columnsList.length;
 
     let categoryInfoHeaderRow = document.createElement('tr');
     let categoryInfoHeader = document.createElement('th');
@@ -189,8 +171,12 @@ function createOneTable(categoryObject, searchString="", show=true) {
     categoryTableHeader.appendChild(categoryInfoHeaderRow);
 
     let categoryColumnsHeaderRow = document.createElement('tr');
-    categoryColumnsHeaderRow.setAttribute('id', 'category-columns-header-row-' + categoryId)
-    categoryColumnsHeaderRow.innerHTML = columnsString;
+    categoryColumnsHeaderRow.setAttribute('id', 'category-columns-header-row-' + categoryId);
+    columnsList.forEach(columnName => {
+        let columnHeader = document.createElement('th');
+        columnHeader.appendChild(document.createTextNode(columnName));
+        categoryColumnsHeaderRow.appendChild(columnHeader);
+    });
     categoryTableHeader.appendChild(categoryColumnsHeaderRow);
 
     let categoryTableBody = document.createElement('tbody');
@@ -200,7 +186,7 @@ function createOneTable(categoryObject, searchString="", show=true) {
     let nbFiltered=0;
 
     if (categoryObject['entryCount'] <= categoryObject['maxPlayers']) {
-        // If noone is absent, no need for a separator as there are no distinctions between registered players.
+        // If no one is absent, no need for a separator as there are no distinctions between registered players.
         if (categoryObject['absentEntries'].length > 0) {
             categoryTableBody.appendChild(createSeparatorRow('Inscrits (' + categoryObject['entries'].length + ')', nbCols, categoryId, 'entries'));
         }
@@ -245,11 +231,7 @@ function createOneTable(categoryObject, searchString="", show=true) {
 
     nbResults[categoryId] = nbFiltered;
     document.getElementById('players-by-category-div').appendChild(categoryTableDiv);
-    if (nbFiltered === 0 && searchString.length > 0) {
-        return 0;
-    } else {
-        return 1;
-    }
+    return (nbFiltered === 0 && searchString.length > 0) ? 0 : 1;
 }
 
 function filterData() {
@@ -357,16 +339,6 @@ function downloadOneCsv(categoryId) {
     }
 }
 
-async function downloadAll() {
-    let downloadLink = document.createElement('a');
-    downloadLink.setAttribute('href', '/api/admin/csv?by_category=true');
-    downloadLink.setAttribute('download', 'competiteurs_par_tableau.zip');
-    downloadLink.style.display = 'none';
-    document.body.appendChild(downloadLink);
-    downloadLink.click();
-    document.body.removeChild(downloadLink);
-}
-
 function processData() {
     let categoriesNavbar = document.getElementById('categories-navbar');
 
@@ -393,7 +365,7 @@ async function fetchData() {
     const start = new Date();
     let response = await fetch('/api/admin/by_category');
     if (!response.ok) {
-        console.error(response.status + ' ' + response.statusText);
+        adminHandleBadResponse(response);
     } else {
         let json = await response.json();
         data = json['categories'];

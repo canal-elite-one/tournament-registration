@@ -1,31 +1,3 @@
-const frToEn = {
-    'N° licence':'licenceNo',
-    'Prénom':'firstName',
-    'Nom de Famille':'lastName',
-    'N° dossard': 'bibNo',
-    'Club':'club',
-    'Adresse Mail':'email',
-    'Genre':'gender',
-    'Classement':'nbPoints',
-    'Surplus de paiement':'paymentDiff',
-    'N° téléphone':'phone',
-    'Tableaux':'registeredEntries'
-};
-
-const enToFr = {
-    'bibNo':'N° dossard',
-    'club':'Club',
-    'email': 'Adresse Mail',
-    'firstName':'Prénom',
-    'gender': 'Genre',
-    'lastName':'Nom de Famille',
-    'licenceNo': 'N° licence',
-    'nbPoints': 'Classement',
-    'paymentDiff': 'Surplus de paiement',
-    'phone': 'N° téléphone',
-    'registeredEntries': 'Tableaux'
-}
-
 let playerObject;
 let categoriesData;
 let playerInDatabase;
@@ -168,7 +140,7 @@ function handleColor(checkbox) {
     }
 }
 
-function onclickCheckboxWrapper(checkboxType, categoryId) {
+function onclickCheckboxWrapper(checkboxType, categoryId, initialization=false) {
     let checkbox = document.getElementById(checkboxType + '-checkbox-' + categoryId);
     if (checkboxType == 'register') {
         handleColor(checkbox);
@@ -178,22 +150,8 @@ function onclickCheckboxWrapper(checkboxType, categoryId) {
         onCheckboxChange(checkbox);
     }
     recomputePaymentStatus();
-    addExitConfirmation();
-}
-
-function deletePlayer() {
-    let confirmMessage
-    if (playerObject['gender'] == 'M') {
-        confirmMessage = "Voulez-vous vraiment supprimer ce compétiteur de la base de données ? Toutes les informations sur les inscriptions seront perdues";
-    } else {
-        confirmMessage = "Voulez-vous vraiment supprimer cette compétitrice de la base de données ? Toutes les informations sur les inscriptions seront perdues";
-    }
-    if (confirm(confirmMessage)) {
-        fetch('/api/admin/players/' + licenceNo, {method: 'DELETE'}).then(() =>
-        {
-            console.log('Successfully deleted player with licence n°:' + licenceNo);
-            window.location.href = "/admin/inscrits";
-        });
+    if (!initialization) {
+        addExitConfirmation();
     }
 }
 
@@ -212,8 +170,7 @@ async function generateBibNo() {
         bibNoCell.innerHTML = data['bibNo'];
         bibNoCell.style.backgroundColor = 'white';
     } else {
-        let data = await response.json();
-        window.alert('An unexpected error occured while trying to generate bib number:' + response.status + ' ' + JSON.stringify(data));
+        adminHandleBadResponse(response);
     }
 }
 
@@ -223,7 +180,7 @@ function processPlayerInfo() {
     for (const categoryId in playerObject['registeredEntries']) {
         let registerCheckbox = document.getElementById('register-checkbox-' + categoryId);
         registerCheckbox.checked = true;
-        onclickCheckboxWrapper('register', categoryId);
+        onclickCheckboxWrapper('register', categoryId, true);
     }
 
     recomputePaymentStatus();
@@ -301,10 +258,10 @@ function updateEntryCountCell(categoryObject, entryCountCell=null) {
     let maxPlayers = categoryObject['maxPlayers'];
     let maxOverbooked = Math.floor(categoryObject['maxPlayers'] * (1 + categoryObject['overbookingPercentage'] / 100.));
 
-    let rankOrCount = categoryId in playerObject['registeredEntries']
-    let relevantEntryCount = rankOrCount ? playerObject['registeredEntries'][categoryId]['rank'] + 1 : entryCount;
+    let isRegistered = categoryId in playerObject['registeredEntries']
+    let relevantEntryCount = isRegistered ? playerObject['registeredEntries'][categoryId]['rank'] : entryCount;
 
-    let cellString = rankOrCount ? `${relevantEntryCount + 1}e` : `${relevantEntryCount} inscrits`;
+    let cellString = isRegistered ? `${relevantEntryCount + 1}e` : `${relevantEntryCount} inscrits`;
 
     let entryCountColor;
 
@@ -340,12 +297,11 @@ function createCategoryRow(categoryObject) {
 
     let color = categoryObject['color'];
 
-    if (!(color === null)) {
+    if (color !== null) {
         if (color in categoryIdByColor) {
             sameColor[categoryId] = categoryIdByColor[color];
             sameColor[categoryIdByColor[color]] = categoryId;
         } else { categoryIdByColor[color] = categoryId; }
-        // registerCell.style.backgroundColor = categoryObject['color'];
         idCell.style.backgroundColor = color;
     };
 
@@ -357,7 +313,7 @@ function createCategoryRow(categoryObject) {
 
     let maxPlayersCell = document.createElement('td');
     maxPlayersCell.setAttribute('id', 'max-players-cell-' + categoryId);
-    maxOverbooked = Math.floor(categoryObject['maxPlayers'] * (1 + categoryObject['overbookingPercentage'] / 100.));
+    let maxOverbooked = Math.floor(categoryObject['maxPlayers'] * (1 + categoryObject['overbookingPercentage'] / 100.));
     maxPlayersCell.appendChild(document.createTextNode(categoryObject['maxPlayers'] + ' (' + maxOverbooked + ')'));
     row.appendChild(maxPlayersCell);
 
@@ -370,7 +326,7 @@ function createCategoryRow(categoryObject) {
         pointsString = '< ' + maxPoints;
     } else if (minPoints > 0) {
         pointsString = '> ' + minPoints;
-    } else { pointsString = ' -'}
+    } else { pointsString = '-'}
 
     if (playerObject['nbPoints'] < minPoints || playerObject['nbPoints'] > maxPoints) {
         pointsCell.style.backgroundColor = 'red';
@@ -431,20 +387,6 @@ function setUpCategoriesTable() {
         });
 }
 
-function exitConfirmation (e) {
-    let confirmationMessage = 'Voulez-vous vraiment quitter la page? Les changements non sauvegardés seront perdus';
-    (e).returnValue = confirmationMessage;
-    return confirmationMessage;
-}
-
-function addExitConfirmation() {
-    window.onbeforeunload = exitConfirmation;
-}
-
-function removeExitConfirmation() {
-    window.onbeforeunload = null;
-}
-
 async function submitPlayer() {
     console.log("Submitting player");
     let playerPayload = {
@@ -457,29 +399,17 @@ async function submitPlayer() {
         'email': `${playerObject['firstName'].toLowerCase()}@samplehost.com`,
         'phone': '+33000000000'
     };
-    try {
-        let response = await fetch('/api/admin/players', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(playerPayload)
-        })
-        if (response.ok) {
-            let responseData = await response.json();
-            console.log(responseData);
-            console.log("Player successfully added");
-            return true;
-        } else {
-            let responseData = await response.json();
-            console.error("Error:", responseData);
-            window.alert('An unexpected error occured while trying to submit player:' + response.status + ' ' + JSON.stringify(responseData));
-            return false;
-        }
-
-    } catch (error) {
-        console.error("Error:", error);
-        window.alert('An unexpected error occured while trying to submit player:' + error);
+    let response = await fetch('/api/admin/players', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(playerPayload)
+    })
+    if (response.ok) {
+        return true;
+    } else {
+        adminHandleBadResponse(response);
         return false;
     }
 }
@@ -494,12 +424,9 @@ async function deleteEntries(categoryIds) {
     });
 
     if (response.ok) {
-        let data = await response.json();
-        console.log('Successfully deleted entries', data);
         return true;
     } else {
-        let data = await response.json();
-        window.alert('An unexpected error occured while trying to delete entries:' + response.status + ' ' + JSON.stringify(data));
+        adminHandleBadResponse(response);
         return false;
     }
 }
@@ -514,12 +441,9 @@ async function registerEntries(categoryIds) {
     });
 
     if (response.ok) {
-        let data = await response.json();
-        console.log('Successfully registered new entries', data);
         return true;
     } else {
-        let data = await response.json();
-        window.alert('An unexpected error occured while trying to registered entries:' + response.status + ' ' + JSON.stringify(data));
+        adminHandleBadResponse(response);
         return false;
     }
 }
@@ -536,12 +460,9 @@ async function markAsPresent(categoryIdsPresence) {
     });
 
     if (response.ok) {
-        let data = await response.json();
-        console.log('Successfully marked/unmarked entries as present', data);
         return true;
     } else {
-        let data = await response.json();
-        window.alert('An unexpected error occured while trying to mark/unmark entries as present:' + response.status + ' ' + JSON.stringify(data));
+        adminHandleBadResponse(response);
         return false;
     }
 }
@@ -559,12 +480,9 @@ async function processPayments(categoryIds, totalActualPaid) {
     });
 
     if (response.ok) {
-        let data = await response.json();
-        console.log('Successfully processed payments', data);
         return true;
     } else {
-        let data = await response.json();
-        window.alert('An unexpected error occured while trying to process payments:' + response.status + ' ' + JSON.stringify(data));
+        adminHandleBadResponse(response);
         return false;
     }
 }
@@ -595,26 +513,21 @@ async function submitChanges() {
 
     let totalActualPaid = parseInt(document.getElementById('actual-total-field').value) + playerObject['paymentStatus']['totalActualPaid'];
 
-    try {
-        if (!playerInDatabase) {
-            let success = await submitPlayer();
-            if (!success) { return; }
-        }
-        console.log('Submitting changes');
-        let success = await deleteEntries(categoryIdsToDelete);
+    if (!playerInDatabase) {
+        let success = await submitPlayer();
         if (!success) { return; }
-        success = await registerEntries(categoryIdsToRegister);
-        if (!success) { return; }
-        success = await markAsPresent(categoryIdsPresence);
-        if (!success) { return; }
-        success = await processPayments(categoryIdsToMarkAsPaid, totalActualPaid);
-        if (success) {
-            console.log('Successfully submitted changes');
-            window.location.reload();
-        }
-    } catch (error) {
-        window.alert('An unexpected error occured while trying to submit changes:' + error);
-        return;
+    }
+    console.log('Submitting changes');
+    let success = await deleteEntries(categoryIdsToDelete);
+    if (!success) { return; }
+    success = await registerEntries(categoryIdsToRegister);
+    if (!success) { return; }
+    success = await markAsPresent(categoryIdsPresence);
+    if (!success) { return; }
+    success = await processPayments(categoryIdsToMarkAsPaid, totalActualPaid);
+    if (success) {
+        console.log('Successfully submitted changes');
+        window.location.reload();
     }
 }
 
@@ -628,23 +541,13 @@ async function fetchAll() {
         playerObject = await playerResponse.json();
         console.log(categoriesData);
         console.log(playerObject);
-        playerInDatabase = !(playerObject['email'] === null);
+        playerInDatabase = (playerObject['email'] !== null);
         setUpCategoriesTable();
         processPlayerInfo();
     } else if (!categoriesResponse.ok) {
-        if (categoriesResponse.status == 400) {
-            let data = await categoriesResponse.json();
-            console.error("400 Bad Request: " + data);
-        } else {
-            console.error("Could not fetch categories: " + categoriesResponse.status);
-        }
+        adminHandleBadResponse(categoriesResponse);
     } else {
-        if (playerResponse.status == 400) {
-            let data = await playerResponse.json();
-            console.error("400 Bad Request: " + data);
-        } else {
-            console.error("Could not fetch player: " + playerResponse.status);
-        }
+        adminHandleBadResponse(playerResponse);
     }
 }
 

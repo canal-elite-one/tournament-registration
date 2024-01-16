@@ -205,20 +205,10 @@ if (!hasRegistrationEnded) {
     document.getElementById("csv-export-button").style.display = "none";
 }
 
-async function downloadCsv() {
-    let downloadLink = document.createElement('a');
-    downloadLink.setAttribute('href', '/api/admin/csv?by_category=false');
-    downloadLink.setAttribute('download', 'competiteurs_samedi_dimanche.zip');
-    downloadLink.style.display = 'none';
-    document.body.appendChild(downloadLink);
-    downloadLink.click();
-    document.body.removeChild(downloadLink);
-}
-
 function areBibsSet() {
     let result = false;
     filteredArray.forEach(function(playerObject) {
-        if (!(playerObject["bibNo"] === null)) {
+        if (playerObject["bibNo"] !== null) {
             result = true;
         }
     });
@@ -237,12 +227,7 @@ function areBibsSet() {
 async function fetchPlayers() {
     let response = await fetch("/api/admin/players/all");
     if (!response.ok) {
-        if (response.status == 400) {
-            data = await response.json();
-            console.error("Bad request: " + data);
-        } else {
-            console.error("Unable to fetch players: " + response.status);
-        }
+        adminHandleBadResponse(response);
     } else {
         let dataJson = await response.json();
         console.log(dataJson);
