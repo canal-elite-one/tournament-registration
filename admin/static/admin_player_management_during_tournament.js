@@ -104,14 +104,14 @@ function ableCheckbox(checkbox, able) {
     if (able) {
         if (!(checkbox.getAttribute('data-checkbox-type') == 'paid' && initialChecked(checkbox))) {
             checkbox.removeAttribute('disabled');
-            checkbox.parentElement.style.backgroundColor = 'white';
+            checkbox.parentElement.classList.remove('disabled-cell');
         }
         checkbox.checked = initialChecked(checkbox);
         onCheckboxChange(checkbox);
     } else {
         checkbox.setAttribute('disabled', '');
         checkbox.checked = false;
-        checkbox.parentElement.style.backgroundColor = '#d3d3d3';
+        checkbox.parentElement.classList.add('disabled-cell');
         onCheckboxChange(checkbox);
     }
 }
@@ -287,7 +287,7 @@ function createCheckboxCell(categoryId, checkboxType) {
     cell.appendChild(label);
 
     if (checkboxType != 'register') {
-        cell.style.backgroundColor = '#d3d3d3';
+        cell.classList.add('disabled-cell');
         checkbox.setAttribute('disabled', '');
     }
 
@@ -374,7 +374,7 @@ function createCategoryRow(categoryObject) {
 
     if (playerObject['nbPoints'] < minPoints || playerObject['nbPoints'] > maxPoints) {
         pointsCell.style.backgroundColor = 'red';
-        registerCell.style.backgroundColor = '#d3d3d3';
+        registerCell.classList.add('disabled-cell');
         registerCell.firstChild.setAttribute('disabled', '');
         pointsString = pointsString + ' \u2717';
     } else {
@@ -389,7 +389,7 @@ function createCategoryRow(categoryObject) {
     row.appendChild(womenOnlyCell);
     if (categoryObject['womenOnly'] && playerObject['gender'] == 'M') {
         womenOnlyCell.style.backgroundColor = 'red';
-        registerCell.style.backgroundColor = '#d3d3d3';
+        registerCell.classList.add('disabled-cell');
         registerCell.firstChild.setAttribute('disabled', '');
     }
 

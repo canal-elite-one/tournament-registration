@@ -224,7 +224,7 @@ function createCategoryRow(categoryObject) {
 
     if (playerObject['nbPoints'] < minPoints || playerObject['nbPoints'] > maxPoints) {
         pointsCell.style.backgroundColor = 'red';
-        registerCell.style.backgroundColor = 'grey';
+        registerCell.classList.add('disabled-cell');
         registerCheckbox.setAttribute('disabled', '');
         pointsString = pointsString + ' \u2717';
     } else {
@@ -239,7 +239,7 @@ function createCategoryRow(categoryObject) {
     row.appendChild(womenOnlyCell);
     if (categoryObject['womenOnly'] && playerObject['gender'] == 'M') {
         womenOnlyCell.style.backgroundColor = 'red';
-        registerCell.style.backgroundColor = 'red';
+        registerCell.classList.add('disabled-cell');
         registerCheckbox.setAttribute('disabled', '');
     }
     row.appendChild(registerCell);

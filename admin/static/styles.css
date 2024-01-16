@@ -13,6 +13,10 @@ border: 1px solid grey;
   width: 100%;
 }
 
+#disabled-cell {
+  background-color: #d3d3d3;
+}
+
 #players-table-div {
   margin: auto;
   padding-left: 25px;

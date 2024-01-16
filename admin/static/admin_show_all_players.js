@@ -1,19 +1,3 @@
-/*
-const enToFr = {
-    'bibNo':'N° dossard',
-    'club':'Club',
-    'email': 'Adresse Mail',
-    'firstName':'Prénom',
-    'gender': 'Genre',
-    'lastName':'Nom de Famille',
-    'licenceNo': 'N° licence',
-    'nbPoints': 'Classement',
-    'paymentDiff': 'Surplus de paiement',
-    'phone': 'N° téléphone',
-    'registeredEntries': 'Tableaux'
-}
-*/
-
 const frToEn = {
     'N° dossard': 'bibNo',
     'N° licence':'licenceNo',
