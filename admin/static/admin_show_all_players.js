@@ -164,9 +164,8 @@ function sortByColumn(colName) {
 }
 
 function filterData() {
-    searchString = document.getElementById("players-table-search").value.toLowerCase();
+    let searchString = document.getElementById("players-table-search").value.toLowerCase();
     filteredArray = [];
-    let cellValue;
     sortedArray.forEach(function(playerObject) {
         for (let x in searchCols) {
             let colName = searchCols[x];

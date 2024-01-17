@@ -11,9 +11,6 @@ from shared.api.db import Category, Player, Entry, is_before_cutoff
 
 
 class SchemaWithReset(Schema):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
     def reset(self, many=False, **kwargs):
         self.many = many
         self.context = dict(kwargs.items())
@@ -46,6 +43,13 @@ class CategorySchema(SchemaWithReset):
     reward_quarter = fields.Int(data_key="rewardQuarter")
     max_players = fields.Int(data_key="maxPlayers", allow_none=False, required=True)
     overbooking_percentage = fields.Int(data_key="overbookingPercentage")
+
+    def reset(self, many=False, include_players=False, present_only=False):
+        super().reset(
+            many=many,
+            include_players=include_players,
+            present_only=present_only,
+        )
 
     @pre_load(pass_many=True)
     def check_json_field(self, data, many, **kwargs):
@@ -89,8 +93,8 @@ class CategorySchema(SchemaWithReset):
     @post_dump(pass_original=True)
     def add_players_info(self, data, original, **kwargs):
         if self.context.get("include_players", False):
-            e_schema = EntrySchema(many=True)
-            e_schema.context["include_player"] = True
+            e_schema = EntrySchema()
+            e_schema.reset(many=True, include_player=True)
             if self.context.get("present_only", False):
                 entries = original.present_entries()
                 entries = sorted(entries, key=lambda x: x.registration_time)
@@ -188,6 +192,20 @@ class PlayerSchema(SchemaWithReset):
         dump_only=True,
     )
 
+    def reset(
+        self,
+        many=False,
+        simple_entries=False,
+        include_entries=False,
+        include_payment_status=False,
+    ):
+        super().reset(
+            many=many,
+            simple_entries=simple_entries,
+            include_entries=include_entries,
+            include_payment_status=include_payment_status,
+        )
+
     @post_load
     def make_object(self, data, **kwargs):
         return Player(**data)
@@ -205,9 +223,8 @@ class PlayerSchema(SchemaWithReset):
                 ],
             )
         elif self.context.get("include_entries", False):
-            e_schema = EntrySchema(many=True)
-            e_schema.context["nest"] = True
-            e_schema.context["include_rank"] = True
+            e_schema = EntrySchema()
+            e_schema.reset(many=True, nest=True, include_rank=True)
             data["registeredEntries"] = e_schema.dump(
                 sorted(original.entries, key=lambda x: x.category.start_time),
             )
@@ -230,6 +247,22 @@ class EntrySchema(SchemaWithReset):
     registration_time = fields.DateTime(data_key="registrationTime")
     marked_as_paid = fields.Bool(data_key="markedAsPaid")
     marked_as_present = fields.Bool(data_key="markedAsPresent")
+
+    def reset(
+        self,
+        many=False,
+        include_rank=False,
+        include_player=False,
+        include_category_info=True,
+        nest=False,
+    ):
+        super().reset(
+            many=many,
+            include_rank=include_rank,
+            include_player=include_player,
+            include_category_info=include_category_info,
+            nest=nest,
+        )
 
     @post_load
     def make_field(self, data, **kwargs):

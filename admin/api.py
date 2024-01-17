@@ -110,7 +110,7 @@ def api_admin_get_player(licence_no):
 
     if request.args.get("db_only", False, loads) is True:
         raise ae.PlayerNotFoundError(
-            origin=origin + "_db_only",
+            origin=f"{origin}_db_only",
             licence_no=licence_no,
         )
 
