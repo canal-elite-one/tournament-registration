@@ -8,12 +8,12 @@ import shared.api.api_errors as ae
 from tests.conftest import BaseTest, before_cutoff, after_cutoff
 
 
-overall_incorrect_licence = 5555555
+overall_incorrect_licence = "5555555"
 
 origin = "api_admin_mark_present"
 
 correct_mark_unmark_present_nothing = (
-    4422906,
+    "4422906",
     after_cutoff,
     {},
     {
@@ -24,7 +24,7 @@ correct_mark_unmark_present_nothing = (
         "gender": "F",
         "lastName": "ITMZMIPM",
         "leftToPay": 0,
-        "licenceNo": 4422906,
+        "licenceNo": "4422906",
         "nbPoints": 1310,
         "paymentStatus": {
             "totalActualPaid": 0,
@@ -37,7 +37,7 @@ correct_mark_unmark_present_nothing = (
             "1": {
                 "alternateName": None,
                 "entryFee": 7,
-                "licenceNo": 4422906,
+                "licenceNo": "4422906",
                 "markedAsPaid": False,
                 "markedAsPresent": None,
                 "rank": 57,
@@ -47,7 +47,7 @@ correct_mark_unmark_present_nothing = (
             "B": {
                 "alternateName": "< 1500",
                 "entryFee": 7,
-                "licenceNo": 4422906,
+                "licenceNo": "4422906",
                 "markedAsPaid": False,
                 "markedAsPresent": None,
                 "rank": 5,
@@ -57,7 +57,7 @@ correct_mark_unmark_present_nothing = (
             "G": {
                 "alternateName": None,
                 "entryFee": 7,
-                "licenceNo": 4422906,
+                "licenceNo": "4422906",
                 "markedAsPaid": False,
                 "markedAsPresent": None,
                 "rank": 11,
@@ -69,7 +69,7 @@ correct_mark_unmark_present_nothing = (
 )
 
 correct_mark_unmark_present = (
-    608834,
+    "608834",
     after_cutoff,
     {
         "categoryIdsPresence": {
@@ -86,7 +86,7 @@ correct_mark_unmark_present = (
         "gender": "F",
         "lastName": "GZLDPNEH",
         "leftToPay": 0,
-        "licenceNo": 608834,
+        "licenceNo": "608834",
         "nbPoints": 1721,
         "paymentStatus": {
             "totalActualPaid": 7,
@@ -99,7 +99,7 @@ correct_mark_unmark_present = (
             "3": {
                 "alternateName": None,
                 "entryFee": 7,
-                "licenceNo": 608834,
+                "licenceNo": "608834",
                 "markedAsPaid": False,
                 "markedAsPresent": None,
                 "rank": 2,
@@ -109,7 +109,7 @@ correct_mark_unmark_present = (
             "E": {
                 "alternateName": None,
                 "entryFee": 10,
-                "licenceNo": 608834,
+                "licenceNo": "608834",
                 "markedAsPaid": False,
                 "markedAsPresent": False,
                 "rank": 36,
@@ -119,7 +119,7 @@ correct_mark_unmark_present = (
             "G": {
                 "alternateName": None,
                 "entryFee": 7,
-                "licenceNo": 608834,
+                "licenceNo": "608834",
                 "markedAsPaid": False,
                 "markedAsPresent": True,
                 "rank": 23,
@@ -131,7 +131,7 @@ correct_mark_unmark_present = (
 )
 
 correct_mark_unmark_present_idempotent = (
-    608834,
+    "608834",
     after_cutoff,
     {
         "categoryIdsToMark": ["3", "E"],
@@ -144,7 +144,7 @@ correct_mark_unmark_present_idempotent = (
         "gender": "F",
         "lastName": "GZLDPNEH",
         "leftToPay": 0,
-        "licenceNo": 608834,
+        "licenceNo": "608834",
         "nbPoints": 1721,
         "paymentStatus": {
             "totalActualPaid": 17,
@@ -157,7 +157,7 @@ correct_mark_unmark_present_idempotent = (
             "3": {
                 "alternateName": None,
                 "entryFee": 7,
-                "licenceNo": 608834,
+                "licenceNo": "608834",
                 "markedAsPaid": True,
                 "markedAsPresent": True,
                 "rank": 2,
@@ -167,7 +167,7 @@ correct_mark_unmark_present_idempotent = (
             "E": {
                 "alternateName": None,
                 "entryFee": 10,
-                "licenceNo": 608834,
+                "licenceNo": "608834",
                 "markedAsPaid": True,
                 "markedAsPresent": True,
                 "rank": 36,
@@ -177,7 +177,7 @@ correct_mark_unmark_present_idempotent = (
             "G": {
                 "alternateName": None,
                 "entryFee": 7,
-                "licenceNo": 608834,
+                "licenceNo": "608834",
                 "markedAsPaid": False,
                 "markedAsPresent": None,
                 "rank": 23,
@@ -189,7 +189,7 @@ correct_mark_unmark_present_idempotent = (
 )
 
 correct_marked_absent_before = (
-    608834,
+    "608834",
     before_cutoff,
     {
         "categoryIdsPresence": {"G": False},
@@ -201,14 +201,14 @@ correct_marked_absent_before = (
         "firstName": "Nxovesf",
         "gender": "F",
         "lastName": "GZLDPNEH",
-        "licenceNo": 608834,
+        "licenceNo": "608834",
         "nbPoints": 1721,
         "phone": "+336044431914",
         "registeredEntries": {
             "3": {
                 "alternateName": None,
                 "entryFee": 7,
-                "licenceNo": 608834,
+                "licenceNo": "608834",
                 "markedAsPaid": True,
                 "markedAsPresent": True,
                 "rank": 2,
@@ -218,7 +218,7 @@ correct_marked_absent_before = (
             "E": {
                 "alternateName": None,
                 "entryFee": 10,
-                "licenceNo": 608834,
+                "licenceNo": "608834",
                 "markedAsPaid": True,
                 "markedAsPresent": True,
                 "rank": 36,
@@ -228,7 +228,7 @@ correct_marked_absent_before = (
             "G": {
                 "alternateName": None,
                 "entryFee": 7,
-                "licenceNo": 608834,
+                "licenceNo": "608834",
                 "markedAsPaid": False,
                 "markedAsPresent": False,
                 "rank": 23,
@@ -257,7 +257,7 @@ incorrect_mark_present_nonexisting_player = (
 )
 
 incorrect_mark_present_invalid_category = (
-    7221154,
+    "7221154",
     after_cutoff,
     {
         "categoryIdsPresence": {
@@ -276,7 +276,7 @@ incorrect_mark_present_invalid_category = (
 )
 
 incorrect_mark_present_before = (
-    7221154,
+    "7221154",
     before_cutoff,
     {
         "categoryIdsPresence": {

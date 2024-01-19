@@ -8,12 +8,12 @@ import shared.api.api_errors as ae
 from tests.conftest import BaseTest, before_cutoff, after_cutoff
 
 
-overall_incorrect_licence = 5555555
-overall_correct_licence = 9311764
+overall_incorrect_licence = "5555555"
+overall_correct_licence = "9311764"
 
 origin = "api_admin_assign_one_bib"
 
-correct_admin_assign_one = 9311764
+correct_admin_assign_one = "9311764"
 correct_assign_one_response = {
     "bibNo": 3,
     "club": "BOURGETIN CTT",
@@ -21,7 +21,7 @@ correct_assign_one_response = {
     "firstName": "Feitzmx",
     "gender": "F",
     "lastName": "ABJNNQES",
-    "licenceNo": 9311764,
+    "licenceNo": "9311764",
     "nbPoints": 1287,
     "phone": "+336983296275",
     "totalActualPaid": 7,
@@ -36,11 +36,11 @@ incorrect_admin_assign_one_nonexisting_player = (
 )
 
 incorrect_admin_assign_one_already_assigned = (
-    722370,
+    "722370",
     ae.BibConflictError(
         origin=origin,
         error_message=ae.THIS_BIB_ALREADY_ASSIGNED_MESSAGE,
-        payload={"bibNo": 1, "licenceNo": 722370},
+        payload={"bibNo": 1, "licenceNo": "722370"},
     ),
 )
 

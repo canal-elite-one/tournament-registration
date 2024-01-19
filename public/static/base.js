@@ -1,12 +1,9 @@
 function showContent() {
-    console.log("showContent");
-    document.getElementById("content_div").style.display = "block";
-    // document.getElementById("loading_div").style.display = "none";
+    document.getElementById("content-div").style.display = "block";
 }
 
 function hideContent() {
-    document.getElementById("loading_div").style.display = "block";
-    // document.getElementById("content_div").style.display = "none";
+    document.getElementById("content-div").style.display = "none";
 }
 
 async function publicHandleBadResponse(response) {
@@ -17,14 +14,14 @@ async function publicHandleBadResponse(response) {
         }
         const error = await response.json();
         if (error["errorType"] == "PLAYER_NOT_FOUND") {
-            alert("Aucun licencié avec ce numéro de licence n'a été trouvé.");
+            alert(`Aucun licencié avec le numéro de licence ${error["payload"]["licenceNo"]} n'a été trouvé.`);
             window.location.href = "/public";
             return false;
         } else if (error["errorType"] == "PLAYER_ALREADY_REGISTERED") {
             window.location.href = "/public/deja_inscrit/" + error["payload"]["licenceNo"];
             return false;
         } else {
-            /* window.location.href = "/public/erreur"; */
+            window.location.href = "/public/erreur";
             return false;
         }
     } catch (e) {

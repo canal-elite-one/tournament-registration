@@ -1,5 +1,5 @@
 function fillEntries(entries) {
-    let registeredList = document.getElementById('already_registered_list');
+    let registeredList = document.getElementById('already-registered-list');
     entries.forEach(entryObject => {
         let entry = document.createElement('li');
         let entryString = "Tableau " + entryObject['categoryId']
@@ -15,25 +15,13 @@ function fillEntries(entries) {
 }
 
 async function fetchEntries() {
-    try {
-        const response = await fetch('/api/public/entries/' + licenceNo);
-        if (!response.ok) {
-            const data = await response.json();
-            if ('PLAYER_NOT_FOUND_ERROR' in data) {
-                window.alert('Aucun joueur avec ce numéro de licence n\'a été trouvé.');
-                window.location.href = '/public';
-            } else {
-                console.log(data);
-                // window.location.href = '/public/erreur';
-            }
-        } else {
-            const entries = await response.json();
-            console.log(entries);
-            fillEntries(entries);
-        }
-    } catch (error) {
-        console.log(error);
-        // window.location.href = 'public/erreur';
+    const response = await fetch('/api/public/entries/' + licenceNo);
+    if (!response.ok) {
+        publicHandleBadResponse(response);
+    } else {
+        const entries = await response.json();
+        console.log(entries);
+        fillEntries(entries);
     }
 }
 

@@ -29,17 +29,17 @@ from shared.api.custom_decorators import after_cutoff
 c_schema = CategorySchema()
 p_schema = PlayerSchema()
 
-admin_api_bp = Blueprint("admin_api", __name__, url_prefix="/api/admin")
+api_bp = Blueprint("admin_api", __name__, url_prefix="/api/admin")
 
 
-@admin_api_bp.route("/categories", methods=["POST"])
+@api_bp.route("/categories", methods=["POST"])
 def api_admin_set_categories():
     """
     Expects a jsonified list of dicts in the "categories" field of the json that can be
     passed unpacked to the category constructor. Don't forget to cast datetime types
     to some parsable string.
     """
-    origin = "api_admin_set_categories"
+    origin = api_admin_set_categories.__name__
 
     c_schema.reset(many=True)
     try:
@@ -84,7 +84,7 @@ def api_admin_set_categories():
             )
 
 
-@admin_api_bp.route("/categories", methods=["GET"])
+@api_bp.route("/categories", methods=["GET"])
 def api_admin_get_categories():
     c_schema.reset(many=True)
     with Session() as session:
@@ -100,35 +100,40 @@ def api_admin_get_categories():
         )
 
 
-@admin_api_bp.route("/players/<int:licence_no>", methods=["GET"])
+@api_bp.route("/players/<licence_no>", methods=["GET"])
 def api_admin_get_player(licence_no):
+    origin = api_admin_get_player.__name__
     with Session() as session:
         if (player := session.get(Player, licence_no)) is not None:
-            p_schema.reset()
-            p_schema.context["include_entries"] = True
-            p_schema.context["include_payment_status"] = True
+            p_schema.reset(include_entries=True, include_payment_status=True)
             return jsonify(p_schema.dump(player)), HTTPStatus.OK
 
-    db_only = request.args.get("db_only", False, loads) is True
-    if db_only:
+    if request.args.get("db_only", False, loads) is True:
         raise ae.PlayerNotFoundError(
-            origin="admin_get_player_db_only",
+            origin=f"{origin}_db_only",
             licence_no=licence_no,
         )
 
-    player_dict = get_player_fftt(licence_no)
+    try:
+        player_dict = get_player_fftt(licence_no)
+    except ae.FFTTAPIError:
+        raise ae.UnexpectedFFTTError(
+            origin=origin,
+            payload=None,
+        )
+
     if player_dict is None:
         raise ae.PlayerNotFoundError(
-            origin="admin_get_player",
+            origin=origin,
             licence_no=licence_no,
         )
 
     return jsonify(player_dict), HTTPStatus.OK
 
 
-@admin_api_bp.route("/players", methods=["POST"])
+@api_bp.route("/players", methods=["POST"])
 def api_admin_add_player():
-    origin = "api_admin_add_player"
+    origin = api_admin_add_player.__name__
     p_schema.reset()
     try:
         player = p_schema.load(request.json)
@@ -153,9 +158,9 @@ def api_admin_add_player():
             )
 
 
-@admin_api_bp.route("/entries/<int:licence_no>", methods=["POST"])
+@api_bp.route("/entries/<licence_no>", methods=["POST"])
 def api_admin_register_entries(licence_no):
-    origin = "api_admin_register_entries"
+    origin = api_admin_register_entries.__name__
 
     v_schema = CategoryIdsSchema()
     if error := v_schema.validate(request.json):
@@ -176,9 +181,7 @@ def api_admin_register_entries(licence_no):
             )
 
         if not category_ids:
-            p_schema.reset()
-            p_schema.context["include_entries"] = True
-            p_schema.context["include_payment_status"] = True
+            p_schema.reset(include_entries=True, include_payment_status=True)
             return jsonify(p_schema.dump(player)), HTTPStatus.CREATED
 
         if nonexisting_category_ids := set(category_ids).difference(
@@ -196,14 +199,12 @@ def api_admin_register_entries(licence_no):
             select(Category).where(Category.category_id.in_(category_ids)),
         )
 
-        violations = []
-        for category in potential_categories:
-            if (
-                (category.women_only and player.gender != "F")
-                or (player.nb_points > category.max_points)
-                or (player.nb_points < category.min_points)
-            ):
-                violations.append(category.category_id)
+        violations = [
+            category.category_id
+            for category in potential_categories
+            if not player.respects_gender_points_constraints(category)
+        ]
+
         if violations:
             raise ae.InvalidDataError(
                 origin=origin,
@@ -217,7 +218,7 @@ def api_admin_register_entries(licence_no):
             {
                 "categoryId": category_id,
                 "licenceNo": licence_no,
-                "registrationTime": datetime.now(),
+                "registrationTime": datetime.now().isoformat(),
             }
             for category_id in category_ids
         ]
@@ -234,9 +235,7 @@ def api_admin_register_entries(licence_no):
         try:
             session.execute(stmt, temp_dicts)
             session.commit()
-            p_schema.reset()
-            p_schema.context["include_entries"] = True
-            p_schema.context["include_payment_status"] = True
+            p_schema.reset(include_entries=True, include_payment_status=True)
             return jsonify(p_schema.dump(player)), HTTPStatus.CREATED
         except DBAPIError:
             session.rollback()
@@ -246,10 +245,10 @@ def api_admin_register_entries(licence_no):
             )
 
 
-@admin_api_bp.route("/pay/<int:licence_no>", methods=["PUT"])
+@api_bp.route("/pay/<licence_no>", methods=["PUT"])
 @after_cutoff
 def api_admin_make_payment(licence_no):
-    origin = "api_admin_make_payment"
+    origin = api_admin_make_payment.__name__
 
     v_schema = MakePaymentSchema()
     if error := v_schema.validate(request.json):
@@ -283,18 +282,20 @@ def api_admin_make_payment(licence_no):
             if entry.category_id in ids_to_pay:
                 entry.marked_as_paid = True
 
-        if player.fees_total_present() < request.json["totalActualPaid"]:
+        total_actual_paid = request.json["totalActualPaid"]
+
+        if player.fees_total_present() < total_actual_paid:
             session.rollback()
             raise ae.InvalidDataError(
                 origin=origin,
                 error_message=ae.ACTUAL_PAID_TOO_HIGH_MESSAGE,
                 payload={
-                    "totalActualPaid": request.json["totalActualPaid"],
+                    "totalActualPaid": total_actual_paid,
                     "totalPresent": player.fees_total_present(),
                 },
             )
 
-        player.total_actual_paid = request.json["totalActualPaid"]
+        player.total_actual_paid = total_actual_paid
 
         try:
             session.commit()
@@ -305,15 +306,13 @@ def api_admin_make_payment(licence_no):
                 exception=e,
             )
 
-        p_schema.reset()
-        p_schema.context["include_entries"] = True
-        p_schema.context["include_payment_status"] = True
+        p_schema.reset(include_entries=True, include_payment_status=True)
         return jsonify(p_schema.dump(player)), HTTPStatus.OK
 
 
-@admin_api_bp.route("/entries/<int:licence_no>", methods=["DELETE"])
+@api_bp.route("/entries/<licence_no>", methods=["DELETE"])
 def api_admin_delete_entries(licence_no):
-    origin = "api_admin_delete_entries"
+    origin = api_admin_delete_entries.__name__
     v_schema = CategoryIdsSchema()
     if error := v_schema.validate(request.json):
         raise ae.InvalidDataError(
@@ -351,9 +350,7 @@ def api_admin_delete_entries(licence_no):
                 ),
             )
             session.commit()
-            p_schema.reset()
-            p_schema.context["include_entries"] = True
-            p_schema.context["include_payment_status"] = True
+            p_schema.reset(include_entries=True, include_payment_status=True)
             return jsonify(p_schema.dump(player)), HTTPStatus.OK
 
         except DBAPIError as e:
@@ -364,9 +361,9 @@ def api_admin_delete_entries(licence_no):
             )
 
 
-@admin_api_bp.route("/players/<int:licence_no>", methods=["DELETE"])
+@api_bp.route("/players/<licence_no>", methods=["DELETE"])
 def api_admin_delete_player(licence_no):
-    origin = "api_admin_delete_player"
+    origin = api_admin_delete_player.__name__
     with Session() as session:
         player = session.get(Player, licence_no)
         if player is None:
@@ -387,16 +384,10 @@ def api_admin_delete_player(licence_no):
             )
 
 
-@admin_api_bp.route("/present/<int:licence_no>", methods=["PUT"])
+@api_bp.route("/present/<licence_no>", methods=["PUT"])
 def api_admin_mark_present(licence_no):
     """
-    Expects json fields "categoryIdsToMark" and "categoryIdsToUnmark"
-    with a list of categoryIds in each.
-    For each category_id in the fields, will update value of
-    player.marked_as_present to True/False,
-    depending on which field it is in. Idempotent.
-
-    Additionally, this is the only way to unpay an entry:
+    This is the only way to unpay an entry:
     It is assumed that the only valid transitions paid=True -> paid=False
     are of the form paid=True, present=True -> paid=False, present=False.
     The case paid=True, present=False -> Any is already prevented by hypothesis,
@@ -411,7 +402,7 @@ def api_admin_mark_present(licence_no):
     - nonexisting and/or unregistered category_ids
     - nonempty intersection between the two fields,
     """
-    origin = "api_admin_mark_present"
+    origin = api_admin_mark_present.__name__
     with Session() as session:
         player = session.get(Player, licence_no)
         if player is None:
@@ -434,27 +425,20 @@ def api_admin_mark_present(licence_no):
             )
 
         too_many_present_category_ids = []
-        for category_id, presence in all_ids_to_update.items():
-            if presence is True:
-                category = session.get(Category, category_id)
-                if (
-                    len(list(category.present_entries())) > category.max_players
-                    and session.get(Entry, (category_id, licence_no)) is None
-                ):
-                    too_many_present_category_ids.append(category_id)
-
-                if too_many_present_category_ids:
-                    raise ae.InvalidDataError(
-                        origin=origin,
-                        error_message=ae.CATEGORY_FULL_PRESENT_MESSAGE,
-                        payload={
-                            "categoryIds": sorted(too_many_present_category_ids),
-                        },
-                    )
 
         for category_id, presence in all_ids_to_update.items():
+            category = session.get(Category, category_id)
+            # checks that category does not already have max_players present players
+            if (
+                presence is True
+                and session.get(Entry, (category_id, licence_no)) is None
+                and len(list(category.present_entries())) > category.max_players
+            ):
+                too_many_present_category_ids.append(category_id)
+
             entry = session.get(Entry, (category_id, licence_no))
             entry.marked_as_present = presence
+            # checks that you are not marking a player as present before cutoff
             if presence and is_before_cutoff():
                 raise ae.RegistrationCutoffError(
                     origin=origin,
@@ -462,6 +446,15 @@ def api_admin_mark_present(licence_no):
                 )
             if presence is None or presence is False:
                 entry.marked_as_paid = False
+
+        if too_many_present_category_ids:
+            raise ae.InvalidDataError(
+                origin=origin,
+                error_message=ae.CATEGORY_FULL_PRESENT_MESSAGE,
+                payload={
+                    "categoryIds": sorted(too_many_present_category_ids),
+                },
+            )
 
         player.total_actual_paid = min(
             player.fees_total_present(),
@@ -477,16 +470,14 @@ def api_admin_mark_present(licence_no):
                 exception=e,
             )
 
-        p_schema.reset()
-        p_schema.context["include_entries"] = True
-        p_schema.context["include_payment_status"] = True
+        p_schema.reset(include_entries=True, include_payment_status=True)
         return jsonify(p_schema.dump(player)), HTTPStatus.OK
 
 
-@admin_api_bp.route("/bibs", methods=["POST"])
+@api_bp.route("/bibs", methods=["POST"])
 @after_cutoff
 def api_admin_assign_all_bibs():
-    origin = "api_admin_assign_all_bibs"
+    origin = api_admin_assign_all_bibs.__name__
     with Session() as session:
         player_with_bibs = session.scalars(
             select(Player.licence_no).where(Player.bib_no.isnot(None)),
@@ -521,10 +512,10 @@ def api_admin_assign_all_bibs():
     return jsonify(assignedBibs=assigned_bib_nos), HTTPStatus.OK
 
 
-@admin_api_bp.route("/bibs/<int:licence_no>", methods=["PUT"])
+@api_bp.route("/bibs/<licence_no>", methods=["PUT"])
 @after_cutoff
 def api_admin_assign_one_bib(licence_no):
-    origin = "api_admin_assign_one_bib"
+    origin = api_admin_assign_one_bib.__name__
     with Session() as session:
         player = session.get(Player, licence_no)
 
@@ -567,10 +558,10 @@ def api_admin_assign_one_bib(licence_no):
         return jsonify(p_schema.dump(player)), HTTPStatus.OK
 
 
-@admin_api_bp.route("/bibs", methods=["DELETE"])
+@api_bp.route("/bibs", methods=["DELETE"])
 @after_cutoff
 def api_admin_reset_bibs():
-    origin = "api_admin_reset_bibs"
+    origin = api_admin_reset_bibs.__name__
     confirmation = request.json.get("confirmation", None)
     if confirmation != ae.RESET_BIBS_CONFIRMATION:
         raise ae.ConfirmationError(
@@ -591,12 +582,10 @@ def api_admin_reset_bibs():
     return jsonify(success="success"), HTTPStatus.NO_CONTENT
 
 
-@admin_api_bp.route("/by_category", methods=["GET"])
+@api_bp.route("/by_category", methods=["GET"])
 def api_admin_get_players_by_category():
     present_only = request.args.get("present_only", False, loads) is True
-    c_schema.reset(many=True)
-    c_schema.context["include_players"] = True
-    c_schema.context["present_only"] = present_only
+    c_schema.reset(many=True, include_players=True, present_only=present_only)
 
     with Session() as session:
         categories = session.scalars(
@@ -605,7 +594,7 @@ def api_admin_get_players_by_category():
         return jsonify(c_schema.dump(categories)), HTTPStatus.OK
 
 
-@admin_api_bp.route("/all_players", methods=["GET"])
+@api_bp.route("/players/all", methods=["GET"])
 def api_admin_get_all_players():
     present_only = request.args.get("present_only", False, loads) is True
 
@@ -619,9 +608,11 @@ def api_admin_get_all_players():
     else:
         query = select(Player)
 
-    p_schema.reset(many=True)
-    p_schema.context["simple_entries"] = True
-    p_schema.context["include_payment_status"] = True
+    p_schema.reset(
+        many=True,
+        simple_entries=True,
+        include_payment_status=not is_before_cutoff(),
+    )
 
     with Session() as session:
         return (
@@ -630,36 +621,7 @@ def api_admin_get_all_players():
         )
 
 
-def create_zip_file(filenames: list[str], players: list[list], zip_name: str):
-    zip_file = BytesIO()
-
-    def player_str(player_object):
-        return (
-            f"{player_object.bib_no},{player_object.licence_no},"
-            f"{player_object.last_name},{player_object.first_name},"
-            f"{player_object.nb_points},{player_object.club}\n"
-        )
-
-    with ZipFile(zip_file, "a") as zip_zip:
-        for filename, player_list in zip(filenames, players):
-            content = ["N° dossard, N° licence, Nom, Prénom, Points, Club\n"]
-            content.extend(player_str(player) for player in player_list)
-            zip_zip.writestr(
-                filename,
-                "".join(content),
-            )
-
-    zip_file.seek(0)
-    return Response(
-        zip_file.getvalue(),
-        mimetype="application/zip",
-        headers={
-            "Content-Disposition": f"attachment;filename={zip_name}.zip",
-        },
-    )
-
-
-@admin_api_bp.route("/csv", methods=["GET"])
+@api_bp.route("/csv", methods=["GET"])
 def api_admin_get_csv_zip():
     by_category = request.args.get("by_category", False, loads) is True
 
@@ -703,3 +665,32 @@ def api_admin_get_csv_zip():
             zip_name = "competiteurs_samedi_dimanche"
 
         return create_zip_file(filenames, players, zip_name)
+
+
+def create_zip_file(filenames: list[str], players: list[list], zip_name: str):
+    zip_file = BytesIO()
+
+    def player_str(player_object):
+        return (
+            f"{player_object.bib_no},{player_object.licence_no},"
+            f"{player_object.last_name},{player_object.first_name},"
+            f"{player_object.nb_points},{player_object.club}\n"
+        )
+
+    with ZipFile(zip_file, "w") as zip_zip:
+        for filename, player_list in zip(filenames, players):
+            content = ["N° dossard, N° licence, Nom, Prénom, Points, Club\n"]
+            content.extend(player_str(player) for player in player_list)
+            zip_zip.writestr(
+                filename,
+                "".join(content),
+            )
+
+    zip_file.seek(0)
+    return Response(
+        zip_file.getvalue(),
+        mimetype="application/zip",
+        headers={
+            "Content-Disposition": f"attachment;filename={zip_name}.zip",
+        },
+    )

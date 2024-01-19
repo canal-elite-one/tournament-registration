@@ -7,11 +7,11 @@ import shared.api.api_errors as ae
 
 from tests.conftest import BaseTest, before_cutoff, after_cutoff
 
-overall_incorrect_licence = 9999999
+overall_incorrect_licence = "9999999"
 origin = "api_admin_make_payment"
 
 correct_payment_pay_all = (
-    7219370,
+    "7219370",
     after_cutoff,
     {"categoryIds": ["2", "B", "F"], "totalActualPaid": 21},
     {
@@ -22,7 +22,7 @@ correct_payment_pay_all = (
         "gender": "F",
         "lastName": "CHYTWBCJ",
         "leftToPay": 0,
-        "licenceNo": 7219370,
+        "licenceNo": "7219370",
         "nbPoints": 1103,
         "paymentStatus": {
             "totalActualPaid": 21,
@@ -35,7 +35,7 @@ correct_payment_pay_all = (
             "2": {
                 "alternateName": None,
                 "entryFee": 7,
-                "licenceNo": 7219370,
+                "licenceNo": "7219370",
                 "markedAsPaid": True,
                 "markedAsPresent": True,
                 "rank": 9,
@@ -45,7 +45,7 @@ correct_payment_pay_all = (
             "B": {
                 "alternateName": "< 1500",
                 "entryFee": 7,
-                "licenceNo": 7219370,
+                "licenceNo": "7219370",
                 "markedAsPaid": True,
                 "markedAsPresent": True,
                 "rank": 44,
@@ -55,7 +55,7 @@ correct_payment_pay_all = (
             "F": {
                 "alternateName": "Pas open féminin",
                 "entryFee": 7,
-                "licenceNo": 7219370,
+                "licenceNo": "7219370",
                 "markedAsPaid": True,
                 "markedAsPresent": True,
                 "rank": 22,
@@ -67,7 +67,7 @@ correct_payment_pay_all = (
 )
 
 correct_payment_pay_partial = (
-    7219370,
+    "7219370",
     after_cutoff,
     {"categoryIds": ["B"], "totalActualPaid": 7},
     {
@@ -78,7 +78,7 @@ correct_payment_pay_partial = (
         "gender": "F",
         "lastName": "CHYTWBCJ",
         "leftToPay": 14,
-        "licenceNo": 7219370,
+        "licenceNo": "7219370",
         "nbPoints": 1103,
         "paymentStatus": {
             "totalActualPaid": 7,
@@ -91,7 +91,7 @@ correct_payment_pay_partial = (
             "2": {
                 "alternateName": None,
                 "entryFee": 7,
-                "licenceNo": 7219370,
+                "licenceNo": "7219370",
                 "markedAsPaid": False,
                 "markedAsPresent": True,
                 "rank": 9,
@@ -101,7 +101,7 @@ correct_payment_pay_partial = (
             "B": {
                 "alternateName": "< 1500",
                 "entryFee": 7,
-                "licenceNo": 7219370,
+                "licenceNo": "7219370",
                 "markedAsPaid": True,
                 "markedAsPresent": True,
                 "rank": 44,
@@ -111,7 +111,7 @@ correct_payment_pay_partial = (
             "F": {
                 "alternateName": "Pas open féminin",
                 "entryFee": 7,
-                "licenceNo": 7219370,
+                "licenceNo": "7219370",
                 "markedAsPaid": False,
                 "markedAsPresent": True,
                 "rank": 22,
@@ -123,7 +123,7 @@ correct_payment_pay_partial = (
 )
 
 correct_payment_idempotent = (
-    7213526,
+    "7213526",
     after_cutoff,
     {"categoryIds": ["F"], "totalActualPaid": 7},
     {
@@ -134,7 +134,7 @@ correct_payment_idempotent = (
         "gender": "M",
         "lastName": "TYLANABF",
         "leftToPay": 0,
-        "licenceNo": 7213526,
+        "licenceNo": "7213526",
         "nbPoints": 1106,
         "paymentStatus": {
             "totalActualPaid": 7,
@@ -147,7 +147,7 @@ correct_payment_idempotent = (
             "2": {
                 "alternateName": None,
                 "entryFee": 7,
-                "licenceNo": 7213526,
+                "licenceNo": "7213526",
                 "markedAsPaid": False,
                 "markedAsPresent": None,
                 "rank": 4,
@@ -157,7 +157,7 @@ correct_payment_idempotent = (
             "6": {
                 "alternateName": None,
                 "entryFee": 7,
-                "licenceNo": 7213526,
+                "licenceNo": "7213526",
                 "markedAsPaid": False,
                 "markedAsPresent": None,
                 "rank": 3,
@@ -167,7 +167,7 @@ correct_payment_idempotent = (
             "B": {
                 "alternateName": "< 1500",
                 "entryFee": 7,
-                "licenceNo": 7213526,
+                "licenceNo": "7213526",
                 "markedAsPaid": False,
                 "markedAsPresent": None,
                 "rank": 11,
@@ -177,7 +177,7 @@ correct_payment_idempotent = (
             "F": {
                 "alternateName": "Pas open féminin",
                 "entryFee": 7,
-                "licenceNo": 7213526,
+                "licenceNo": "7213526",
                 "markedAsPaid": True,
                 "markedAsPresent": True,
                 "rank": 23,
@@ -189,7 +189,7 @@ correct_payment_idempotent = (
 )
 
 correct_payment_nondefault_actual = (
-    7219370,
+    "7219370",
     after_cutoff,
     {"categoryIds": ["B"], "totalActualPaid": 6},
     {
@@ -200,7 +200,7 @@ correct_payment_nondefault_actual = (
         "gender": "F",
         "lastName": "CHYTWBCJ",
         "leftToPay": 15,
-        "licenceNo": 7219370,
+        "licenceNo": "7219370",
         "nbPoints": 1103,
         "paymentStatus": {
             "totalActualPaid": 6,
@@ -213,7 +213,7 @@ correct_payment_nondefault_actual = (
             "2": {
                 "alternateName": None,
                 "entryFee": 7,
-                "licenceNo": 7219370,
+                "licenceNo": "7219370",
                 "markedAsPaid": False,
                 "markedAsPresent": True,
                 "rank": 9,
@@ -223,7 +223,7 @@ correct_payment_nondefault_actual = (
             "B": {
                 "alternateName": "< 1500",
                 "entryFee": 7,
-                "licenceNo": 7219370,
+                "licenceNo": "7219370",
                 "markedAsPaid": True,
                 "markedAsPresent": True,
                 "rank": 44,
@@ -233,7 +233,7 @@ correct_payment_nondefault_actual = (
             "F": {
                 "alternateName": "Pas open féminin",
                 "entryFee": 7,
-                "licenceNo": 7219370,
+                "licenceNo": "7219370",
                 "markedAsPaid": False,
                 "markedAsPresent": True,
                 "rank": 22,
@@ -252,7 +252,7 @@ correct_admin_make_payment = [
 ]
 
 incorrect_payment_missing_json_fields = (
-    5326002,
+    "5326002",
     after_cutoff,
     {},
     ae.InvalidDataError(
@@ -266,7 +266,7 @@ incorrect_payment_missing_json_fields = (
 )
 
 incorrect_payment_misformatted_payload = (
-    5326002,
+    "5326002",
     after_cutoff,
     {"categoryIds": "B", "totalActualPaid": "a"},
     ae.InvalidDataError(
@@ -280,7 +280,7 @@ incorrect_payment_misformatted_payload = (
 )
 
 incorrect_payment_misformatted_payload_2 = (
-    5326002,
+    "5326002",
     after_cutoff,
     {"categoryIds": [[]], "totalActualPaid": -1},
     ae.InvalidDataError(
@@ -301,7 +301,7 @@ incorrect_payment_nonexisting_player = (
 )
 
 incorrect_payment_invalid_categories = (
-    7221154,
+    "7221154",
     after_cutoff,
     {"categoryIds": ["AA", "A", "E", "G"], "totalActualPaid": 10},
     ae.InvalidDataError(
@@ -312,7 +312,7 @@ incorrect_payment_invalid_categories = (
 )
 
 incorrect_payment_actual_payment_too_big = (
-    4526124,
+    "4526124",
     after_cutoff,
     {"categoryIds": ["B", "F"], "totalActualPaid": 15},
     ae.InvalidDataError(
@@ -323,7 +323,7 @@ incorrect_payment_actual_payment_too_big = (
 )
 
 incorrect_payment_before_tournament = (
-    4526124,
+    "4526124",
     before_cutoff,
     {"categoryIds": ["B", "F"], "totalActualPaid": 14},
     ae.RegistrationCutoffError(

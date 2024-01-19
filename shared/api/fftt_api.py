@@ -1,4 +1,5 @@
 import requests
+from http import HTTPStatus
 
 import hashlib
 import hmac
@@ -7,7 +8,7 @@ from datetime import datetime
 
 from xml.etree import ElementTree
 
-from shared.api.fftt_config import serial_no, app_id, password
+from flask import current_app
 from shared.api.api_errors import FFTTAPIError
 
 
@@ -27,8 +28,14 @@ def get_encrypted_timestamp(pwd: str, timestamp: str) -> str:
 
 
 def get_player_fftt(licence_no):
-    url = "https://www.fftt.com/mobile/pxml/xml_licence.php"
+    url = current_app.config.get("FFTT_API_URL") + "/xml_licence.php"
+
     tm = get_current_formatted_timestamp()
+
+    serial_no = current_app.config["FFTT_SERIAL_NO"]
+    app_id = current_app.config["FFTT_APP_ID"]
+    password = current_app.config["FFTT_PASSWORD"]
+
     tmc = get_encrypted_timestamp(password, tm)
     params = {
         "serie": serial_no,
@@ -39,13 +46,8 @@ def get_player_fftt(licence_no):
     }
     response = requests.get(url, params=params)
 
-    if response.status_code != 200:
-        payload = None
-        # try:
-        #     payload = response.json()
-        # except ValueError:
-        #     pass
-        raise FFTTAPIError(payload=payload)
+    if response.status_code != HTTPStatus.OK:
+        raise FFTTAPIError()
 
     xml = response.content.decode("utf-8")
     root = ElementTree.fromstring(xml).find("licence")
@@ -54,7 +56,7 @@ def get_player_fftt(licence_no):
         return None
 
     return {
-        "licenceNo": int(root.find("licence").text),
+        "licenceNo": root.find("licence").text,
         "firstName": root.find("prenom").text,
         "lastName": root.find("nom").text,
         "club": root.find("nomclub").text,

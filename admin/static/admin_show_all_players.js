@@ -1,19 +1,3 @@
-/*
-const enToFr = {
-    'bibNo':'N° dossard',
-    'club':'Club',
-    'email': 'Adresse Mail',
-    'firstName':'Prénom',
-    'gender': 'Genre',
-    'lastName':'Nom de Famille',
-    'licenceNo': 'N° licence',
-    'nbPoints': 'Classement',
-    'paymentDiff': 'Surplus de paiement',
-    'phone': 'N° téléphone',
-    'registeredEntries': 'Tableaux'
-}
-*/
-
 const frToEn = {
     'N° dossard': 'bibNo',
     'N° licence':'licenceNo',
@@ -29,7 +13,7 @@ const frToEn = {
 }
 
 
-const numericCols = ["licenceNo", "nbPoints"];
+const numericCols = ["nbPoints"];
 const dontSort = ["registeredEntries", "phone"];
 
 const searchCols = ["licenceNo", "firstName", "lastName", "club"];
@@ -37,7 +21,7 @@ const searchCols = ["licenceNo", "firstName", "lastName", "club"];
 if (!hasRegistrationEnded) {
     delete frToEn['N° dossard'];
     delete frToEn['Montant dû (€)'];
-    document.getElementById("after_cutoff_navbar").style.display = "none";
+    document.getElementById("after-cutoff-navbar").style.display = "none";
 } else {
     numericCols.push("leftToPay");
 }
@@ -86,8 +70,8 @@ function resetAllBibs() {
 function putDataInTable(data, elementId) {
     const columns = Object.getOwnPropertyNames(frToEn);
     const table = document.createElement('table');
-    table.id = "players_table";
-    table.setAttribute("class", "players_table");
+    table.id = "players-table";
+    table.setAttribute("class", "players-table");
     const body = document.createElement('tbody');
     const head = document.createElement('thead');
 
@@ -102,7 +86,7 @@ function putDataInTable(data, elementId) {
 
     data.forEach(function(playerObject) {
         let row = document.createElement('tr');
-        row.setAttribute("class", "players_table_row")
+        row.setAttribute("class", "players-table-row")
         columns.forEach(function(colName) {
             let dataCell = document.createElement('td');
             if (colName == 'Tableaux') {;
@@ -117,7 +101,7 @@ function putDataInTable(data, elementId) {
             row.appendChild(dataCell);
         });
 
-        row.setAttribute('onclick', "goToPlayerPage(" + playerObject['licenceNo'] + ")");
+        row.setAttribute('onclick', "goToPlayerPage('" + playerObject['licenceNo'] + "')");
 
         body.appendChild(row);
     });
@@ -140,6 +124,24 @@ function goToPlayerPage(licenceNo) {
 
 let currentSort = {"colName": null, "ascending": true};
 
+function strCompare(colname) {
+    function innercompare (a, b){
+        let x = a[colname].toLowerCase();
+        let y = b[colname].toLowerCase();
+        if (x > y) { return 1; }
+        if (x < y) { return -1; }
+        return 0;
+    }
+    return innercompare;
+}
+
+function numericCompare(colName) {
+    function innercompare (a, b){
+        return a[colName] - b[colName];
+    }
+    return innercompare;
+}
+
 
 function sortByColumn(colName) {
     if (dontSort.includes(colName) || (colName == "bibNo" && !bibsSet)) {
@@ -148,36 +150,27 @@ function sortByColumn(colName) {
 
     currentSort["ascending"] = (colName == currentSort["colName"]) ? (!(currentSort["ascending"])) : true;
     currentSort["colName"] = colName;
-    if (numericCols.includes(colName)) {
-        sortedArray.sort(function(a, b){return a[colName] - b[colName]});
-        filteredArray.sort(function(a, b){return a[colName] - b[colName]});
-    } else {
-        function strCompare(a, b){
-            let x = a[colName].toLowerCase();
-            let y = b[colName].toLowerCase();
-            if (x > y) { return 1; }
-            if (x < y) { return -1; }
-            return 0;
-        }
-        sortedArray.sort(strCompare);
-        filteredArray.sort(strCompare);
-    }
+    let compareFunction = (numericCols.includes(colName) ? numericCompare(colName) : strCompare(colName));
+
+    sortedArray.sort(compareFunction);
+    filteredArray.sort(compareFunction);
+
     if (!(currentSort["ascending"])) {
         sortedArray.reverse();
         filteredArray.reverse();
     }
-    document.getElementById("players_table").remove();
-    putDataInTable(filteredArray, "players_table_div");
+    document.getElementById("players-table").remove();
+    putDataInTable(filteredArray, "players-table-div");
 }
 
 function filterData() {
-    searchString = document.getElementById("players_table_search").value.toLowerCase();
+    let searchString = document.getElementById("players-table-search").value.toLowerCase();
     filteredArray = [];
-    let cellValue;
     sortedArray.forEach(function(playerObject) {
         for (let x in searchCols) {
-            colName = searchCols[x];
-            cellValue = (numericCols.includes(colName) ? playerObject[colName].toString() : playerObject[colName]).toLowerCase();
+            let colName = searchCols[x];
+            let cellValue = playerObject[colName] === null ? '-' : playerObject[colName];
+            cellValue = cellValue.toString().toLowerCase();
             if (cellValue.startsWith(searchString)) {
                 filteredArray.push(playerObject);
                 break;
@@ -185,19 +178,19 @@ function filterData() {
         };
     })
 
-    let searchFfttButton = document.getElementById("search_fftt_button");
+    let searchFfttButton = document.getElementById("search-fftt-button");
     if (!isNaN(searchString) && searchString.length > 0) {
         searchFfttButton.removeAttribute("disabled");
     } else {
         searchFfttButton.setAttribute("disabled", "");
     }
 
-    document.getElementById("players_table").remove();
-    putDataInTable(filteredArray, "players_table_div");
+    document.getElementById("players-table").remove();
+    putDataInTable(filteredArray, "players-table-div");
 }
 
 function onEnterSearch() {
-    let searchString = document.getElementById("players_table_search").value;
+    let searchString = document.getElementById("players-table-search").value;
     if (filteredArray.length == 1) {
         goToPlayerPage(filteredArray[0]["licenceNo"]);
     } else if (searchString.length > 0 && !isNaN(searchString)) {
@@ -205,7 +198,7 @@ function onEnterSearch() {
     }
 }
 
-const searchField = document.getElementById("players_table_search");
+const searchField = document.getElementById("players-table-search");
 searchField.addEventListener("keypress", function(event) {
     if (event.key === "Enter") {
         event.preventDefault();
@@ -214,59 +207,44 @@ searchField.addEventListener("keypress", function(event) {
 });
 
 searchField.value = "";
-document.getElementById("search_fftt_button").setAttribute("disabled", "");
+document.getElementById("search-fftt-button").setAttribute("disabled", "");
 
-document.getElementById('all_players_navbar_link').setAttribute('class', 'navbar-link-current');
+document.getElementById('all-players-navbar-link').setAttribute('class', 'navbar-link-current');
 if (!hasRegistrationEnded) {
-    document.getElementById("csv_export_button").style.display = "none";
-}
-
-async function downloadCsv() {
-    let downloadLink = document.createElement('a');
-    downloadLink.setAttribute('href', '/api/admin/csv?by_category=false');
-    downloadLink.setAttribute('download', 'competiteurs_samedi_dimanche.zip');
-    downloadLink.style.display = 'none';
-    document.body.appendChild(downloadLink);
-    downloadLink.click();
-    document.body.removeChild(downloadLink);
+    document.getElementById("csv-export-button").style.display = "none";
 }
 
 function areBibsSet() {
     let result = false;
     filteredArray.forEach(function(playerObject) {
-        if (!(playerObject["bibNo"] === null)) {
+        if (playerObject["bibNo"] !== null) {
             result = true;
         }
     });
     if (result) {
-        document.getElementById("set_all_bibs_button").style.display = "none";
-        document.getElementById("reset_all_bibs_button").style.display = "inline-block";
+        document.getElementById("set-all-bibs-button").style.display = "none";
+        document.getElementById("reset-all-bibs-button").style.display = "inline-block";
         searchCols.push("bibNo");
         numericCols.push("bibNo");
     } else {
-        document.getElementById("set_all_bibs_button").style.display = "inline-block";
-        document.getElementById("reset_all_bibs_button").style.display = "none";
+        document.getElementById("set-all-bibs-button").style.display = "inline-block";
+        document.getElementById("reset-all-bibs-button").style.display = "none";
     }
     return result;
 }
 
 async function fetchPlayers() {
-    let response = await fetch("/api/admin/all_players");
+    let response = await fetch("/api/admin/players/all");
     if (!response.ok) {
-        if (response.status == 400) {
-            data = await response.json();
-            console.error("Bad request: " + data);
-        } else {
-            console.error("Unable to fetch players: " + response.status);
-        }
+        adminHandleBadResponse(response);
     } else {
         let dataJson = await response.json();
         console.log(dataJson);
         sortedArray = dataJson["players"];
-        sortedArray.sort(function(a, b){return a['licenceNo'] - b['licenceNo']});
+        sortedArray.sort(strCompare("licenceNo"));
         filteredArray = [...sortedArray];
         bibsSet = areBibsSet();
-        putDataInTable(dataJson["players"], "players_table_div");
+        putDataInTable(dataJson["players"], "players-table-div");
     }
 }
 

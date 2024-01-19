@@ -1,42 +1,42 @@
 {% extends 'base_admin.html' %}
 
-{% block title %}Gestion de l'inscrit {{ licence_no }} {% endblock %}
+{% block title %}Gestion de l'inscrit {{ licence_no }}{% endblock %}
 
 {% block content %}
-<div id="player_info_div">
-    <table id="player_info_table"></table>
-    <table id="payment_info_table">
+<div id="player-info-div">
+    <table id="player-info-table"></table>
+    <table id="payment-info-table">
         <tr>
             <th>Coût total des tableaux inscrits</th>
-            <td id="register_total">0</td>
+            <td id="register-total">0</td>
         </tr>
         <tr>
             <th>Coût total des tableaux présents</th>
-            <td id="present_total">0</td>
+            <td id="present-total">0</td>
         </tr>
         <tr>
             <th>Coût total des tableaux payés</th>
-            <td id="paid_total">0</td>
+            <td id="paid-total">0</td>
         </tr>
         <tr>
             <th>Montant total reste à payer</th>
-            <td id="due_total">0</td>
+            <td id="due-total">0</td>
         <tr>
             <th>Montant déjà payé</th>
-            <td id="previous_actual_total">0</td>
+            <td id="previous-actual-total">0</td>
         </tr>
         <tr>
             <th>Montant payé cette fois-ci</fois-ci></th>
-            <td id="current_actual_total">
-                <input type="number" id="actual_total_field"/>
+            <td id="current-actual-total">
+                <input type="number" id="actual-total-field"/>
             </td>
         </tr>
     </table>
-    <button id="delete_player_button" onclick="deletePlayer()"></button>
+    <button id="delete-player-button" onclick="deletePlayer()"></button>
 </div>
 
-<div id="admin_entry_management">
-    <table id="saturday_table">
+<div id="admin-entry-management">
+    <table id="saturday-table">
         <thead>
             <tr>
                 <th colspan="9">Samedi</th>
@@ -53,9 +53,9 @@
                 <th>Payé ?</th>
             </tr>
         </thead>
-        <tbody id="saturday_table_body"></tbody>
+        <tbody id="saturday-table-body"></tbody>
     </table>
-    <table id="sunday_table">
+    <table id="sunday-table">
         <thead>
             <tr>
                 <th colspan="9">Dimanche</th>
@@ -72,14 +72,14 @@
                 <th>Payé ?</th>
             </tr>
         </thead>
-        <tbody id="sunday_table_body"></tbody>
+        <tbody id="sunday-table-body"></tbody>
     </table>
-    <button id="submit_changes_button" onclick="submitChanges()">Enregistrer les modifications</button>
+    <button id="submit-changes-button" onclick="submitChanges()">Enregistrer les modifications</button>
 </div>
 {% endblock %}
 
 {% block scripts %}
-<script>const licenceNo={{ licence_no }}</script>
+<script>const licenceNo="{{ licence_no }}"</script>
 <script>const showBib={{ show_bib|lower }}</script>
 <script src="{{ url_for('static', filename='admin_player_management_during_tournament.js') }}">
 </script>

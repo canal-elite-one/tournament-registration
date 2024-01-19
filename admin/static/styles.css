@@ -9,11 +9,15 @@ text-align: center;
 border: 1px solid grey;
 }
 
-.players_table {
+.players-table {
   width: 100%;
 }
 
-#players_table_div {
+.disabled-cell {
+  background-color: #d3d3d3;
+}
+
+#players-table-div {
   margin: auto;
   padding-left: 25px;
   padding-right: 25px;
@@ -21,7 +25,7 @@ border: 1px solid grey;
   padding-bottom: 10px;
 }
 
-#players_by_category_div {
+#players-by-category-div {
   margin: auto;
   padding-left: 25px;
   padding-right: 25px;
@@ -29,20 +33,20 @@ border: 1px solid grey;
   padding-bottom: 10px;
 }
 
-.players_table_row:nth-child(even) {
+.players-table-row:nth-child(even) {
   background-color: #cee1ff;
 }
 
-.players_table_row:hover {
+.players-table-row:hover {
   background-color: #D6EEEE;
 }
 
-.players_table_separator {
+.players-table-separator {
   background-color: #1a4268;
   color: white;
 }
 
-.players_table_search {
+.players-table-search {
   padding: 5px;
   margin: 10px;
   margin-left: 20px;
@@ -132,20 +136,20 @@ thead {
   color: white;
 }
 
-#delete_player_button {
+#delete-player-button {
   background-color: red;
   font-size: large;
 }
 
-#player_info_table, #categories_table {
+#player-info-table, #categories-table {
   margin: auto;
 }
 
-#reset_all_bibs_button, #set_all_bibs_button {
+#reset-all-bibs-button, #set-all-bibs-button {
   margin: auto;
 }
 
-.recap_notification {
+.recap-notification {
   position: fixed;
   bottom: 10px;
   left: 30px;
@@ -156,12 +160,12 @@ thead {
   background-color: white;
 }
 
-.category_table_div {
+.category-table-div {
   margin: auto;
   padding: 5px;
   scroll-margin-top: 120px;
 }
 
-#content_div {
+#content-div {
   padding-top: 10px;
 }

@@ -1,67 +1,27 @@
 let playerObject;
 let categoriesData;
 
-function ifFfttApiError() {
-    window.alert("Une erreur est survenue. Vous pouvez réessayer de vous réinscrire plus tard ou envoyer un courriel aux organisateurs du tournoi.");
-
-    window.location.href = "/public";
-}
-
 function processPlayer() {
-    document.getElementById("licence_no_cell").innerHTML = playerObject.licenceNo;
-    document.getElementById("first_name_cell").innerHTML = playerObject.firstName;
-    document.getElementById("last_name_cell").innerHTML = playerObject.lastName;
-    document.getElementById("gender_cell").innerHTML = playerObject.gender;
-    document.getElementById("club_cell").innerHTML = playerObject.club;
-    document.getElementById("points_cell").innerHTML = playerObject.nbPoints;
+    document.getElementById("licence-no-cell").innerHTML = playerObject.licenceNo;
+    document.getElementById("first-name-cell").innerHTML = playerObject.firstName;
+    document.getElementById("last-name-cell").innerHTML = playerObject.lastName;
+    document.getElementById("gender-cell").innerHTML = playerObject.gender;
+    document.getElementById("club-cell").innerHTML = playerObject.club;
+    document.getElementById("points-cell").innerHTML = playerObject.nbPoints;
 
-    /*
-    if (playerObject['gender'] == 'M') {
-        document.getElementById('recap_message').innerHTML = 'Vous êtes inscrit aux tableaux suivants :';
-    } else {
-        document.getElementById('recap_message').innerHTML = 'Vous êtes inscrite aux tableaux suivants :';
-    }
-    */
+    let emailCell = document.getElementById("email-cell");
+    let emailField = document.createElement('input');
+    emailField.setAttribute('type', 'email');
+    emailField.setAttribute('id', 'email-field');
+    emailField.setAttribute('required', '');
+    emailCell.appendChild(emailField);
 
-    emailCell = document.getElementById("email_cell");
-    if (playerObject.email) {
-        emailCell.innerHTML = playerObject.email;
-    } else {
-        let emailField = document.createElement('input');
-        emailField.setAttribute('type', 'email');
-        emailField.setAttribute('id', 'email_field');
-        emailField.setAttribute('required', '');
-        emailCell.appendChild(emailField);
-    }
-
-    phoneCell = document.getElementById("phone_cell");
-    if (playerObject.phone) {
-        phoneCell.innerHTML = playerObject.phone;
-    } else {
-        let phoneField = document.createElement('input');
-        phoneField.setAttribute('type', 'tel');
-        phoneField.setAttribute('id', 'phone_field');
-        phoneField.setAttribute('required', '');
-        phoneCell.appendChild(phoneField);
-    }
-
-    for (let categoryId in playerObject['registeredEntries']) {
-        let registerCheckbox = document.getElementById('register_checkbox_' + categoryId);
-        registerCheckbox.checked = true;
-        if (registerCheckbox.getAttribute('data-day') == 'saturday') {
-            nbEntriesSaturday += 1;
-        } else {
-            nbEntriesSunday += 1;
-        }
-        registerCheckbox.setAttribute('disabled', '');
-        document.getElementById('register_cell_' + categoryId).style.backgroundColor = '#d3d3d3';
-        if (categoryId in sameColor) {
-            let otherCheckbox = document.getElementById('register_checkbox_' + sameColor[categoryId]);
-            otherCheckbox.checked = false;
-            otherCheckbox.setAttribute('disabled', '');
-            document.getElementById('register_cell_' + sameColor[categoryId]).style.backgroundColor = '#d3d3d3';
-        }
-    };
+    let phoneCell = document.getElementById("phone-cell");
+    let phoneField = document.createElement('input');
+    phoneField.setAttribute('type', 'tel');
+    phoneField.setAttribute('id', 'phone-field');
+    phoneField.setAttribute('required', '');
+    phoneCell.appendChild(phoneField);
 }
 
 const categoryIdByColor = {};
@@ -70,10 +30,10 @@ let nbEntriesSaturday = 0;
 let nbEntriesSunday = 0;
 
 function handleCheckbox(categoryId) {
-    let registerCheckbox = document.getElementById('register_checkbox_' + categoryId);
+    let registerCheckbox = document.getElementById('register-checkbox-' + categoryId);
     let nbEntriesChange = registerCheckbox.checked ? 1 : -1;
     if (sameColor[categoryId] && registerCheckbox.checked) {
-        let otherCheckbox = document.getElementById('register_checkbox_' + sameColor[categoryId]);
+        let otherCheckbox = document.getElementById('register-checkbox-' + sameColor[categoryId]);
         if (otherCheckbox.checked) {
             nbEntriesChange -= 1;
         }
@@ -85,7 +45,7 @@ function handleCheckbox(categoryId) {
     } else {
         nbEntriesSunday += nbEntriesChange;
     }
-    let submitButton = document.getElementById('submit_button');
+    let submitButton = document.getElementById('submit-button');
     if (nbEntriesSaturday > maxEntriesPerDay || nbEntriesSunday > maxEntriesPerDay) {
         submitButton.disabled = true;
         submitButton.style.cursor = 'not-allowed';
@@ -99,8 +59,6 @@ function handleCheckbox(categoryId) {
         submitButton.style.cursor = 'auto';
         submitButton.setAttribute('title', '');
     }
-
-
 }
 
 function createCategoryRow(categoryObject) {
@@ -108,11 +66,10 @@ function createCategoryRow(categoryObject) {
     let categoryId = categoryObject['categoryId'];
 
     let registerCell = document.createElement('td');
-    registerCell.setAttribute('id', 'register_cell_' + categoryId);
+    registerCell.setAttribute('id', 'register-cell-' + categoryId);
     let registerCheckbox = document.createElement('input');
     registerCheckbox.type = 'checkbox';
-    registerCheckbox.id = 'register_checkbox_' + categoryId;
-    registerCheckbox.setAttribute('data-checkbox-type', 'register')
+    registerCheckbox.id = 'register-checkbox-' + categoryId;
     registerCheckbox.setAttribute('oninput', 'handleCheckbox("' + categoryId + '")');
     registerCell.appendChild(registerCheckbox);
     if (new Date(categoryObject['startTime']).getDate() == 6) {
@@ -121,13 +78,13 @@ function createCategoryRow(categoryObject) {
         registerCheckbox.setAttribute('data-day', 'sunday');
     }
     let registerLabel = document.createElement('label');
-    registerLabel.id = registerCheckbox.id + '_label';
+    registerLabel.id = registerCheckbox.id + '-label';
     registerLabel.setAttribute('for', registerCheckbox.id);
     registerLabel.appendChild(document.createTextNode(' '));
     registerCell.appendChild(registerLabel);
 
     let idCell = document.createElement('td');
-    idCell.setAttribute('id', 'id_cell_' + categoryId);
+    idCell.setAttribute('id', 'id-cell-' + categoryId);
     idCell.appendChild(document.createTextNode(categoryId));
     row.appendChild(idCell);
 
@@ -138,7 +95,6 @@ function createCategoryRow(categoryObject) {
             sameColor[categoryId] = categoryIdByColor[color];
             sameColor[categoryIdByColor[color]] = categoryId;
         } else { categoryIdByColor[color] = categoryId; }
-        // registerCell.style.backgroundColor = categoryObject['color'];
         idCell.style.backgroundColor = color;
     };
 
@@ -146,20 +102,22 @@ function createCategoryRow(categoryObject) {
     let maxOverbooked = Math.floor(categoryObject['maxPlayers'] * (1 + categoryObject['overbookingPercentage'] / 100.));
     let entryCountCell = document.createElement('td');
 
-    if (entryCount < maxOverbooked || (categoryId in playerObject['registeredEntries'] && playerObject['registeredEntries'][categoryId]['rank'] < maxOverbooked)) {
+    if (entryCount < maxOverbooked) {
         entryCountCell.appendChild(document.createTextNode('Places disponibles'));
-        entryCountCell.style.backgroundColor = 'hsl(140, 100%, 80%)';
+        entryCountCell.classList.add('non-waiting-list-cell');
+        entryCountCell.classList.remove('waiting-list-cell');
     } else {
         entryCountCell.appendChild(document.createTextNode('Liste d\'attente'));
-        entryCountCell.style.backgroundColor = 'hsl(60, 100%, 80%)';
+        entryCountCell.classList.add('waiting-list-cell');
+        entryCountCell.classList.remove('non-waiting-list-cell');
     }
 
 
-    entryCountCell.setAttribute('id', 'entry_count_cell_' + categoryId);
+    entryCountCell.setAttribute('id', 'entry-count-cell-' + categoryId);
     row.appendChild(entryCountCell);
 
     let pointsCell = document.createElement('td');
-    pointsCell.setAttribute('id', 'points_cell_' + categoryId);
+    pointsCell.setAttribute('id', 'points-cell-' + categoryId);
     let maxPoints = categoryObject['maxPoints'];
     let minPoints = categoryObject['minPoints'];
     let pointsString;
@@ -167,11 +125,11 @@ function createCategoryRow(categoryObject) {
         pointsString = '< ' + maxPoints;
     } else if (minPoints > 0) {
         pointsString = '> ' + minPoints;
-    } else { pointsString = ' -'}
+    } else { pointsString = '-'}
 
     if (playerObject['nbPoints'] < minPoints || playerObject['nbPoints'] > maxPoints) {
         pointsCell.style.backgroundColor = 'red';
-        registerCell.style.backgroundColor = '#d3d3d3';
+        registerCell.classList.add('disabled-cell');
         registerCheckbox.setAttribute('disabled', '');
         pointsString = pointsString + ' \u2717';
     } else {
@@ -181,12 +139,12 @@ function createCategoryRow(categoryObject) {
     row.appendChild(pointsCell);
 
     let womenOnlyCell = document.createElement('td');
-    womenOnlyCell.setAttribute('id', 'women_only_cell_' + categoryId);
+    womenOnlyCell.setAttribute('id', 'women-only-cell-' + categoryId);
     womenOnlyCell.appendChild(document.createTextNode(categoryObject['womenOnly'] ? 'Oui' : 'Non'));
     row.appendChild(womenOnlyCell);
     if (categoryObject['womenOnly'] && playerObject['gender'] == 'M') {
         womenOnlyCell.style.backgroundColor = 'red';
-        registerCell.style.backgroundColor = '#d3d3d3';
+        registerCell.classList.add('disabled-cell');
         registerCheckbox.setAttribute('disabled', '');
     }
 
@@ -208,9 +166,9 @@ function setUpCategoriesTable() {
         }
     });
 
-    let saturdayBody = document.getElementById('saturday_table_body');
+    let saturdayBody = document.getElementById('saturday-table-body');
 
-    let sundayBody = document.getElementById('sunday_table_body');
+    let sundayBody = document.getElementById('sunday-table-body');
 
     saturdayCategories.forEach(
         function (categoryObject) {
@@ -230,7 +188,7 @@ function submitAll() {
     let nbSundayEntries = 0;
     categoriesData.forEach(function (categoryObject) {
         let categoryId = categoryObject['categoryId'];
-        let registerCheckbox = document.getElementById('register_checkbox_' + categoryId);
+        let registerCheckbox = document.getElementById('register-checkbox-' + categoryId);
         if (registerCheckbox.checked) {
             if (new Date(categoryObject['startTime']).getDate() == 6) {
                 nbSaturdayEntries += 1;
@@ -240,24 +198,17 @@ function submitAll() {
         }
     });
 
-    console.log(maxEntriesPerDay);
-
     if (nbSaturdayEntries > maxEntriesPerDay || nbSundayEntries > maxEntriesPerDay) {
         window.alert("Vous ne pouvez pas vous inscrire à plus de " + maxEntriesPerDay + " tableaux par jour.");
         return;
     }
 
-    if (!playerObject.email) {
-        submitPlayer();
-    } else {
-        submitEntries();
-    }
+    submitPlayer();
 }
 
 async function submitPlayer() {
-    console.log("Submitting player");
-    let emailField = document.getElementById("email_field");
-    let phoneField = document.getElementById("phone_field");
+    let emailField = document.getElementById("email-field");
+    let phoneField = document.getElementById("phone-field");
     let isValid = emailField.reportValidity() && phoneField.reportValidity();
     if (isValid) {
         playerPayload = {
@@ -270,28 +221,18 @@ async function submitPlayer() {
             'email': emailField.value,
             'phone': phoneField.value
         };
-        try {
-            let response = await fetch('/api/public/players', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(playerPayload)
-            })
-            if (response.ok) {
-                let responseData = await response.json();
-                console.log(responseData);
-                console.log("Player successfully added");
-                submitEntries();
-            } else {
-                let responseData = await response.json();
-                console.error("Error:", responseData);
-                window.location.href = "/public/erreur";
-            }
-
-        } catch (error) {
-            console.error("Error:", error);
-            window.location.href = "/public/erreur";
+        let response = await fetch('/api/public/players', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(playerPayload)
+        })
+        if (response.ok) {
+            console.log("Player successfully added");
+            submitEntries();
+        } else {
+            publicHandleBadResponse(response);
         }
     }
 }
@@ -302,75 +243,50 @@ async function submitEntries() {
     };
     categoriesData.forEach(function (categoryObject) {
         let categoryId = categoryObject['categoryId'];
-        let registerCheckbox = document.getElementById('register_checkbox_' + categoryId);
+        let registerCheckbox = document.getElementById('register-checkbox-' + categoryId);
         if (registerCheckbox.checked) {
             payload['categoryIds'].push(categoryId);
         }
     });
-    try {
-        let response = await fetch('/api/public/entries/' + licenceNo, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(payload)
-        })
-        if (response.ok) {
-            let responseData = await response.json();
-            console.log(responseData);
-            console.log("Entries successfully added");
-            /*
-            let recapList = document.getElementById('recap_list');
-            recapList.innerHTML = '';
-            for (categoryId in responseData['registeredEntries']) {
-                recapList.appendChild(document.createElement('li')).appendChild(document.createTextNode(categoryId));
-            };
-            document.getElementById('recap_entries_div').style.display = 'block';
-            */
-            window.location.href = "/public/deja_inscrit/" + licenceNo;
-        } else {
-            let responseData = await response.json();
-            console.error("Error:", responseData);
-            window.location.href = "/public/erreur";
-        }
-    } catch (error) {
-        console.error("Error:", error);
-        window.location.href = "/public/erreur";
+    let response = await fetch('/api/public/entries/' + licenceNo, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+    })
+    if (response.ok) {
+        console.log("Entries successfully added");
+        window.location.href = "/public/deja_inscrit/" + licenceNo;
+    } else {
+        publicHandleBadResponse(response);
     }
 }
 
 function closeRecap() {
-    document.getElementById('recap_entries_div').style.display = 'none';
+    document.getElementById('recap-entries-div').style.display = 'none';
 }
 
-// TODO: redirect if fetch from db succeeds
 async function fetchCategoriesAndPlayer() {
-    try {
-        const categoriesPromise = fetch("/api/public/categories");
-        const playerPromise = fetch("/api/public/players/" + licenceNo);
-        const [categoriesResponse, playerResponse] = await Promise.all([categoriesPromise, playerPromise]);
+    const categoriesPromise = fetch("/api/public/categories");
+    const playerPromise = fetch("/api/public/players/" + licenceNo);
+    const [categoriesResponse, playerResponse] = await Promise.all([categoriesPromise, playerPromise]);
 
-        if (categoriesResponse.ok && playerResponse.ok) {
-            categoriesData = await categoriesResponse.json();
-            categoriesData = categoriesData['categories'];
-            playerObject = await playerResponse.json();
-            console.log(categoriesData);
-            console.log(playerObject);
-            setUpCategoriesTable();
-            processPlayer();
-            return true;
-        } else if (!categoriesResponse.ok) {
-            publicHandleBadResponse(categoriesResponse);
-        } else {
-            publicHandleBadResponse(playerResponse);
-        }
-    } catch (error) {
-        console.error("Error:", error);
-        window.location.href = "/public/erreur";
+    if (categoriesResponse.ok && playerResponse.ok) {
+        categoriesData = await categoriesResponse.json();
+        categoriesData = categoriesData['categories'];
+        playerObject = await playerResponse.json();
+        console.log(categoriesData);
+        console.log(playerObject);
+        setUpCategoriesTable();
+        processPlayer();
+        return true;
+    } else if (!categoriesResponse.ok) {
+        return publicHandleBadResponse(categoriesResponse);
+    } else {
+        return publicHandleBadResponse(playerResponse);
     }
 }
-
-// document.getElementById('recap_entries_div').style.display = 'none';
 
 fetchCategoriesAndPlayer().then((flag) => {
     if (flag) { showContent(); }

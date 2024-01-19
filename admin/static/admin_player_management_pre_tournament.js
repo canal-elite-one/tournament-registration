@@ -1,31 +1,3 @@
-const frToEn = {
-    'N° licence':'licenceNo',
-    'Prénom':'firstName',
-    'Nom de Famille':'lastName',
-    'N° dossard': 'bibNo',
-    'Club':'club',
-    'Adresse Mail':'email',
-    'Genre':'gender',
-    'Classement':'nbPoints',
-    'Surplus de paiement':'paymentDiff',
-    'N° téléphone':'phone',
-    'Tableaux':'registeredEntries'
-};
-
-const enToFr = {
-    'bibNo':'N° dossard',
-    'club':'Club',
-    'email': 'Adresse Mail',
-    'firstName':'Prénom',
-    'gender': 'Genre',
-    'lastName':'Nom de Famille',
-    'licenceNo': 'N° licence',
-    'nbPoints': 'Classement',
-    'paymentDiff': 'Surplus de paiement',
-    'phone': 'N° téléphone',
-    'registeredEntries': 'Tableaux'
-}
-
 let playerObject;
 let categoriesData;
 
@@ -35,41 +7,27 @@ const relevantCategoriesFields = ['categoryId', 'color', 'entryCount', 'maxPlaye
 const categoryIdByColor = {};
 const sameColor = {};
 
-function exitConfirmation (e) {
-    let confirmationMessage = 'Voulez-vous vraiment quitter la page? Les changements non sauvegardés seront perdus';
-    (e).returnValue = confirmationMessage;
-    return confirmationMessage;
-}
-
-function addExitConfirmation() {
-    window.onbeforeunload = exitConfirmation;
-}
-
-function removeExitConfirmation() {
-    window.onbeforeunload = null;
-}
-
 function handleCheckbox(categoryId) {
     addExitConfirmation();
-    checkbox = document.getElementById('register_checkbox_' + categoryId);
+    checkbox = document.getElementById('register-checkbox-' + categoryId);
 
     if (!(categoryId in sameColor)) {
         if (categoryId in playerObject['registeredEntries'] && !checkbox.checked) {
-            let label = document.getElementById(checkbox.id + '_label')
+            let label = document.getElementById(checkbox.id + '-label')
             label.firstChild.data = '\u26A0';
         } else if (categoryId in playerObject['registeredEntries'] && checkbox.checked) {
-            let label = document.getElementById(checkbox.id + '_label')
+            let label = document.getElementById(checkbox.id + '-label')
             label.firstChild.data = ' ';
         }
         return null;
     }
 
-    otherCheckbox = document.getElementById('register_checkbox_' + sameColor[categoryId]);
+    otherCheckbox = document.getElementById('register-checkbox-' + sameColor[categoryId]);
     if (checkbox.checked) {
         otherCheckbox.checked = false;
     }
     if (categoryId in playerObject['registeredEntries']) {
-        let label = document.getElementById(checkbox.id + '_label')
+        let label = document.getElementById(checkbox.id + '-label')
         if (checkbox.checked) {
             label.firstChild.data = ' ';
         } else {
@@ -77,7 +35,7 @@ function handleCheckbox(categoryId) {
         }
     }
     if (sameColor[categoryId] in playerObject['registeredEntries']) {
-        let label = document.getElementById(otherCheckbox.id + '_label')
+        let label = document.getElementById(otherCheckbox.id + '-label')
         if (otherCheckbox.checked) {
             label.firstChild.data = ' ';
         } else {
@@ -86,24 +44,8 @@ function handleCheckbox(categoryId) {
     }
 }
 
-function deletePlayer() {
-    let confirmMessage
-    if (playerObject['gender'] == 'M') {
-        confirmMessage = "Voulez-vous vraiment supprimer ce compétiteur de la base de données ? Toutes les informations sur les inscriptions seront perdues";
-    } else {
-        confirmMessage = "Voulez-vous vraiment supprimer cette compétitrice de la base de données ? Toutes les informations sur les inscriptions seront perdues";
-    }
-    if (confirm(confirmMessage)) {
-        fetch('/api/admin/players/' + licence_no, {method: 'DELETE'}).then(() =>
-        {
-            console.log('Successfully deleted player' + licence_no);
-            window.location.href = "/admin/inscrits";
-        });
-    }
-}
-
 function processPlayerInfo() {
-    let playerInfoTable = document.getElementById('player_info_table');
+    let playerInfoTable = document.getElementById('player-info-table');
 
     relevantPlayerFields.forEach(
         function(fieldName) {
@@ -115,7 +57,7 @@ function processPlayerInfo() {
             if (playerObject[fieldName] === null) {
                 let fieldInput = document.createElement('input');
                 fieldInput.type = (fieldName == 'email') ? 'email' : ((fieldName == 'phone') ? 'tel' : 'text');
-                fieldInput.id = 'field_input_' + fieldName;
+                fieldInput.id = 'field-input-' + fieldName;
                 fieldInput.value = '';
                 fieldInput.setAttribute('required', '');
                 fieldInput.setAttribute('onchange', 'addExitConfirmation()');
@@ -132,7 +74,7 @@ function processPlayerInfo() {
     } else {
         deleteButtonText = document.createTextNode('Supprimer compétiteur \uD83D\uDDD1');
     }
-    document.getElementById('delete_player_button').appendChild(deleteButtonText);
+    document.getElementById('delete-player-button').appendChild(deleteButtonText);
 }
 
 function createEntryCountCell(categoryObject) {
@@ -165,7 +107,7 @@ function createEntryCountCell(categoryObject) {
     }
 
     let entryCountCell = document.createElement('td');
-    entryCountCell.setAttribute('id', 'entry_count_cell_' + categoryId);
+    entryCountCell.setAttribute('id', 'entry-count-cell-' + categoryId);
     entryCountCell.appendChild(document.createTextNode(entryCountString));
 
     entryCountCell.style.backgroundColor = entryCountColor;
@@ -178,41 +120,40 @@ function createCategoryRow(categoryObject) {
     let categoryId = categoryObject['categoryId'];
 
     let registerCell = document.createElement('td');
-    registerCell.setAttribute('id', 'register_cell_' + categoryId);
+    registerCell.setAttribute('id', 'register-cell-' + categoryId);
     let registerCheckbox = document.createElement('input');
     registerCheckbox.type = 'checkbox';
-    registerCheckbox.id = 'register_checkbox_' + categoryId;
+    registerCheckbox.id = 'register-checkbox-' + categoryId;
     registerCheckbox.setAttribute('oninput', 'handleCheckbox("' + categoryId + '")');
     if (categoryId in playerObject['registeredEntries']) {
         registerCheckbox.checked = true;
     }
     registerCell.appendChild(registerCheckbox);
     let registerLabel = document.createElement('label');
-    registerLabel.id = registerCheckbox.id + '_label';
+    registerLabel.id = registerCheckbox.id + '-label';
     registerLabel.setAttribute('for', registerCheckbox.id);
     registerLabel.appendChild(document.createTextNode(' '));
     registerCell.appendChild(registerLabel);
 
     let idCell = document.createElement('td');
-    idCell.setAttribute('id', 'id_cell_' + categoryId);
+    idCell.setAttribute('id', 'id-cell-' + categoryId);
     idCell.appendChild(document.createTextNode(categoryId));
     row.appendChild(idCell);
 
     let color = categoryObject['color'];
 
-    if (!(color === null)) {
+    if (color !== null) {
         if (color in categoryIdByColor) {
             sameColor[categoryId] = categoryIdByColor[color];
             sameColor[categoryIdByColor[color]] = categoryId;
         } else { categoryIdByColor[color] = categoryId; }
-        // registerCell.style.backgroundColor = categoryObject['color'];
         idCell.style.backgroundColor = color;
     };
 
     row.appendChild(createEntryCountCell(categoryObject));
 
     let pointsCell = document.createElement('td');
-    pointsCell.setAttribute('id', 'points_cell_' + categoryId);
+    pointsCell.setAttribute('id', 'points-cell-' + categoryId);
     let maxPoints = categoryObject['maxPoints'];
     let minPoints = categoryObject['minPoints'];
     let pointsString;
@@ -220,11 +161,11 @@ function createCategoryRow(categoryObject) {
         pointsString = '< ' + maxPoints;
     } else if (minPoints > 0) {
         pointsString = '> ' + minPoints;
-    } else { pointsString = ' -'}
+    } else { pointsString = '-'}
 
     if (playerObject['nbPoints'] < minPoints || playerObject['nbPoints'] > maxPoints) {
         pointsCell.style.backgroundColor = 'red';
-        registerCell.style.backgroundColor = 'grey';
+        registerCell.classList.add('disabled-cell');
         registerCheckbox.setAttribute('disabled', '');
         pointsString = pointsString + ' \u2717';
     } else {
@@ -234,12 +175,12 @@ function createCategoryRow(categoryObject) {
     row.appendChild(pointsCell);
 
     let womenOnlyCell = document.createElement('td');
-    womenOnlyCell.setAttribute('id', 'women_only_cell_' + categoryId);
+    womenOnlyCell.setAttribute('id', 'women-only-cell-' + categoryId);
     womenOnlyCell.appendChild(document.createTextNode(categoryObject['womenOnly'] ? 'Oui' : 'Non'));
     row.appendChild(womenOnlyCell);
     if (categoryObject['womenOnly'] && playerObject['gender'] == 'M') {
         womenOnlyCell.style.backgroundColor = 'red';
-        registerCell.style.backgroundColor = 'red';
+        registerCell.classList.add('disabled-cell');
         registerCheckbox.setAttribute('disabled', '');
     }
     row.appendChild(registerCell);
@@ -260,9 +201,9 @@ function setUpCategoriesTable() {
         }
     });
 
-    let saturdayBody = document.getElementById('saturday_table_body');
+    let saturdayBody = document.getElementById('saturday-table-body');
 
-    let sundayBody = document.getElementById('sunday_table_body');
+    let sundayBody = document.getElementById('sunday-table-body');
 
     saturdayCategories.forEach(
         function (categoryObject) {
@@ -279,8 +220,8 @@ function setUpCategoriesTable() {
 
 async function submitPlayer() {
 
-    let emailInput = document.getElementById('field_input_email');
-    let phoneInput = document.getElementById('field_input_phone');
+    let emailInput = document.getElementById('field-input-email');
+    let phoneInput = document.getElementById('field-input-phone');
     let isValid = emailInput.reportValidity() && phoneInput.reportValidity();
     if (!isValid) {
         return;
@@ -296,29 +237,18 @@ async function submitPlayer() {
         'email': emailInput.value,
         'phone': phoneInput.value
     };
-    try {
-        let response = await fetch('/api/admin/players', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(playerPayload)
-        })
-        if (response.ok) {
-            let responseData = await response.json();
-            console.log(responseData);
-            console.log("Player successfully added");
-            return true;
-        } else {
-            let responseData = await response.json();
-            console.error("Error:", responseData);
-            window.alert('An unexpected error occured while trying to submit player:' + response.status + ' ' + JSON.stringify(responseData));
-            return false;
-        }
 
-    } catch (error) {
-        console.error("Error:", error);
-        window.alert('An unexpected error occured while trying to submit player:' + error);
+    let response = await fetch('/api/admin/players', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(playerPayload)
+    })
+    if (response.ok) {
+        return true;
+    } else {
+        adminHandleBadResponse(response);
         return false;
     }
 }
@@ -329,7 +259,7 @@ async function submitEntries() {
 
     categoriesData.forEach(function (categoryObject) {
         let categoryId = categoryObject['categoryId'];
-        let checkbox = document.getElementById('register_checkbox_' + categoryId);
+        let checkbox = document.getElementById('register-checkbox-' + categoryId);
         if (checkbox.checked) {
             categoryIdsToRegister.push(categoryId);
         } else if (categoryId in playerObject['registeredEntries']) {
@@ -345,7 +275,7 @@ async function submitEntries() {
         'categoryIds': categoryIdsToDelete,
     };
 
-    let registerResponse = await fetch('/api/admin/entries/' + licence_no, {
+    let registerResponse = await fetch('/api/admin/entries/' + licenceNo, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -354,15 +284,11 @@ async function submitEntries() {
     });
 
     if (!registerResponse.ok) {
-        let data = await registerResponse.json();
-        console.alert('An unexpected error occured while trying to register entries:' + registerResponse.status + ' ' + JSON.stringify(data));
+        adminHandleBadResponse(registerResponse);
         return false;
     }
-    console.log('Successfully registered new entries');
-    let data = await registerResponse.json();
-    console.log(data);
 
-    let deleteResponse = await fetch('/api/admin/entries/' + licence_no, {
+    let deleteResponse = await fetch('/api/admin/entries/' + licenceNo, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -371,24 +297,16 @@ async function submitEntries() {
     });
 
     if (!deleteResponse.ok) {
-        let data = await deleteResponse.json();
-        console.alert('An unexpected error occured while trying to delete entries:' + deleteResponse.status + ' ' + JSON.stringify(data));
+        adminHandleBadResponse(deleteResponse);
         return false;
     }
-    console.log('Successfully deleted entries');
-    data = await deleteResponse.json();
-    console.log(data);
     return true;
 }
 
 async function submitAll() {
     removeExitConfirmation();
-    let playerSubmitted;
-    if (playerObject['email'] === null) {
-        playerSubmitted = await submitPlayer();
-    } else {
-        playerSubmitted = true;
-    }
+    let playerSubmitted = playerObject['email'] === null ? await submitPlayer() : true;
+
     if (playerSubmitted) {
         let entriesSubmitted = await submitEntries();
         if (entriesSubmitted) {
@@ -400,7 +318,7 @@ async function submitAll() {
 
 async function fetchAll() {
     let categoriesResponse = await fetch("/api/admin/categories");
-    let playerResponse = await fetch("/api/admin/players/" + licence_no);
+    let playerResponse = await fetch("/api/admin/players/" + licenceNo);
 
     if (categoriesResponse.ok && playerResponse.ok) {
         categoriesData = await categoriesResponse.json();
@@ -411,19 +329,9 @@ async function fetchAll() {
         setUpCategoriesTable();
         processPlayerInfo();
     } else if (!categoriesResponse.ok) {
-        if (categoriesResponse.status == 400) {
-            let data = await categoriesResponse.json();
-            console.error("400 Bad Request: " + data);
-        } else {
-            console.error("Could not fetch categories: " + categoriesResponse.status);
-        }
+        adminHandleBadResponse(categoriesResponse)
     } else {
-        if (playerResponse.status == 400) {
-            let data = await playerResponse.json();
-            console.error("400 Bad Request: " + data);
-        } else {
-            console.error("Could not fetch player: " + playerResponse.status);
-        }
+        adminHandleBadResponse(playerResponse)
     }
 }
 

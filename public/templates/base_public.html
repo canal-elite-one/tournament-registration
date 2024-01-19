@@ -2,12 +2,12 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>{% block title %}Tournoi USKB - {% endblock %}</title>
+    <title>{% block title %}{% endblock %}- Tournoi USKB</title>
     <link rel="icon" href="{{ url_for('static', filename='uskb.png') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-    <div id="public_navbar-div" class="navbar-container">
+    <div id="public-navbar-div" class="navbar-container">
         <nav>
             <ul class="navbar">
                 <li class="navbar-element">
@@ -20,7 +20,7 @@
         </nav>
         {% block navbar %}{% endblock %}
     </div>
-    <div id="content_div" style="display: none;">
+    <div id="content-div" style="display: none;">
         {% block content %}{% endblock %}
     </div>
     <script src="{{ url_for('static', filename='base.js') }}"></script>
