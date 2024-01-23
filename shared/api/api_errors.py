@@ -9,9 +9,14 @@ def handle_api_error(error):
 
 
 class FFTTAPIError(Exception):
-    def __init__(self, payload=None):
+    def __init__(self, message=None, payload=None):
         super().__init__()
+        self.message = message
         self.payload = payload
+
+
+FFTT_BAD_RESPONSE_MESSAGE = "The FFTT API returned an unexpected response"
+FFTT_DATA_PARSE_MESSAGE = "An error occurred while parsing FFTT data"
 
 
 class APIError(Exception):
@@ -66,6 +71,7 @@ class InvalidDataError(APIBadRequestError):
 
 CATEGORY_FORMAT_MESSAGE = "Some category data is missing or badly formatted"
 PLAYER_FORMAT_MESSAGE = "Some player data is missing or badly formatted"
+PLAYER_CONTACT_FORMAT_MESSAGE = "Some player contact data is missing or badly formatted"
 REGISTRATION_FORMAT_MESSAGE = "Some registration data is missing or badly formatted"
 DELETE_ENTRIES_FORMAT_MESSAGE = (
     "Some data for entry deletion is missing or badly formatted"
@@ -171,6 +177,22 @@ class PlayerNotFoundError(APINotFoundError):
         )
 
 
+class FFTTPlayerNotFoundError(APINotFoundError):
+    error_type = "FFTT_PLAYER_NOT_FOUND"
+
+    def __init__(self, origin=None, licence_no=None):
+        payload = {
+            "licenceNo": licence_no,
+        }
+        super().__init__(
+            origin=origin,
+            error_message=(
+                "No player with this licence number was found in the FFTT database"
+            ),
+            payload=payload,
+        )
+
+
 """
 ----------------  409  ----------------
 """
@@ -227,9 +249,9 @@ class UnexpectedFFTTError(APIError):
     status_code = HTTPStatus.INTERNAL_SERVER_ERROR
     error_type = "UNEXPECTED_FFTT_ERROR"
 
-    def __init__(self, origin=None, payload=None):
+    def __init__(self, origin=None, message=None, payload=None):
         super().__init__(
             origin=origin,
-            error_message="An unexpected error occurred while accessing the FFTT API",
+            error_message=message,
             payload=payload,
         )

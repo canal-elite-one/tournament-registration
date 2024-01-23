@@ -77,6 +77,9 @@ class Player(Base):
 
     __table__ = Table("players", Base.metadata, autoload_with=engine)
 
+    def __repr__(self):
+        return f"<Player {self.licence_no}>"
+
     def respects_gender_points_constraints(self, category):
         return (not category.women_only or self.gender == "F") and (
             category.min_points <= self.nb_points <= category.max_points

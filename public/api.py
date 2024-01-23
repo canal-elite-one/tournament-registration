@@ -5,13 +5,13 @@ from http import HTTPStatus
 from flask import Blueprint, request, jsonify, current_app
 from sqlalchemy import select, text
 from sqlalchemy.exc import DBAPIError
-from marshmallow import ValidationError
 
 from shared.api.marshmallow_schemas import (
     CategorySchema,
     EntrySchema,
     PlayerSchema,
     CategoryIdsSchema,
+    ContactInfoSchema,
 )
 from shared.api.db import (
     Session,
@@ -46,19 +46,35 @@ def api_public_get_categories():
         )
 
 
-@public_api_bp.route("/players", methods=["POST"])
+@public_api_bp.route("/players/<licence_no>", methods=["POST"])
 @before_cutoff
-def api_public_add_player():
+def api_public_add_player(licence_no):
     origin = api_public_add_player.__name__
-    p_schema.reset()
-    try:
-        player = p_schema.load(request.json)
-    except ValidationError as e:
+    v_schema = ContactInfoSchema()
+
+    contact_info_dict = request.json
+
+    if error := v_schema.validate(contact_info_dict):
         raise ae.InvalidDataError(
             origin=origin,
-            error_message=ae.PLAYER_FORMAT_MESSAGE,
-            payload=e.messages,
+            error_message=ae.PLAYER_CONTACT_FORMAT_MESSAGE,
+            payload=error,
         )
+
+    try:
+        player = get_player_fftt(licence_no)
+    except ae.FFTTAPIError as e:
+        raise ae.UnexpectedFFTTError(
+            origin=origin,
+            message=e.message,
+            payload=e.payload,
+        )
+
+    if player is None:
+        raise ae.FFTTPlayerNotFoundError(origin=origin, licence_no=licence_no)
+
+    player.email = contact_info_dict["email"]
+    player.phone = contact_info_dict["phone"]
 
     with Session() as session:
         try:
@@ -87,14 +103,20 @@ def api_public_get_player(licence_no):
             )
 
     try:
-        player_dict = get_player_fftt(licence_no)
+        player = get_player_fftt(licence_no)
     except ae.FFTTAPIError as e:
-        raise ae.UnexpectedFFTTError(origin=origin, payload=e.payload)
+        raise ae.UnexpectedFFTTError(
+            origin=origin,
+            message=e.message,
+            payload=e.payload,
+        )
 
-    if player_dict is None:
+    if player is None:
         raise ae.PlayerNotFoundError(origin=origin, licence_no=licence_no)
 
-    return jsonify(player_dict), HTTPStatus.OK
+    p_schema.reset()
+
+    return jsonify(p_schema.dump(player)), HTTPStatus.OK
 
 
 @public_api_bp.route("/entries/<licence_no>", methods=["GET"])

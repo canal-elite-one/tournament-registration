@@ -13,6 +13,7 @@ origin = "api_admin_get_player"
 correct_db_before = (
     "9943272",
     before_cutoff,
+    b"",
     {
         "bibNo": None,
         "club": "NANTES ST MEDARD DOULON",
@@ -41,6 +42,7 @@ correct_db_before = (
 correct_db_after = (
     "9943272",
     after_cutoff,
+    b"",
     {
         "bibNo": None,
         "club": "NANTES ST MEDARD DOULON",
@@ -76,6 +78,15 @@ correct_db_after = (
 correct_fftt_before = (
     "7513006",
     before_cutoff,
+    b'<?xml version="1.0" '
+    b'encoding="ISO-8859-1"?>\n<liste><licence><idlicence'
+    b">375537</idlicence><licence>7513006</licence><nom>LAY"
+    b"</nom><prenom>Celine</prenom><numclub>08940975</numclub"
+    b"><nomclub>KREMLIN BICETRE "
+    b"US</nomclub><sexe>F</sexe><type>T</type><certif>A"
+    b"</certif><validation>04/07/2023</validation><echelon"
+    b"></echelon><place/><point>1232</point><cat>Seniors</cat"
+    b"></licence></liste>",
     {
         "bibNo": None,
         "club": "KREMLIN BICETRE US",
@@ -85,14 +96,8 @@ correct_fftt_before = (
         "lastName": "LAY",
         "licenceNo": "7513006",
         "nbPoints": 1232,
-        "paymentStatus": {
-            "totalActualPaid": 0,
-            "totalPaid": 0,
-            "totalPresent": 0,
-            "totalRegistered": 0,
-        },
         "phone": None,
-        "registeredEntries": {},
+        "totalActualPaid": None,
     },
 )
 
@@ -124,7 +129,7 @@ incorrect_licences = [incorrect_licence, incorrect_licence_db_only]
 
 
 class TestAPIAdminGetPlayer(BaseTest):
-    @pytest.mark.parametrize("licence_no,now,response", correct_licences)
+    @pytest.mark.parametrize("licence_no,now,fftt_response,response", correct_licences)
     def test_get_player_correct(
         self,
         admin_app,
@@ -133,21 +138,14 @@ class TestAPIAdminGetPlayer(BaseTest):
         populate,
         licence_no,
         now: str,
+        fftt_response,
         response,
     ):
         with freeze_time(now), requests_mock.Mocker() as m:
             m.get(
                 f"{admin_app.config.get('FFTT_API_URL')}/xml_licence.php",
                 status_code=HTTPStatus.OK,
-                content=b'<?xml version="1.0" '
-                b'encoding="ISO-8859-1"?>\n<liste><licence><idlicence'
-                b">375537</idlicence><licence>7513006</licence><nom>LAY"
-                b"</nom><prenom>Celine</prenom><numclub>08940975</numclub"
-                b"><nomclub>KREMLIN BICETRE "
-                b"US</nomclub><sexe>F</sexe><type>T</type><certif>A"
-                b"</certif><validation>04/07/2023</validation><echelon"
-                b"></echelon><place/><point>1232</point><cat>Seniors</cat"
-                b"></licence></liste>",
+                content=fftt_response,
             )
             r = admin_client.get(f"/api/admin/players/{licence_no}")
             assert r.status_code == HTTPStatus.OK, r.json
@@ -191,4 +189,11 @@ class TestAPIAdminGetPlayer(BaseTest):
             )
             r = admin_client.get("/api/admin/players/1234567")
             assert r.status_code == HTTPStatus.INTERNAL_SERVER_ERROR, r.json
-            assert r.json == ae.UnexpectedFFTTError(origin=origin).to_dict(), r.json
+            assert (
+                r.json
+                == ae.UnexpectedFFTTError(
+                    origin=origin,
+                    message=ae.FFTT_BAD_RESPONSE_MESSAGE,
+                    payload={"status_code": HTTPStatus.INTERNAL_SERVER_ERROR},
+                ).to_dict()
+            ), r.json

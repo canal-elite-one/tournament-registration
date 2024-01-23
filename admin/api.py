@@ -15,6 +15,7 @@ from shared.api.marshmallow_schemas import (
     PlayerSchema,
     MakePaymentSchema,
     CategoryIdsSchema,
+    ContactInfoSchema,
 )
 from shared.api.db import (
     Category,
@@ -115,34 +116,54 @@ def api_admin_get_player(licence_no):
         )
 
     try:
-        player_dict = get_player_fftt(licence_no)
-    except ae.FFTTAPIError:
+        player = get_player_fftt(licence_no)
+    except ae.FFTTAPIError as e:
         raise ae.UnexpectedFFTTError(
             origin=origin,
-            payload=None,
+            message=e.message,
+            payload=e.payload,
         )
 
-    if player_dict is None:
+    if player is None:
         raise ae.PlayerNotFoundError(
             origin=origin,
             licence_no=licence_no,
         )
 
-    return jsonify(player_dict), HTTPStatus.OK
-
-
-@api_bp.route("/players", methods=["POST"])
-def api_admin_add_player():
-    origin = api_admin_add_player.__name__
     p_schema.reset()
-    try:
-        player = p_schema.load(request.json)
-    except ValidationError as e:
+    return jsonify(p_schema.dump(player)), HTTPStatus.OK
+
+
+@api_bp.route("/players/<licence_no>", methods=["POST"])
+def api_admin_add_player(licence_no):
+    origin = api_admin_add_player.__name__
+    v_schema = ContactInfoSchema()
+
+    contact_info_dict = request.json
+
+    if error := v_schema.validate(contact_info_dict):
         raise ae.InvalidDataError(
             origin=origin,
-            error_message=ae.PLAYER_FORMAT_MESSAGE,
-            payload=e.messages,
+            error_message=ae.PLAYER_CONTACT_FORMAT_MESSAGE,
+            payload=error,
         )
+
+    try:
+        player = get_player_fftt(licence_no)
+    except ae.FFTTAPIError as e:
+        raise ae.UnexpectedFFTTError(
+            origin=origin,
+            message=e.message,
+            payload=e.payload,
+        )
+
+    if player is None:
+        raise ae.FFTTPlayerNotFoundError(origin=origin, licence_no=licence_no)
+
+    player.email = contact_info_dict["email"]
+    player.phone = contact_info_dict["phone"]
+
+    p_schema.reset()
 
     with Session() as session:
         try:

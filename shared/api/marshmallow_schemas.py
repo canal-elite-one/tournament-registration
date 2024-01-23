@@ -182,8 +182,8 @@ class PlayerSchema(SchemaWithReset):
     bib_no = fields.Int(data_key="bibNo", dump_only=True)
     first_name = fields.Str(data_key="firstName", required=True, allow_none=False)
     last_name = fields.Str(data_key="lastName", required=True, allow_none=False)
-    email = fields.Email(required=True, allow_none=False)
-    phone = fields.Str(required=True, allow_none=False)
+    email = fields.Email(allow_none=False)
+    phone = fields.Str(allow_none=False)
     gender = fields.Str(required=True, allow_none=False)
     nb_points = fields.Int(data_key="nbPoints", required=True, allow_none=False)
     club = fields.Str(required=True, allow_none=False)
@@ -344,3 +344,8 @@ class CategoryIdsSchema(Schema):
         required=True,
         allow_none=False,
     )
+
+
+class ContactInfoSchema(Schema):
+    phone = fields.Str(required=True, allow_none=False)
+    email = fields.Email(required=True, allow_none=False)
