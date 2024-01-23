@@ -33,7 +33,7 @@ correct_get_player_existing = (
         "lastName": "LAY",
         "licenceNo": "7513006",
         "nbPoints": 1232,
-        "totalActualPaid": None,
+        "totalActualPaid": 0,
         "phone": None,
     },
 )

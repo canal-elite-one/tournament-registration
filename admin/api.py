@@ -130,7 +130,13 @@ def api_admin_get_player(licence_no):
             licence_no=licence_no,
         )
 
-    p_schema.reset()
+    player.total_actual_paid = 0
+
+    include_entries_info = not is_before_cutoff()
+    p_schema.reset(
+        include_entries=include_entries_info,
+        include_payment_status=include_entries_info,
+    )
     return jsonify(p_schema.dump(player)), HTTPStatus.OK
 
 
@@ -162,6 +168,7 @@ def api_admin_add_player(licence_no):
 
     player.email = contact_info_dict["email"]
     player.phone = contact_info_dict["phone"]
+    player.total_actual_paid = 0
 
     p_schema.reset()
 

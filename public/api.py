@@ -75,6 +75,7 @@ def api_public_add_player(licence_no):
 
     player.email = contact_info_dict["email"]
     player.phone = contact_info_dict["phone"]
+    player.total_actual_paid = 0
 
     with Session() as session:
         try:
@@ -113,6 +114,8 @@ def api_public_get_player(licence_no):
 
     if player is None:
         raise ae.PlayerNotFoundError(origin=origin, licence_no=licence_no)
+
+    player.total_actual_paid = 0
 
     p_schema.reset()
 

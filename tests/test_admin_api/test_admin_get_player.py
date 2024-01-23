@@ -97,7 +97,7 @@ correct_fftt_before = (
         "licenceNo": "7513006",
         "nbPoints": 1232,
         "phone": None,
-        "totalActualPaid": None,
+        "totalActualPaid": 0,
     },
 )
 

@@ -8,9 +8,16 @@ const relevantCategoriesFields = ['categoryId', 'color', 'entryCount', 'maxPlaye
 const categoryIdByColor = {};
 const sameColor = {};
 
+function initiallyRegistered(categoryId) {
+    if (!('registeredEntries' in playerObject)) {
+        return false;
+    }
+    return categoryId in playerObject['registeredEntries'];
+}
+
 function initialChecked(checkbox) {
     let categoryId = checkbox.id.slice(-1);
-    if (categoryId in playerObject['registeredEntries']) {
+    if (initiallyRegistered(categoryId)) {
         if (checkbox.getAttribute('data-checkbox-type') == 'register') {
             return true;
         } else if (checkbox.getAttribute('data-checkbox-type') == 'present') {
@@ -26,7 +33,7 @@ function initialChecked(checkbox) {
 }
 
 function currentFee(categoryId) {
-    if (categoryId in playerObject['registeredEntries']) {
+    if (initiallyRegistered(categoryId)) {
         return playerObject['registeredEntries'][categoryId]['entryFee'];
     } else {
         let categoryObject = categoriesData.find(category => category['categoryId'] == categoryId);
@@ -177,10 +184,12 @@ async function generateBibNo() {
 function processPlayerInfo() {
     let playerInfoTable = document.getElementById('player-info-table');
 
-    for (const categoryId in playerObject['registeredEntries']) {
-        let registerCheckbox = document.getElementById('register-checkbox-' + categoryId);
-        registerCheckbox.checked = true;
-        onclickCheckboxWrapper('register', categoryId, true);
+    if ('registeredEntries' in playerObject) {
+        for (const categoryId in playerObject['registeredEntries']) {
+            let registerCheckbox = document.getElementById('register-checkbox-' + categoryId);
+            registerCheckbox.checked = true;
+            onclickCheckboxWrapper('register', categoryId, true);
+        }
     }
 
     recomputePaymentStatus();
@@ -258,7 +267,7 @@ function updateEntryCountCell(categoryObject, entryCountCell=null) {
     let maxPlayers = categoryObject['maxPlayers'];
     let maxOverbooked = Math.floor(categoryObject['maxPlayers'] * (1 + categoryObject['overbookingPercentage'] / 100.));
 
-    let isRegistered = categoryId in playerObject['registeredEntries']
+    let isRegistered = initiallyRegistered(categoryId)
     let relevantEntryCount = isRegistered ? playerObject['registeredEntries'][categoryId]['rank'] : entryCount;
 
     let cellString = isRegistered ? `${relevantEntryCount + 1}e` : `${relevantEntryCount} inscrits`;
@@ -389,22 +398,16 @@ function setUpCategoriesTable() {
 
 async function submitPlayer() {
     console.log("Submitting player");
-    let playerPayload = {
-        'licenceNo': playerObject.licenceNo,
-        'firstName': playerObject.firstName,
-        'lastName': playerObject.lastName,
-        'gender': playerObject.gender,
-        'club': playerObject.club,
-        'nbPoints': playerObject.nbPoints,
+    let contactPayload = {
         'email': `${playerObject['firstName'].toLowerCase()}@samplehost.com`,
         'phone': '+33000000000'
     };
-    let response = await fetch('/api/admin/players', {
+    let response = await fetch(`/api/admin/players/${licenceNo}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify(playerPayload)
+        body: JSON.stringify(contactPayload)
     })
     if (response.ok) {
         return true;
