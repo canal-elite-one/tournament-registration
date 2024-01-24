@@ -16,9 +16,19 @@ function initiallyRegistered(categoryId) {
 
 function handleCheckbox(categoryId) {
     addExitConfirmation();
-    checkbox = document.getElementById('register-checkbox-' + categoryId);
+    let checkbox = document.getElementById('register-checkbox-' + categoryId);
 
     if (!(categoryId in sameColor)) {
+        let absentCell = document.getElementById('absent-cell-' + categoryId);
+        let absentCheckbox = document.getElementById('absent-checkbox-' + categoryId);
+        if (checkbox.checked) {
+            absentCheckbox.removeAttribute('disabled');
+            absentCell.classList.remove('disabled-cell');
+        } else {
+            absentCheckbox.checked = false;
+            absentCheckbox.setAttribute('disabled', '');
+            absentCell.classList.add('disabled-cell');
+        }
         if (initiallyRegistered(categoryId) && !checkbox.checked) {
             let label = document.getElementById(checkbox.id + '-label')
             label.firstChild.data = '\u26A0';
@@ -26,12 +36,32 @@ function handleCheckbox(categoryId) {
             let label = document.getElementById(checkbox.id + '-label')
             label.firstChild.data = ' ';
         }
-        return null;
+        return;
     }
 
-    otherCheckbox = document.getElementById('register-checkbox-' + sameColor[categoryId]);
+    let otherCheckbox = document.getElementById('register-checkbox-' + sameColor[categoryId]);
     if (checkbox.checked) {
         otherCheckbox.checked = false;
+    }
+    let absentCell = document.getElementById('absent-cell-' + categoryId);
+    let absentCheckbox = document.getElementById('absent-checkbox-' + categoryId);
+    if (checkbox.checked) {
+        absentCheckbox.removeAttribute('disabled');
+        absentCell.classList.remove('disabled-cell');
+    } else {
+        absentCheckbox.checked = false;
+        absentCheckbox.setAttribute('disabled', '');
+        absentCell.classList.add('disabled-cell');
+    }
+    let otherAbsentCell = document.getElementById('absent-cell-' + sameColor[categoryId]);
+    let otherAbsentCheckbox = document.getElementById('absent-checkbox-' + sameColor[categoryId]);
+    if (otherCheckbox.checked) {
+        otherAbsentCheckbox.removeAttribute('disabled');
+        otherAbsentCell.classList.remove('disabled-cell');
+    } else {
+        otherAbsentCheckbox.checked = false;
+        otherAbsentCheckbox.setAttribute('disabled', '');
+        otherAbsentCell.classList.add('disabled-cell');
     }
     if (initiallyRegistered(categoryId)) {
         let label = document.getElementById(checkbox.id + '-label')
@@ -95,7 +125,7 @@ function createEntryCountCell(categoryObject) {
     let entryCountString;
 
     if (initiallyRegistered(categoryId)) {
-        rank = playerObject['registeredEntries'][categoryId]['rank'];
+        rank = playerObject['registeredEntries'][categoryId]['rank'] + 1;
         relevantEntryCount = rank;
         entryCountString = rank + ' / ' + maxPlayers + ' (' + maxOverbooked + ') (' + entryCount + ')';
     } else {
@@ -132,15 +162,31 @@ function createCategoryRow(categoryObject) {
     registerCheckbox.type = 'checkbox';
     registerCheckbox.id = 'register-checkbox-' + categoryId;
     registerCheckbox.setAttribute('oninput', 'handleCheckbox("' + categoryId + '")');
-    if (initiallyRegistered(categoryId)) {
-        registerCheckbox.checked = true;
-    }
+
     registerCell.appendChild(registerCheckbox);
     let registerLabel = document.createElement('label');
     registerLabel.id = registerCheckbox.id + '-label';
     registerLabel.setAttribute('for', registerCheckbox.id);
     registerLabel.appendChild(document.createTextNode(' '));
     registerCell.appendChild(registerLabel);
+
+    let absentCell = document.createElement('td');
+    absentCell.setAttribute('id', 'absent-cell-' + categoryId);
+    let absentCheckbox = document.createElement('input');
+    absentCheckbox.type = 'checkbox';
+    absentCheckbox.id = 'absent-checkbox-' + categoryId;
+    absentCheckbox.setAttribute('oninput', 'addExitConfirmation()');
+    absentCell.appendChild(absentCheckbox);
+
+    if (initiallyRegistered(categoryId)) {
+        registerCheckbox.checked = true;
+        if (playerObject['registeredEntries'][categoryId]['markedAsPresent'] === false) {
+            absentCheckbox.checked = true;
+        }
+    } else {
+        absentCheckbox.setAttribute('disabled', '');
+        absentCell.classList.add('disabled-cell');
+    }
 
     let idCell = document.createElement('td');
     idCell.setAttribute('id', 'id-cell-' + categoryId);
@@ -191,6 +237,7 @@ function createCategoryRow(categoryObject) {
         registerCheckbox.setAttribute('disabled', '');
     }
     row.appendChild(registerCell);
+    row.appendChild(absentCell);
 
     return row;
 }
@@ -255,26 +302,24 @@ async function submitPlayer() {
 }
 
 async function submitEntries() {
-    let categoryIdsToRegister = [];
-    let categoryIdsToDelete = [];
+    let registerData = {
+        'totalActualPaid': 0,
+        'entries': []
+    };
 
     categoriesData.forEach(function (categoryObject) {
         let categoryId = categoryObject['categoryId'];
-        let checkbox = document.getElementById('register-checkbox-' + categoryId);
-        if (checkbox.checked) {
-            categoryIdsToRegister.push(categoryId);
-        } else if (initiallyRegistered(categoryId)) {
-            categoryIdsToDelete.push(categoryId);
+        let registerCheckbox = document.getElementById('register-checkbox-' + categoryId);
+        let absentCheckbox = document.getElementById('absent-checkbox-' + categoryId);
+        if (registerCheckbox.checked) {
+            let entry = {
+                'categoryId': categoryId,
+                'markedAsPresent': absentCheckbox.checked ? false : null,
+                'markedAsPaid': false,
+            };
+            registerData['entries'].push(entry);
         }
     });
-
-    let registerData = {
-        'categoryIds': categoryIdsToRegister,
-    };
-
-    let deleteData = {
-        'categoryIds': categoryIdsToDelete,
-    };
 
     let registerResponse = await fetch('/api/admin/entries/' + licenceNo, {
         method: 'POST',
@@ -286,19 +331,6 @@ async function submitEntries() {
 
     if (!registerResponse.ok) {
         adminHandleBadResponse(registerResponse);
-        return false;
-    }
-
-    let deleteResponse = await fetch('/api/admin/entries/' + licenceNo, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(deleteData),
-    });
-
-    if (!deleteResponse.ok) {
-        adminHandleBadResponse(deleteResponse);
         return false;
     }
     return true;

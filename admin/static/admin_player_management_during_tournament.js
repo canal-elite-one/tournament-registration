@@ -417,69 +417,13 @@ async function submitPlayer() {
     }
 }
 
-async function deleteEntries(categoryIds) {
-    let response = await fetch('/api/admin/entries/' + licenceNo, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({"categoryIds": categoryIds}),
-    });
-
-    if (response.ok) {
-        return true;
-    } else {
-        adminHandleBadResponse(response);
-        return false;
-    }
-}
-
-async function registerEntries(categoryIds) {
+async function registerEntries(registerPayload) {
     let response = await fetch('/api/admin/entries/' + licenceNo, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({"categoryIds": categoryIds}),
-    });
-
-    if (response.ok) {
-        return true;
-    } else {
-        adminHandleBadResponse(response);
-        return false;
-    }
-}
-
-async function markAsPresent(categoryIdsPresence) {
-    let response = await fetch('/api/admin/present/' + licenceNo, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            "categoryIdsPresence": categoryIdsPresence,
-        }),
-    });
-
-    if (response.ok) {
-        return true;
-    } else {
-        adminHandleBadResponse(response);
-        return false;
-    }
-}
-
-async function processPayments(categoryIds, totalActualPaid) {
-    let response = await fetch('/api/admin/pay/' + licenceNo, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            "categoryIds": categoryIds,
-            "totalActualPaid": totalActualPaid,
-        }),
+        body: JSON.stringify(registerPayload),
     });
 
     if (response.ok) {
@@ -492,42 +436,29 @@ async function processPayments(categoryIds, totalActualPaid) {
 
 async function submitChanges() {
     removeExitConfirmation();
-    const categoryIdsToRegister = [];
-    const categoryIdsToDelete = [];
-    const categoryIdsPresence = {};
-    const categoryIdsToMarkAsPaid = [];
-
+    let totalActualPaid = parseInt(document.getElementById('actual-total-field').value) + playerObject['paymentStatus']['totalActualPaid'];
+    let registerPayload = {'entries': [], 'totalActualPaid': totalActualPaid};
     categoriesData.forEach(function (categoryObject) {
         let categoryId = categoryObject['categoryId'];
         let registerCheckbox = document.getElementById('register-checkbox-' + categoryId);
-        let presentCheckbox = document.getElementById('present-checkbox-' + categoryId);
-        let absentCheckbox = document.getElementById('absent-checkbox-' + categoryId);
-        let paidCheckbox = document.getElementById('paid-checkbox-' + categoryId);
         if (registerCheckbox.checked) {
-            categoryIdsPresence[categoryId] = presentCheckbox.checked ? true : (absentCheckbox.checked ? false : null);
-            if (paidCheckbox.checked) {
-                categoryIdsToMarkAsPaid.push(categoryId);
-            }
-            categoryIdsToRegister.push(categoryId);
-        } else if (initialChecked(registerCheckbox)) {
-            categoryIdsToDelete.push(categoryId);
+            let presentCheckbox = document.getElementById('present-checkbox-' + categoryId);
+            let absentCheckbox = document.getElementById('absent-checkbox-' + categoryId);
+            let paidCheckbox = document.getElementById('paid-checkbox-' + categoryId);
+            registerPayload['entries'].push({
+                'categoryId': categoryId,
+                'markedAsPresent': presentCheckbox.checked ? true : (absentCheckbox.checked ? false : null),
+                'markedAsPaid': paidCheckbox.checked,
+            });
         }
     });
-
-    let totalActualPaid = parseInt(document.getElementById('actual-total-field').value) + playerObject['paymentStatus']['totalActualPaid'];
 
     if (!playerInDatabase) {
         let success = await submitPlayer();
         if (!success) { return; }
     }
     console.log('Submitting changes');
-    let success = await deleteEntries(categoryIdsToDelete);
-    if (!success) { return; }
-    success = await registerEntries(categoryIdsToRegister);
-    if (!success) { return; }
-    success = await markAsPresent(categoryIdsPresence);
-    if (!success) { return; }
-    success = await processPayments(categoryIdsToMarkAsPaid, totalActualPaid);
+    let success = await registerEntries(registerPayload);
     if (success) {
         console.log('Successfully submitted changes');
         window.location.reload();
