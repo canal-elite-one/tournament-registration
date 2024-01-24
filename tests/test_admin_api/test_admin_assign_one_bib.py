@@ -81,7 +81,7 @@ class TestAPIAssignOneBibNo(BaseTest):
     ):
         error = ae.RegistrationCutoffError(
             origin=origin,
-            error_message=ae.REGISTRATION_MESSAGES["not_ended"],
+            error_message=ae.RegistrationMessages.NOT_ENDED,
         )
         with freeze_time(before_cutoff):
             r = admin_client.put(f"/api/admin/bibs/{correct_admin_assign_one}")

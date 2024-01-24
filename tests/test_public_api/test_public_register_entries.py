@@ -109,7 +109,7 @@ incorrect_registration_after_cutoff = (
     {"categoryIds": ["1"]},
     ae.RegistrationCutoffError(
         origin=origin,
-        error_message=ae.REGISTRATION_MESSAGES["ended"],
+        error_message=ae.RegistrationMessages.ENDED,
     ),
 )
 

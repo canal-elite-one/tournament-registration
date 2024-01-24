@@ -24,6 +24,20 @@ config = {
 }
 
 
+def drop_presence_payment():
+    with Session() as session:
+        session.execute(
+            text(
+                "UPDATE entries "
+                "SET marked_as_present=null "
+                "WHERE marked_as_present=true;",
+            ),
+        )
+        session.execute(text("UPDATE entries " "SET marked_as_paid=false;"))
+        session.execute(text("UPDATE players " "SET total_actual_paid=0;"))
+        session.commit()
+
+
 class BaseTest:
     @fixture(scope="session")
     def public_app(self):
@@ -68,6 +82,8 @@ class BaseTest:
             session.execute(text(categories_sql.read()))
             session.execute(text(players_sql.read()))
             session.execute(text(entries_sql.read()))
+            if datetime.now() < config["TOURNAMENT_REGISTRATION_CUTOFF"]:
+                drop_presence_payment()
             session.commit()
 
     @fixture

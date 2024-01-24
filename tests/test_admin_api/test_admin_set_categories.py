@@ -163,7 +163,7 @@ correct_admin_set_categories = [correct_categories]
 
 incorrect_set_categories_existing_entries = ae.RegistrationCutoffError(
     origin=origin,
-    error_message=ae.REGISTRATION_MESSAGES["started"],
+    error_message=ae.RegistrationMessages.STARTED,
 )
 
 incorrect_categories_missing_categories_field = (

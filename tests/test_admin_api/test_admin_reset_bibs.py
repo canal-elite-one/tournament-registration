@@ -47,6 +47,6 @@ class TestAPIResetBibNos(BaseTest):
                 r.json
                 == ae.RegistrationCutoffError(
                     origin=origin,
-                    error_message=ae.REGISTRATION_MESSAGES["not_ended"],
+                    error_message=ae.RegistrationMessages.NOT_ENDED,
                 ).to_dict()
             )

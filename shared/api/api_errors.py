@@ -1,4 +1,5 @@
 import traceback
+from enum import StrEnum
 
 from flask import jsonify
 from http import HTTPStatus
@@ -55,14 +56,17 @@ class RegistrationCutoffError(APIBadRequestError):
     error_type = "REGISTRATION_CUTOFF_ERROR"
 
 
-REGISTRATION_MESSAGES = {
-    "not_started": "Registration has not started yet",
-    "ended": "Registration has already ended",
-    "started": "Registration has already started",
-    "not_ended": "Registration has not ended yet",
-    "not_ended_mark_present": "Registration has not ended "
-    "yet, can only mark players as absent",
-}
+class RegistrationMessages(StrEnum):
+    NOT_STARTED = ("Registration has not started yet",)
+    ENDED = ("Registration has already ended",)
+    STARTED = ("Registration has already started",)
+    NOT_ENDED = ("Registration has not ended yet",)
+    NOT_ENDED_MARK_PRESENT_MAKE_PAYMENT = (
+        ("Registration has not ended yet, cannot mark entry as present or paid"),
+    )
+    NOT_ENDED_ACTUAL_MAKE_PAYMENT = (
+        "Registration has not ended yet, cannot make payment",
+    )
 
 
 class InvalidDataError(APIBadRequestError):
@@ -110,6 +114,10 @@ INVALID_CATEGORY_ID_MESSAGES = {
 ACTUAL_PAID_TOO_HIGH_MESSAGE = (
     "The 'totalActualPaid' field is higher than what the player must "
     "currently pay for all categories he is marked as present"
+)
+
+PAYMENT_PRESENT_VIOLATION_MESSAGE = (
+    "Tried to mark some entries as paid while they are not marked as present"
 )
 
 DUPLICATE_PLAYER_MESSAGE = (

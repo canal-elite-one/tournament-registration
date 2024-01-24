@@ -301,7 +301,7 @@ class TestAPIGetCategories(BaseTest):
     def test_get_after(self, public_client, reset_db, populate):
         error = ae.RegistrationCutoffError(
             origin="api_public_get_categories",
-            error_message=ae.REGISTRATION_MESSAGES["ended"],
+            error_message=ae.RegistrationMessages.ENDED,
         )
         with freeze_time(after_cutoff):
             r = public_client.get("/api/public/categories")

@@ -86,7 +86,7 @@ class CategorySchema(SchemaWithReset):
     @post_dump(pass_original=True)
     def add_entry_count_current_fee(self, data, original, **kwargs):
         data["entryCount"] = len(original.entries)
-        data["presentEntryCount"] = len(list(original.present_entries()))
+        data["presentEntryCount"] = len(original.present_entries())
         data["currentFee"] = original.current_fee()
         return data
 
@@ -241,12 +241,20 @@ class PlayerSchema(SchemaWithReset):
 
 
 class EntrySchema(SchemaWithReset):
-    category_id = fields.Str(data_key="categoryId")
-    licence_no = fields.Str(data_key="licenceNo")
+    category_id = fields.Str(data_key="categoryId", required=True, allow_none=False)
+    licence_no = fields.Str(data_key="licenceNo", dump_only=True)
     color = fields.Str(load_only=True)
-    registration_time = fields.DateTime(data_key="registrationTime")
-    marked_as_paid = fields.Bool(data_key="markedAsPaid")
-    marked_as_present = fields.Bool(data_key="markedAsPresent")
+    registration_time = fields.DateTime(data_key="registrationTime", dump_only=True)
+    marked_as_present = fields.Bool(
+        data_key="markedAsPresent",
+        allow_none=True,
+        required=True,
+    )
+    marked_as_paid = fields.Bool(
+        data_key="markedAsPaid",
+        allow_none=False,
+        required=True,
+    )
 
     def reset(
         self,
@@ -264,8 +272,17 @@ class EntrySchema(SchemaWithReset):
             nest=nest,
         )
 
+    @pre_load(pass_many=True)
+    def check_json_field(self, data, many, **kwargs):
+        if many and "entries" not in data:
+            raise ValidationError(
+                "json payload should have 'entries' field.",
+                field_name="json",
+            )
+        return data["entries"]
+
     @post_load
-    def make_field(self, data, **kwargs):
+    def make_entry(self, data, **kwargs):
         return Entry(**data)
 
     # the two post_dump functions commute.

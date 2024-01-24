@@ -71,7 +71,7 @@ incorrect_after = (
     empty_xml,
     ae.RegistrationCutoffError(
         origin=origin,
-        error_message=ae.REGISTRATION_MESSAGES["ended"],
+        error_message=ae.RegistrationMessages.ENDED,
     ),
 )
 
