@@ -270,7 +270,7 @@ def api_admin_register_entries(licence_no):
             )
 
         new_entry_category_ids = {entry.category_id for entry in new_entries}
-        old_entries = player.entries
+        old_entries = list(player.entries)
         old_entry_category_ids = {entry.category_id for entry in old_entries}
 
         # checks that all category ids are valid
@@ -286,11 +286,14 @@ def api_admin_register_entries(licence_no):
                 },
             )
 
+        # We use list comprehension here instead of session.scalars(
+        # select(Category).where(Category.category_id.in_(new_entry_category_ids))
+        # ).all() to preserve the order.
+        potential_categories = [
+            session.get(Category, entry.category_id) for entry in new_entries
+        ]
         # checks that the player can register to all categories indicated
         # w.r.t gender/points constraints
-        potential_categories = session.scalars(
-            select(Category).where(Category.category_id.in_(new_entry_category_ids)),
-        )
         gender_points_violations = [
             category.category_id
             for category in potential_categories
@@ -406,11 +409,12 @@ def api_admin_register_entries(licence_no):
             if entry.category_id not in new_entry_category_ids:
                 del player.entries[i]
 
-        for entry in new_entries:
+        for entry, category in zip(new_entries, potential_categories):
             entry.licence_no = licence_no
             if entry.category_id not in old_entry_category_ids:
                 entry.registration_time = datetime.now()
                 player.entries.append(entry)
+                category.entries.append(entry)
             else:
                 session.merge(entry)
 
@@ -419,10 +423,9 @@ def api_admin_register_entries(licence_no):
         # checks that the total_actual_paid field is not higher than the total fees
         # for the categories the player is marked as present for.
         # If it is, the changes just above are rolled back.
-        if total_actual_paid > player.fees_total_present():
+        if (total_present := player.fees_total_present()) < total_actual_paid:
             # need to store the value of fees_total_present before rollback
             # to be able to return it in the error message
-            total_present = player.fees_total_present()
             session.rollback()
             raise ae.InvalidDataError(
                 origin=origin,
