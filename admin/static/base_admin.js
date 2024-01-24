@@ -79,6 +79,15 @@ function removeExitConfirmation() {
     window.onbeforeunload = null;
 }
 
+function takeCheckboxStateSnapshot () {
+    let checkboxes = document.querySelectorAll("input[type='checkbox']");
+    for (let i = 0; i < checkboxes.length; i++) {
+        let checkbox = checkboxes[i];
+        checkbox.setAttribute("data-initial-checked", checkbox.checked ? "true" : "false");
+        checkbox.setAttribute("data-initial-enabled", !(checkbox.disabled) ? "true" : "false");
+    }
+}
+
 // used in admin_show_all_players && admin_players_by_category
 
 async function downloadCsv(by_category) {

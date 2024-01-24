@@ -15,6 +15,63 @@ function initiallyRegistered(categoryId) {
     return categoryId in playerObject['registeredEntries'];
 }
 
+/*
+checkboxLinks contains behavioral links between checkboxes.
+format: checkboxLinks = {parentcheckboxId: [{'parentState': bool, 'checkboxId': str, 'checked': bool, 'enabled': bool}...]}
+'parentState' is the state of the parent checkbox that triggers the change, e.g.
+    for color links, the disabling of same-color checkboxes is triggered only when the parent checkbox is checked, i.e. 'parentState' = true
+'checkboxId' is the id of the child checkbox
+'checked' is the target checked state of the child checkbox
+'enabled' is the target enabled state of the child checkbox
+for 'checked' and 'enabled', null means to revert to the initial state after processing player data.
+*/
+const checkboxLinks = {};
+
+function addLink(parentcheckboxId, link) {
+    if (!(parentcheckboxId in checkboxLinks)) {
+        checkboxLinks[parentcheckboxId] = [];
+    }
+    checkboxLinks[parentcheckboxId].push(link);
+}
+
+function handleCheckbox(checkboxId, fromClick=false, targetChecked=null, targetEnabled=null) {
+    let checkbox = document.getElementById(checkboxId);
+    let stateChangeFlag = false;
+    if (fromClick) {
+        addExitConfirmation();
+        stateChangeFlag = true;
+    } else {
+        targetChecked = (targetChecked === null) ? (initialChecked(checkbox)) : targetChecked;
+        targetEnabled = (targetEnabled === null) ? !checkbox.disabled : targetEnabled;
+        if (checkbox.checked != targetChecked) {
+            checkbox.checked = targetChecked;
+            stateChangeFlag = true;
+        }
+        console.log('checkbox.disabled: ' + checkbox.disabled);
+        if (checkbox.disabled == targetEnabled) {
+            if (targetEnabled) {
+                checkbox.removeAttribute('disabled');
+                checkbox.parentElement.classList.remove('disabled-cell');
+            } else {
+                checkbox.setAttribute('disabled', '');
+                checkbox.parentElement.classList.add('disabled-cell');
+            }
+            stateChangeFlag = true;
+        }
+    }
+    console.log('stateChangeFlag: ' + stateChangeFlag);
+    // only process links if the state of the checkbox has changed
+    if (stateChangeFlag) {
+        for (const i in checkboxLinks[checkboxId]) {
+            let checkboxLink = checkboxLinks[checkboxId][i];
+            if (checkboxLink['parentState'] == checkbox.checked) {
+                handleCheckbox(checkboxLink['checkboxId'], false, checkboxLink['checked'], checkboxLink['enabled']);
+            }
+        }
+    }
+    if (fromClick) { recomputePaymentStatus(); }
+}
+
 function initialChecked(checkbox) {
     let categoryId = checkbox.id.slice(-1);
     if (initiallyRegistered(categoryId)) {
@@ -76,92 +133,6 @@ function recomputePaymentStatus() {
     document.getElementById('actual-total-field').value = paymentStatus['currentActualTotal'];
 }
 
-
-function ableCheckbox(checkbox, able) {
-    if (checkbox == null) { return; }
-
-    if (able) {
-        if (!(checkbox.getAttribute('data-checkbox-type') == 'paid' && initialChecked(checkbox))) {
-            checkbox.removeAttribute('disabled');
-            checkbox.parentElement.classList.remove('disabled-cell');
-        }
-        checkbox.checked = initialChecked(checkbox);
-        onCheckboxChange(checkbox);
-    } else {
-        checkbox.setAttribute('disabled', '');
-        checkbox.checked = false;
-        checkbox.parentElement.classList.add('disabled-cell');
-        onCheckboxChange(checkbox);
-    }
-}
-
-function onCheckboxChange(checkbox) {
-    let checkboxType = checkbox.getAttribute('data-checkbox-type');
-    let categoryId = checkbox.id.slice(-1);
-
-    let checkboxLabel = document.getElementById(checkbox.id + '-label');
-    if (!checkbox.checked && initialChecked(checkbox)) {
-        checkboxLabel.firstChild.nodeValue = ' \u26A0';
-    } else {
-        checkboxLabel.firstChild.nodeValue = ' ';
-    }
-
-    let childCheckboxes = [];
-    if (checkboxType == 'register') {
-        childCheckboxes = [
-            document.getElementById('present-checkbox-' + categoryId),
-            document.getElementById('absent-checkbox-' + categoryId),
-        ];
-    } else if (checkboxType == 'present') {
-        childCheckboxes = [document.getElementById('paid-checkbox-' + categoryId)];
-    } else {
-        return;
-    }
-
-    childCheckboxes.forEach(childCheckbox => ableCheckbox(childCheckbox, checkbox.checked));
-}
-
-function handlePresentAbsent(checkbox) {
-    let categoryId = checkbox.id.slice(-1);
-    let checkboxType = checkbox.getAttribute('data-checkbox-type');
-    onCheckboxChange(checkbox);
-
-    if (checkbox.checked) {
-        let otherCheckbox = document.getElementById((checkboxType == 'absent' ? 'present' : 'absent') +'-checkbox-' + categoryId);
-        otherCheckbox.checked = false;
-        onCheckboxChange(otherCheckbox);
-    }
-}
-
-
-function handleColor(checkbox) {
-    let categoryId = checkbox.id.slice(-1);
-    onCheckboxChange(checkbox);
-
-    if (categoryId in sameColor) {
-        let otherCheckbox = document.getElementById('register-checkbox-' + sameColor[categoryId]);
-        if (checkbox.checked) {
-            otherCheckbox.checked = false;
-            onCheckboxChange(otherCheckbox);
-        }
-    }
-}
-
-function onclickCheckboxWrapper(checkboxType, categoryId, initialization=false) {
-    let checkbox = document.getElementById(checkboxType + '-checkbox-' + categoryId);
-    if (checkboxType == 'register') {
-        handleColor(checkbox);
-    } else if (checkboxType == 'present' || checkboxType == 'absent') {
-        handlePresentAbsent(checkbox);
-    } else {
-        onCheckboxChange(checkbox);
-    }
-    recomputePaymentStatus();
-    if (!initialization) {
-        addExitConfirmation();
-    }
-}
-
 async function generateBibNo() {
     if (!playerInDatabase) {
         let success = await submitPlayer();
@@ -184,14 +155,15 @@ async function generateBibNo() {
 function processPlayerInfo() {
     let playerInfoTable = document.getElementById('player-info-table');
 
+    takeCheckboxStateSnapshot();
+
     if ('registeredEntries' in playerObject) {
         for (const categoryId in playerObject['registeredEntries']) {
-            let registerCheckbox = document.getElementById('register-checkbox-' + categoryId);
-            registerCheckbox.checked = true;
-            onclickCheckboxWrapper('register', categoryId, true);
+            handleCheckbox(checkboxId='register-checkbox-' + categoryId, fromClick=false, targetChecked=true, targetEnabled=true);
         }
     }
 
+    removeExitConfirmation();
     recomputePaymentStatus();
 
     if (showBib) {
@@ -244,7 +216,7 @@ function createCheckboxCell(categoryId, checkboxType) {
     checkbox.type = 'checkbox';
     checkbox.id = checkboxType + '-checkbox-' + categoryId;
     checkbox.setAttribute('data-checkbox-type', checkboxType)
-    checkbox.setAttribute('oninput', 'onclickCheckboxWrapper("' + checkboxType + '", "' + categoryId + '")');
+    checkbox.setAttribute('oninput', `handleCheckbox('${checkbox.id}', true)`);
     cell.appendChild(checkbox);
     let label = document.createElement('label');
     label.id = checkbox.id + '-label';
@@ -257,6 +229,34 @@ function createCheckboxCell(categoryId, checkboxType) {
         checkbox.setAttribute('disabled', '');
     }
 
+    if (checkboxType == 'register') {
+        const shortLinkArray = [['present', true], ['present', false], ['absent', true], ['absent', false]];
+        shortLinkArray.forEach(function (shortLink) {
+            let [childCheckboxType, flag] = shortLink;
+            addLink(
+                checkbox.id,
+                {'parentState': flag, 'checkboxId': childCheckboxType + '-checkbox-' + categoryId, 'checked': flag ? null : false, 'enabled': flag}
+            );
+        });
+    } else if (checkboxType == 'present') {
+        addLink(
+            checkbox.id,
+            {'parentState': true, 'checkboxId': 'paid-checkbox-' + categoryId, 'checked': null, 'enabled': true}
+        );
+        addLink(
+            checkbox.id,
+            {'parentState': false, 'checkboxId': 'paid-checkbox-' + categoryId, 'checked': false, 'enabled': false}
+        );
+        addLink(
+            checkbox.id,
+            {'parentState': true, 'checkboxId': 'absent-checkbox-' + categoryId, 'checked': false, 'enabled': true}
+        );
+    } else if (checkboxType == 'absent') {
+        addLink(
+            checkbox.id,
+            {'parentState': true, 'checkboxId': 'present-checkbox-' + categoryId, 'checked': false, 'enabled': true}
+        );
+    }
     return cell;
 }
 
@@ -308,6 +308,14 @@ function createCategoryRow(categoryObject) {
 
     if (color !== null) {
         if (color in categoryIdByColor) {
+            addLink(
+                'register-checkbox-' + categoryIdByColor[color],
+                {'parentState': true, 'checkboxId': 'register-checkbox-' + categoryId, 'checked': false, 'enabled': null}
+            );
+            addLink(
+                'register-checkbox-' + categoryId,
+                {'parentState': true, 'checkboxId': 'register-checkbox-' + categoryIdByColor[color], 'checked': false, 'enabled': null}
+            );
             sameColor[categoryId] = categoryIdByColor[color];
             sameColor[categoryIdByColor[color]] = categoryId;
         } else { categoryIdByColor[color] = categoryId; }
@@ -478,6 +486,7 @@ async function fetchAll() {
         playerInDatabase = (playerObject['email'] !== null);
         setUpCategoriesTable();
         processPlayerInfo();
+        takeCheckboxStateSnapshot();
     } else if (!categoriesResponse.ok) {
         adminHandleBadResponse(categoriesResponse);
     } else {
