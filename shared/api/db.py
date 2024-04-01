@@ -25,7 +25,6 @@ def execute_dbmate(command):
     )
 
 
-execute_dbmate("up")
 engine = create_engine(db_url)
 
 Session = sessionmaker(engine)
