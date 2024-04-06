@@ -2,7 +2,7 @@ from http import HTTPStatus
 
 from flask import Blueprint, render_template, current_app
 
-from shared.api.db import is_before_cutoff
+from shared.api.db import is_before_cutoff, is_before_start
 
 public_bp = Blueprint(
     "public",
@@ -16,6 +16,13 @@ public_bp = Blueprint(
 def index_page():
     if not is_before_cutoff():
         return render_template("/public_late_index.html")
+    if is_before_start():
+        return render_template(
+            "/public_early_index.html",
+            start_date=current_app.config["TOURNAMENT_REGISTRATION_START"]
+            .date()
+            .isoformat(),
+        )
     return render_template("/public_index.html")
 
 
