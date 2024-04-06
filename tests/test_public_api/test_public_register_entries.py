@@ -5,9 +5,7 @@ from freezegun import freeze_time
 
 import shared.api.api_errors as ae
 
-
 from tests.conftest import BaseTest, SampleDates
-
 
 overall_correct_licence = "722370"
 overall_incorrect_licence = "555555"
@@ -32,8 +30,70 @@ correct_registration = (
     },
 )
 
+correct_registration_woman_one_day = (
+    "1234567",
+    SampleDates.BEFORE_CUTOFF,
+    {"categoryIds": ["B", "C"]},
+    {'B': {'alternateName': '< 1500',
+           'entryFee': 7,
+           'licenceNo': '1234567',
+           'markedAsPaid': False,
+           'markedAsPresent': None,
+           'rank': 0,
+           'registrationTime': '2023-01-01T00:00:00',
+           'startTime': '2024-01-06T10:15:00'},
+     'C': {'alternateName': None,
+           'entryFee': 10,
+           'licenceNo': '1234567',
+           'markedAsPaid': False,
+           'markedAsPresent': None,
+           'rank': 0,
+           'registrationTime': '2023-01-01T00:00:00',
+           'startTime': '2024-01-06T11:30:00'}}
+)
+
+correct_registration_woman_two_days = (
+    "1234567",
+    SampleDates.BEFORE_CUTOFF,
+    {"categoryIds": ["B", "C", "5", "3"]},
+    {'3': {'alternateName': None,
+           'entryFee': 7,
+           'licenceNo': '1234567',
+           'markedAsPaid': False,
+           'markedAsPresent': None,
+           'rank': 0,
+           'registrationTime': '2023-01-01T00:00:00',
+           'startTime': '2024-01-07T11:30:00'},
+     '5': {'alternateName': None,
+           'entryFee': 7,
+           'licenceNo': '1234567',
+           'markedAsPaid': False,
+           'markedAsPresent': None,
+           'rank': 0,
+           'registrationTime': '2023-01-01T00:00:00',
+           'startTime': '2024-01-07T14:00:00'},
+     'B': {'alternateName': '< 1500',
+           'entryFee': 7,
+           'licenceNo': '1234567',
+           'markedAsPaid': False,
+           'markedAsPresent': None,
+           'rank': 0,
+           'registrationTime': '2023-01-01T00:00:00',
+           'startTime': '2024-01-06T10:15:00'},
+     'C': {'alternateName': None,
+           'entryFee': 10,
+           'licenceNo': '1234567',
+           'markedAsPaid': False,
+           'markedAsPresent': None,
+           'rank': 0,
+           'registrationTime': '2023-01-01T00:00:00',
+           'startTime': '2024-01-06T11:30:00'}}
+)
+
 correct_register_entries = [
     correct_registration,
+    correct_registration_woman_one_day,
+    correct_registration_woman_two_days,
 ]
 
 incorrect_registration_color_violation = (
@@ -113,6 +173,17 @@ incorrect_registration_after = (
     ),
 )
 
+incorrect_registration_mandatory_women_only = (
+    "1234567",
+    SampleDates.BEFORE_CUTOFF,
+    {"categoryIds": ["A"]},
+    ae.InvalidDataError(
+        origin=origin,
+        error_message=ae.MANDATORY_WOMEN_ONLY_REGISTRATION_MESSAGE,
+        payload={'categoryIdsShouldRegister': ['C']},
+    ),
+)
+
 incorrect_register_entries = [
     incorrect_registration_color_violation,
     incorrect_registration_gender_points_violation,
@@ -121,6 +192,7 @@ incorrect_register_entries = [
     incorrect_registration_empty_categories,
     incorrect_registration_nonexisting_categories,
     incorrect_registration_after,
+    incorrect_registration_mandatory_women_only,
 ]
 
 
@@ -130,14 +202,14 @@ class TestRegisterEntries(BaseTest):
         correct_register_entries,
     )
     def test_correct_register_entries(
-        self,
-        public_client,
-        reset_db,
-        populate,
-        licence_no,
-        now: str,
-        payload,
-        response,
+            self,
+            public_client,
+            reset_db,
+            populate,
+            licence_no,
+            now: str,
+            payload,
+            response,
     ):
         with freeze_time(now):
             r = public_client.post(f"/api/public/entries/{licence_no}", json=payload)
@@ -147,14 +219,14 @@ class TestRegisterEntries(BaseTest):
 
     @pytest.mark.parametrize("licence_no,now,payload,error", incorrect_register_entries)
     def test_incorrect_register_entries(
-        self,
-        public_client,
-        reset_db,
-        populate,
-        licence_no,
-        now: str,
-        payload,
-        error,
+            self,
+            public_client,
+            reset_db,
+            populate,
+            licence_no,
+            now: str,
+            payload,
+            error,
     ):
         with freeze_time(now):
             r = public_client.post(f"/api/public/entries/{licence_no}", json=payload)

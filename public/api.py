@@ -166,7 +166,7 @@ def api_public_register_entries(licence_no):
             )
 
         if nonexisting_category_ids := set(category_ids).difference(
-            session.scalars(select(Category.category_id)),
+                session.scalars(select(Category.category_id)),
         ):
             raise ae.InvalidDataError(
                 origin=origin,
@@ -185,6 +185,27 @@ def api_public_register_entries(licence_no):
             select(Category).where(Category.category_id.in_(category_ids)),
         ).all()
 
+        # checks that if the player is female, they have to be registered to all
+        # women-only categories on the same day for which they are registered to a category
+        if player.gender == "F":
+            days_with_entries = {category.start_time.date() for category in potential_categories}
+            women_only_categories = session.scalars(
+                select(Category)
+                .where(Category.women_only.is_(True)),
+            ).all()
+
+            for day in days_with_entries:
+                unregistered_women_only_categories_on_day = [
+                    category.category_id for category in women_only_categories if category.start_time.date() == day
+                                                                      and category.category_id not in category_ids
+                ]
+                if unregistered_women_only_categories_on_day:
+                    raise ae.InvalidDataError(
+                        origin=origin,
+                        error_message=ae.MANDATORY_WOMEN_ONLY_REGISTRATION_MESSAGE,
+                        payload={"categoryIdsShouldRegister": unregistered_women_only_categories_on_day},
+                    )
+
         violations = [
             category.category_id
             for category in potential_categories
@@ -199,12 +220,12 @@ def api_public_register_entries(licence_no):
             )
 
         if (
-            max(
-                Counter(
-                    [category.start_time.date() for category in potential_categories],
-                ).values(),
-            )
-            > current_app.config["MAX_ENTRIES_PER_DAY"]
+                max(
+                    Counter(
+                        [category.start_time.date() for category in potential_categories],
+                    ).values(),
+                )
+                > current_app.config["MAX_ENTRIES_PER_DAY"]
         ):
             raise ae.InvalidDataError(
                 origin=origin,
