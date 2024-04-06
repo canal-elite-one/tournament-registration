@@ -6,7 +6,7 @@ from freezegun import freeze_time
 
 import shared.api.api_errors as ae
 
-from tests.conftest import BaseTest, before_cutoff, after_cutoff
+from tests.conftest import BaseTest, SampleDates
 
 overall_incorrect_licence = "5555555"
 
@@ -14,7 +14,7 @@ origin = "api_public_get_player"
 
 correct_get_player_existing = (
     "7513006",
-    before_cutoff,
+    SampleDates.BEFORE_CUTOFF,
     b'<?xml version="1.0" '
     b'encoding="ISO-8859-1"?>\n<liste><licence><idlicence'
     b">375537</idlicence><licence>7513006</licence><nom>LAY"
@@ -46,7 +46,7 @@ empty_xml = b'<?xml version="1.0" encoding="ISO-8859-1"?>\n<liste/>'
 
 incorrect_get_player_nonexisting = (
     overall_incorrect_licence,
-    before_cutoff,
+    SampleDates.BEFORE_CUTOFF,
     empty_xml,
     ae.PlayerNotFoundError(
         origin=origin,
@@ -56,7 +56,7 @@ incorrect_get_player_nonexisting = (
 
 incorrect_already_registered = (
     "4526124",
-    before_cutoff,
+    SampleDates.BEFORE_CUTOFF,
     empty_xml,
     ae.PlayerAlreadyRegisteredError(
         origin=origin,
@@ -67,7 +67,7 @@ incorrect_already_registered = (
 
 incorrect_after = (
     "7513006",
-    after_cutoff,
+    SampleDates.AFTER_CUTOFF,
     empty_xml,
     ae.RegistrationCutoffError(
         origin=origin,
@@ -77,7 +77,7 @@ incorrect_after = (
 
 incorrect_parse_error_missing = (
     "7513006",
-    before_cutoff,
+    SampleDates.BEFORE_CUTOFF,
     b'<?xml version="1.0" '
     b'encoding="ISO-8859-1"?>\n<liste><licence><idlicence'
     b">375537</idlicence><licence>7513006</licence><nom>LAY"
@@ -167,7 +167,7 @@ class TestGetPlayer(BaseTest):
         reset_db,
         populate,
     ):
-        with freeze_time(before_cutoff), requests_mock.Mocker() as m:
+        with freeze_time(SampleDates.BEFORE_CUTOFF), requests_mock.Mocker() as m:
             m.get(
                 f"{public_app.config.get('FFTT_API_URL')}/xml_licence.php",
                 status_code=HTTPStatus.INTERNAL_SERVER_ERROR,

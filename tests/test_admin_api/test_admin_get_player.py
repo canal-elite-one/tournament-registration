@@ -6,13 +6,13 @@ from freezegun import freeze_time
 
 import shared.api.api_errors as ae
 
-from tests.conftest import BaseTest, before_cutoff, after_cutoff
+from tests.conftest import BaseTest, SampleDates
 
 origin = "api_admin_get_player"
 
 correct_db_before = (
     "9943272",
-    before_cutoff,
+    SampleDates.BEFORE_CUTOFF,
     b"",
     {
         "bibNo": None,
@@ -41,7 +41,7 @@ correct_db_before = (
 
 correct_db_after = (
     "9943272",
-    after_cutoff,
+    SampleDates.AFTER_CUTOFF,
     b"",
     {
         "bibNo": None,
@@ -77,7 +77,7 @@ correct_db_after = (
 
 correct_fftt_before = (
     "7513006",
-    before_cutoff,
+    SampleDates.BEFORE_CUTOFF,
     b'<?xml version="1.0" '
     b'encoding="ISO-8859-1"?>\n<liste><licence><idlicence'
     b">375537</idlicence><licence>7513006</licence><nom>LAY"

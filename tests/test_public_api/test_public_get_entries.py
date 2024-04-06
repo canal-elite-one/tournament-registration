@@ -5,7 +5,7 @@ import pytest
 
 import shared.api.api_errors as ae
 
-from tests.conftest import BaseTest, before_cutoff, after_cutoff
+from tests.conftest import BaseTest, SampleDates
 
 
 overall_incorrect_licence = "5555555"
@@ -14,7 +14,7 @@ origin = "api_public_get_entries"
 
 correct_get_entries_before = (
     "7213526",
-    before_cutoff,
+    SampleDates.BEFORE_CUTOFF,
     [
         {
             "alternateName": None,
@@ -61,7 +61,7 @@ correct_get_entries_before = (
 
 correct_get_entries_after = (
     "7213526",
-    after_cutoff,
+    SampleDates.AFTER_CUTOFF,
     [
         {
             "alternateName": None,
@@ -113,7 +113,7 @@ correct_get_entries = [
 
 incorrect_non_existing_player = (
     "5555555",
-    before_cutoff,
+    SampleDates.BEFORE_CUTOFF,
     ae.PlayerNotFoundError(
         origin=origin,
         licence_no="5555555",

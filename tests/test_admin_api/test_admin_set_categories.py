@@ -6,7 +6,7 @@ from freezegun import freeze_time
 
 import shared.api.api_errors as ae
 
-from tests.conftest import BaseTest, before_cutoff
+from tests.conftest import BaseTest, SampleDates
 
 origin = "api_admin_set_categories"
 
@@ -287,7 +287,7 @@ class TestAPISetCategories(BaseTest):
         payload,
         response,
     ):
-        with freeze_time(before_cutoff):
+        with freeze_time(SampleDates.BEFORE_CUTOFF):
             r = admin_client.post("/api/admin/categories", json=payload)
             assert r.status_code == HTTPStatus.CREATED, r.json
             assert r.json == response, r.json

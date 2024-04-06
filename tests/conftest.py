@@ -1,5 +1,6 @@
 import os
 from datetime import datetime
+from enum import StrEnum
 
 from pytest import fixture
 from sqlalchemy import text
@@ -11,11 +12,15 @@ from shared.api.db import Session, execute_dbmate
 SAMPLE_DATA_PATH = "./tests/sample_data/"
 
 
-before_cutoff = "2023-01-01 00:00:00"
-after_cutoff = "2025-01-01 00:00:00"
+class SampleDates(StrEnum):
+    BEFORE_START = "2021-01-01 00:00:00"
+    BEFORE_CUTOFF = "2023-01-01 00:00:00"
+    AFTER_CUTOFF = "2025-01-01 00:00:00"
+
 
 config = {
     "TOURNAMENT_REGISTRATION_CUTOFF": datetime.fromisoformat("2024-01-01 00:00:00"),
+    "TOURNAMENT_REGISTRATION_START": datetime.fromisoformat("2022-01-01 00:00:00"),
     "MAX_ENTRIES_PER_DAY": 3,
     "FFTT_API_URL": "http://fake_url",
     "FFTT_SERIAL_NO": "jfdqklmqoidufqids",

@@ -6,7 +6,7 @@ from freezegun import freeze_time
 import shared.api.api_errors as ae
 
 
-from tests.conftest import BaseTest, before_cutoff, after_cutoff
+from tests.conftest import BaseTest, SampleDates
 
 
 overall_correct_licence = "722370"
@@ -16,7 +16,7 @@ origin = "api_public_register_entries"
 
 correct_registration = (
     "7897897",
-    before_cutoff,
+    SampleDates.BEFORE_CUTOFF,
     {"categoryIds": ["A"]},
     {
         "A": {
@@ -38,7 +38,7 @@ correct_register_entries = [
 
 incorrect_registration_color_violation = (
     "7897897",
-    before_cutoff,
+    SampleDates.BEFORE_CUTOFF,
     {"categoryIds": ["A", "B"]},
     ae.InvalidDataError(
         origin=origin,
@@ -48,7 +48,7 @@ incorrect_registration_color_violation = (
 
 incorrect_registration_gender_points_violation = (
     "7897897",
-    before_cutoff,
+    SampleDates.BEFORE_CUTOFF,
     {
         "categoryIds": ["C"],
     },
@@ -61,7 +61,7 @@ incorrect_registration_gender_points_violation = (
 
 incorrect_registration_nonexisting_player = (
     overall_incorrect_licence,
-    before_cutoff,
+    SampleDates.BEFORE_CUTOFF,
     {"categoryIds": ["A"]},
     ae.PlayerNotFoundError(
         origin=origin,
@@ -71,7 +71,7 @@ incorrect_registration_nonexisting_player = (
 
 incorrect_registrations_missing_categoryids_json_fields = (
     "4526124",
-    before_cutoff,
+    SampleDates.BEFORE_CUTOFF,
     {},
     ae.InvalidDataError(
         origin=origin,
@@ -82,7 +82,7 @@ incorrect_registrations_missing_categoryids_json_fields = (
 
 incorrect_registration_empty_categories = (
     "4526124",
-    before_cutoff,
+    SampleDates.BEFORE_CUTOFF,
     {"categoryIds": []},
     ae.InvalidDataError(
         origin=origin,
@@ -92,7 +92,7 @@ incorrect_registration_empty_categories = (
 
 incorrect_registration_nonexisting_categories = (
     "4526124",
-    before_cutoff,
+    SampleDates.BEFORE_CUTOFF,
     {
         "categoryIds": ["A", "a"],
     },
@@ -103,9 +103,9 @@ incorrect_registration_nonexisting_categories = (
     ),
 )
 
-incorrect_registration_after_cutoff = (
+incorrect_registration_after = (
     "4526124",
-    after_cutoff,
+    SampleDates.AFTER_CUTOFF,
     {"categoryIds": ["1"]},
     ae.RegistrationCutoffError(
         origin=origin,
@@ -120,7 +120,7 @@ incorrect_register_entries = [
     incorrect_registrations_missing_categoryids_json_fields,
     incorrect_registration_empty_categories,
     incorrect_registration_nonexisting_categories,
-    incorrect_registration_after_cutoff,
+    incorrect_registration_after,
 ]
 
 

@@ -6,7 +6,7 @@ from freezegun import freeze_time
 
 import shared.api.api_errors as ae
 
-from tests.conftest import BaseTest, before_cutoff, after_cutoff
+from tests.conftest import BaseTest, SampleDates
 
 origin = "api_public_add_player"
 
@@ -16,7 +16,7 @@ correct_player = (
         "email": "dfqkjqpoe@aieop.com",
         "phone": "33489653754",
     },
-    before_cutoff,
+    SampleDates.BEFORE_CUTOFF,
     b'<?xml version="1.0" '
     b'encoding="ISO-8859-1"?>\n<liste><licence><idlicence'
     b">375537</idlicence><licence>555555</licence><nom>MHIHOBB"
@@ -46,7 +46,7 @@ incorrect_player_missing_badly_formatted_data = (
     {
         "phone": "33688261003",
     },
-    before_cutoff,
+    SampleDates.BEFORE_CUTOFF,
     b"",
     ae.InvalidDataError(
         origin=origin,
@@ -63,7 +63,7 @@ incorrect_player_duplicate = (
         "email": "nvzhltrsqr@mocsf.com",
         "phone": "+336919756238",
     },
-    before_cutoff,
+    SampleDates.BEFORE_CUTOFF,
     b'<?xml version="1.0" '
     b'encoding="ISO-8859-1"?>\n<liste><licence><idlicence'
     b">375537</idlicence><licence>4526124</licence><nom>LAY"
@@ -92,7 +92,7 @@ incorrect_after = (
         "nbPoints": 1500,
         "club": "USKB",
     },
-    after_cutoff,
+    SampleDates.AFTER_CUTOFF,
     b"",
     ae.RegistrationCutoffError(
         origin=origin,

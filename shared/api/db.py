@@ -37,6 +37,12 @@ def is_before_cutoff(dt=None):
     return dt < current_app.config["TOURNAMENT_REGISTRATION_CUTOFF"]
 
 
+def is_before_start(dt=None):
+    if dt is None:
+        dt = datetime.now()
+    return dt < current_app.config["TOURNAMENT_REGISTRATION_START"]
+
+
 class Base(DeclarativeBase):
     pass
 

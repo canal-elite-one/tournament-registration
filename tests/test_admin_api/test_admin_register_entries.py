@@ -5,7 +5,7 @@ import pytest
 
 import shared.api.api_errors as ae
 
-from tests.conftest import BaseTest, before_cutoff, after_cutoff
+from tests.conftest import BaseTest, SampleDates
 
 overall_correct_licence = "722370"
 no_entries_licence = "7897897"
@@ -14,7 +14,7 @@ origin = "api_admin_register_entries"
 
 correct_registration_before = (
     no_entries_licence,
-    before_cutoff,
+    SampleDates.BEFORE_CUTOFF,
     {
         "entries": [
             {"categoryId": "A", "markedAsPaid": False, "markedAsPresent": None},
@@ -48,7 +48,7 @@ correct_registration_before = (
 
 correct_registration_before_missing_total_actual_paid = (
     no_entries_licence,
-    before_cutoff,
+    SampleDates.BEFORE_CUTOFF,
     {
         "entries": [
             {"categoryId": "A", "markedAsPaid": False, "markedAsPresent": None},
@@ -81,7 +81,7 @@ correct_registration_before_missing_total_actual_paid = (
 
 correct_registration_after = (
     no_entries_licence,
-    after_cutoff,
+    SampleDates.AFTER_CUTOFF,
     {
         "entries": [
             {"categoryId": "A", "markedAsPaid": False, "markedAsPresent": None},
@@ -122,7 +122,7 @@ correct_registration_after = (
 
 correct_registration_before_with_deletion = (
     "4526124",
-    before_cutoff,
+    SampleDates.BEFORE_CUTOFF,
     {
         "entries": [
             {"categoryId": "1", "markedAsPaid": False, "markedAsPresent": None},
@@ -156,7 +156,7 @@ correct_registration_before_with_deletion = (
 
 correct_registration_after_with_deletion = (
     "4526124",
-    after_cutoff,
+    SampleDates.AFTER_CUTOFF,
     {
         "entries": [
             {"categoryId": "1", "markedAsPaid": False, "markedAsPresent": None},
@@ -197,7 +197,7 @@ correct_registration_after_with_deletion = (
 
 correct_registration_before_with_update = (
     "4526124",
-    before_cutoff,
+    SampleDates.BEFORE_CUTOFF,
     {
         "entries": [
             {"categoryId": "1", "markedAsPaid": False, "markedAsPresent": None},
@@ -253,7 +253,7 @@ correct_registration_before_with_update = (
 
 correct_registration_after_with_update = (
     "4526124",
-    after_cutoff,
+    SampleDates.AFTER_CUTOFF,
     {
         "entries": [
             {"categoryId": "B", "markedAsPaid": False, "markedAsPresent": None},
@@ -315,7 +315,7 @@ correct_register_entries = [
 
 color_violation_before = (
     "7886249",
-    before_cutoff,
+    SampleDates.BEFORE_CUTOFF,
     {
         "entries": [
             {"categoryId": "1", "markedAsPaid": False, "markedAsPresent": None},
@@ -331,7 +331,7 @@ color_violation_before = (
 
 color_violation_after = (
     "7886249",
-    after_cutoff,
+    SampleDates.AFTER_CUTOFF,
     {
         "entries": [
             {"categoryId": "1", "markedAsPaid": False, "markedAsPresent": None},
@@ -347,7 +347,7 @@ color_violation_after = (
 
 gender_points_violation_before = (
     "4526124",
-    before_cutoff,
+    SampleDates.BEFORE_CUTOFF,
     {
         "entries": [
             {"categoryId": "A", "markedAsPaid": False, "markedAsPresent": None},
@@ -363,7 +363,7 @@ gender_points_violation_before = (
 
 gender_points_violation_after = (
     "4526124",
-    after_cutoff,
+    SampleDates.AFTER_CUTOFF,
     {
         "entries": [
             {"categoryId": "A", "markedAsPaid": False, "markedAsPresent": None},
@@ -379,7 +379,7 @@ gender_points_violation_after = (
 
 nonexisting_player_before = (
     overall_incorrect_licence,
-    before_cutoff,
+    SampleDates.BEFORE_CUTOFF,
     {
         "entries": [
             {"categoryId": "A", "markedAsPaid": False, "markedAsPresent": None},
@@ -391,7 +391,7 @@ nonexisting_player_before = (
 
 nonexisting_player_after = (
     overall_incorrect_licence,
-    after_cutoff,
+    SampleDates.AFTER_CUTOFF,
     {
         "entries": [
             {"categoryId": "A", "markedAsPaid": False, "markedAsPresent": None},
@@ -403,7 +403,7 @@ nonexisting_player_after = (
 
 missing_entries_json_field_before = (
     "4526124",
-    before_cutoff,
+    SampleDates.BEFORE_CUTOFF,
     {
         "totalActualPaid": 0,
     },
@@ -416,7 +416,7 @@ missing_entries_json_field_before = (
 
 missing_entries_json_field_after = (
     "4526124",
-    after_cutoff,
+    SampleDates.AFTER_CUTOFF,
     {
         "totalActualPaid": 0,
     },
@@ -429,7 +429,7 @@ missing_entries_json_field_after = (
 
 entry_format_before = (
     "4526124",
-    before_cutoff,
+    SampleDates.BEFORE_CUTOFF,
     {
         "entries": [
             {"categoryId": "A", "markedAsPaid": False},
@@ -445,7 +445,7 @@ entry_format_before = (
 
 entry_format_after = (
     "4526124",
-    after_cutoff,
+    SampleDates.AFTER_CUTOFF,
     {
         "entries": [
             {"categoryId": "A", "markedAsPaid": False},
@@ -461,7 +461,7 @@ entry_format_after = (
 
 nonzero_totalactualpaid_json_field_before = (
     "4526124",
-    before_cutoff,
+    SampleDates.BEFORE_CUTOFF,
     {
         "entries": [
             {"categoryId": "A", "markedAsPaid": False, "markedAsPresent": None},
@@ -477,7 +477,7 @@ nonzero_totalactualpaid_json_field_before = (
 
 missing_totalactualpaid_json_field_after = (
     "4526124",
-    after_cutoff,
+    SampleDates.AFTER_CUTOFF,
     {
         "entries": [
             {"categoryId": "A", "markedAsPaid": False, "markedAsPresent": None},
@@ -492,7 +492,7 @@ missing_totalactualpaid_json_field_after = (
 
 nonexisting_categories_before = (
     "4526124",
-    before_cutoff,
+    SampleDates.BEFORE_CUTOFF,
     {
         "entries": [
             {"categoryId": "A", "markedAsPaid": False, "markedAsPresent": None},
@@ -509,7 +509,7 @@ nonexisting_categories_before = (
 
 nonexisting_categories_after = (
     "4526124",
-    before_cutoff,
+    SampleDates.BEFORE_CUTOFF,
     {
         "entries": [
             {"categoryId": "A", "markedAsPaid": False, "markedAsPresent": None},
@@ -526,7 +526,7 @@ nonexisting_categories_after = (
 
 mark_present_before = (
     "4526124",
-    before_cutoff,
+    SampleDates.BEFORE_CUTOFF,
     {
         "entries": [
             {"categoryId": "1", "markedAsPaid": False, "markedAsPresent": True},
@@ -542,7 +542,7 @@ mark_present_before = (
 
 payment_without_present_after = (
     "4526124",
-    after_cutoff,
+    SampleDates.AFTER_CUTOFF,
     {
         "entries": [
             {"categoryId": "1", "markedAsPaid": True, "markedAsPresent": None},
@@ -558,7 +558,7 @@ payment_without_present_after = (
 
 total_actual_paid_too_high_after = (
     "4526124",
-    after_cutoff,
+    SampleDates.AFTER_CUTOFF,
     {
         "entries": [
             {"categoryId": "1", "markedAsPaid": True, "markedAsPresent": True},

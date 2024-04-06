@@ -4,7 +4,7 @@ from freezegun import freeze_time
 
 import shared.api.api_errors as ae
 
-from tests.conftest import BaseTest, before_cutoff, after_cutoff
+from tests.conftest import BaseTest, SampleDates
 
 
 origin = "api_admin_assign_all_bibs"
@@ -365,7 +365,7 @@ already_set_bib_nos = {"licenceNos": ["5325506", "722370"]}
 
 class TestAPIAssignAllBibNos(BaseTest):
     def test_correct_assign_all(self, admin_client, reset_db, populate):
-        with freeze_time(after_cutoff):
+        with freeze_time(SampleDates.AFTER_CUTOFF):
             r = admin_client.post("/api/admin/bibs")
             assert r.status_code == HTTPStatus.OK, r.json
             assert r.json == correct_admin_assign_all_response, r.json
@@ -382,7 +382,7 @@ class TestAPIAssignAllBibNos(BaseTest):
             error_message=ae.SOME_BIBS_ALREADY_ASSIGNED_MESSAGE,
             payload=already_set_bib_nos,
         )
-        with freeze_time(after_cutoff):
+        with freeze_time(SampleDates.AFTER_CUTOFF):
             r = admin_client.post("/api/admin/bibs")
             assert r.status_code == error.status_code, r.json
             assert r.json == error.to_dict(), r.json
@@ -392,7 +392,7 @@ class TestAPIAssignAllBibNos(BaseTest):
             origin=origin,
             error_message=ae.RegistrationMessages.NOT_ENDED,
         )
-        with freeze_time(before_cutoff):
+        with freeze_time(SampleDates.BEFORE_CUTOFF):
             r = admin_client.post("/api/admin/bibs")
             assert r.status_code == error.status_code, r.json
             assert r.json == error.to_dict(), r.json

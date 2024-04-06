@@ -5,7 +5,7 @@ from freezegun import freeze_time
 
 import shared.api.api_errors as ae
 
-from tests.conftest import BaseTest, before_cutoff, after_cutoff
+from tests.conftest import BaseTest, SampleDates
 
 
 overall_incorrect_licence = "5555555"
@@ -52,7 +52,7 @@ incorrect_admin_assign_one = [
 
 class TestAPIAssignOneBibNo(BaseTest):
     def test_correct_assign_one(self, admin_client, reset_db, populate, set_a_few_bibs):
-        with freeze_time(after_cutoff):
+        with freeze_time(SampleDates.AFTER_CUTOFF):
             r = admin_client.put(f"/api/admin/bibs/{correct_admin_assign_one}")
             assert r.status_code == HTTPStatus.OK, r.json
             assert r.json == correct_assign_one_response, r.json
@@ -67,7 +67,7 @@ class TestAPIAssignOneBibNo(BaseTest):
             origin=origin,
             error_message=ae.NO_BIBS_ASSIGNED_MESSAGE,
         )
-        with freeze_time(after_cutoff):
+        with freeze_time(SampleDates.AFTER_CUTOFF):
             r = admin_client.put(f"/api/admin/bibs/{overall_correct_licence}")
             assert r.status_code == error.status_code, r.json
             assert r.json == error.to_dict(), r.json
@@ -83,7 +83,7 @@ class TestAPIAssignOneBibNo(BaseTest):
             origin=origin,
             error_message=ae.RegistrationMessages.NOT_ENDED,
         )
-        with freeze_time(before_cutoff):
+        with freeze_time(SampleDates.BEFORE_CUTOFF):
             r = admin_client.put(f"/api/admin/bibs/{correct_admin_assign_one}")
             assert r.status_code == error.status_code, r.json
             assert r.json == error.to_dict(), r.json
@@ -101,7 +101,7 @@ class TestAPIAssignOneBibNo(BaseTest):
         licence_no,
         error,
     ):
-        with freeze_time(after_cutoff):
+        with freeze_time(SampleDates.AFTER_CUTOFF):
             r = admin_client.put(f"/api/admin/bibs/{licence_no}")
             assert r.status_code == error.status_code, r.json
             assert r.json == error.to_dict(), r.json
