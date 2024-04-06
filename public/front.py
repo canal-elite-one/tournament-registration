@@ -1,8 +1,8 @@
 from http import HTTPStatus
 
-from flask import Blueprint, render_template, current_app
+from flask import Blueprint, redirect, render_template, current_app, url_for
 
-from shared.api.db import is_before_cutoff
+from shared.api.db import is_before_cutoff, is_before_start
 
 public_bp = Blueprint(
     "public",
@@ -16,16 +16,27 @@ public_bp = Blueprint(
 def index_page():
     if not is_before_cutoff():
         return render_template("/public_late_index.html")
+    if is_before_start():
+        return render_template(
+            "/public_early_index.html",
+            start_date=current_app.config["TOURNAMENT_REGISTRATION_START"]
+            .date()
+            .isoformat(),
+        )
     return render_template("/public_index.html")
 
 
 @public_bp.route("/contact", methods=["GET"])
 def contact_page():
+    if is_before_start():
+        return redirect(url_for("public.index_page"))
     return render_template("/public_contact.html")
 
 
 @public_bp.route("/joueur/<licence_no>", methods=["GET"])
 def player_page(licence_no):
+    if is_before_start():
+        return redirect(url_for("public.index_page"))
     return render_template(
         "/public_player.html",
         licence_no=licence_no,
@@ -35,6 +46,8 @@ def player_page(licence_no):
 
 @public_bp.route("/deja_inscrit/<licence_no>", methods=["GET"])
 def already_registered_page(licence_no):
+    if is_before_start():
+        return redirect(url_for("public.index_page"))
     return render_template("/public_already_registered.html", licence_no=licence_no)
 
 
