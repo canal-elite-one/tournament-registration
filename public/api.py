@@ -19,7 +19,7 @@ from shared.api.db import (
     Player,
 )
 from shared.api.fftt_api import get_player_fftt
-from shared.api.custom_decorators import before_cutoff
+from shared.api.custom_decorators import during_registration, after_registration_start
 import shared.api.api_errors as ae
 
 public_api_bp = Blueprint("public_api", __name__, url_prefix="/api/public")
@@ -30,7 +30,7 @@ p_schema = PlayerSchema()
 
 
 @public_api_bp.route("/categories", methods=["GET"])
-@before_cutoff
+@during_registration
 def api_public_get_categories():
     c_schema.reset(many=True)
     with Session() as session:
@@ -47,7 +47,7 @@ def api_public_get_categories():
 
 
 @public_api_bp.route("/players/<licence_no>", methods=["POST"])
-@before_cutoff
+@during_registration
 def api_public_add_player(licence_no):
     origin = api_public_add_player.__name__
     v_schema = ContactInfoSchema()
@@ -92,7 +92,7 @@ def api_public_add_player(licence_no):
 
 
 @public_api_bp.route("/players/<licence_no>", methods=["GET"])
-@before_cutoff
+@during_registration
 def api_public_get_player(licence_no):
     origin = api_public_get_player.__name__
     with Session() as session:
@@ -123,6 +123,7 @@ def api_public_get_player(licence_no):
 
 
 @public_api_bp.route("/entries/<licence_no>", methods=["GET"])
+@after_registration_start
 def api_public_get_entries(licence_no):
     origin = api_public_get_entries.__name__
     with Session() as session:
@@ -138,7 +139,7 @@ def api_public_get_entries(licence_no):
 
 
 @public_api_bp.route("/entries/<licence_no>", methods=["POST"])
-@before_cutoff
+@during_registration
 def api_public_register_entries(licence_no):
     origin = api_public_register_entries.__name__
     v_schema = CategoryIdsSchema()

@@ -204,6 +204,16 @@ incorrect_registration_after = (
     ),
 )
 
+incorrect_registration_before_registration_start = (
+    "4526124",
+    SampleDates.BEFORE_START,
+    {"categoryIds": ["1"]},
+    ae.RegistrationCutoffError(
+        origin=origin,
+        error_message=ae.RegistrationMessages.NOT_STARTED,
+    ),
+)
+
 incorrect_registration_mandatory_women_only = (
     "1234567",
     SampleDates.BEFORE_CUTOFF,
@@ -233,6 +243,7 @@ incorrect_register_entries = [
     incorrect_registration_empty_categories,
     incorrect_registration_nonexisting_categories,
     incorrect_registration_after,
+    incorrect_registration_before_registration_start,
     incorrect_registration_mandatory_women_only,
     incorrect_registration_max_entries_per_day_man,
 ]

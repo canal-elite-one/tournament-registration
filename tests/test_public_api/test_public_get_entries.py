@@ -120,9 +120,19 @@ incorrect_non_existing_player = (
     ),
 )
 
+incorrect_before_registration_start = (
+    "7213526",
+    SampleDates.BEFORE_START,
+    ae.RegistrationCutoffError(
+        origin=origin,
+        error_message=ae.RegistrationMessages.NOT_STARTED,
+    ),
+)
+
 
 incorrect_get_entries = [
     incorrect_non_existing_player,
+    incorrect_before_registration_start,
 ]
 
 
@@ -152,10 +162,6 @@ class TestAPIGetEntries(BaseTest):
         now,
         error,
     ):
-        error = ae.PlayerNotFoundError(
-            origin=origin,
-            licence_no=licence_no,
-        )
         with freeze_time(now):
             r = public_client.get(f"/api/public/entries/{licence_no}")
             assert r.status_code == error.status_code

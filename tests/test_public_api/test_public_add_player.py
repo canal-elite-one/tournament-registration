@@ -100,10 +100,31 @@ incorrect_after = (
     ),
 )
 
+incorrect_before_registration_start = (
+    "555555",
+    {
+        "licenceNo": "555555",
+        "firstName": "Fjhgzg",
+        "lastName": "MHIHOBB",
+        "email": "fdsqjklq@dfjhk.com",
+        "phone": "+33489653754",
+        "gender": "F",
+        "nbPoints": 1500,
+        "club": "USKB",
+    },
+    SampleDates.BEFORE_START,
+    b"",
+    ae.RegistrationCutoffError(
+        origin=origin,
+        error_message=ae.RegistrationMessages.NOT_STARTED,
+    ),
+)
+
 incorrect_add_player = [
     incorrect_player_missing_badly_formatted_data,
     incorrect_player_duplicate,
     incorrect_after,
+    incorrect_before_registration_start,
 ]
 
 
