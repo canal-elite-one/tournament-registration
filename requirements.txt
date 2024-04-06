@@ -31,3 +31,4 @@ virtualenv==20.25.0
 Werkzeug==3.0.1
 gunicorn==21.2.0
 freezegun~=1.4.0
+requests-mock
