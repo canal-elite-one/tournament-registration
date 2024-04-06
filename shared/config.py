@@ -10,6 +10,9 @@ def get_config_from_env():
         "FFTT_SERIAL_NO": os.environ.get("FFTT_SERIAL_NO"),
         "FFTT_APP_ID": os.environ.get("FFTT_APP_ID"),
         "FFTT_PASSWORD": os.environ.get("FFTT_PASSWORD"),
+        "USKB_EMAIL": os.environ.get("USKB_EMAIL"),
+        "USKB_PHONE": os.environ.get("USKB_PHONE"),
+        "USKB_WEBSITE": os.environ.get("USKB_WEBSITE"),
     }
 
     if dt_str := os.environ.get("TOURNAMENT_REGISTRATION_CUTOFF", None):

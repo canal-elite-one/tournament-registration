@@ -30,7 +30,12 @@ def index_page():
 def contact_page():
     if is_before_start():
         return redirect(url_for("public.index_page"))
-    return render_template("/public_contact.html")
+    return render_template(
+        "/public_contact.html",
+        contact_email=current_app.config["USKB_EMAIL"],
+        contact_phone=current_app.config["USKB_PHONE"],
+        contact_website=current_app.config["USKB_WEBSITE"],
+    )
 
 
 @public_bp.route("/joueur/<licence_no>", methods=["GET"])

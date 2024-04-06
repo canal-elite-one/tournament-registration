@@ -25,8 +25,8 @@ def create_app(debug=None):
     return app
 
 
-def main():
-    app = create_app()
+def main(debug=None):
+    app = create_app(debug)
     app.run()
 
 

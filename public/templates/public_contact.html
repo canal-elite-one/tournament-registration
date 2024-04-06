@@ -5,9 +5,9 @@
 {% block content %}
 <p>Vous pouvez contacter les organisateurs du tournoi de la façon suivante :</p>
 <ul>
-    <li>Par mail : <a href="mailto:"></a></li>
-    <li>Par téléphone : </li>
-    <li><a href="https://www.uskb.fr">Site web de l'USKB</a></li>
+    <li>Par mail : <a href="mailto: {{ contact_email }}">{{ contact_email }}</a></li>
+    <li>Par téléphone : {{ contact_phone }}</li>
+    <li><a href="{{ contact_website }}">Site web de l'USKB</a></li>
 </ul>
 
 <img id="categories-recap" src="{{ url_for('static', filename='categories_recap.jpg') }}">
