@@ -90,10 +90,41 @@ correct_registration_woman_two_days = (
            'startTime': '2024-01-06T11:30:00'}}
 )
 
+correct_registration_woman_three_categories_one_day = (
+    "1234567",
+    SampleDates.BEFORE_CUTOFF,
+    {"categoryIds": ["B", "C", "G"]},
+    {'B': {'alternateName': '< 1500',
+           'entryFee': 7,
+           'licenceNo': '1234567',
+           'markedAsPaid': False,
+           'markedAsPresent': None,
+           'rank': 0,
+           'registrationTime': '2023-01-01T00:00:00',
+           'startTime': '2024-01-06T10:15:00'},
+     'C': {'alternateName': None,
+           'entryFee': 10,
+           'licenceNo': '1234567',
+           'markedAsPaid': False,
+           'markedAsPresent': None,
+           'rank': 0,
+           'registrationTime': '2023-01-01T00:00:00',
+           'startTime': '2024-01-06T11:30:00'},
+     'G': {'alternateName': None,
+           'entryFee': 7,
+           'licenceNo': '1234567',
+           'markedAsPaid': False,
+           'markedAsPresent': None,
+           'rank': 0,
+           'registrationTime': '2023-01-01T00:00:00',
+           'startTime': '2024-01-06T16:00:00'}}
+)
+
 correct_register_entries = [
     correct_registration,
     correct_registration_woman_one_day,
     correct_registration_woman_two_days,
+    correct_registration_woman_three_categories_one_day,
 ]
 
 incorrect_registration_color_violation = (
@@ -184,6 +215,16 @@ incorrect_registration_mandatory_women_only = (
     ),
 )
 
+incorrect_registration_max_entries_per_day_man = (
+    "7897897",
+    SampleDates.BEFORE_CUTOFF,
+    {"categoryIds": ["B", "D", "F"]},
+    ae.InvalidDataError(
+        origin=origin,
+        error_message=ae.MAX_ENTRIES_PER_DAY_MESSAGE,
+    ),
+)
+
 incorrect_register_entries = [
     incorrect_registration_color_violation,
     incorrect_registration_gender_points_violation,
@@ -193,6 +234,7 @@ incorrect_register_entries = [
     incorrect_registration_nonexisting_categories,
     incorrect_registration_after,
     incorrect_registration_mandatory_women_only,
+    incorrect_registration_max_entries_per_day_man,
 ]
 
 

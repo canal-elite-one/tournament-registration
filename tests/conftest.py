@@ -21,7 +21,7 @@ class SampleDates(StrEnum):
 config = {
     "TOURNAMENT_REGISTRATION_CUTOFF": datetime.fromisoformat("2024-01-01 00:00:00"),
     "TOURNAMENT_REGISTRATION_START": datetime.fromisoformat("2022-01-01 00:00:00"),
-    "MAX_ENTRIES_PER_DAY": 3,
+    "MAX_ENTRIES_PER_DAY": 2,
     "FFTT_API_URL": "http://fake_url",
     "FFTT_SERIAL_NO": "jfdqklmqoidufqids",
     "FFTT_APP_ID": "aezuiraop",
