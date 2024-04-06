@@ -75,6 +75,16 @@ incorrect_after = (
     ),
 )
 
+incorrect_before_registration_start = (
+    "7513006",
+    SampleDates.BEFORE_START,
+    empty_xml,
+    ae.RegistrationCutoffError(
+        origin=origin,
+        error_message=ae.RegistrationMessages.NOT_STARTED,
+    ),
+)
+
 incorrect_parse_error_missing = (
     "7513006",
     SampleDates.BEFORE_CUTOFF,
@@ -108,6 +118,7 @@ incorrect_get_player = [
     incorrect_already_registered,
     incorrect_after,
     incorrect_parse_error_missing,
+    incorrect_before_registration_start,
 ]
 
 

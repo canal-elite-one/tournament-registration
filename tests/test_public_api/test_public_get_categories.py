@@ -307,3 +307,13 @@ class TestAPIGetCategories(BaseTest):
             r = public_client.get("/api/public/categories")
             assert r.status_code == error.status_code, r.json
             assert r.json == error.to_dict(), r.json
+
+    def test_get_before_start(self, public_client, reset_db, populate):
+        error = ae.RegistrationCutoffError(
+            origin="api_public_get_categories",
+            error_message=ae.RegistrationMessages.NOT_STARTED,
+        )
+        with freeze_time(SampleDates.BEFORE_START):
+            r = public_client.get("/api/public/categories")
+            assert r.status_code == error.status_code, r.json
+            assert r.json == error.to_dict(), r.json
