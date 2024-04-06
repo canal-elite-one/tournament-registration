@@ -108,11 +108,11 @@ correct_licences = [
 ]
 
 incorrect_licence = (
-    "1234567",
+    "4564562",
     False,
     ae.PlayerNotFoundError(
         origin=origin,
-        licence_no="1234567",
+        licence_no="4564562",
     ),
 )
 
@@ -187,7 +187,7 @@ class TestAPIAdminGetPlayer(BaseTest):
                 f"{admin_app.config.get('FFTT_API_URL')}/xml_licence.php",
                 status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
             )
-            r = admin_client.get("/api/admin/players/1234567")
+            r = admin_client.get("/api/admin/players/4561238")
             assert r.status_code == HTTPStatus.INTERNAL_SERVER_ERROR, r.json
             assert (
                 r.json

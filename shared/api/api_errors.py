@@ -133,6 +133,11 @@ MAX_ENTRIES_PER_DAY_MESSAGE = (
     "Tried to register more than the maximum number of categories for a single day"
 )
 
+MANDATORY_WOMEN_ONLY_REGISTRATION_MESSAGE = (
+    "Tried to register some categories for a day while being a woman "
+    "without registering to the women-only category for that day"
+)
+
 """
 ----------------  403  ----------------
 """

@@ -344,4 +344,5 @@ INSERT INTO public.players (licence_no, bib_no, first_name, last_name, email, ph
 	('5318378', NULL, 'Ukuhjun', 'UYPLUGVM', 'hosxyfrfqv@fexhyw.com', '+336137104939', 'M', 1861, 'LE MANS SARTHE TENNIS DE TABLE', 1),
 	('7216475', NULL, 'Tqqbsbs', 'ROCRJSIT', 'iqjaqamoyn@wclipp.com', '+336521341951', 'F', 500, 'LE MANS SARTHE TENNIS DE TABLE', 6),
 	('7221254', NULL, 'Swugngg', 'ABGYHZKT', 'xdeqdcvbge@xrgldk.com', '+336445887541', 'M', 1548, 'LE MANS SARTHE TENNIS DE TABLE', 24),
-	('4527982', NULL, 'Cuxczcn', 'VOEZXKKO', 'jizavkxdwj@swpepe.com', '+336638455084', 'F', 735, 'USM OLIVET TENNIS DE TABLE', 14);
+	('4527982', NULL, 'Cuxczcn', 'VOEZXKKO', 'jizavkxdwj@swpepe.com', '+336638455084', 'F', 735, 'USM OLIVET TENNIS DE TABLE', 14),
+	('1234567', NULL, 'WomanNoEntries', 'WOMAN_NO_ENTRIES', 'noentries@noentries.com', '+33612345678', 'F', 1334, 'NO ENTRIES', 0);

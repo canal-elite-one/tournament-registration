@@ -47,6 +47,7 @@ class Base(DeclarativeBase):
 
 
 class Category(Base):
+    women_only: Mapped[bool]
     start_time: Mapped[datetime]
     base_registration_fee: Mapped[int]
     category_id: Mapped[str]

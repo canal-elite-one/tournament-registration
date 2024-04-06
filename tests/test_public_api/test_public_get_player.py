@@ -172,7 +172,7 @@ class TestGetPlayer(BaseTest):
                 f"{public_app.config.get('FFTT_API_URL')}/xml_licence.php",
                 status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
             )
-            r = public_client.get("/api/public/players/1234567")
+            r = public_client.get("/api/public/players/4562159")
             assert r.status_code == HTTPStatus.INTERNAL_SERVER_ERROR, r.json
             assert (
                 r.json
