@@ -1,7 +1,9 @@
 let playerObject;
 let categoriesData;
+let actualMaxEntriesPerDay;
 
 function processPlayer() {
+    actualMaxEntriesPerDay = maxEntriesPerDay + (playerObject['gender'] === 'F' ? 1 : 0);
     document.getElementById("licence-no-cell").innerHTML = playerObject.licenceNo;
     document.getElementById("first-name-cell").innerHTML = playerObject.firstName;
     document.getElementById("last-name-cell").innerHTML = playerObject.lastName;
@@ -26,8 +28,28 @@ function processPlayer() {
 
 const categoryIdByColor = {};
 const sameColor = {};
+const womenOnlySaturday = [];
+const womenOnlySunday = [];
+let isValidMandatoryWomenOnlyRegistrationSaturday = true;
+let isValidMandatoryWomenOnlyRegistrationSunday = true;
 let nbEntriesSaturday = 0;
 let nbEntriesSunday = 0;
+
+function updateMandatoryWomenOnlyRegistration() {
+    if (playerObject['gender'] === 'M') {return;}
+
+    isValidMandatoryWomenOnlyRegistrationSaturday = (nbEntriesSaturday === 0) ||
+        womenOnlySaturday.every(function (categoryId) {
+        let registerCheckbox = document.getElementById('register-checkbox-' + categoryId);
+        return registerCheckbox.checked;
+    });
+
+    isValidMandatoryWomenOnlyRegistrationSunday = (nbEntriesSunday === 0) ||
+        womenOnlySunday.every(function (categoryId) {
+        let registerCheckbox = document.getElementById('register-checkbox-' + categoryId);
+        return registerCheckbox.checked;
+    });
+}
 
 function handleCheckbox(categoryId) {
     let registerCheckbox = document.getElementById('register-checkbox-' + categoryId);
@@ -40,25 +62,33 @@ function handleCheckbox(categoryId) {
         otherCheckbox.checked = false;
     }
 
-    if (registerCheckbox.getAttribute('data-day') == 'saturday') {
+    if (registerCheckbox.getAttribute('data-day') === 'saturday') {
         nbEntriesSaturday += nbEntriesChange;
     } else {
         nbEntriesSunday += nbEntriesChange;
     }
+    updateMandatoryWomenOnlyRegistration();
+
+
     let submitButton = document.getElementById('submit-button');
-    if (nbEntriesSaturday > maxEntriesPerDay || nbEntriesSunday > maxEntriesPerDay) {
+    if (nbEntriesSaturday > actualMaxEntriesPerDay || nbEntriesSunday > actualMaxEntriesPerDay) {
         submitButton.disabled = true;
         submitButton.style.cursor = 'not-allowed';
-        submitButton.setAttribute('title', 'Vous ne pouvez pas vous inscrire à plus de ' + maxEntriesPerDay + ' tableaux par jour.');
+        submitButton.setAttribute('title', 'Vous ne pouvez pas vous inscrire à plus de ' + actualMaxEntriesPerDay + ' tableaux par jour.');
     } else if (nbEntriesSaturday + nbEntriesSunday === 0) {
         submitButton.disabled = true;
         submitButton.style.cursor = 'not-allowed';
         submitButton.setAttribute('title', 'Vous devez vous inscrire à au moins un tableau.');
+    } else if (!isValidMandatoryWomenOnlyRegistrationSunday || !isValidMandatoryWomenOnlyRegistrationSaturday) {
+        submitButton.disabled = true;
+        submitButton.style.cursor = 'not-allowed';
+        submitButton.setAttribute('title', 'Vous devez vous inscrire à tous les tableaux féminins pour chaque jour où vous êtes inscrite à au moins un tableau.');
     } else {
         submitButton.disabled = false;
         submitButton.style.cursor = 'auto';
         submitButton.setAttribute('title', '');
     }
+
 }
 
 function createCategoryRow(categoryObject) {
@@ -72,7 +102,7 @@ function createCategoryRow(categoryObject) {
     registerCheckbox.id = 'register-checkbox-' + categoryId;
     registerCheckbox.setAttribute('oninput', 'handleCheckbox("' + categoryId + '")');
     registerCell.appendChild(registerCheckbox);
-    if (new Date(categoryObject['startTime']).getDate() == 6) {
+    if (new Date(categoryObject['startTime']).getDate() === 6) {
         registerCheckbox.setAttribute('data-day', 'saturday');
     } else {
         registerCheckbox.setAttribute('data-day', 'sunday');
@@ -96,7 +126,7 @@ function createCategoryRow(categoryObject) {
             sameColor[categoryIdByColor[color]] = categoryId;
         } else { categoryIdByColor[color] = categoryId; }
         idCell.style.backgroundColor = color;
-    };
+    }
 
     let entryCount = categoryObject['entryCount'];
     let maxOverbooked = Math.floor(categoryObject['maxPlayers'] * (1 + categoryObject['overbookingPercentage'] / 100.));
@@ -142,7 +172,7 @@ function createCategoryRow(categoryObject) {
     womenOnlyCell.setAttribute('id', 'women-only-cell-' + categoryId);
     womenOnlyCell.appendChild(document.createTextNode(categoryObject['womenOnly'] ? 'Oui' : 'Non'));
     row.appendChild(womenOnlyCell);
-    if (categoryObject['womenOnly'] && playerObject['gender'] == 'M') {
+    if (categoryObject['womenOnly'] && playerObject['gender'] === 'M') {
         womenOnlyCell.style.backgroundColor = 'red';
         registerCell.classList.add('disabled-cell');
         registerCheckbox.setAttribute('disabled', '');
@@ -159,7 +189,7 @@ function setUpCategoriesTable() {
     categoriesData.forEach(function (categoryObject)
     {
         let categoryDay = new Date(categoryObject['startTime']);
-        if (categoryDay.getDate() == 6) {
+        if (categoryDay.getDate() === 6) {
             saturdayCategories.push(categoryObject);
         } else {
             sundayCategories.push(categoryObject);
@@ -172,13 +202,19 @@ function setUpCategoriesTable() {
 
     saturdayCategories.forEach(
         function (categoryObject) {
-            row = createCategoryRow(categoryObject);
+            if (categoryObject['womenOnly']) {
+                womenOnlySaturday.push(categoryObject['categoryId']);
+            }
+            let row = createCategoryRow(categoryObject);
             saturdayBody.appendChild(row);
         });
 
     sundayCategories.forEach(
         function (categoryObject) {
-            row = createCategoryRow(categoryObject);
+            if (categoryObject['womenOnly']) {
+                womenOnlySunday.push(categoryObject['categoryId']);
+            }
+            let row = createCategoryRow(categoryObject);
             sundayBody.appendChild(row);
         });
 }
@@ -190,7 +226,7 @@ function submitAll() {
         let categoryId = categoryObject['categoryId'];
         let registerCheckbox = document.getElementById('register-checkbox-' + categoryId);
         if (registerCheckbox.checked) {
-            if (new Date(categoryObject['startTime']).getDate() == 6) {
+            if (new Date(categoryObject['startTime']).getDate() === 6) {
                 nbSaturdayEntries += 1;
             } else {
                 nbSundayEntries += 1;
@@ -198,12 +234,12 @@ function submitAll() {
         }
     });
 
-    if (nbSaturdayEntries > maxEntriesPerDay || nbSundayEntries > maxEntriesPerDay) {
-        window.alert("Vous ne pouvez pas vous inscrire à plus de " + maxEntriesPerDay + " tableaux par jour.");
+    if (nbSaturdayEntries > actualMaxEntriesPerDay || nbSundayEntries > actualMaxEntriesPerDay) {
+        window.alert("Vous ne pouvez pas vous inscrire à plus de " + actualMaxEntriesPerDay + " tableaux par jour.");
         return;
     }
 
-    submitPlayer();
+    submitPlayer().then(() => console.log("Player submitted"));
 }
 
 async function submitPlayer() {
@@ -224,9 +260,9 @@ async function submitPlayer() {
         })
         if (response.ok) {
             console.log("Player successfully added");
-            submitEntries();
+            await submitEntries();
         } else {
-            publicHandleBadResponse(response);
+            await publicHandleBadResponse(response);
         }
     }
 }
@@ -253,13 +289,10 @@ async function submitEntries() {
         console.log("Entries successfully added");
         window.location.href = "/public/deja_inscrit/" + licenceNo;
     } else {
-        publicHandleBadResponse(response);
+        await publicHandleBadResponse(response);
     }
 }
 
-function closeRecap() {
-    document.getElementById('recap-entries-div').style.display = 'none';
-}
 
 async function fetchCategoriesAndPlayer() {
     const categoriesPromise = fetch("/api/public/categories");
