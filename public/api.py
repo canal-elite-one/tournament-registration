@@ -225,7 +225,7 @@ def api_public_register_entries(licence_no):
                         [category.start_time.date() for category in potential_categories],
                     ).values(),
                 )
-                > current_app.config["MAX_ENTRIES_PER_DAY"]
+                > current_app.config["MAX_ENTRIES_PER_DAY"] + (player.gender == "F")
         ):
             raise ae.InvalidDataError(
                 origin=origin,

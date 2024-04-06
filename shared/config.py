@@ -4,7 +4,7 @@ from datetime import datetime
 
 def get_config_from_env():
     config = {
-        "MAX_ENTRIES_PER_DAY": int(os.environ.get("MAX_ENTRIES_PER_DAY", 3)),
+        "MAX_ENTRIES_PER_DAY": int(os.environ.get("MAX_ENTRIES_PER_DAY", 2)),
         "DEBUG": os.environ.get("DEBUG", False) == "TRUE",
         "FFTT_API_URL": os.environ.get("FFTT_API_URL"),
         "FFTT_SERIAL_NO": os.environ.get("FFTT_SERIAL_NO"),
