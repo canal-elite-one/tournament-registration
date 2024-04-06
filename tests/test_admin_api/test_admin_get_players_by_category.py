@@ -4,17 +4,17 @@ from http import HTTPStatus
 from freezegun import freeze_time
 import pytest
 
-from tests.conftest import BaseTest, before_cutoff, after_cutoff
+from tests.conftest import BaseTest, SampleDates
 
 
 with open("./tests/test_admin_api/by_category.json") as f:
     by_category_data = json.loads(f.read())
 
 correct_admin_get_players_by_category = [
-    (before_cutoff, by_category_data["before_cutoff"], False),
-    (after_cutoff, by_category_data["after_cutoff"], False),
-    (before_cutoff, by_category_data["before_cutoff_present_only"], True),
-    (after_cutoff, by_category_data["after_cutoff_present_only"], True),
+    (SampleDates.BEFORE_CUTOFF, by_category_data["before_cutoff"], False),
+    (SampleDates.AFTER_CUTOFF, by_category_data["after_cutoff"], False),
+    (SampleDates.BEFORE_CUTOFF, by_category_data["before_cutoff_present_only"], True),
+    (SampleDates.AFTER_CUTOFF, by_category_data["after_cutoff_present_only"], True),
 ]
 
 

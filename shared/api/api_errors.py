@@ -1,4 +1,5 @@
 import traceback
+from enum import StrEnum
 
 from flask import jsonify
 from http import HTTPStatus
@@ -9,9 +10,14 @@ def handle_api_error(error):
 
 
 class FFTTAPIError(Exception):
-    def __init__(self, payload=None):
+    def __init__(self, message=None, payload=None):
         super().__init__()
+        self.message = message
         self.payload = payload
+
+
+FFTT_BAD_RESPONSE_MESSAGE = "The FFTT API returned an unexpected response"
+FFTT_DATA_PARSE_MESSAGE = "An error occurred while parsing FFTT data"
 
 
 class APIError(Exception):
@@ -50,14 +56,17 @@ class RegistrationCutoffError(APIBadRequestError):
     error_type = "REGISTRATION_CUTOFF_ERROR"
 
 
-REGISTRATION_MESSAGES = {
-    "not_started": "Registration has not started yet",
-    "ended": "Registration has already ended",
-    "started": "Registration has already started",
-    "not_ended": "Registration has not ended yet",
-    "not_ended_mark_present": "Registration has not ended "
-    "yet, can only mark players as absent",
-}
+class RegistrationMessages(StrEnum):
+    NOT_STARTED = ("Registration has not started yet",)
+    ENDED = ("Registration has already ended",)
+    STARTED = ("Registration has already started",)
+    NOT_ENDED = ("Registration has not ended yet",)
+    NOT_ENDED_MARK_PRESENT_MAKE_PAYMENT = (
+        ("Registration has not ended yet, cannot mark entry as present or paid"),
+    )
+    NOT_ENDED_ACTUAL_MAKE_PAYMENT = (
+        "Registration has not ended yet, cannot make payment",
+    )
 
 
 class InvalidDataError(APIBadRequestError):
@@ -66,6 +75,7 @@ class InvalidDataError(APIBadRequestError):
 
 CATEGORY_FORMAT_MESSAGE = "Some category data is missing or badly formatted"
 PLAYER_FORMAT_MESSAGE = "Some player data is missing or badly formatted"
+PLAYER_CONTACT_FORMAT_MESSAGE = "Some player contact data is missing or badly formatted"
 REGISTRATION_FORMAT_MESSAGE = "Some registration data is missing or badly formatted"
 DELETE_ENTRIES_FORMAT_MESSAGE = (
     "Some data for entry deletion is missing or badly formatted"
@@ -104,6 +114,10 @@ INVALID_CATEGORY_ID_MESSAGES = {
 ACTUAL_PAID_TOO_HIGH_MESSAGE = (
     "The 'totalActualPaid' field is higher than what the player must "
     "currently pay for all categories he is marked as present"
+)
+
+PAYMENT_PRESENT_VIOLATION_MESSAGE = (
+    "Tried to mark some entries as paid while they are not marked as present"
 )
 
 DUPLICATE_PLAYER_MESSAGE = (
@@ -171,6 +185,22 @@ class PlayerNotFoundError(APINotFoundError):
         )
 
 
+class FFTTPlayerNotFoundError(APINotFoundError):
+    error_type = "FFTT_PLAYER_NOT_FOUND"
+
+    def __init__(self, origin=None, licence_no=None):
+        payload = {
+            "licenceNo": licence_no,
+        }
+        super().__init__(
+            origin=origin,
+            error_message=(
+                "No player with this licence number was found in the FFTT database"
+            ),
+            payload=payload,
+        )
+
+
 """
 ----------------  409  ----------------
 """
@@ -227,9 +257,9 @@ class UnexpectedFFTTError(APIError):
     status_code = HTTPStatus.INTERNAL_SERVER_ERROR
     error_type = "UNEXPECTED_FFTT_ERROR"
 
-    def __init__(self, origin=None, payload=None):
+    def __init__(self, origin=None, message=None, payload=None):
         super().__init__(
             origin=origin,
-            error_message="An unexpected error occurred while accessing the FFTT API",
+            error_message=message,
             payload=payload,
         )

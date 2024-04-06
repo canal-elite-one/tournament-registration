@@ -36,6 +36,12 @@ def is_before_cutoff(dt=None):
     return dt < current_app.config["TOURNAMENT_REGISTRATION_CUTOFF"]
 
 
+def is_before_start(dt=None):
+    if dt is None:
+        dt = datetime.now()
+    return dt < current_app.config["TOURNAMENT_REGISTRATION_START"]
+
+
 class Base(DeclarativeBase):
     pass
 
@@ -51,13 +57,16 @@ class Category(Base):
     __table__ = Table("categories", Base.metadata, autoload_with=engine)
 
     def present_entries(self):
-        return filter(lambda x: x.marked_as_present, self.entries)
+        return [entry for entry in self.entries if entry.marked_as_present]
 
     def current_fee(self):
         result = self.base_registration_fee
         if not is_before_cutoff():
             result += self.late_registration_fee
         return result
+
+    def __repr__(self):
+        return f"<Category {self.category_id}>"
 
 
 class Player(Base):
@@ -70,11 +79,14 @@ class Player(Base):
     entries = relationship(
         "Entry",
         back_populates="player",
-        cascade="all, delete",
+        cascade="all, delete, delete-orphan",
         passive_deletes=True,
     )
 
     __table__ = Table("players", Base.metadata, autoload_with=engine)
+
+    def __repr__(self):
+        return f"<Player {self.licence_no}>"
 
     def respects_gender_points_constraints(self, category):
         return (not category.women_only or self.gender == "F") and (
@@ -82,10 +94,10 @@ class Player(Base):
         )
 
     def paid_entries(self):
-        return filter(lambda x: x.marked_as_paid, self.entries)
+        return [entry for entry in self.entries if entry.marked_as_paid]
 
     def present_entries(self):
-        return filter(lambda x: x.marked_as_present, self.entries)
+        return [entry for entry in self.entries if entry.marked_as_present]
 
     def _fees_total_registered(self):
         return sum(entry.fee() for entry in self.entries)
@@ -138,3 +150,9 @@ class Entry(Base):
                     not_(Entry.marked_as_present.is_(False)),
                 ),
             )
+
+    def __repr__(self):
+        return (
+            f"<Entry licence_no:{self.licence_no}, category_id:{self.category_id}, "
+            f"present:{self.marked_as_present}, paid:{self.marked_as_paid}>"
+        )

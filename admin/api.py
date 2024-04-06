@@ -1,3 +1,4 @@
+from collections import Counter
 from datetime import datetime
 from io import BytesIO
 from json import loads
@@ -13,8 +14,8 @@ from shared.api.fftt_api import get_player_fftt
 from shared.api.marshmallow_schemas import (
     CategorySchema,
     PlayerSchema,
-    MakePaymentSchema,
-    CategoryIdsSchema,
+    ContactInfoSchema,
+    EntrySchema,
 )
 from shared.api.db import (
     Category,
@@ -28,6 +29,7 @@ from shared.api.custom_decorators import after_cutoff
 
 c_schema = CategorySchema()
 p_schema = PlayerSchema()
+e_schema = EntrySchema()
 
 api_bp = Blueprint("admin_api", __name__, url_prefix="/api/admin")
 
@@ -58,7 +60,7 @@ def api_admin_set_categories():
             session.rollback()
             raise ae.RegistrationCutoffError(
                 origin=origin,
-                error_message=ae.REGISTRATION_MESSAGES["started"],
+                error_message=ae.RegistrationMessages.STARTED,
             )
 
         try:
@@ -115,34 +117,61 @@ def api_admin_get_player(licence_no):
         )
 
     try:
-        player_dict = get_player_fftt(licence_no)
-    except ae.FFTTAPIError:
+        player = get_player_fftt(licence_no)
+    except ae.FFTTAPIError as e:
         raise ae.UnexpectedFFTTError(
             origin=origin,
-            payload=None,
+            message=e.message,
+            payload=e.payload,
         )
 
-    if player_dict is None:
+    if player is None:
         raise ae.PlayerNotFoundError(
             origin=origin,
             licence_no=licence_no,
         )
 
-    return jsonify(player_dict), HTTPStatus.OK
+    player.total_actual_paid = 0
+
+    include_entries_info = not is_before_cutoff()
+    p_schema.reset(
+        include_entries=include_entries_info,
+        include_payment_status=include_entries_info,
+    )
+    return jsonify(p_schema.dump(player)), HTTPStatus.OK
 
 
-@api_bp.route("/players", methods=["POST"])
-def api_admin_add_player():
+@api_bp.route("/players/<licence_no>", methods=["POST"])
+def api_admin_add_player(licence_no):
     origin = api_admin_add_player.__name__
-    p_schema.reset()
-    try:
-        player = p_schema.load(request.json)
-    except ValidationError as e:
+    v_schema = ContactInfoSchema()
+
+    contact_info_dict = request.json
+
+    if error := v_schema.validate(contact_info_dict):
         raise ae.InvalidDataError(
             origin=origin,
-            error_message=ae.PLAYER_FORMAT_MESSAGE,
-            payload=e.messages,
+            error_message=ae.PLAYER_CONTACT_FORMAT_MESSAGE,
+            payload=error,
         )
+
+    try:
+        player = get_player_fftt(licence_no)
+    except ae.FFTTAPIError as e:
+        raise ae.UnexpectedFFTTError(
+            origin=origin,
+            message=e.message,
+            payload=e.payload,
+        )
+
+    if player is None:
+        raise ae.FFTTPlayerNotFoundError(origin=origin, licence_no=licence_no)
+
+    player.email = contact_info_dict["email"]
+    player.phone = contact_info_dict["phone"]
+    player.total_actual_paid = 0
+
+    p_schema.reset()
 
     with Session() as session:
         try:
@@ -160,33 +189,95 @@ def api_admin_add_player():
 
 @api_bp.route("/entries/<licence_no>", methods=["POST"])
 def api_admin_register_entries(licence_no):
+    """
+    expects a json payload of the form: {"totalActualPaid": XX, "entries": [{...}, ...]}
+    with entries of the form:
+    {"categoryId": "X", "markedAsPresent": true/false/null, "markedAsPaid": true/false}
+    The total_actual_paid field is not required before cutoff.
+
+    The endpoint considers the payload to represent all the entries for the player
+    after the request. In particular, it deletes all entries for the player that are not
+    in the payload, and updates the other entries with the information in the payload.
+    The endpoint also updates the totalActualPaid field of the player with the value
+    in the payload.
+    The endpoint preserves the registration_time of the entries that are not deleted.
+
+    Note that the endpoint consciously does not enforce the following constraints,
+    allowing the admin to override them if need be:
+    - the player must not register to more than MAX_ENTRIES_PER_DAY categories per day
+    - if female, the player must register to the women_only category of the day if she
+        registers to any category of the day
+
+    Enforced format/logic constraints:
+    - totalActualPaid field must be present and not null after cutoff
+    - totalActualPaid field must be zero or not present before cutoff
+    - the licence_no must correspond to an existing player in the database
+    - the entries must be correctly formatted
+    - the category_ids must correspond to existing categories in the database
+    - the player must be able to register to all categories indicated w.r.t
+        gender/points constraints
+    - the request must not try to register to more than one category of the same color
+    - the request must not try to mark entries as paid or present before cutoff
+    - the request must not try to mark entries as paid without marking them as present
+    - the request must not try to mark entries as present for categories that have
+        already max_players present players
+    - the totalActualPaid field must not be higher than the total fees for the
+        categories the player is marked as present for (after the changes)
+    """
     origin = api_admin_register_entries.__name__
+    data = request.json
 
-    v_schema = CategoryIdsSchema()
-    if error := v_schema.validate(request.json):
-        raise ae.InvalidDataError(
+    total_actual_paid = data.get("totalActualPaid", None)
+    if total_actual_paid is None:
+        # checks that the total_actual_paid field is present and not null,
+        # except if the registration period has not already ended, in which case
+        # the field is not required
+        if not is_before_cutoff():
+            raise ae.InvalidDataError(
+                origin=origin,
+                error_message=ae.PAYMENT_FORMAT_MESSAGE,
+                payload={"totalActualPaid": "Field is missing or null"},
+            )
+        total_actual_paid = 0
+    # if the registration period has not already ended,
+    # the total_actual_paid field must be zero
+    elif is_before_cutoff() and total_actual_paid > 0:
+        raise ae.RegistrationCutoffError(
             origin=origin,
-            error_message=ae.REGISTRATION_FORMAT_MESSAGE,
-            payload=error,
+            error_message=ae.RegistrationMessages.NOT_ENDED_ACTUAL_MAKE_PAYMENT,
+            payload={"totalActualPaid": total_actual_paid},
         )
-
-    category_ids = request.json["categoryIds"]
 
     with Session() as session:
         player = session.get(Player, licence_no)
+        # checks that the player exists in the database (not just in FFTT)
         if player is None:
             raise ae.PlayerNotFoundError(
                 origin=origin,
                 licence_no=licence_no,
             )
 
-        if not category_ids:
-            p_schema.reset(include_entries=True, include_payment_status=True)
-            return jsonify(p_schema.dump(player)), HTTPStatus.CREATED
+        e_schema.reset(many=True)
 
-        if nonexisting_category_ids := set(category_ids).difference(
+        # checks that entries data is correctly formatted
+        try:
+            new_entries = e_schema.load(data)
+        except ValidationError as e:
+            raise ae.InvalidDataError(
+                origin=origin,
+                error_message=ae.REGISTRATION_FORMAT_MESSAGE,
+                payload=e.messages,
+            )
+
+        new_entry_category_ids = {entry.category_id for entry in new_entries}
+        old_entries = list(player.entries)
+        old_entry_category_ids = {entry.category_id for entry in old_entries}
+
+        # checks that all category ids are valid
+        nonexisting_category_ids = new_entry_category_ids.difference(
             session.scalars(select(Category.category_id)),
-        ):
+        )
+        if nonexisting_category_ids:
             raise ae.InvalidDataError(
                 origin=origin,
                 error_message=ae.INVALID_CATEGORY_ID_MESSAGES["registration"],
@@ -195,107 +286,155 @@ def api_admin_register_entries(licence_no):
                 },
             )
 
-        potential_categories = session.scalars(
-            select(Category).where(Category.category_id.in_(category_ids)),
-        )
-
-        violations = [
+        # We use list comprehension here instead of session.scalars(
+        # select(Category).where(Category.category_id.in_(new_entry_category_ids))
+        # ).all() to preserve the order.
+        potential_categories = [
+            session.get(Category, entry.category_id) for entry in new_entries
+        ]
+        # checks that the player can register to all categories indicated
+        # w.r.t gender/points constraints
+        gender_points_violations = [
             category.category_id
             for category in potential_categories
             if not player.respects_gender_points_constraints(category)
         ]
-
-        if violations:
+        if gender_points_violations:
             raise ae.InvalidDataError(
                 origin=origin,
                 error_message=ae.GENDER_POINTS_VIOLATION_MESSAGE,
                 payload={
-                    "categoryIds": sorted(violations),
+                    "categoryIds": sorted(gender_points_violations),
                 },
             )
 
-        temp_dicts = [
-            {
-                "categoryId": category_id,
-                "licenceNo": licence_no,
-                "registrationTime": datetime.now().isoformat(),
-            }
-            for category_id in category_ids
-        ]
-
-        query_str = (
-            "INSERT INTO entries (category_id, licence_no, color, registration_time) "
-            "VALUES (:categoryId, :licenceNo, "
-            "(SELECT color FROM categories WHERE category_id = :categoryId),"
-            ":registrationTime) "
-            "ON CONFLICT (category_id, licence_no) DO NOTHING;"
+        # checks that the player does not try to register to
+        # more than one category of the same color
+        max_entries_per_color = max(
+            Counter(
+                category.color
+                for category in potential_categories
+                if category.color is not None
+            ).values()
+            or [0],
         )
-        stmt = text(query_str)
-
-        try:
-            session.execute(stmt, temp_dicts)
-            session.commit()
-            p_schema.reset(include_entries=True, include_payment_status=True)
-            return jsonify(p_schema.dump(player)), HTTPStatus.CREATED
-        except DBAPIError:
-            session.rollback()
+        if max_entries_per_color > 1:
             raise ae.InvalidDataError(
                 origin=origin,
                 error_message=ae.COLOR_VIOLATION_MESSAGE,
             )
 
+        # checks that the request does not try to mark entries as paid or present
+        # before the registration period has ended (marking as absent is possible)
+        if is_before_cutoff():
+            present_category_ids = [
+                entry.category_id
+                for entry in new_entries
+                if entry.marked_as_present is True
+            ]
+            paid_category_ids = [
+                entry.category_id
+                for entry in new_entries
+                if entry.marked_as_paid is True
+            ]
+            if present_category_ids or paid_category_ids:
+                raise ae.RegistrationCutoffError(
+                    origin=origin,
+                    error_message=ae.RegistrationMessages.NOT_ENDED_MARK_PRESENT_MAKE_PAYMENT,
+                    payload={
+                        "categoryIdsPresent": present_category_ids,
+                        "categoryIdsPaid": paid_category_ids,
+                    },
+                )
 
-@api_bp.route("/pay/<licence_no>", methods=["PUT"])
-@after_cutoff
-def api_admin_make_payment(licence_no):
-    origin = api_admin_make_payment.__name__
-
-    v_schema = MakePaymentSchema()
-    if error := v_schema.validate(request.json):
-        raise ae.InvalidDataError(
-            origin=origin,
-            error_message=ae.PAYMENT_FORMAT_MESSAGE,
-            payload=error,
-        )
-
-    with Session() as session:
-        if (player := session.get(Player, licence_no)) is None:
-            raise ae.PlayerNotFoundError(
-                origin=origin,
-                licence_no=licence_no,
+        # checks that the request does not try to mark entries as paid
+        # without marking them as present
+        nonpresent_payment_entries = [
+            entry.category_id
+            for entry in new_entries
+            if (
+                (entry.marked_as_present is None or entry.marked_as_present is False)
+                and entry.marked_as_paid is True
             )
-
-        ids_to_pay = set(request.json["categoryIds"])
-
-        if invalid_category_ids := ids_to_pay.difference(
-            entry.category_id for entry in player.present_entries()
-        ):
+        ]
+        if nonpresent_payment_entries:
             raise ae.InvalidDataError(
                 origin=origin,
-                error_message=ae.INVALID_CATEGORY_ID_MESSAGES["payment"],
+                error_message=ae.PAYMENT_PRESENT_VIOLATION_MESSAGE,
                 payload={
-                    "categoryIds": sorted(invalid_category_ids),
+                    "categoryIds": sorted(nonpresent_payment_entries),
                 },
             )
 
-        for entry in player.present_entries():
-            if entry.category_id in ids_to_pay:
-                entry.marked_as_paid = True
+        # checks that the request does not try to mark entries as present
+        # for categories that have already max_players present players
+        # (and that were not previously marked as present).
+        # Note that here new entries are not yet associated with the session,
+        # which implies that the session.get(Entry, ...) call only returns old entries.
+        # However, this also means that we have to use session.get(Category, ...)
+        # instead of simply entry.category.
+        category_ids_with_too_many_present = [
+            entry.category_id
+            for entry in new_entries
+            if (
+                entry.marked_as_present is True
+                and (
+                    entry.category_id not in old_entry_category_ids
+                    or session.get(
+                        Entry,
+                        (entry.category_id, licence_no),
+                    ).marked_as_present
+                    is not True
+                )
+                and len(session.get(Category, entry.category_id).present_entries())
+                >= session.get(Category, entry.category_id).max_players
+            )
+        ]
+        if category_ids_with_too_many_present:
+            raise ae.InvalidDataError(
+                origin=origin,
+                error_message=ae.CATEGORY_FULL_PRESENT_MESSAGE,
+                payload={
+                    "categoryIds": sorted(category_ids_with_too_many_present),
+                },
+            )
 
-        total_actual_paid = request.json["totalActualPaid"]
+        # we need to update the session objects here to be able to compute the
+        # fees_total_present for the last constraint check.
+        # we actually need to use the relationship syntax instead of the
+        # session.add/delete syntax because the latter does not update the
+        # relationships before committing, and we need updated relationships
+        # for the computation of fees_total_present
+        for i, entry in list(enumerate(old_entries))[::-1]:
+            if entry.category_id not in new_entry_category_ids:
+                del player.entries[i]
 
-        if player.fees_total_present() < total_actual_paid:
+        for entry, category in zip(new_entries, potential_categories):
+            entry.licence_no = licence_no
+            if entry.category_id not in old_entry_category_ids:
+                entry.registration_time = datetime.now()
+                player.entries.append(entry)
+                category.entries.append(entry)
+            else:
+                session.merge(entry)
+
+        player.total_actual_paid = total_actual_paid
+
+        # checks that the total_actual_paid field is not higher than the total fees
+        # for the categories the player is marked as present for.
+        # If it is, the changes just above are rolled back.
+        if (total_present := player.fees_total_present()) < total_actual_paid:
+            # need to store the value of fees_total_present before rollback
+            # to be able to return it in the error message
             session.rollback()
             raise ae.InvalidDataError(
                 origin=origin,
                 error_message=ae.ACTUAL_PAID_TOO_HIGH_MESSAGE,
                 payload={
                     "totalActualPaid": total_actual_paid,
-                    "totalPresent": player.fees_total_present(),
+                    "totalPresent": total_present,
                 },
             )
-
-        player.total_actual_paid = total_actual_paid
 
         try:
             session.commit()
@@ -307,58 +446,7 @@ def api_admin_make_payment(licence_no):
             )
 
         p_schema.reset(include_entries=True, include_payment_status=True)
-        return jsonify(p_schema.dump(player)), HTTPStatus.OK
-
-
-@api_bp.route("/entries/<licence_no>", methods=["DELETE"])
-def api_admin_delete_entries(licence_no):
-    origin = api_admin_delete_entries.__name__
-    v_schema = CategoryIdsSchema()
-    if error := v_schema.validate(request.json):
-        raise ae.InvalidDataError(
-            origin=origin,
-            error_message=ae.DELETE_ENTRIES_FORMAT_MESSAGE,
-            payload=error,
-        )
-
-    category_ids = request.json["categoryIds"]
-
-    with Session() as session:
-        player = session.get(Player, licence_no)
-        if player is None:
-            raise ae.PlayerNotFoundError(
-                origin=origin,
-                licence_no=licence_no,
-            )
-
-        if unregistered_category_ids := set(category_ids).difference(
-            entry.category_id for entry in player.entries
-        ):
-            raise ae.InvalidDataError(
-                origin=origin,
-                error_message=ae.INVALID_CATEGORY_ID_MESSAGES["deletion"],
-                payload={
-                    "categoryIds": sorted(unregistered_category_ids),
-                },
-            )
-
-        try:
-            session.execute(
-                delete(Entry).where(
-                    Entry.licence_no == licence_no,
-                    Entry.category_id.in_(category_ids),
-                ),
-            )
-            session.commit()
-            p_schema.reset(include_entries=True, include_payment_status=True)
-            return jsonify(p_schema.dump(player)), HTTPStatus.OK
-
-        except DBAPIError as e:
-            session.rollback()
-            raise ae.UnexpectedDBError(
-                origin=origin,
-                exception=e,
-            )
+        return jsonify(p_schema.dump(player)), HTTPStatus.CREATED
 
 
 @api_bp.route("/players/<licence_no>", methods=["DELETE"])
@@ -382,96 +470,6 @@ def api_admin_delete_player(licence_no):
                 origin=origin,
                 exception=e,
             )
-
-
-@api_bp.route("/present/<licence_no>", methods=["PUT"])
-def api_admin_mark_present(licence_no):
-    """
-    This is the only way to unpay an entry:
-    It is assumed that the only valid transitions paid=True -> paid=False
-    are of the form paid=True, present=True -> paid=False, present=False.
-    The case paid=True, present=False -> Any is already prevented by hypothesis,
-    but this endpoint (and the lack of unpay functionality for api_admin_make_payment)
-    prevents paid=True, present=True -> paid=False, present=True.
-    Furthermore, if player.total_actual_paid > player.current_required_payment()
-    after unmarking some entries, then total_actual_paid is reduced to
-    enforce inequality constraint.
-
-    Returns BAD_REQUEST for:
-    - nonexisting licence_no,
-    - nonexisting and/or unregistered category_ids
-    - nonempty intersection between the two fields,
-    """
-    origin = api_admin_mark_present.__name__
-    with Session() as session:
-        player = session.get(Player, licence_no)
-        if player is None:
-            raise ae.PlayerNotFoundError(
-                origin=origin,
-                licence_no=licence_no,
-            )
-
-        all_ids_to_update = request.json.get("categoryIdsPresence", {})
-
-        if unregistered_nonexisting_categories := set(
-            all_ids_to_update.keys(),
-        ).difference(entry.category_id for entry in player.entries):
-            raise ae.InvalidDataError(
-                origin=origin,
-                error_message=ae.INVALID_CATEGORY_ID_MESSAGES["present"],
-                payload={
-                    "categoryIds": sorted(unregistered_nonexisting_categories),
-                },
-            )
-
-        too_many_present_category_ids = []
-
-        for category_id, presence in all_ids_to_update.items():
-            category = session.get(Category, category_id)
-            # checks that category does not already have max_players present players
-            if (
-                presence is True
-                and session.get(Entry, (category_id, licence_no)) is None
-                and len(list(category.present_entries())) > category.max_players
-            ):
-                too_many_present_category_ids.append(category_id)
-
-            entry = session.get(Entry, (category_id, licence_no))
-            entry.marked_as_present = presence
-            # checks that you are not marking a player as present before cutoff
-            if presence and is_before_cutoff():
-                raise ae.RegistrationCutoffError(
-                    origin=origin,
-                    error_message=ae.REGISTRATION_MESSAGES["not_ended_mark_present"],
-                )
-            if presence is None or presence is False:
-                entry.marked_as_paid = False
-
-        if too_many_present_category_ids:
-            raise ae.InvalidDataError(
-                origin=origin,
-                error_message=ae.CATEGORY_FULL_PRESENT_MESSAGE,
-                payload={
-                    "categoryIds": sorted(too_many_present_category_ids),
-                },
-            )
-
-        player.total_actual_paid = min(
-            player.fees_total_present(),
-            player.total_actual_paid,
-        )
-
-        try:
-            session.commit()
-        except DBAPIError as e:
-            session.rollback()
-            raise ae.UnexpectedDBError(
-                origin=origin,
-                exception=e,
-            )
-
-        p_schema.reset(include_entries=True, include_payment_status=True)
-        return jsonify(p_schema.dump(player)), HTTPStatus.OK
 
 
 @api_bp.route("/bibs", methods=["POST"])

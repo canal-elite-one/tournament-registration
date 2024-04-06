@@ -15,4 +15,7 @@ def get_config_from_env():
     if dt_str := os.environ.get("TOURNAMENT_REGISTRATION_CUTOFF", None):
         config["TOURNAMENT_REGISTRATION_CUTOFF"] = datetime.fromisoformat(dt_str)
 
+    if dt_str := os.environ.get("TOURNAMENT_REGISTRATION_START", None):
+        config["TOURNAMENT_REGISTRATION_START"] = datetime.fromisoformat(dt_str)
+
     return config

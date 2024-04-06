@@ -8,9 +8,73 @@ const relevantCategoriesFields = ['categoryId', 'color', 'entryCount', 'maxPlaye
 const categoryIdByColor = {};
 const sameColor = {};
 
+function initiallyRegistered(categoryId) {
+    if (!('registeredEntries' in playerObject)) {
+        return false;
+    }
+    return categoryId in playerObject['registeredEntries'];
+}
+
+/*
+checkboxLinks contains behavioral links between checkboxes.
+format: checkboxLinks = {parentcheckboxId: [{'parentState': bool, 'checkboxId': str, 'checked': bool, 'enabled': bool}...]}
+'parentState' is the state of the parent checkbox that triggers the change, e.g.
+    for color links, the disabling of same-color checkboxes is triggered only when the parent checkbox is checked, i.e. 'parentState' = true
+'checkboxId' is the id of the child checkbox
+'checked' is the target checked state of the child checkbox
+'enabled' is the target enabled state of the child checkbox
+for 'checked' and 'enabled', null means to revert to the initial state after processing player data.
+*/
+const checkboxLinks = {};
+
+function addLink(parentcheckboxId, link) {
+    if (!(parentcheckboxId in checkboxLinks)) {
+        checkboxLinks[parentcheckboxId] = [];
+    }
+    checkboxLinks[parentcheckboxId].push(link);
+}
+
+function handleCheckbox(checkboxId, fromClick=false, targetChecked=null, targetEnabled=null) {
+    let checkbox = document.getElementById(checkboxId);
+    let stateChangeFlag = false;
+    if (fromClick) {
+        addExitConfirmation();
+        stateChangeFlag = true;
+    } else {
+        targetChecked = (targetChecked === null) ? (initialChecked(checkbox)) : targetChecked;
+        targetEnabled = (targetEnabled === null) ? !checkbox.disabled : targetEnabled;
+        if (checkbox.checked != targetChecked) {
+            checkbox.checked = targetChecked;
+            stateChangeFlag = true;
+        }
+        console.log('checkbox.disabled: ' + checkbox.disabled);
+        if (checkbox.disabled == targetEnabled) {
+            if (targetEnabled) {
+                checkbox.removeAttribute('disabled');
+                checkbox.parentElement.classList.remove('disabled-cell');
+            } else {
+                checkbox.setAttribute('disabled', '');
+                checkbox.parentElement.classList.add('disabled-cell');
+            }
+            stateChangeFlag = true;
+        }
+    }
+    console.log('stateChangeFlag: ' + stateChangeFlag);
+    // only process links if the state of the checkbox has changed
+    if (stateChangeFlag) {
+        for (const i in checkboxLinks[checkboxId]) {
+            let checkboxLink = checkboxLinks[checkboxId][i];
+            if (checkboxLink['parentState'] == checkbox.checked) {
+                handleCheckbox(checkboxLink['checkboxId'], false, checkboxLink['checked'], checkboxLink['enabled']);
+            }
+        }
+    }
+    if (fromClick) { recomputePaymentStatus(); }
+}
+
 function initialChecked(checkbox) {
     let categoryId = checkbox.id.slice(-1);
-    if (categoryId in playerObject['registeredEntries']) {
+    if (initiallyRegistered(categoryId)) {
         if (checkbox.getAttribute('data-checkbox-type') == 'register') {
             return true;
         } else if (checkbox.getAttribute('data-checkbox-type') == 'present') {
@@ -26,7 +90,7 @@ function initialChecked(checkbox) {
 }
 
 function currentFee(categoryId) {
-    if (categoryId in playerObject['registeredEntries']) {
+    if (initiallyRegistered(categoryId)) {
         return playerObject['registeredEntries'][categoryId]['entryFee'];
     } else {
         let categoryObject = categoriesData.find(category => category['categoryId'] == categoryId);
@@ -69,92 +133,6 @@ function recomputePaymentStatus() {
     document.getElementById('actual-total-field').value = paymentStatus['currentActualTotal'];
 }
 
-
-function ableCheckbox(checkbox, able) {
-    if (checkbox == null) { return; }
-
-    if (able) {
-        if (!(checkbox.getAttribute('data-checkbox-type') == 'paid' && initialChecked(checkbox))) {
-            checkbox.removeAttribute('disabled');
-            checkbox.parentElement.classList.remove('disabled-cell');
-        }
-        checkbox.checked = initialChecked(checkbox);
-        onCheckboxChange(checkbox);
-    } else {
-        checkbox.setAttribute('disabled', '');
-        checkbox.checked = false;
-        checkbox.parentElement.classList.add('disabled-cell');
-        onCheckboxChange(checkbox);
-    }
-}
-
-function onCheckboxChange(checkbox) {
-    let checkboxType = checkbox.getAttribute('data-checkbox-type');
-    let categoryId = checkbox.id.slice(-1);
-
-    let checkboxLabel = document.getElementById(checkbox.id + '-label');
-    if (!checkbox.checked && initialChecked(checkbox)) {
-        checkboxLabel.firstChild.nodeValue = ' \u26A0';
-    } else {
-        checkboxLabel.firstChild.nodeValue = ' ';
-    }
-
-    let childCheckboxes = [];
-    if (checkboxType == 'register') {
-        childCheckboxes = [
-            document.getElementById('present-checkbox-' + categoryId),
-            document.getElementById('absent-checkbox-' + categoryId),
-        ];
-    } else if (checkboxType == 'present') {
-        childCheckboxes = [document.getElementById('paid-checkbox-' + categoryId)];
-    } else {
-        return;
-    }
-
-    childCheckboxes.forEach(childCheckbox => ableCheckbox(childCheckbox, checkbox.checked));
-}
-
-function handlePresentAbsent(checkbox) {
-    let categoryId = checkbox.id.slice(-1);
-    let checkboxType = checkbox.getAttribute('data-checkbox-type');
-    onCheckboxChange(checkbox);
-
-    if (checkbox.checked) {
-        let otherCheckbox = document.getElementById((checkboxType == 'absent' ? 'present' : 'absent') +'-checkbox-' + categoryId);
-        otherCheckbox.checked = false;
-        onCheckboxChange(otherCheckbox);
-    }
-}
-
-
-function handleColor(checkbox) {
-    let categoryId = checkbox.id.slice(-1);
-    onCheckboxChange(checkbox);
-
-    if (categoryId in sameColor) {
-        let otherCheckbox = document.getElementById('register-checkbox-' + sameColor[categoryId]);
-        if (checkbox.checked) {
-            otherCheckbox.checked = false;
-            onCheckboxChange(otherCheckbox);
-        }
-    }
-}
-
-function onclickCheckboxWrapper(checkboxType, categoryId, initialization=false) {
-    let checkbox = document.getElementById(checkboxType + '-checkbox-' + categoryId);
-    if (checkboxType == 'register') {
-        handleColor(checkbox);
-    } else if (checkboxType == 'present' || checkboxType == 'absent') {
-        handlePresentAbsent(checkbox);
-    } else {
-        onCheckboxChange(checkbox);
-    }
-    recomputePaymentStatus();
-    if (!initialization) {
-        addExitConfirmation();
-    }
-}
-
 async function generateBibNo() {
     if (!playerInDatabase) {
         let success = await submitPlayer();
@@ -177,12 +155,15 @@ async function generateBibNo() {
 function processPlayerInfo() {
     let playerInfoTable = document.getElementById('player-info-table');
 
-    for (const categoryId in playerObject['registeredEntries']) {
-        let registerCheckbox = document.getElementById('register-checkbox-' + categoryId);
-        registerCheckbox.checked = true;
-        onclickCheckboxWrapper('register', categoryId, true);
+    takeCheckboxStateSnapshot();
+
+    if ('registeredEntries' in playerObject) {
+        for (const categoryId in playerObject['registeredEntries']) {
+            handleCheckbox(checkboxId='register-checkbox-' + categoryId, fromClick=false, targetChecked=true, targetEnabled=true);
+        }
     }
 
+    removeExitConfirmation();
     recomputePaymentStatus();
 
     if (showBib) {
@@ -235,7 +216,7 @@ function createCheckboxCell(categoryId, checkboxType) {
     checkbox.type = 'checkbox';
     checkbox.id = checkboxType + '-checkbox-' + categoryId;
     checkbox.setAttribute('data-checkbox-type', checkboxType)
-    checkbox.setAttribute('oninput', 'onclickCheckboxWrapper("' + checkboxType + '", "' + categoryId + '")');
+    checkbox.setAttribute('oninput', `handleCheckbox('${checkbox.id}', true)`);
     cell.appendChild(checkbox);
     let label = document.createElement('label');
     label.id = checkbox.id + '-label';
@@ -248,6 +229,34 @@ function createCheckboxCell(categoryId, checkboxType) {
         checkbox.setAttribute('disabled', '');
     }
 
+    if (checkboxType == 'register') {
+        const shortLinkArray = [['present', true], ['present', false], ['absent', true], ['absent', false]];
+        shortLinkArray.forEach(function (shortLink) {
+            let [childCheckboxType, flag] = shortLink;
+            addLink(
+                checkbox.id,
+                {'parentState': flag, 'checkboxId': childCheckboxType + '-checkbox-' + categoryId, 'checked': flag ? null : false, 'enabled': flag}
+            );
+        });
+    } else if (checkboxType == 'present') {
+        addLink(
+            checkbox.id,
+            {'parentState': true, 'checkboxId': 'paid-checkbox-' + categoryId, 'checked': null, 'enabled': true}
+        );
+        addLink(
+            checkbox.id,
+            {'parentState': false, 'checkboxId': 'paid-checkbox-' + categoryId, 'checked': false, 'enabled': false}
+        );
+        addLink(
+            checkbox.id,
+            {'parentState': true, 'checkboxId': 'absent-checkbox-' + categoryId, 'checked': false, 'enabled': true}
+        );
+    } else if (checkboxType == 'absent') {
+        addLink(
+            checkbox.id,
+            {'parentState': true, 'checkboxId': 'present-checkbox-' + categoryId, 'checked': false, 'enabled': true}
+        );
+    }
     return cell;
 }
 
@@ -258,7 +267,7 @@ function updateEntryCountCell(categoryObject, entryCountCell=null) {
     let maxPlayers = categoryObject['maxPlayers'];
     let maxOverbooked = Math.floor(categoryObject['maxPlayers'] * (1 + categoryObject['overbookingPercentage'] / 100.));
 
-    let isRegistered = categoryId in playerObject['registeredEntries']
+    let isRegistered = initiallyRegistered(categoryId)
     let relevantEntryCount = isRegistered ? playerObject['registeredEntries'][categoryId]['rank'] : entryCount;
 
     let cellString = isRegistered ? `${relevantEntryCount + 1}e` : `${relevantEntryCount} inscrits`;
@@ -299,6 +308,14 @@ function createCategoryRow(categoryObject) {
 
     if (color !== null) {
         if (color in categoryIdByColor) {
+            addLink(
+                'register-checkbox-' + categoryIdByColor[color],
+                {'parentState': true, 'checkboxId': 'register-checkbox-' + categoryId, 'checked': false, 'enabled': null}
+            );
+            addLink(
+                'register-checkbox-' + categoryId,
+                {'parentState': true, 'checkboxId': 'register-checkbox-' + categoryIdByColor[color], 'checked': false, 'enabled': null}
+            );
             sameColor[categoryId] = categoryIdByColor[color];
             sameColor[categoryIdByColor[color]] = categoryId;
         } else { categoryIdByColor[color] = categoryId; }
@@ -389,22 +406,16 @@ function setUpCategoriesTable() {
 
 async function submitPlayer() {
     console.log("Submitting player");
-    let playerPayload = {
-        'licenceNo': playerObject.licenceNo,
-        'firstName': playerObject.firstName,
-        'lastName': playerObject.lastName,
-        'gender': playerObject.gender,
-        'club': playerObject.club,
-        'nbPoints': playerObject.nbPoints,
+    let contactPayload = {
         'email': `${playerObject['firstName'].toLowerCase()}@samplehost.com`,
         'phone': '+33000000000'
     };
-    let response = await fetch('/api/admin/players', {
+    let response = await fetch(`/api/admin/players/${licenceNo}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify(playerPayload)
+        body: JSON.stringify(contactPayload)
     })
     if (response.ok) {
         return true;
@@ -414,69 +425,13 @@ async function submitPlayer() {
     }
 }
 
-async function deleteEntries(categoryIds) {
-    let response = await fetch('/api/admin/entries/' + licenceNo, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({"categoryIds": categoryIds}),
-    });
-
-    if (response.ok) {
-        return true;
-    } else {
-        adminHandleBadResponse(response);
-        return false;
-    }
-}
-
-async function registerEntries(categoryIds) {
+async function registerEntries(registerPayload) {
     let response = await fetch('/api/admin/entries/' + licenceNo, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({"categoryIds": categoryIds}),
-    });
-
-    if (response.ok) {
-        return true;
-    } else {
-        adminHandleBadResponse(response);
-        return false;
-    }
-}
-
-async function markAsPresent(categoryIdsPresence) {
-    let response = await fetch('/api/admin/present/' + licenceNo, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            "categoryIdsPresence": categoryIdsPresence,
-        }),
-    });
-
-    if (response.ok) {
-        return true;
-    } else {
-        adminHandleBadResponse(response);
-        return false;
-    }
-}
-
-async function processPayments(categoryIds, totalActualPaid) {
-    let response = await fetch('/api/admin/pay/' + licenceNo, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            "categoryIds": categoryIds,
-            "totalActualPaid": totalActualPaid,
-        }),
+        body: JSON.stringify(registerPayload),
     });
 
     if (response.ok) {
@@ -489,42 +444,29 @@ async function processPayments(categoryIds, totalActualPaid) {
 
 async function submitChanges() {
     removeExitConfirmation();
-    const categoryIdsToRegister = [];
-    const categoryIdsToDelete = [];
-    const categoryIdsPresence = {};
-    const categoryIdsToMarkAsPaid = [];
-
+    let totalActualPaid = parseInt(document.getElementById('actual-total-field').value) + playerObject['paymentStatus']['totalActualPaid'];
+    let registerPayload = {'entries': [], 'totalActualPaid': totalActualPaid};
     categoriesData.forEach(function (categoryObject) {
         let categoryId = categoryObject['categoryId'];
         let registerCheckbox = document.getElementById('register-checkbox-' + categoryId);
-        let presentCheckbox = document.getElementById('present-checkbox-' + categoryId);
-        let absentCheckbox = document.getElementById('absent-checkbox-' + categoryId);
-        let paidCheckbox = document.getElementById('paid-checkbox-' + categoryId);
         if (registerCheckbox.checked) {
-            categoryIdsPresence[categoryId] = presentCheckbox.checked ? true : (absentCheckbox.checked ? false : null);
-            if (paidCheckbox.checked) {
-                categoryIdsToMarkAsPaid.push(categoryId);
-            }
-            categoryIdsToRegister.push(categoryId);
-        } else if (initialChecked(registerCheckbox)) {
-            categoryIdsToDelete.push(categoryId);
+            let presentCheckbox = document.getElementById('present-checkbox-' + categoryId);
+            let absentCheckbox = document.getElementById('absent-checkbox-' + categoryId);
+            let paidCheckbox = document.getElementById('paid-checkbox-' + categoryId);
+            registerPayload['entries'].push({
+                'categoryId': categoryId,
+                'markedAsPresent': presentCheckbox.checked ? true : (absentCheckbox.checked ? false : null),
+                'markedAsPaid': paidCheckbox.checked,
+            });
         }
     });
-
-    let totalActualPaid = parseInt(document.getElementById('actual-total-field').value) + playerObject['paymentStatus']['totalActualPaid'];
 
     if (!playerInDatabase) {
         let success = await submitPlayer();
         if (!success) { return; }
     }
     console.log('Submitting changes');
-    let success = await deleteEntries(categoryIdsToDelete);
-    if (!success) { return; }
-    success = await registerEntries(categoryIdsToRegister);
-    if (!success) { return; }
-    success = await markAsPresent(categoryIdsPresence);
-    if (!success) { return; }
-    success = await processPayments(categoryIdsToMarkAsPaid, totalActualPaid);
+    let success = await registerEntries(registerPayload);
     if (success) {
         console.log('Successfully submitted changes');
         window.location.reload();
@@ -544,6 +486,7 @@ async function fetchAll() {
         playerInDatabase = (playerObject['email'] !== null);
         setUpCategoriesTable();
         processPlayerInfo();
+        takeCheckboxStateSnapshot();
     } else if (!categoriesResponse.ok) {
         adminHandleBadResponse(categoriesResponse);
     } else {

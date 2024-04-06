@@ -211,22 +211,16 @@ async function submitPlayer() {
     let phoneField = document.getElementById("phone-field");
     let isValid = emailField.reportValidity() && phoneField.reportValidity();
     if (isValid) {
-        playerPayload = {
-            'licenceNo': playerObject.licenceNo,
-            'firstName': playerObject.firstName,
-            'lastName': playerObject.lastName,
-            'gender': playerObject.gender,
-            'club': playerObject.club,
-            'nbPoints': playerObject.nbPoints,
+        let contactPayload = {
             'email': emailField.value,
             'phone': phoneField.value
         };
-        let response = await fetch('/api/public/players', {
+        let response = await fetch(`/api/public/players/${licenceNo}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(playerPayload)
+            body: JSON.stringify(contactPayload)
         })
         if (response.ok) {
             console.log("Player successfully added");

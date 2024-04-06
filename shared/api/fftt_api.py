@@ -9,7 +9,14 @@ from datetime import datetime
 from xml.etree import ElementTree
 
 from flask import current_app
-from shared.api.api_errors import FFTTAPIError
+from marshmallow import ValidationError
+
+from shared.api.api_errors import (
+    FFTTAPIError,
+    FFTT_DATA_PARSE_MESSAGE,
+    FFTT_BAD_RESPONSE_MESSAGE,
+)
+from shared.api.marshmallow_schemas import PlayerSchema
 
 
 def get_current_formatted_timestamp() -> str:
@@ -47,7 +54,10 @@ def get_player_fftt(licence_no):
     response = requests.get(url, params=params)
 
     if response.status_code != HTTPStatus.OK:
-        raise FFTTAPIError()
+        raise FFTTAPIError(
+            message=FFTT_BAD_RESPONSE_MESSAGE,
+            payload={"status_code": response.status_code},
+        )
 
     xml = response.content.decode("utf-8")
     root = ElementTree.fromstring(xml).find("licence")
@@ -55,21 +65,25 @@ def get_player_fftt(licence_no):
     if root is None:
         return None
 
-    return {
-        "licenceNo": root.find("licence").text,
-        "firstName": root.find("prenom").text,
-        "lastName": root.find("nom").text,
-        "club": root.find("nomclub").text,
-        "gender": root.find("sexe").text,
-        "nbPoints": int(root.find("point").text),
-        "bibNo": None,
-        "email": None,
-        "phone": None,
-        "paymentStatus": {
-            "totalActualPaid": 0,
-            "totalPaid": 0,
-            "totalRegistered": 0,
-            "totalPresent": 0,
-        },
-        "registeredEntries": {},
-    }
+    p_schema = PlayerSchema()
+
+    try:
+        return p_schema.load(
+            {
+                "licenceNo": root.find("licence").text,
+                "firstName": root.find("prenom").text,
+                "lastName": root.find("nom").text,
+                "club": root.find("nomclub").text,
+                "gender": root.find("sexe").text,
+                "nbPoints": int(root.find("point").text),
+            },
+        )
+    except (ValidationError, AttributeError) as e:
+        message = e.messages if isinstance(e, ValidationError) else str(e)
+        raise FFTTAPIError(
+            message=FFTT_DATA_PARSE_MESSAGE,
+            payload={
+                "xml": xml,
+                "original_error_message": message,
+            },
+        )

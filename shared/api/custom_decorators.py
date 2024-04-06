@@ -1,4 +1,4 @@
-from shared.api.api_errors import RegistrationCutoffError, REGISTRATION_MESSAGES
+from shared.api.api_errors import RegistrationCutoffError, RegistrationMessages
 from shared.api.db import is_before_cutoff
 
 
@@ -7,7 +7,7 @@ def before_cutoff(endpoint):
         if not is_before_cutoff():
             raise RegistrationCutoffError(
                 origin=endpoint.__name__,
-                error_message=REGISTRATION_MESSAGES["ended"],
+                error_message=RegistrationMessages.ENDED,
             )
         return endpoint(*args, **kwargs)
 
@@ -20,7 +20,7 @@ def after_cutoff(endpoint):
         if is_before_cutoff():
             raise RegistrationCutoffError(
                 origin=endpoint.__name__,
-                error_message=REGISTRATION_MESSAGES["not_ended"],
+                error_message=RegistrationMessages.NOT_ENDED,
             )
         return endpoint(*args, **kwargs)
 

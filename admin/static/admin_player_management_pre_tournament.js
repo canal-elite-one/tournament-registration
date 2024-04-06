@@ -7,26 +7,63 @@ const relevantCategoriesFields = ['categoryId', 'color', 'entryCount', 'maxPlaye
 const categoryIdByColor = {};
 const sameColor = {};
 
+function initiallyRegistered(categoryId) {
+    if (!('registeredEntries' in playerObject)) {
+        return false;
+    }
+    return categoryId in playerObject['registeredEntries'];
+}
+
 function handleCheckbox(categoryId) {
     addExitConfirmation();
-    checkbox = document.getElementById('register-checkbox-' + categoryId);
+    let checkbox = document.getElementById('register-checkbox-' + categoryId);
 
     if (!(categoryId in sameColor)) {
-        if (categoryId in playerObject['registeredEntries'] && !checkbox.checked) {
+        let absentCell = document.getElementById('absent-cell-' + categoryId);
+        let absentCheckbox = document.getElementById('absent-checkbox-' + categoryId);
+        if (checkbox.checked) {
+            absentCheckbox.removeAttribute('disabled');
+            absentCell.classList.remove('disabled-cell');
+        } else {
+            absentCheckbox.checked = false;
+            absentCheckbox.setAttribute('disabled', '');
+            absentCell.classList.add('disabled-cell');
+        }
+        if (initiallyRegistered(categoryId) && !checkbox.checked) {
             let label = document.getElementById(checkbox.id + '-label')
             label.firstChild.data = '\u26A0';
-        } else if (categoryId in playerObject['registeredEntries'] && checkbox.checked) {
+        } else if (initiallyRegistered(categoryId) && checkbox.checked) {
             let label = document.getElementById(checkbox.id + '-label')
             label.firstChild.data = ' ';
         }
-        return null;
+        return;
     }
 
-    otherCheckbox = document.getElementById('register-checkbox-' + sameColor[categoryId]);
+    let otherCheckbox = document.getElementById('register-checkbox-' + sameColor[categoryId]);
     if (checkbox.checked) {
         otherCheckbox.checked = false;
     }
-    if (categoryId in playerObject['registeredEntries']) {
+    let absentCell = document.getElementById('absent-cell-' + categoryId);
+    let absentCheckbox = document.getElementById('absent-checkbox-' + categoryId);
+    if (checkbox.checked) {
+        absentCheckbox.removeAttribute('disabled');
+        absentCell.classList.remove('disabled-cell');
+    } else {
+        absentCheckbox.checked = false;
+        absentCheckbox.setAttribute('disabled', '');
+        absentCell.classList.add('disabled-cell');
+    }
+    let otherAbsentCell = document.getElementById('absent-cell-' + sameColor[categoryId]);
+    let otherAbsentCheckbox = document.getElementById('absent-checkbox-' + sameColor[categoryId]);
+    if (otherCheckbox.checked) {
+        otherAbsentCheckbox.removeAttribute('disabled');
+        otherAbsentCell.classList.remove('disabled-cell');
+    } else {
+        otherAbsentCheckbox.checked = false;
+        otherAbsentCheckbox.setAttribute('disabled', '');
+        otherAbsentCell.classList.add('disabled-cell');
+    }
+    if (initiallyRegistered(categoryId)) {
         let label = document.getElementById(checkbox.id + '-label')
         if (checkbox.checked) {
             label.firstChild.data = ' ';
@@ -34,7 +71,7 @@ function handleCheckbox(categoryId) {
             label.firstChild.data = '\u26A0';
         }
     }
-    if (sameColor[categoryId] in playerObject['registeredEntries']) {
+    if (initiallyRegistered(sameColor[categoryId])) {
         let label = document.getElementById(otherCheckbox.id + '-label')
         if (otherCheckbox.checked) {
             label.firstChild.data = ' ';
@@ -87,8 +124,8 @@ function createEntryCountCell(categoryObject) {
     let relevantEntryCount;
     let entryCountString;
 
-    if (categoryId in playerObject['registeredEntries']) {
-        rank = playerObject['registeredEntries'][categoryId]['rank'];
+    if (initiallyRegistered(categoryId)) {
+        rank = playerObject['registeredEntries'][categoryId]['rank'] + 1;
         relevantEntryCount = rank;
         entryCountString = rank + ' / ' + maxPlayers + ' (' + maxOverbooked + ') (' + entryCount + ')';
     } else {
@@ -125,15 +162,31 @@ function createCategoryRow(categoryObject) {
     registerCheckbox.type = 'checkbox';
     registerCheckbox.id = 'register-checkbox-' + categoryId;
     registerCheckbox.setAttribute('oninput', 'handleCheckbox("' + categoryId + '")');
-    if (categoryId in playerObject['registeredEntries']) {
-        registerCheckbox.checked = true;
-    }
+
     registerCell.appendChild(registerCheckbox);
     let registerLabel = document.createElement('label');
     registerLabel.id = registerCheckbox.id + '-label';
     registerLabel.setAttribute('for', registerCheckbox.id);
     registerLabel.appendChild(document.createTextNode(' '));
     registerCell.appendChild(registerLabel);
+
+    let absentCell = document.createElement('td');
+    absentCell.setAttribute('id', 'absent-cell-' + categoryId);
+    let absentCheckbox = document.createElement('input');
+    absentCheckbox.type = 'checkbox';
+    absentCheckbox.id = 'absent-checkbox-' + categoryId;
+    absentCheckbox.setAttribute('oninput', 'addExitConfirmation()');
+    absentCell.appendChild(absentCheckbox);
+
+    if (initiallyRegistered(categoryId)) {
+        registerCheckbox.checked = true;
+        if (playerObject['registeredEntries'][categoryId]['markedAsPresent'] === false) {
+            absentCheckbox.checked = true;
+        }
+    } else {
+        absentCheckbox.setAttribute('disabled', '');
+        absentCell.classList.add('disabled-cell');
+    }
 
     let idCell = document.createElement('td');
     idCell.setAttribute('id', 'id-cell-' + categoryId);
@@ -184,6 +237,7 @@ function createCategoryRow(categoryObject) {
         registerCheckbox.setAttribute('disabled', '');
     }
     row.appendChild(registerCell);
+    row.appendChild(absentCell);
 
     return row;
 }
@@ -227,23 +281,17 @@ async function submitPlayer() {
         return;
     }
     console.log("Submitting player");
-    let playerPayload = {
-        'licenceNo': playerObject.licenceNo,
-        'firstName': playerObject.firstName,
-        'lastName': playerObject.lastName,
-        'gender': playerObject.gender,
-        'club': playerObject.club,
-        'nbPoints': playerObject.nbPoints,
+    let contactPayload = {
         'email': emailInput.value,
         'phone': phoneInput.value
     };
 
-    let response = await fetch('/api/admin/players', {
+    let response = await fetch(`/api/admin/players/${licenceNo}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify(playerPayload)
+        body: JSON.stringify(contactPayload)
     })
     if (response.ok) {
         return true;
@@ -254,26 +302,24 @@ async function submitPlayer() {
 }
 
 async function submitEntries() {
-    let categoryIdsToRegister = [];
-    let categoryIdsToDelete = [];
+    let registerData = {
+        'totalActualPaid': 0,
+        'entries': []
+    };
 
     categoriesData.forEach(function (categoryObject) {
         let categoryId = categoryObject['categoryId'];
-        let checkbox = document.getElementById('register-checkbox-' + categoryId);
-        if (checkbox.checked) {
-            categoryIdsToRegister.push(categoryId);
-        } else if (categoryId in playerObject['registeredEntries']) {
-            categoryIdsToDelete.push(categoryId);
+        let registerCheckbox = document.getElementById('register-checkbox-' + categoryId);
+        let absentCheckbox = document.getElementById('absent-checkbox-' + categoryId);
+        if (registerCheckbox.checked) {
+            let entry = {
+                'categoryId': categoryId,
+                'markedAsPresent': absentCheckbox.checked ? false : null,
+                'markedAsPaid': false,
+            };
+            registerData['entries'].push(entry);
         }
     });
-
-    let registerData = {
-        'categoryIds': categoryIdsToRegister,
-    };
-
-    let deleteData = {
-        'categoryIds': categoryIdsToDelete,
-    };
 
     let registerResponse = await fetch('/api/admin/entries/' + licenceNo, {
         method: 'POST',
@@ -285,19 +331,6 @@ async function submitEntries() {
 
     if (!registerResponse.ok) {
         adminHandleBadResponse(registerResponse);
-        return false;
-    }
-
-    let deleteResponse = await fetch('/api/admin/entries/' + licenceNo, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(deleteData),
-    });
-
-    if (!deleteResponse.ok) {
-        adminHandleBadResponse(deleteResponse);
         return false;
     }
     return true;
