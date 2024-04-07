@@ -49,6 +49,13 @@ def player_page(licence_no):
     )
 
 
+@public_bp.route("/reglement", methods=["GET"])
+def ruleset_page():
+    if is_before_start():
+        return redirect(url_for("public.index_page"))
+    return render_template("/public_ruleset.html")
+
+
 @public_bp.route("/deja_inscrit/<licence_no>", methods=["GET"])
 def already_registered_page(licence_no):
     if is_before_start():
