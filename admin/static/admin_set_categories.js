@@ -1,7 +1,7 @@
 let nbRows = 0;
 
 function removeFormRow() {
-    if (nbRows == 0) {
+    if (nbRows === 0) {
         return null;
     }
     document.getElementById('categories-table-body').lastChild.remove();
@@ -169,6 +169,7 @@ function addFormRow(rowData = null) {
     let overbookingPercentageField = document.createElement('input');
     overbookingPercentageField.type = 'number';
     overbookingPercentageField.min = '0';
+    overbookingPercentageField.defaultValue = '0';
     overbookingPercentageField.style = 'width:3em';
     overbookingPercentageField.id = 'overbooking-percentage-field-' + nbRows;
     if (fillValues) { overbookingPercentageField.value = rowData['overbookingPercentage']; }
@@ -201,12 +202,12 @@ const fieldNames = {
 const nullables = ['alternate-name', 'color', 'min-points', 'max-points', 'reward-quarter'];
 
 function isNotNull(fieldName, fieldValue) {
-    if (fieldName == 'color' && fieldValue == '#ffffff') { return false; }
-    if (fieldName == 'alternate-name' && fieldValue === '') { return false; }
-    if (fieldName == 'min-points' && fieldValue === '') { return false; }
-    if (fieldName == 'max-points' && fieldValue === '') { return false; }
-    if (fieldName == 'reward-quarter' && fieldValue === '') {return false; }
-    return true;
+    if (fieldName === 'color' && fieldValue === '#ffffff') { return false; }
+    if (fieldName === 'alternate-name' && fieldValue === '') { return false; }
+    if (fieldName === 'min-points' && fieldValue === '') { return false; }
+    if (fieldName === 'max-points' && fieldValue === '') { return false; }
+    return !(fieldName === 'reward-quarter' && fieldValue === '');
+
 }
 
 
@@ -218,7 +219,9 @@ function submitForm() {
             let categoryObject = {};
             for (const [formField, jsonField] of Object.entries(fieldNames)) {
                 let field = document.getElementById(formField + '-field-' + i);
-                if (isNotNull(formField, field.value)) {
+                if (field.type === 'checkbox') {
+                    categoryObject[jsonField] = field.checked;
+                } else if (isNotNull(formField, field.value)) {
                     categoryObject[jsonField] = field.value;
                 }
             }
@@ -249,7 +252,7 @@ function submitForm() {
 function processExistingCategories(data) {
     if ('error' in data) {
         console.error('Error fetching categories data:', data.error)
-    } else if (data['categories'].length == 0) {
+    } else if (data['categories'].length === 0) {
         addFormRow();
     } else {
         data['categories'].forEach(categoryData => {

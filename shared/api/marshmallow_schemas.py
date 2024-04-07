@@ -42,7 +42,7 @@ class CategorySchema(SchemaWithReset):
     reward_semi = fields.Int(data_key="rewardSemi", allow_none=False, required=True)
     reward_quarter = fields.Int(data_key="rewardQuarter")
     max_players = fields.Int(data_key="maxPlayers", allow_none=False, required=True)
-    overbooking_percentage = fields.Int(data_key="overbookingPercentage")
+    overbooking_percentage = fields.Int(data_key="overbookingPercentage", allow_none=True)
 
     def reset(self, many=False, include_players=False, present_only=False):
         super().reset(
@@ -74,6 +74,8 @@ class CategorySchema(SchemaWithReset):
 
     @post_load
     def make_object(self, data, **kwargs):
+        if data.get("overbooking_percentage", None) is None:
+            data["overbooking_percentage"] = 0
         return Category(**data)
 
     # add_entry_count_current_fee & add_players_info are called first (they commute),

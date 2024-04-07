@@ -20,6 +20,10 @@ def create_app(debug=None):
     return app
 
 
-if __name__ == "__main__":
-    app = create_app()
+def main(debug=None):
+    app = create_app(debug)
     app.run()
+
+
+if __name__ == "__main__":
+    main()
