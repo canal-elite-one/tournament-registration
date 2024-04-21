@@ -317,6 +317,8 @@ class EntrySchema(SchemaWithReset):
             category = original.category
             data["startTime"] = category.start_time.isoformat()
             data["alternateName"] = category.alternate_name
+            data["maxPlayers"] = category.max_players
+            data["overbookingPercentage"] = category.overbooking_percentage
         return data
 
     @post_dump(pass_many=True)

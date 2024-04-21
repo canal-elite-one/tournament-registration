@@ -135,7 +135,7 @@ def api_public_get_entries(licence_no):
                 licence_no=licence_no,
             )
 
-        e_schema.reset(many=True, include_category_info=True)
+        e_schema.reset(many=True, include_category_info=True, include_rank=True)
         return jsonify(e_schema.dump(player.entries)), HTTPStatus.OK
 
 
@@ -259,6 +259,15 @@ def api_public_register_entries(licence_no):
             session.commit()
             p_schema.reset(include_entries=True)
 
+            is_on_waiting_list = any(
+                entry.rank()
+                > int(
+                    entry.category.max_players
+                    * (1 + entry.category.overbooking_percentage / 100),
+                )
+                for entry in player.entries
+            )
+
             EmailSender(
                 sender_email=current_app.config["USKB_EMAIL"],
                 password=current_app.config["USKB_EMAIL_PASSWORD"],
@@ -267,8 +276,9 @@ def api_public_register_entries(licence_no):
                 bcc=current_app.config["ADMIN_EMAILS"],
                 body=f"Bonjour {player.first_name},<br><br>"
                 f"Votre inscription a bien été prise en compte.<br><br>"
-                f"Pour consulter les tableaux dans lesquels vous êtes inscrit(e), "
-                f"""<a href="{current_app.config["TOURNAMENT_URL"]}/public/deja_inscrit/{licence_no}">cliquer ici</a>.<br><br>"""  # noqa: E501
+                f"Pour consulter les tableaux dans lesquels vous êtes inscrit(e) "
+                f"""{"ou trouver votre position sur liste d'attente " if is_on_waiting_list else ""}"""  # noqa: E501
+                f""": <a href="{current_app.config["TOURNAMENT_URL"]}/public/deja_inscrit/{licence_no}">cliquer ici</a>.<br><br>"""  # noqa: E501
                 f"Merci de votre participation et à bientôt !<br><br>"
                 f"L'équipe USKB",
                 subject="Confirmation Inscription Tournoi USKB",

@@ -125,16 +125,17 @@ function createCategoryRow(categoryObject) {
     }
 
     let entryCount = categoryObject['entryCount'];
-    let maxOverbooked = Math.floor(categoryObject['maxPlayers'] * (1 + categoryObject['overbookingPercentage'] / 100.));
+    let maxOverbooked = Math.floor(categoryObject['maxPlayers'] * (1 + categoryObject['overbookingPercentage'] / 100.0));
     let entryCountCell = document.createElement('td');
 
-    if (entryCount < maxOverbooked) {
+    if (entryCount <= maxOverbooked) {
         entryCountCell.appendChild(document.createTextNode('Oui'));
         entryCountCell.classList.add('non-waiting-list-cell');
         entryCountCell.classList.remove('waiting-list-cell');
         entryCountCell.classList.remove('full-cell');
-    } else if (entryCount < maxOverbooked + 40) {
-        entryCountCell.appendChild(document.createTextNode('Liste d\'attente'));
+    } else if (entryCount <= maxOverbooked + 40) {
+        let waitingListString = 'Position ' + (entryCount - maxOverbooked + 1) + ' en liste d\'attente';
+        entryCountCell.appendChild(document.createTextNode(waitingListString));
         entryCountCell.classList.add('waiting-list-cell');
         entryCountCell.classList.remove('non-waiting-list-cell');
         entryCountCell.classList.remove('full-cell');
