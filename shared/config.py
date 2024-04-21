@@ -15,6 +15,7 @@ def get_config_from_env():
         "USKB_PHONE": os.environ.get("USKB_PHONE"),
         "USKB_WEBSITE": os.environ.get("USKB_WEBSITE"),
         "TOURNAMENT_URL": os.environ.get("TOURNAMENT_URL"),
+        "ADMIN_EMAILS": os.environ.get("ADMIN_EMAILS").split(";"),
     }
 
     if dt_str := os.environ.get("TOURNAMENT_REGISTRATION_CUTOFF", None):

@@ -17,7 +17,7 @@ class EmailSender:
         self.smtp_server = smtp_server
         self.smtp_port = smtp_port
 
-    def send_email(self, recipient: str, body: str, subject: str):
+    def send_email(self, recipient: str, bcc: list[str], body: str, subject: str):
         message = MIMEMultipart()
         message["From"] = self.sender_email
         message["To"] = recipient
@@ -29,6 +29,6 @@ class EmailSender:
                 server.starttls()
                 server.login(self.sender_email, self.password)
                 text = message.as_string()
-                server.sendmail(self.sender_email, recipient, text)
+                server.sendmail(self.sender_email, bcc + [recipient], text)
         except Exception as e:
             logging.error(f"Failed sending email to {recipient}: {e}")

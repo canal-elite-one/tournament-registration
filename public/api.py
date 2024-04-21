@@ -264,6 +264,7 @@ def api_public_register_entries(licence_no):
                 password=current_app.config["USKB_EMAIL_PASSWORD"],
             ).send_email(
                 recipient=player.email,
+                bcc=current_app.config["ADMIN_EMAILS"],
                 body=f"Bonjour {player.first_name},<br><br>"
                 f"Votre inscription a bien été prise en compte.<br><br>"
                 f"Pour consulter les tableaux dans lesquels vous êtes inscrit(e), "
