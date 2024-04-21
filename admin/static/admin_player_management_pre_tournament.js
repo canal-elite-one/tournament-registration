@@ -248,7 +248,7 @@ function setUpCategoriesTable() {
     categoriesData.forEach(function (categoryObject)
     {
         let categoryDay = new Date(categoryObject['startTime']);
-        if (categoryDay.getDate() == 6) {
+        if (categoryDay.getDay() == 6) {
             saturdayCategories.push(categoryObject);
         } else {
             sundayCategories.push(categoryObject);

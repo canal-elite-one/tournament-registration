@@ -267,7 +267,7 @@ def api_public_register_entries(licence_no):
                 body=f"Bonjour {player.first_name},<br><br>"
                 f"Votre inscription a bien été prise en compte.<br><br>"
                 f"Pour consulter les tableaux dans lesquels vous êtes inscrit(e), "
-                f"""<a href="{current_app.config["TOURNOI_URL"]}/public/deja_inscrit/{licence_no}">cliquer ici</a>.<br><br>"""  # noqa: E501
+                f"""<a href="{current_app.config["TOURNAMENT_URL"]}/public/deja_inscrit/{licence_no}">cliquer ici</a>.<br><br>"""  # noqa: E501
                 f"Merci de votre participation et à bientôt !<br><br>"
                 f"L'équipe USKB",
                 subject="Confirmation Inscription Tournoi USKB",

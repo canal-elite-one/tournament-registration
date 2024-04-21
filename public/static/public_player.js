@@ -61,11 +61,11 @@ function handleCheckbox(categoryId) {
     if (nbEntriesSaturday > maxEntriesPerDaySaturday ) {
         submitButton.disabled = true;
         submitButton.style.cursor = 'not-allowed';
-        submitButton.setAttribute('title', 'Vous ne pouvez pas vous inscrire à plus de ' + maxEntriesPerDaySaturday + ' tableaux pour la journée du samedi.');
+        submitButton.setAttribute('title', 'Vous ne pouvez pas vous inscrire à plus de ' + maxEntriesPerDaySaturday + ' tableaux pour la journée de samedi.');
     } else if (nbEntriesSunday > maxEntriesPerDaySunday) {
         submitButton.disabled = true;
         submitButton.style.cursor = 'not-allowed';
-        submitButton.setAttribute('title', 'Vous ne pouvez pas vous inscrire à plus de ' + maxEntriesPerDaySunday + ' tableaux pour la journée du dimanche.');
+        submitButton.setAttribute('title', 'Vous ne pouvez pas vous inscrire à plus de ' + maxEntriesPerDaySunday + ' tableaux pour la journée de dimanche.');
     } else if (nbEntriesSaturday + nbEntriesSunday === 0) {
         submitButton.disabled = true;
         submitButton.style.cursor = 'not-allowed';
@@ -207,7 +207,7 @@ function submitAll() {
         let categoryId = categoryObject['categoryId'];
         let registerCheckbox = document.getElementById('register-checkbox-' + categoryId);
         if (registerCheckbox.checked) {
-            if (new Date(categoryObject['startTime']).getDate() === 6) {
+            if (new Date(categoryObject['startTime']).getDay() === 6) {
                 nbSaturdayEntries += 1;
             } else {
                 nbSundayEntries += 1;
