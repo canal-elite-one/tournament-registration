@@ -5,15 +5,23 @@
 {% block navbar %}{% endblock %}
 
 {% block content %}
-<div id="already-registered-div">
-    <p>Vous êtes inscrit(e) aux tableaux suivants :</p>
-    <ul id="already-registered-list"></ul>
-    <p>Si vous souhaitez modifier vos informations ou vos incriptions, veuillez envoyer un mail aux organisateurs : </p>
-    <p><a href="/public/contact">Contact</a></p>
-</div>
+  <div id="already-registered-div"
+       class="max-w-xl mx-auto p-6 bg-white rounded-lg shadow-md">
+    <h2 class="text-xl font-bold mb-4">Vous êtes inscrit(e) aux tableaux suivants :</h2>
+    <ul id="already-registered-list" class="list-disc pl-6 mb-4"></ul>
+    <p class="mb-4">Si vous souhaitez modifier vos informations ou vos inscriptions,
+      veuillez <a href="mailto:{{ contact_email }}"
+                  class="font-bold text-blue-500 hover:underline">envoyer un mail</a>
+      aux organisateurs : <a href="mailto:{{ contact_email }}"
+                             class="text-blue-500 hover:underline">{{ contact_email }}</a>.
+    </p>
+  </div>
+
+
 {% endblock %}
 
 {% block scripts %}
-<script>const licenceNo="{{ licence_no }}"</script>
-<script src="{{ url_for('static', filename='public_already_registered.js') }}"></script>
+  <script>const licenceNo = "{{ licence_no }}"</script>
+  <script
+      src="{{ url_for('static', filename='public_already_registered.js') }}"></script>
 {% endblock %}

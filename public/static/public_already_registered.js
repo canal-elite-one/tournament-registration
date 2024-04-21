@@ -2,6 +2,7 @@ function fillEntries(entries) {
     let registeredList = document.getElementById('already-registered-list');
     entries.forEach(entryObject => {
         let entry = document.createElement('li');
+        entry.className = "mb-2";
         let entryString = "Tableau " + entryObject['categoryId']
         if (entryObject['alternateName'] !== null) {
             entryString += " (" + entryObject['alternateName'] + ") ";

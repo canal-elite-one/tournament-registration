@@ -31,22 +31,31 @@
           </div>
           <div class="mb-4 flex">
             <div class="w-1/3 pr-2">
-              <label class="block text-gray-700 text-sm font-bold mb-2" for="licence-no-cell">
+              <label class="block text-gray-700 text-sm font-bold mb-2"
+                     for="licence-no-cell">
                 Numéro de licence
               </label>
-              <input disabled class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="licence-no-cell" type="text">
+              <input disabled
+                     class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                     id="licence-no-cell" type="text">
             </div>
             <div class="w-1/3 px-2">
-              <label class="block text-gray-700 text-sm font-bold mb-2" for="points-cell">
+              <label class="block text-gray-700 text-sm font-bold mb-2"
+                     for="points-cell">
                 Classement
               </label>
-              <input disabled class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="points-cell" type="text">
+              <input disabled
+                     class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                     id="points-cell" type="text">
             </div>
             <div class="w-1/3 pl-2">
-              <label class="block text-gray-700 text-sm font-bold mb-2" for="gender-cell">
+              <label class="block text-gray-700 text-sm font-bold mb-2"
+                     for="gender-cell">
                 Sexe
               </label>
-              <input disabled class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="gender-cell" type="text">
+              <input disabled
+                     class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                     id="gender-cell" type="text">
             </div>
           </div>
           <div class="mb-4">
@@ -76,12 +85,12 @@
                 id="phone-cell" type="tel" placeholder="Votre numéro de téléphone">
           </div>
           <div class="flex mt-auto">
-        <button id="submit-button" onclick="submitAll()"
-                class="bg-blue-950 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4 ml-auto"
-                disabled title="Vous devez vous inscrire à au moins un tableau."
-                style="cursor: not-allowed;">S'inscrire
-        </button>
-      </div>
+            <button id="submit-button" onclick="submitAll()"
+                    class="bg-blue-950 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4 ml-auto"
+                    disabled title="Vous devez vous inscrire à au moins un tableau."
+                    style="cursor: not-allowed;">S'inscrire
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -89,34 +98,32 @@
     <!-- Right Column -->
     <div class="w-1/2 p-4 relative">
       <h2 class="text-lg font-bold mb-4">Tableaux</h2>
-      <table class="w-full border mb-4" id="saturday-table">
+      <table class="w-full border mb-4">
         <!-- Table content for Saturday -->
-        <thead>
+        <thead class="bg-blue-950 rounded-t-lg">
         <tr>
-          <th colspan="5">Samedi</th>
+          <th colspan="5" class="text-white">Samedi</th>
         </tr>
         <tr>
-          <th>Tableau</th>
-          <th>Liste d'attente ?</th>
-          <th>Limite de points</th>
-          <th>Féminin ?</th>
-          <th>Inscription</th>
+          <th class="text-white">Tableau</th>
+          <th class="text-white">Nom</th>
+          <th class="text-white">Disponibilité</th>
+          <th class="text-white">Inscription</th>
         </tr>
         </thead>
         <tbody id="saturday-table-body"></tbody>
       </table>
-      <table class="w-full border mb-4" id="sunday-table">
+      <table class="w-full border mb-4">
         <!-- Table content for Sunday -->
-        <thead>
+        <thead class="bg-blue-950 rounded-t-lg">
         <tr>
-          <th colspan="5">Dimanche</th>
+          <th colspan="5" class="text-white">Dimanche</th>
         </tr>
         <tr>
-          <th>Tableau</th>
-          <th>Liste d'attente ?</th>
-          <th>Limite de points</th>
-          <th>Féminin ?</th>
-          <th>Inscription</th>
+          <th class="text-white">Tableau</th>
+          <th class="text-white">Nom</th>
+          <th class="text-white">Disponibilité</th>
+          <th class="text-white">Inscription</th>
         </tr>
         </thead>
         <tbody id="sunday-table-body"></tbody>

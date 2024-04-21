@@ -60,7 +60,11 @@ def ruleset_page():
 def already_registered_page(licence_no):
     if is_before_start():
         return redirect(url_for("public.index_page"))
-    return render_template("/public_already_registered.html", licence_no=licence_no)
+    return render_template(
+        "/public_already_registered.html",
+        licence_no=licence_no,
+        contact_email=current_app.config["USKB_EMAIL"],
+    )
 
 
 @public_bp.route("/erreur", methods=["GET"])

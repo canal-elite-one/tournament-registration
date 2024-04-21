@@ -3,12 +3,15 @@
 {% block title %}Clotûre{% endblock %}
 
 {% block content %}
-<p>Les inscriptions en ligne ne sont plus ouvertes pour ce tournoi. Veuillez contacter les organisateurs :
-    <a href="{{ url_for('public.contact_page') }}">Contact</a></p>
+  <div class="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
+    <p class="text-lg mb-4">Les inscriptions en ligne sont closes pour ce tournoi.</p>
+    <p class="mb-4">Veuillez contacter les organisateurs :</p>
+    <a href="{{ url_for('public.contact_page') }}"
+       class="text-blue-500 hover:underline font-bold">Contact</a>
+  </div>
 
-<img id="categories-recap" src="{{ url_for('static', filename='categories_recap.jpg') }}">
 {% endblock %}
 
 {% block scripts %}
-<script>showContent();</script>
+  <script>showContent();</script>
 {% endblock %}

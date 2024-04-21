@@ -1,16 +1,6 @@
 let playerObject;
 let categoriesData;
-let actualMaxEntriesPerDay;
 
-function processPlayer() {
-    actualMaxEntriesPerDay = maxEntriesPerDay + (playerObject['gender'] === 'F' ? 1 : 0);
-    document.getElementById("licence-no-cell").value = playerObject.licenceNo;
-    document.getElementById("first-name-cell").value = playerObject.firstName;
-    document.getElementById("last-name-cell").value = playerObject.lastName;
-    document.getElementById("gender-cell").value = playerObject.gender;
-    document.getElementById("club-cell").value = playerObject.club;
-    document.getElementById("points-cell").value = playerObject.nbPoints;
-}
 
 const categoryIdByColor = {};
 const sameColor = {};
@@ -20,6 +10,15 @@ let isValidMandatoryWomenOnlyRegistrationSaturday = true;
 let isValidMandatoryWomenOnlyRegistrationSunday = true;
 let nbEntriesSaturday = 0;
 let nbEntriesSunday = 0;
+
+function processPlayer() {
+    document.getElementById("licence-no-cell").value = playerObject.licenceNo;
+    document.getElementById("first-name-cell").value = playerObject.firstName;
+    document.getElementById("last-name-cell").value = playerObject.lastName;
+    document.getElementById("gender-cell").value = playerObject.gender;
+    document.getElementById("club-cell").value = playerObject.club;
+    document.getElementById("points-cell").value = playerObject.nbPoints;
+}
 
 function updateMandatoryWomenOnlyRegistration() {
     if (playerObject['gender'] === 'M') {return;}
@@ -55,12 +54,18 @@ function handleCheckbox(categoryId) {
     }
     updateMandatoryWomenOnlyRegistration();
 
+    let maxEntriesPerDaySaturday = maxEntriesPerDay + ((playerObject['gender'] == 'F' && womenOnlySaturday.length > 0) ? 1 : 0);
+    let maxEntriesPerDaySunday = maxEntriesPerDay + ((playerObject['gender'] == 'F' && womenOnlySunday.length > 0) ? 1 : 0);
 
     let submitButton = document.getElementById('submit-button');
-    if (nbEntriesSaturday > actualMaxEntriesPerDay || nbEntriesSunday > actualMaxEntriesPerDay) {
+    if (nbEntriesSaturday > maxEntriesPerDaySaturday ) {
         submitButton.disabled = true;
         submitButton.style.cursor = 'not-allowed';
-        submitButton.setAttribute('title', 'Vous ne pouvez pas vous inscrire à plus de ' + actualMaxEntriesPerDay + ' tableaux par jour.');
+        submitButton.setAttribute('title', 'Vous ne pouvez pas vous inscrire à plus de ' + maxEntriesPerDaySaturday + ' tableaux pour la journée du samedi.');
+    } else if (nbEntriesSunday > maxEntriesPerDaySunday) {
+        submitButton.disabled = true;
+        submitButton.style.cursor = 'not-allowed';
+        submitButton.setAttribute('title', 'Vous ne pouvez pas vous inscrire à plus de ' + maxEntriesPerDaySunday + ' tableaux pour la journée du dimanche.');
     } else if (nbEntriesSaturday + nbEntriesSunday === 0) {
         submitButton.disabled = true;
         submitButton.style.cursor = 'not-allowed';
@@ -88,7 +93,7 @@ function createCategoryRow(categoryObject) {
     registerCheckbox.id = 'register-checkbox-' + categoryId;
     registerCheckbox.setAttribute('oninput', 'handleCheckbox("' + categoryId + '")');
     registerCell.appendChild(registerCheckbox);
-    if (new Date(categoryObject['startTime']).getDate() === 6) {
+    if (new Date(categoryObject['startTime']).getDay() === 6) {
         registerCheckbox.setAttribute('data-day', 'saturday');
     } else {
         registerCheckbox.setAttribute('data-day', 'sunday');
@@ -103,6 +108,11 @@ function createCategoryRow(categoryObject) {
     idCell.setAttribute('id', 'id-cell-' + categoryId);
     idCell.appendChild(document.createTextNode(categoryId));
     row.appendChild(idCell);
+
+    let nameCell = document.createElement('td');
+    nameCell.setAttribute('id', 'name-cell-' + categoryId);
+    nameCell.appendChild(document.createTextNode(categoryObject['alternateName']));
+    row.appendChild(nameCell);
 
     let color = categoryObject['color'];
 
@@ -119,12 +129,19 @@ function createCategoryRow(categoryObject) {
     let entryCountCell = document.createElement('td');
 
     if (entryCount < maxOverbooked) {
-        entryCountCell.appendChild(document.createTextNode('Places disponibles'));
+        entryCountCell.appendChild(document.createTextNode('Oui'));
         entryCountCell.classList.add('non-waiting-list-cell');
         entryCountCell.classList.remove('waiting-list-cell');
-    } else {
+        entryCountCell.classList.remove('full-cell');
+    } else if (entryCount < maxOverbooked + 40) {
         entryCountCell.appendChild(document.createTextNode('Liste d\'attente'));
         entryCountCell.classList.add('waiting-list-cell');
+        entryCountCell.classList.remove('non-waiting-list-cell');
+        entryCountCell.classList.remove('full-cell');
+    } else {
+        entryCountCell.appendChild(document.createTextNode('Complet'));
+        entryCountCell.classList.add('full-cell');
+        entryCountCell.classList.remove('waiting-list-cell');
         entryCountCell.classList.remove('non-waiting-list-cell');
     }
 
@@ -132,40 +149,18 @@ function createCategoryRow(categoryObject) {
     entryCountCell.setAttribute('id', 'entry-count-cell-' + categoryId);
     row.appendChild(entryCountCell);
 
-    let pointsCell = document.createElement('td');
-    pointsCell.setAttribute('id', 'points-cell-' + categoryId);
     let maxPoints = categoryObject['maxPoints'];
     let minPoints = categoryObject['minPoints'];
-    let pointsString;
-    if (maxPoints < 4000) {
-        pointsString = '< ' + maxPoints;
-    } else if (minPoints > 0) {
-        pointsString = '> ' + minPoints;
-    } else { pointsString = '-'}
-
     if (playerObject['nbPoints'] < minPoints || playerObject['nbPoints'] > maxPoints) {
-        pointsCell.style.backgroundColor = 'red';
         registerCell.classList.add('disabled-cell');
         registerCheckbox.setAttribute('disabled', '');
-        pointsString = pointsString + ' \u2717';
-    } else {
-        pointsString = pointsString + ' \u2713';
     }
-    pointsCell.appendChild(document.createTextNode(pointsString));
-    row.appendChild(pointsCell);
 
-    let womenOnlyCell = document.createElement('td');
-    womenOnlyCell.setAttribute('id', 'women-only-cell-' + categoryId);
-    womenOnlyCell.appendChild(document.createTextNode(categoryObject['womenOnly'] ? 'Oui' : 'Non'));
-    row.appendChild(womenOnlyCell);
     if (categoryObject['womenOnly'] && playerObject['gender'] === 'M') {
-        womenOnlyCell.style.backgroundColor = 'red';
         registerCell.classList.add('disabled-cell');
         registerCheckbox.setAttribute('disabled', '');
     }
-
     row.appendChild(registerCell);
-
     return row;
 }
 
@@ -175,7 +170,7 @@ function setUpCategoriesTable() {
     categoriesData.forEach(function (categoryObject)
     {
         let categoryDay = new Date(categoryObject['startTime']);
-        if (categoryDay.getDate() === 6) {
+        if (categoryDay.getDay() === 6) {
             saturdayCategories.push(categoryObject);
         } else {
             sundayCategories.push(categoryObject);
@@ -220,8 +215,15 @@ function submitAll() {
         }
     });
 
-    if (nbSaturdayEntries > actualMaxEntriesPerDay || nbSundayEntries > actualMaxEntriesPerDay) {
-        window.alert("Vous ne pouvez pas vous inscrire à plus de " + actualMaxEntriesPerDay + " tableaux par jour.");
+    let maxEntriesPerDaySaturday = maxEntriesPerDay + ((playerObject['gender'] == 'F' && womenOnlySaturday.length > 0) ? 1 : 0);
+    let maxEntriesPerDaySunday = maxEntriesPerDay + ((playerObject['gender'] == 'F' && womenOnlySunday.length > 0) ? 1 : 0);
+
+
+    if (nbSaturdayEntries > maxEntriesPerDaySaturday) {
+        window.alert("Vous ne pouvez pas vous inscrire à plus de " + maxEntriesPerDaySaturday + " tableaux pour la journée de samedi.");
+        return;
+    } else if (nbSundayEntries > maxEntriesPerDaySunday) {
+        window.alert("Vous ne pouvez pas vous inscrire à plus de " + maxEntriesPerDaySunday + " tableaux pour la journée de dimanche.");
         return;
     }
 
@@ -284,7 +286,6 @@ async function submitEntries() {
         body: JSON.stringify(payload)
     })
     if (response.ok) {
-        console.log("Entries successfully added");
         window.location.href = "/public/deja_inscrit/" + licenceNo;
     } else {
         await publicHandleBadResponse(response);
