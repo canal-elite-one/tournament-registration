@@ -3,26 +3,27 @@
 {% block title %}Inscription{% endblock %}
 
 {% block content %}
-<div class="md:container md:mx-auto">
-<div class="max-w-md mx-auto bg-white p-8 rounded-md shadow-md">
-    <h2 class="text-2xl font-bold mb-4">Inscrivez vous !</h2>
-    <form class="w-full pb-6"> <!-- Added pb-6 class to add padding at the bottom -->
+  <div class="md:container md:mx-auto">
+    <div class="max-w-md mx-auto bg-white p-8 rounded-md shadow-md">
+      <h2 class="text-2xl font-bold mb-4">Inscrivez vous !</h2>
+      <form class="w-full pb-6"> <!-- Added pb-6 class to add padding at the bottom -->
         <div class="mb-4 flex items-center">
-            <label for="licence-no-field" class="text-gray-700 font-bold mr-4">Numéro de licence</label>
-            <input type="text" id="licence-no-field" name="licenceNo" class="form-input flex-1 border border-gray-300 rounded-md px-4 py-2 focus:border-blue-500 focus:ring focus:ring-blue-500" required autofocus>
+          <label for="licence-no-field" class="text-gray-700 font-bold mr-4">Numéro de
+            licence</label>
+          <input type="text" id="licence-no-field" name="licenceNo"
+                 class="form-input flex-1 border border-gray-300 rounded-md px-4 py-2 focus:border-blue-500 focus:ring focus:ring-blue-500"
+                 required autofocus>
         </div>
-        <button type="submit" id="search-licence-no" class="bg-blue-950 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-800 focus:outline-none focus:bg-blue-800 float-right" onclick="findPlayer()">Rechercher</button>
-    </form>
-</div>
-
-    <div class="md:container md:mx-auto">
-<img id="categories-recap" src="{{ url_for('static', filename='recap-categories.png') }}">
+        <button type="submit" id="search-licence-no"
+                class="bg-blue-950 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-800 focus:outline-none focus:bg-blue-800 float-right"
+                onclick="findPlayer()">Rechercher
+        </button>
+      </form>
     </div>
-</div>
-
+  </div>
 {% endblock %}
 
 {% block scripts %}
-<script src="{{ url_for('static', filename='public_index.js') }}"></script>
-<script>showContent();</script>
+  <script src="{{ url_for('static', filename='public_index.js') }}"></script>
+  <script>showContent();</script>
 {% endblock %}

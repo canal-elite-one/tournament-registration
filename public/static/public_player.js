@@ -4,26 +4,12 @@ let actualMaxEntriesPerDay;
 
 function processPlayer() {
     actualMaxEntriesPerDay = maxEntriesPerDay + (playerObject['gender'] === 'F' ? 1 : 0);
-    document.getElementById("licence-no-cell").innerHTML = playerObject.licenceNo;
-    document.getElementById("first-name-cell").innerHTML = playerObject.firstName;
-    document.getElementById("last-name-cell").innerHTML = playerObject.lastName;
-    document.getElementById("gender-cell").innerHTML = playerObject.gender;
-    document.getElementById("club-cell").innerHTML = playerObject.club;
-    document.getElementById("points-cell").innerHTML = playerObject.nbPoints;
-
-    let emailCell = document.getElementById("email-cell");
-    let emailField = document.createElement('input');
-    emailField.setAttribute('type', 'email');
-    emailField.setAttribute('id', 'email-field');
-    emailField.setAttribute('required', '');
-    emailCell.appendChild(emailField);
-
-    let phoneCell = document.getElementById("phone-cell");
-    let phoneField = document.createElement('input');
-    phoneField.setAttribute('type', 'tel');
-    phoneField.setAttribute('id', 'phone-field');
-    phoneField.setAttribute('required', '');
-    phoneCell.appendChild(phoneField);
+    document.getElementById("licence-no-cell").value = playerObject.licenceNo;
+    document.getElementById("first-name-cell").value = playerObject.firstName;
+    document.getElementById("last-name-cell").value = playerObject.lastName;
+    document.getElementById("gender-cell").value = playerObject.gender;
+    document.getElementById("club-cell").value = playerObject.club;
+    document.getElementById("points-cell").value = playerObject.nbPoints;
 }
 
 const categoryIdByColor = {};
@@ -85,7 +71,7 @@ function handleCheckbox(categoryId) {
         submitButton.setAttribute('title', 'Vous devez vous inscrire à tous les tableaux féminins pour chaque jour où vous êtes inscrite à au moins un tableau.');
     } else {
         submitButton.disabled = false;
-        submitButton.style.cursor = 'auto';
+        submitButton.style.cursor = 'pointer';
         submitButton.setAttribute('title', '');
     }
 
@@ -243,8 +229,10 @@ function submitAll() {
 }
 
 async function submitPlayer() {
-    let emailField = document.getElementById("email-field");
-    let phoneField = document.getElementById("phone-field");
+    let emailField = document.getElementById("email-cell");
+    let phoneField = document.getElementById("phone-cell");
+    changeRequiredMessage(emailField, "Veuillez entrer votre adresse email.");
+    changeRequiredMessage(phoneField, "Veuillez entrer votre numéro de téléphone.");
     let isValid = emailField.reportValidity() && phoneField.reportValidity();
     if (isValid) {
         let contactPayload = {
@@ -265,6 +253,16 @@ async function submitPlayer() {
             await publicHandleBadResponse(response);
         }
     }
+}
+
+function changeRequiredMessage(field, message) {
+    field.addEventListener('invalid', function() {
+    if(field.validity.valueMissing) {
+      field.setCustomValidity(message);
+    } else {
+      field.setCustomValidity('');
+    }
+    });
 }
 
 async function submitEntries() {
@@ -303,8 +301,6 @@ async function fetchCategoriesAndPlayer() {
         categoriesData = await categoriesResponse.json();
         categoriesData = categoriesData['categories'];
         playerObject = await playerResponse.json();
-        console.log(categoriesData);
-        console.log(playerObject);
         setUpCategoriesTable();
         processPlayer();
         return true;
