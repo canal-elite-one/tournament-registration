@@ -23,6 +23,67 @@
                 onclick="findPlayer()">Rechercher
         </button>
       </div>
+
+    </div>
+  <div class="mt-8">
+      <table class="w-full border mb-4">
+        <!-- Table content for Saturday -->
+        <thead class="bg-blue-950 rounded-t-lg">
+        <tr>
+          <th colspan="7" class="text-white">Samedi {{ saturday_date }}</th>
+        </tr>
+        <tr>
+          <th colspan="2" class="text-white">Tableau</th>
+          <th class="text-white">Tarif</th>
+          <th class="text-white">Fin de pointage</th>
+          <th class="text-white">Vainqueur</th>
+          <th class="text-white">Finaliste</th>
+          <th class="text-white">1/2 Finaliste</th>
+        </tr>
+        </thead>
+        <tbody id="saturday-table-body">
+        {% for item in saturday_categories %}
+          <tr>
+            <td>{{ item.category_id }}</td>
+            <td>{{ item.alternate_name }}</td>
+            <td>{{ item.base_registration_fee }} &euro;</td>
+            <td>{{  item.start_time.strftime('%Hh%M') }}</td>
+            <td>{{ item.reward_first }} &euro;</td>
+            <td>{{ item.reward_second }} &euro;</td>
+            <td>{{ item.reward_semi }} &euro;</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+      <table class="w-full border mb-4">
+        <!-- Table content for Sunday -->
+        <thead class="bg-blue-950 rounded-t-lg">
+        <tr>
+          <th colspan="7" class="text-white">Dimanche {{ sunday_date }}</th>
+        </tr>
+        <tr>
+          <th colspan="2" class="text-white">Tableau</th>
+          <th class="text-white">Tarif</th>
+          <th class="text-white">Fin de pointage</th>
+          <th class="text-white">Vainqueur</th>
+          <th class="text-white">Finaliste</th>
+          <th class="text-white">1/2 Finaliste</th>
+        </tr>
+        </thead>
+        <tbody id="saturday-table-body">
+        {% for item in sunday_categories %}
+          <tr>
+            <td>{{ item.category_id }}</td>
+            <td>{{ item.alternate_name }}</td>
+            <td>{{ item.base_registration_fee }} &euro;</td>
+            <td>{{  item.start_time.strftime('%Hh%M') }}</td>
+            <td>{{ item.reward_first }} &euro;</td>
+            <td>{{ item.reward_second }} &euro;</td>
+            <td>{{ item.reward_semi }} &euro;</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
     </div>
   </div>
 

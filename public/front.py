@@ -1,8 +1,10 @@
+import locale
 from http import HTTPStatus
 
 from flask import Blueprint, redirect, render_template, current_app, url_for
+from sqlalchemy import select
 
-from shared.api.db import is_before_cutoff, is_before_start
+from shared.api.db import Session, is_before_cutoff, is_before_start, Category
 
 public_bp = Blueprint(
     "public",
@@ -23,7 +25,21 @@ def index_page():
             .date()
             .isoformat(),
         )
-    return render_template("/public_index.html")
+    with Session() as session:
+        all_categories = session.scalars(
+            select(Category).order_by(Category.start_time),
+        ).all()
+
+        saturday_categories = [c for c in all_categories if c.start_time.weekday() == 5]
+        sunday_categories = [c for c in all_categories if c.start_time.weekday() == 6]
+        locale.setlocale(locale.LC_TIME, "fr_FR")
+    return render_template(
+        "/public_index.html",
+        saturday_categories=saturday_categories,
+        sunday_categories=sunday_categories,
+        saturday_date=saturday_categories[0].start_time.strftime("%d %B %Y"),
+        sunday_date=sunday_categories[0].start_time.strftime("%d %B %Y"),
+    )
 
 
 @public_bp.route("/contact", methods=["GET"])
