@@ -6,6 +6,7 @@ from flask import Blueprint, request, jsonify, current_app
 from sqlalchemy import select, text
 from sqlalchemy.exc import DBAPIError
 
+from public.email_sender import EmailSender
 from shared.api.marshmallow_schemas import (
     CategorySchema,
     EntrySchema,
@@ -167,7 +168,7 @@ def api_public_register_entries(licence_no):
             )
 
         if nonexisting_category_ids := set(category_ids).difference(
-                session.scalars(select(Category.category_id)),
+            session.scalars(select(Category.category_id)),
         ):
             raise ae.InvalidDataError(
                 origin=origin,
@@ -187,24 +188,30 @@ def api_public_register_entries(licence_no):
         ).all()
 
         # checks that if the player is female, they have to be registered to all
-        # women-only categories on the same day for which they are registered to a category
+        # women-only categories on the same day for which they are registered to a
+        # category
         if player.gender == "F":
-            days_with_entries = {category.start_time.date() for category in potential_categories}
+            days_with_entries = {
+                category.start_time.date() for category in potential_categories
+            }
             women_only_categories = session.scalars(
-                select(Category)
-                .where(Category.women_only.is_(True)),
+                select(Category).where(Category.women_only.is_(True)),
             ).all()
 
             for day in days_with_entries:
                 unregistered_women_only_categories_on_day = [
-                    category.category_id for category in women_only_categories if category.start_time.date() == day
-                                                                      and category.category_id not in category_ids
+                    category.category_id
+                    for category in women_only_categories
+                    if category.start_time.date() == day
+                    and category.category_id not in category_ids
                 ]
                 if unregistered_women_only_categories_on_day:
                     raise ae.InvalidDataError(
                         origin=origin,
                         error_message=ae.MANDATORY_WOMEN_ONLY_REGISTRATION_MESSAGE,
-                        payload={"categoryIdsShouldRegister": unregistered_women_only_categories_on_day},
+                        payload={
+                            "categoryIdsShouldRegister": unregistered_women_only_categories_on_day,  # noqa: E501
+                        },
                     )
 
         violations = [
@@ -220,14 +227,11 @@ def api_public_register_entries(licence_no):
                 payload={"categoryIds": violations},
             )
 
-        if (
-                max(
-                    Counter(
-                        [category.start_time.date() for category in potential_categories],
-                    ).values(),
-                )
-                > current_app.config["MAX_ENTRIES_PER_DAY"] + (player.gender == "F")
-        ):
+        if max(
+            Counter(
+                [category.start_time.date() for category in potential_categories],
+            ).values(),
+        ) > current_app.config["MAX_ENTRIES_PER_DAY"] + (player.gender == "F"):
             raise ae.InvalidDataError(
                 origin=origin,
                 error_message=ae.MAX_ENTRIES_PER_DAY_MESSAGE,
@@ -254,6 +258,21 @@ def api_public_register_entries(licence_no):
             session.execute(stmt, temp_dicts)
             session.commit()
             p_schema.reset(include_entries=True)
+
+            EmailSender(
+                sender_email=current_app.config["USKB_EMAIL"],
+                password=current_app.config["USKB_EMAIL_PASSWORD"],
+            ).send_email(
+                recipient=player.email,
+                body=f"Bonjour {player.first_name},<br><br>"
+                f"Votre inscription a bien été prise en compte.<br><br>"
+                f"Pour consulter les tableaux dans lesquels vous êtes inscrit(e), "
+                f"""<a href="{current_app.config["TOURNOI_URL"]}/public/deja_inscrit/{licence_no}">cliquer ici</a>.<br><br>"""  # noqa: E501
+                f"Merci de votre participation et à bientôt !<br><br>"
+                f"L'équipe USKB",
+                subject="Confirmation Inscription Tournoi USKB",
+            )
+
             return jsonify(p_schema.dump(player)), HTTPStatus.CREATED
         except DBAPIError:
             session.rollback()
