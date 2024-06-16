@@ -4,28 +4,49 @@
     <meta charset="UTF-8">
     <title>Admin - {% block title %}{% endblock %}</title>
     <link rel="icon" href="{{ url_for('static', filename='logo.png') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body>
-    <div id="admin-navbar-div" class="navbar-container">
-        <nav>
-            <ul class="navbar">
-                <li class="navbar-element">
-                    <h3 class="navbar-element">Admin</h3>
-                </li>
-                <li class="navbar-element">
-                    <a class="navbar-link" id="all-players-navbar-link" href="{{ url_for('admin.show_all_players') }}">Inscrits</a>
-                </li>
-                <li class="navbar-element">
-                    <a class="navbar-link" id="set-categories-navbar-link" href="{{ url_for('admin.set_categories') }}">Saisie tableaux</a>
-                </li>
-                <li class="navbar-element">
-                    <a class="navbar-link" id="players-by-categories-navbar-link" href="{{ url_for('admin.players_by_category_page') }}">Inscrits par tableaux</a>
-                </li>
-            </ul>
-        </nav>
-        {% block navbar %}{% endblock %}
+<nav class="bg-blue-950">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16">
+      <!-- Brand -->
+      <div class="flex-shrink-0 items-center">
+        <a href="{{ url_for('admin.index') }}" class="flex items-center">
+          <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo"
+               class="h-8 w-auto mr-2">
+          <span class="text-white text-2xl font-bold">Tournoi USKB 2024</span>
+        </a>
+      </div>
+
+      <!-- Navbar links -->
+      <div class="hidden md:block">
+        <div class="ml-10 flex items-baseline space-x-4">
+          <a href="{{ url_for('admin.show_all_players') }}"
+             class="text-white hover:bg-blue-800 px-3 py-2 rounded-md text-sm font-medium">Inscrits</a>
+          <a href="{{ url_for('admin.players_by_category_page') }}"
+             class="text-white hover:bg-blue-800 px-3 py-2 rounded-md text-sm font-medium">Inscrits par tableaux</a>
+          <a href="{{ url_for('admin.set_categories') }}"
+             class="text-white hover:bg-blue-800 px-3 py-2 rounded-md text-sm font-medium">Saisie tableaux</a>
+        </div>
+      </div>
     </div>
+  </div>
+
+  <!-- Mobile menu toggle -->
+  <div class="md:hidden">
+    <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+      <a href="{{ url_for('admin.show_all_players') }}"
+         class="text-white hover:bg-blue-800 block px-3 py-2 rounded-md text-base font-medium">Inscrits</a>
+      <a href="{{ url_for('admin.players_by_category_page') }}"
+         class="text-white hover:bg-blue-800 block px-3 py-2 rounded-md text-base font-medium">Inscrits par tableaux</a>
+      <a href="{{ url_for('admin.set_categories') }}"
+         class="text-white hover:bg-blue-800 block px-3 py-2 rounded-md text-base font-medium">Saisie tableaux</a>
+    </div>
+  </div>
+</nav>
+{% block navbar %}{% endblock %}
     <div id="content-div" style="display: none;">
     {% block content %}{% endblock %}
     </div>

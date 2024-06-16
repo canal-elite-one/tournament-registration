@@ -3,79 +3,223 @@
 {% block title %}Gestion de l'inscrit {{ licence_no }}{% endblock %}
 
 {% block content %}
-<div id="player-info-div">
-    <table id="player-info-table"></table>
-    <table id="payment-info-table">
-        <tr>
-            <th>Coût total des tableaux inscrits</th>
-            <td id="register-total">0</td>
-        </tr>
-        <tr>
-            <th>Coût total des tableaux présents</th>
-            <td id="present-total">0</td>
-        </tr>
-        <tr>
-            <th>Coût total des tableaux payés</th>
-            <td id="paid-total">0</td>
-        </tr>
-        <tr>
-            <th>Montant total reste à payer</th>
-            <td id="due-total">0</td>
-        <tr>
-            <th>Montant déjà payé</th>
-            <td id="previous-actual-total">0</td>
-        </tr>
-        <tr>
-            <th>Montant payé cette fois-ci</fois-ci></th>
-            <td id="current-actual-total">
-                <input type="number" id="actual-total-field"/>
-            </td>
-        </tr>
-    </table>
-    <button id="delete-player-button" onclick="deletePlayer()"></button>
-</div>
 
-<div id="admin-entry-management">
-    <table id="saturday-table">
-        <thead>
-            <tr>
-                <th colspan="9">Samedi</th>
-            </tr>
-            <tr>
-                <th>Tableau</th>
-                <th>Rang ou #inscrits</th>
-                <th>Max (surbook)</th>
-                <th>Limite de points</th>
-                <th>Féminin ?</th>
-                <th>Inscription</th>
-                <th>Présent ?</th>
-                <th>Absent ?</th>
-                <th>Payé ?</th>
-            </tr>
+  <div class="flex justify-between">
+    <!-- Left Column -->
+    <div class="w-1/2 p-4 relative">
+      <table class="w-full border mb-4">
+        <!-- Table content for Saturday -->
+        <thead class="bg-blue-950 rounded-t-lg">
+        <tr>
+          <th colspan="9" class="text-white">Samedi</th>
+        </tr>
+        <tr>
+          <th class="text-white">Tableau</th>
+          <th class="text-white">Rang ou # inscrits</th>
+          <th class="text-white">Max (surbook)</th>
+          <th class="text-white">Limite de points</th>
+          <th class="text-white">Féminin ?</th>
+          <th class="text-white">Inscription</th>
+          <th class="text-white">Présent</th>
+          <th class="text-white">Absent</th>
+          <th class="text-white">Payé</th>
+        </tr>
         </thead>
         <tbody id="saturday-table-body"></tbody>
-    </table>
-    <table id="sunday-table">
-        <thead>
-            <tr>
-                <th colspan="9">Dimanche</th>
-            </tr>
-            <tr>
-                <th>Tableau</th>
-                <th>Rang ou #inscrits</th>
-                <th>Max (surbook)</th>
-                <th>Limite de points</th>
-                <th>Féminin ?</th>
-                <th>Inscription</th>
-                <th>Présent ?</th>
-                <th>Absent ?</th>
-                <th>Payé ?</th>
-            </tr>
+      </table>
+      <table class="w-full border mb-4">
+        <!-- Table content for Sunday -->
+        <thead class="bg-blue-950 rounded-t-lg">
+        <tr>
+          <th colspan="9" class="text-white">Dimanche</th>
+        </tr>
+        <tr>
+          <th class="text-white">Tableau</th>
+          <th class="text-white">Rang ou # inscrits</th>
+          <th class="text-white">Max (surbook)</th>
+          <th class="text-white">Limite de points</th>
+          <th class="text-white">Féminin ?</th>
+          <th class="text-white">Inscription</th>
+          <th class="text-white">Présent</th>
+          <th class="text-white">Absent</th>
+          <th class="text-white">Payé</th>
+        </tr>
         </thead>
         <tbody id="sunday-table-body"></tbody>
-    </table>
-    <button id="submit-changes-button" onclick="submitChanges()">Enregistrer les modifications</button>
+      </table>
+    </div>
+
+    <!-- Right Column -->
+    <div class="w-1/2 p-4">
+      <div class="w-full mx-auto bg-white shadow-md rounded-md overflow-hidden">
+        <div class="px-6 py-4">
+          <div class="font-bold text-xl mb-2">Information Joueur</div>
+          <div class="mb-4 flex">
+            <div class="w-1/2 pr-2">
+              <label class="block text-gray-700 text-sm font-bold mb-2"
+                     for="first-name-cell">
+                Prénom
+              </label>
+              <input disabled
+                     class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                     id="first-name-cell" type="text">
+            </div>
+            <div class="w-1/2 pl-2">
+              <label class="block text-gray-700 text-sm font-bold mb-2"
+                     for="last-name-cell">
+                Nom
+              </label>
+              <input disabled
+                     class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                     id="last-name-cell" type="text">
+            </div>
+          </div>
+          <div class="mb-4 flex">
+             <div class="w-1/4 pr-2">
+              <label class="block text-gray-700 text-sm font-bold mb-2"
+                     for="bib-no-cell">
+                Numéro de dossard
+              </label>
+              <input disabled
+                     class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                     id="bib-no-cell" type="text">
+            </div>
+            <div class="w-1/4 pr-2">
+              <label class="block text-gray-700 text-sm font-bold mb-2"
+                     for="licence-no-cell">
+                Numéro de licence
+              </label>
+              <input disabled
+                     class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                     id="licence-no-cell" type="text">
+            </div>
+            <div class="w-1/4 px-2">
+              <label class="block text-gray-700 text-sm font-bold mb-2"
+                     for="points-cell">
+                Classement
+              </label>
+              <input disabled
+                     class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                     id="points-cell" type="text">
+            </div>
+            <div class="w-1/4 pl-2">
+              <label class="block text-gray-700 text-sm font-bold mb-2"
+                     for="gender-cell">
+                Sexe
+              </label>
+              <input disabled
+                     class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                     id="gender-cell" type="text">
+            </div>
+          </div>
+          <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="club-cell">
+              Club
+            </label>
+            <input disabled
+                   class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                   id="club-cell" type="text">
+          </div>
+          <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="email-cell">
+              Adresse email
+            </label>
+            <input
+                required
+                class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                id="email-cell" type="email" placeholder="Votre adresse courriel">
+          </div>
+          <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="phone-cell">
+              Numéro de téléphone
+            </label>
+            <input
+                required
+                class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                id="phone-cell" type="tel" placeholder="Votre numéro de téléphone">
+          </div>
+          <div class="flex mt-auto justify-end">
+            <div class="space-x-4">
+              <button id="delete-player-button"
+                      class="bg-red-950 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+                      onclick="deletePlayer()"></button>
+              <button id="generate-bib-no-button"
+                      class="bg-blue-950 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                      onclick="generateBibNo()">Générer le dossard</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex flex-col items-center">
+
+      <div class="w-full md:w-1/2 p-4 mt-4">
+  <div class="w-full mx-auto bg-white shadow-md rounded-md overflow-hidden">
+    <div class="px-6 py-4">
+      <div class="font-bold text-xl mb-2">Informations de Paiement</div>
+      <div class="mb-4 flex items-center">
+        <label class="block text-gray-700 text-sm font-bold w-3/4" for="register-total">
+          Coût total des tableaux inscrits
+        </label>
+        <input disabled
+               class="appearance-none border rounded w-1/4 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+               id="register-total" type="text" value="0">
+      </div>
+      <div class="mb-4 flex items-center">
+        <label class="block text-gray-700 text-sm font-bold w-3/4" for="present-total">
+          Coût total des tableaux présents
+        </label>
+        <input disabled
+               class="appearance-none border rounded w-1/4 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+               id="present-total" type="text" value="0">
+      </div>
+      <div class="mb-4 flex items-center">
+        <label class="block text-gray-700 text-sm font-bold w-3/4" for="paid-total">
+          Coût total des tableaux payés
+        </label>
+        <input disabled
+               class="appearance-none border rounded w-1/4 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+               id="paid-total" type="text" value="0">
+      </div>
+      <div class="mb-4 flex items-center">
+        <label class="block text-gray-700 text-sm font-bold w-3/4" for="due-total">
+          Montant total reste à payer
+        </label>
+        <input disabled
+               class="appearance-none border rounded w-1/4 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+               id="due-total" type="text" value="0">
+      </div>
+      <div class="mb-4 flex items-center">
+        <label class="block text-gray-700 text-sm font-bold w-3/4" for="previous-actual-total">
+          Montant déjà payé
+        </label>
+        <input disabled
+               class="appearance-none border rounded w-1/4 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+               id="previous-actual-total" type="text" value="0">
+      </div>
+      <div class="mb-4 flex items-center">
+        <label class="block text-gray-700 text-sm font-bold w-3/4" for="actual-total-field">
+          Montant payé cette fois-ci
+        </label>
+        <input
+            class="appearance-none border rounded w-1/4 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            id="actual-total-field" type="number" value="0">
+      </div>
+      <div class="flex mt-auto justify-end">
+            <div class="space-x-4">
+              <button id="submit-entries-button" onclick="submitChanges()"
+                      class="bg-blue-950 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+              >Enregistrer les modifications
+              </button>
+            </div>
+          </div>
+    </div>
+  </div>
 </div>
+  </div>
+
 {% endblock %}
 
 {% block scripts %}

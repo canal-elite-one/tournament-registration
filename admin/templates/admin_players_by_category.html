@@ -4,14 +4,6 @@
 
 {% block navbar %}
 <nav>
-    <ul class="navbar" id="categories-navbar">
-        <li class="navbar-element">
-            <h4 class="navbar-element">Tableaux :</h4>
-        </li>
-        <li class="navbar-element">
-            <span id="show-span-all" class="navbar-link show-table-span navbar-link-current" onclick="showTables()">Tous</span>
-        </li>
-    </ul>
     <div class="navbar">
         <input type="search" id="players-by-category-search" class="players-table-search" placeholder="Recherche" autofocus oninput="filterData()">
         <button id="export-all-button" onclick="downloadCsv(true)">Télécharger tous les tableaux en csv</button>
@@ -20,6 +12,12 @@
 {% endblock %}
 
 {% block content %}
+  <div class="flex justify-center">
+  <div class="flex" id="categories-navbar">
+    <button id="show-span-all" class="tab-btn show-table-span active" onclick="showTables()">Tous</button>
+  </div>
+</div>
+
 <p id="no-results-p" style="display: none;">Aucun résultat ne correspond à votre recherche.</p>
 <div id="players-by-category-div">
 </div>

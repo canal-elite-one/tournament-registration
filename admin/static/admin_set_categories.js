@@ -1,7 +1,7 @@
 let nbRows = 0;
 
 function removeFormRow() {
-    if (nbRows == 0) {
+    if (nbRows === 0) {
         return null;
     }
     document.getElementById('categories-table-body').lastChild.remove();
@@ -201,11 +201,11 @@ const fieldNames = {
 const nullables = ['alternate-name', 'color', 'min-points', 'max-points', 'reward-quarter'];
 
 function isNotNull(fieldName, fieldValue) {
-    if (fieldName == 'color' && fieldValue == '#ffffff') { return false; }
-    if (fieldName == 'alternate-name' && fieldValue === '') { return false; }
-    if (fieldName == 'min-points' && fieldValue === '') { return false; }
-    if (fieldName == 'max-points' && fieldValue === '') { return false; }
-    if (fieldName == 'reward-quarter' && fieldValue === '') {return false; }
+    if (fieldName === 'color' && fieldValue === '#ffffff') { return false; }
+    if (fieldName === 'alternate-name' && fieldValue === '') { return false; }
+    if (fieldName === 'min-points' && fieldValue === '') { return false; }
+    if (fieldName === 'max-points' && fieldValue === '') { return false; }
+    if (fieldName === 'reward-quarter' && fieldValue === '') {return false; }
     return true;
 }
 
@@ -249,7 +249,7 @@ function submitForm() {
 function processExistingCategories(data) {
     if ('error' in data) {
         console.error('Error fetching categories data:', data.error)
-    } else if (data['categories'].length == 0) {
+    } else if (data['categories'].length === 0) {
         addFormRow();
     } else {
         data['categories'].forEach(categoryData => {
@@ -261,8 +261,6 @@ function processExistingCategories(data) {
         });
     }
 }
-
-document.getElementById('set-categories-navbar-link').setAttribute('class', 'navbar-link-current');
 
 fetch('/api/admin/categories')
     .then((response) => response.json())
