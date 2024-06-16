@@ -141,6 +141,50 @@ def api_admin_get_player(licence_no):
     return jsonify(p_schema.dump(player)), HTTPStatus.OK
 
 
+@api_bp.route("/players", methods=["POST"])
+def api_admin_manually_add_player():
+    origin = api_admin_manually_add_player.__name__
+    v_schema = PlayerSchema()
+
+    player_dict = request.json
+
+    try:
+        p = v_schema.load(player_dict)
+    except ValidationError as e:
+        raise ae.InvalidDataError(
+            origin=origin,
+            error_message=ae.PLAYER_FORMAT_MESSAGE,
+            payload=e.messages,
+        )
+
+    player = Player(
+        first_name=p.first_name,
+        last_name=p.last_name,
+        licence_no=p.licence_no,
+        club=p.club,
+        nb_points=p.nb_points,
+        gender=p.gender,
+        email=p.email,
+        phone=p.phone,
+    )
+    player.total_actual_paid = 0
+
+    p_schema.reset()
+
+    with Session() as session:
+        try:
+            session.add(player)
+            session.commit()
+            return jsonify(p_schema.dump(player)), HTTPStatus.CREATED
+        except DBAPIError:
+            session.rollback()
+            raise ae.InvalidDataError(
+                origin=origin,
+                error_message=ae.DUPLICATE_PLAYER_MESSAGE,
+                payload={"licenceNo": player.licence_no},
+            )
+
+
 @api_bp.route("/players/<licence_no>", methods=["POST"])
 def api_admin_add_player(licence_no):
     origin = api_admin_add_player.__name__
@@ -184,6 +228,43 @@ def api_admin_add_player(licence_no):
                 origin=origin,
                 error_message=ae.DUPLICATE_PLAYER_MESSAGE,
                 payload={"licenceNo": player.licence_no},
+            )
+
+
+@api_bp.route("/players/<licence_no>", methods=["PATCH"])
+def api_admin_update_player(licence_no):
+    origin = api_admin_update_player.__name__
+    v_schema = ContactInfoSchema()
+
+    contact_info_dict = request.json
+
+    if error := v_schema.validate(contact_info_dict):
+        raise ae.InvalidDataError(
+            origin=origin,
+            error_message=ae.PLAYER_CONTACT_FORMAT_MESSAGE,
+            payload=error,
+        )
+
+    p_schema.reset()
+
+    with Session() as session:
+        try:
+            player = session.get(Player, licence_no)
+            if player is None:
+                raise ae.PlayerNotFoundError(
+                    origin=origin,
+                    licence_no=licence_no,
+                )
+            player.email = contact_info_dict["email"]
+            player.phone = contact_info_dict["phone"]
+            session.commit()
+            return jsonify(p_schema.dump(player)), HTTPStatus.OK
+        except DBAPIError:
+            session.rollback()
+            raise ae.InvalidDataError(
+                origin=origin,
+                error_message=ae.DUPLICATE_PLAYER_MESSAGE,
+                payload={"licenceNo": licence_no},
             )
 
 
@@ -649,17 +730,26 @@ def api_admin_get_csv_zip():
                 select(Player)
                 .distinct()
                 .join(Entry)
-                .where(Entry.category_id.in_(saturday_category_ids)),
+                .where(Entry.category_id.in_(saturday_category_ids))
+                .order_by(Player.bib_no),
             ).all()
             sunday_players = session.scalars(
                 select(Player)
                 .distinct()
                 .join(Entry)
-                .where(Entry.category_id.in_(sunday_category_ids)),
+                .where(Entry.category_id.in_(sunday_category_ids))
+                .order_by(Player.bib_no),
+            ).all()
+            all_players = session.scalars(
+                select(Player).distinct().order_by(Player.bib_no),
             ).all()
 
-            players = [saturday_players, sunday_players]
-            filenames = ["competiteurs_samedi.csv", "competiteurs_dimanche.csv"]
+            players = [saturday_players, sunday_players, all_players]
+            filenames = [
+                "competiteurs_samedi.csv",
+                "competiteurs_dimanche.csv",
+                "competieurs.csv",
+            ]
             zip_name = "competiteurs_samedi_dimanche"
 
         return create_zip_file(filenames, players, zip_name)
