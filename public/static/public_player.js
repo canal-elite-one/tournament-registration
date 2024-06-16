@@ -144,6 +144,8 @@ function createCategoryRow(categoryObject) {
         entryCountCell.classList.add('full-cell');
         entryCountCell.classList.remove('waiting-list-cell');
         entryCountCell.classList.remove('non-waiting-list-cell');
+        registerCell.classList.add('disabled-cell');
+        registerCheckbox.setAttribute('disabled', '');
     }
 
 
@@ -161,6 +163,7 @@ function createCategoryRow(categoryObject) {
         registerCell.classList.add('disabled-cell');
         registerCheckbox.setAttribute('disabled', '');
     }
+
     row.appendChild(registerCell);
     return row;
 }
@@ -216,8 +219,8 @@ function submitAll() {
         }
     });
 
-    let maxEntriesPerDaySaturday = maxEntriesPerDay + ((playerObject['gender'] == 'F' && womenOnlySaturday.length > 0) ? 1 : 0);
-    let maxEntriesPerDaySunday = maxEntriesPerDay + ((playerObject['gender'] == 'F' && womenOnlySunday.length > 0) ? 1 : 0);
+    let maxEntriesPerDaySaturday = maxEntriesPerDay + ((playerObject['gender'] === 'F' && womenOnlySaturday.length > 0) ? 1 : 0);
+    let maxEntriesPerDaySunday = maxEntriesPerDay + ((playerObject['gender'] === 'F' && womenOnlySunday.length > 0) ? 1 : 0);
 
 
     if (nbSaturdayEntries > maxEntriesPerDaySaturday) {
