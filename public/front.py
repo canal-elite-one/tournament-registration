@@ -24,9 +24,7 @@ def index_page():
     if is_before_start():
         return render_template(
             "/public_early_index.html",
-            start_date=current_app.config["TOURNAMENT_REGISTRATION_START"]
-            .date()
-            .isoformat(),
+            start_date=current_app.config["TOURNAMENT_REGISTRATION_START"].isoformat(),
         )
     with Session() as session:
         all_categories = session.scalars(
@@ -35,7 +33,7 @@ def index_page():
 
         saturday_categories = [c for c in all_categories if c.start_time.weekday() == 5]
         sunday_categories = [c for c in all_categories if c.start_time.weekday() == 6]
-        locale.setlocale(locale.LC_TIME, "fr_FR")
+        locale.setlocale(locale.LC_TIME, "fr_FR.utf8")
     return render_template(
         "/public_index.html",
         saturday_categories=saturday_categories,
