@@ -17,7 +17,10 @@ public_bp = Blueprint(
 @public_bp.route("/", methods=["GET"])
 def index_page():
     if not is_before_cutoff():
-        return render_template("/public_late_index.html")
+        return render_template(
+            "/public_late_index.html",
+            contact_email=current_app.config["USKB_EMAIL"],
+        )
     if is_before_start():
         return render_template(
             "/public_early_index.html",
