@@ -3,12 +3,14 @@
 {% block title %}Inscrits par Tableaux{% endblock %}
 
 {% block navbar %}
-<nav>
-    <div class="navbar">
-        <input type="search" id="players-by-category-search" class="players-table-search" placeholder="Recherche" autofocus oninput="filterData()">
-        <button id="export-all-button" onclick="downloadCsv(true)">Télécharger tous les tableaux en csv</button>
-    </div>
-</nav>
+  <nav class="bg-gray-100 p-4">
+        <div class="flex justify-between items-center">
+            <div class="flex space-x-2 items-center">
+                <input type="search" id="players-by-category-search" class="players-table-search p-2 h-10 rounded border border-gray-300 focus:outline-none focus:border-blue-500" placeholder="Recherche" autofocus oninput="filterData()">
+            </div>
+            <button id="export-all-button" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded h-10" onclick="downloadCsv(true)">Télécharger</button>
+        </div>
+    </nav>
 {% endblock %}
 
 {% block content %}

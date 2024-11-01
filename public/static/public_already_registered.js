@@ -12,7 +12,7 @@ function fillEntries(entries) {
         if (entryObject['alternateName'] !== null) {
             entryString += " (" + entryObject['alternateName'] + ") ";
         }
-        if (rank > maxOverbooked) {
+        if (rank >= maxOverbooked) {
             entryString += " - Position " + waitingListPosition + " sur liste d'attente";
         }
 

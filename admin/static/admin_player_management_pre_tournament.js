@@ -277,7 +277,7 @@ async function submitPlayer() {
     };
 
     let response = await fetch(`/api/admin/players/${licenceNo}`, {
-        method: 'PATCH',
+        method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
@@ -286,8 +286,7 @@ async function submitPlayer() {
     if (response.ok) {
         return true;
     } else {
-        console.log(response);
-        // adminHandleBadResponse(response);
+        adminHandleBadResponse(response);
         return false;
     }
 }

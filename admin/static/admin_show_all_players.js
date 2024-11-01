@@ -209,11 +209,6 @@ searchField.addEventListener("keypress", function(event) {
 searchField.value = "";
 document.getElementById("search-fftt-button").setAttribute("disabled", "");
 
-//document.getElementById('all-players-navbar-link').setAttribute('class', 'navbar-link-current');
-if (!hasRegistrationEnded) {
-    document.getElementById("csv-export-button").style.display = "none";
-}
-
 function areBibsSet() {
     let result = false;
     filteredArray.forEach(function(playerObject) {
@@ -223,11 +218,11 @@ function areBibsSet() {
     });
     if (result) {
         document.getElementById("set-all-bibs-button").style.display = "none";
-        document.getElementById("reset-all-bibs-button").style.display = "inline-block";
+        document.getElementById("reset-all-bibs-button").style.display = "none";
         searchCols.push("bibNo");
         numericCols.push("bibNo");
     } else {
-        document.getElementById("set-all-bibs-button").style.display = "inline-block";
+        document.getElementById("set-all-bibs-button").style.display = "none";
         document.getElementById("reset-all-bibs-button").style.display = "none";
     }
     return result;

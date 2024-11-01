@@ -90,12 +90,8 @@ function initialChecked(checkbox) {
 }
 
 function currentFee(categoryId) {
-    if (initiallyRegistered(categoryId)) {
-        return playerObject['registeredEntries'][categoryId]['entryFee'];
-    } else {
-        let categoryObject = categoriesData.find(category => category['categoryId'] === categoryId);
-        return categoryObject['currentFee'];
-    }
+    let categoryObject = categoriesData.find(category => category['categoryId'] === categoryId);
+    return categoryObject["baseRegistrationFee"] + (playerObject["wasRegisteredBeforeCutoff"] ? 0 : categoryObject["lateRegistrationFee"]);
 }
 
 function recomputePaymentStatus() {
@@ -192,16 +188,8 @@ function processPlayerInfo() {
             fieldValueCell.appendChild(document.createTextNode(fieldString));
             row.appendChild(fieldValueCell);
         });
-    let deleteButtonText;
-    if (playerObject['gender'] === 'F') {
-        deleteButtonText = document.createTextNode('Supprimer compétitrice \uD83D\uDDD1');
-    } else {
-        deleteButtonText = document.createTextNode('Supprimer compétiteur \uD83D\uDDD1');
-    }
 
     document.getElementById('previous-actual-total').value = playerObject['paymentStatus']['totalActualPaid'];
-
-    document.getElementById('delete-player-button').appendChild(deleteButtonText);
 }
 
 function createCheckboxCell(categoryId, checkboxType) {

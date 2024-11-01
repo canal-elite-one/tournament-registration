@@ -169,3 +169,17 @@ thead {
 #content-div {
   padding-top: 10px;
 }
+
+.tab-btn {
+  padding: 10px 20px;
+  margin: 0px;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.tab-btn.active {
+  background-color: #4a5568;
+  color: white;
+}

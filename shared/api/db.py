@@ -52,6 +52,7 @@ class Category(Base):
     base_registration_fee: Mapped[int]
     category_id: Mapped[str]
     late_registration_fee: Mapped[int]
+    max_players: Mapped[int]
 
     entries = relationship("Entry", back_populates="category")
 
@@ -120,6 +121,9 @@ class Player(Base):
     def left_to_pay(self):
         return self.fees_total_present() - self.total_actual_paid
 
+    def first_entry_registration_time(self):
+        return min(entry.registration_time for entry in self.entries)
+
 
 class Entry(Base):
     entry_id: Mapped[int]
@@ -136,7 +140,7 @@ class Entry(Base):
 
     def fee(self):
         result = self.category.base_registration_fee
-        if not is_before_cutoff(self.registration_time):
+        if not is_before_cutoff(self.player.first_entry_registration_time()):
             result += self.category.late_registration_fee
         return result
 

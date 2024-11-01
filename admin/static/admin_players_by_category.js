@@ -345,16 +345,12 @@ function processData() {
     data.forEach(categoryObject=> {
         let categoryId = categoryObject['categoryId'];
 
-        // let listElement = document.createElement('button');
-        // listElement.setAttribute('class', 'tab-btn');
-
         let linkElement = document.createElement('button');
         linkElement.setAttribute('class', 'tab-btn');
         linkElement.classList.add('show-table-span');
         linkElement.setAttribute('id', 'show-span-' + categoryId);
         linkElement.setAttribute('onclick', 'showTables("' + categoryId + '")');
         linkElement.innerHTML = categoryId;
-        // listElement.appendChild(linkElement);
         categoriesNavbar.appendChild(linkElement);
 
         createOneTable(categoryObject);
@@ -376,8 +372,6 @@ async function fetchData() {
 }
 
 document.getElementById('players-by-category-search').value = "";
-
-// document.getElementById('players-by-categories-navbar-link').setAttribute('class', 'navbar-link-current');
 
 fetchData().then(() => {
     showContent();

@@ -140,12 +140,15 @@
           </div>
           <div class="flex mt-auto justify-end">
             <div class="space-x-4">
-              <button id="delete-player-button"
-                      class="bg-red-950 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
-                      onclick="deletePlayer()"></button>
               <button id="generate-bib-no-button"
-                      class="bg-blue-950 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                      class="bg-blue-950 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-4"
                       onclick="generateBibNo()">Générer le dossard</button>
+            </div>
+            <div class="space-x-4">
+              <button id="submit-entries-button" onclick="submitChanges()"
+                      class="bg-blue-950 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+              >Enregistrer les modifications
+              </button>
             </div>
           </div>
         </div>
@@ -207,14 +210,6 @@
             class="appearance-none border rounded w-1/4 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             id="actual-total-field" type="number" value="0">
       </div>
-      <div class="flex mt-auto justify-end">
-            <div class="space-x-4">
-              <button id="submit-entries-button" onclick="submitChanges()"
-                      class="bg-blue-950 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-              >Enregistrer les modifications
-              </button>
-            </div>
-          </div>
     </div>
   </div>
 </div>
