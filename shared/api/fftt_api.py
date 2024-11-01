@@ -59,7 +59,7 @@ def get_player_fftt(licence_no):
             payload={"status_code": response.status_code},
         )
 
-    xml = response.content.decode("utf-8")
+    xml = response.content.decode("ISO-8859-1")
     root = ElementTree.fromstring(xml).find("licence")
 
     if root is None:

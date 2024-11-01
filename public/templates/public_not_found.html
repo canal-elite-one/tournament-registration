@@ -3,8 +3,10 @@
 {% block title %}Page non trouvée{% endblock %}
 
 {% block content %}
-<p>La page à laquelle vous avez essayé d'accéder n'existe pas.</p>
-<a href="/public">Retour à l'accueil</a>
+<div class="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md text-center">
+    <p class="text-lg mb-4">La page à laquelle vous avez essayé d'accéder n'existe pas.</p>
+    <a href="{{ url_for('public.index_page') }}" class="text-blue-500 hover:underline font-bold">Retour à l'accueil</a>
+</div>
 {% endblock %}
 
 {% block scripts %}

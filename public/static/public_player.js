@@ -1,30 +1,6 @@
 let playerObject;
 let categoriesData;
-let actualMaxEntriesPerDay;
 
-function processPlayer() {
-    actualMaxEntriesPerDay = maxEntriesPerDay + (playerObject['gender'] === 'F' ? 1 : 0);
-    document.getElementById("licence-no-cell").innerHTML = playerObject.licenceNo;
-    document.getElementById("first-name-cell").innerHTML = playerObject.firstName;
-    document.getElementById("last-name-cell").innerHTML = playerObject.lastName;
-    document.getElementById("gender-cell").innerHTML = playerObject.gender;
-    document.getElementById("club-cell").innerHTML = playerObject.club;
-    document.getElementById("points-cell").innerHTML = playerObject.nbPoints;
-
-    let emailCell = document.getElementById("email-cell");
-    let emailField = document.createElement('input');
-    emailField.setAttribute('type', 'email');
-    emailField.setAttribute('id', 'email-field');
-    emailField.setAttribute('required', '');
-    emailCell.appendChild(emailField);
-
-    let phoneCell = document.getElementById("phone-cell");
-    let phoneField = document.createElement('input');
-    phoneField.setAttribute('type', 'tel');
-    phoneField.setAttribute('id', 'phone-field');
-    phoneField.setAttribute('required', '');
-    phoneCell.appendChild(phoneField);
-}
 
 const categoryIdByColor = {};
 const sameColor = {};
@@ -34,6 +10,15 @@ let isValidMandatoryWomenOnlyRegistrationSaturday = true;
 let isValidMandatoryWomenOnlyRegistrationSunday = true;
 let nbEntriesSaturday = 0;
 let nbEntriesSunday = 0;
+
+function processPlayer() {
+    document.getElementById("licence-no-cell").value = playerObject.licenceNo;
+    document.getElementById("first-name-cell").value = playerObject.firstName;
+    document.getElementById("last-name-cell").value = playerObject.lastName;
+    document.getElementById("gender-cell").value = playerObject.gender;
+    document.getElementById("club-cell").value = playerObject.club;
+    document.getElementById("points-cell").value = playerObject.nbPoints;
+}
 
 function updateMandatoryWomenOnlyRegistration() {
     if (playerObject['gender'] === 'M') {return;}
@@ -69,12 +54,18 @@ function handleCheckbox(categoryId) {
     }
     updateMandatoryWomenOnlyRegistration();
 
+    let maxEntriesPerDaySaturday = maxEntriesPerDay + ((playerObject['gender'] == 'F' && womenOnlySaturday.length > 0) ? 1 : 0);
+    let maxEntriesPerDaySunday = maxEntriesPerDay + ((playerObject['gender'] == 'F' && womenOnlySunday.length > 0) ? 1 : 0);
 
     let submitButton = document.getElementById('submit-button');
-    if (nbEntriesSaturday > actualMaxEntriesPerDay || nbEntriesSunday > actualMaxEntriesPerDay) {
+    if (nbEntriesSaturday > maxEntriesPerDaySaturday ) {
         submitButton.disabled = true;
         submitButton.style.cursor = 'not-allowed';
-        submitButton.setAttribute('title', 'Vous ne pouvez pas vous inscrire à plus de ' + actualMaxEntriesPerDay + ' tableaux par jour.');
+        submitButton.setAttribute('title', 'Vous ne pouvez pas vous inscrire à plus de ' + maxEntriesPerDaySaturday + ' tableaux pour la journée de samedi.');
+    } else if (nbEntriesSunday > maxEntriesPerDaySunday) {
+        submitButton.disabled = true;
+        submitButton.style.cursor = 'not-allowed';
+        submitButton.setAttribute('title', 'Vous ne pouvez pas vous inscrire à plus de ' + maxEntriesPerDaySunday + ' tableaux pour la journée de dimanche.');
     } else if (nbEntriesSaturday + nbEntriesSunday === 0) {
         submitButton.disabled = true;
         submitButton.style.cursor = 'not-allowed';
@@ -85,7 +76,7 @@ function handleCheckbox(categoryId) {
         submitButton.setAttribute('title', 'Vous devez vous inscrire à tous les tableaux féminins pour chaque jour où vous êtes inscrite à au moins un tableau.');
     } else {
         submitButton.disabled = false;
-        submitButton.style.cursor = 'auto';
+        submitButton.style.cursor = 'pointer';
         submitButton.setAttribute('title', '');
     }
 
@@ -102,7 +93,7 @@ function createCategoryRow(categoryObject) {
     registerCheckbox.id = 'register-checkbox-' + categoryId;
     registerCheckbox.setAttribute('oninput', 'handleCheckbox("' + categoryId + '")');
     registerCell.appendChild(registerCheckbox);
-    if (new Date(categoryObject['startTime']).getDate() === 6) {
+    if (new Date(categoryObject['startTime']).getDay() === 6) {
         registerCheckbox.setAttribute('data-day', 'saturday');
     } else {
         registerCheckbox.setAttribute('data-day', 'sunday');
@@ -118,6 +109,11 @@ function createCategoryRow(categoryObject) {
     idCell.appendChild(document.createTextNode(categoryId));
     row.appendChild(idCell);
 
+    let nameCell = document.createElement('td');
+    nameCell.setAttribute('id', 'name-cell-' + categoryId);
+    nameCell.appendChild(document.createTextNode(categoryObject['alternateName']));
+    row.appendChild(nameCell);
+
     let color = categoryObject['color'];
 
     if (!(color === null)) {
@@ -129,57 +125,46 @@ function createCategoryRow(categoryObject) {
     }
 
     let entryCount = categoryObject['entryCount'];
-    let maxOverbooked = Math.floor(categoryObject['maxPlayers'] * (1 + categoryObject['overbookingPercentage'] / 100.));
+    let maxOverbooked = Math.floor(categoryObject['maxPlayers'] * (1 + categoryObject['overbookingPercentage'] / 100.0));
     let entryCountCell = document.createElement('td');
 
-    if (entryCount < maxOverbooked) {
-        entryCountCell.appendChild(document.createTextNode('Places disponibles'));
+    if (entryCount <= maxOverbooked) {
+        entryCountCell.appendChild(document.createTextNode('Oui'));
         entryCountCell.classList.add('non-waiting-list-cell');
         entryCountCell.classList.remove('waiting-list-cell');
-    } else {
-        entryCountCell.appendChild(document.createTextNode('Liste d\'attente'));
+        entryCountCell.classList.remove('full-cell');
+    } else if (entryCount <= maxOverbooked + 40) {
+        let waitingListString = 'Position ' + (entryCount - maxOverbooked + 1) + ' en liste d\'attente';
+        entryCountCell.appendChild(document.createTextNode(waitingListString));
         entryCountCell.classList.add('waiting-list-cell');
         entryCountCell.classList.remove('non-waiting-list-cell');
+        entryCountCell.classList.remove('full-cell');
+    } else {
+        entryCountCell.appendChild(document.createTextNode('Complet'));
+        entryCountCell.classList.add('full-cell');
+        entryCountCell.classList.remove('waiting-list-cell');
+        entryCountCell.classList.remove('non-waiting-list-cell');
+        registerCell.classList.add('disabled-cell');
+        registerCheckbox.setAttribute('disabled', '');
     }
 
 
     entryCountCell.setAttribute('id', 'entry-count-cell-' + categoryId);
     row.appendChild(entryCountCell);
 
-    let pointsCell = document.createElement('td');
-    pointsCell.setAttribute('id', 'points-cell-' + categoryId);
     let maxPoints = categoryObject['maxPoints'];
     let minPoints = categoryObject['minPoints'];
-    let pointsString;
-    if (maxPoints < 4000) {
-        pointsString = '< ' + maxPoints;
-    } else if (minPoints > 0) {
-        pointsString = '> ' + minPoints;
-    } else { pointsString = '-'}
-
     if (playerObject['nbPoints'] < minPoints || playerObject['nbPoints'] > maxPoints) {
-        pointsCell.style.backgroundColor = 'red';
         registerCell.classList.add('disabled-cell');
         registerCheckbox.setAttribute('disabled', '');
-        pointsString = pointsString + ' \u2717';
-    } else {
-        pointsString = pointsString + ' \u2713';
     }
-    pointsCell.appendChild(document.createTextNode(pointsString));
-    row.appendChild(pointsCell);
 
-    let womenOnlyCell = document.createElement('td');
-    womenOnlyCell.setAttribute('id', 'women-only-cell-' + categoryId);
-    womenOnlyCell.appendChild(document.createTextNode(categoryObject['womenOnly'] ? 'Oui' : 'Non'));
-    row.appendChild(womenOnlyCell);
     if (categoryObject['womenOnly'] && playerObject['gender'] === 'M') {
-        womenOnlyCell.style.backgroundColor = 'red';
         registerCell.classList.add('disabled-cell');
         registerCheckbox.setAttribute('disabled', '');
     }
 
     row.appendChild(registerCell);
-
     return row;
 }
 
@@ -189,7 +174,7 @@ function setUpCategoriesTable() {
     categoriesData.forEach(function (categoryObject)
     {
         let categoryDay = new Date(categoryObject['startTime']);
-        if (categoryDay.getDate() === 6) {
+        if (categoryDay.getDay() === 6) {
             saturdayCategories.push(categoryObject);
         } else {
             sundayCategories.push(categoryObject);
@@ -226,7 +211,7 @@ function submitAll() {
         let categoryId = categoryObject['categoryId'];
         let registerCheckbox = document.getElementById('register-checkbox-' + categoryId);
         if (registerCheckbox.checked) {
-            if (new Date(categoryObject['startTime']).getDate() === 6) {
+            if (new Date(categoryObject['startTime']).getDay() === 6) {
                 nbSaturdayEntries += 1;
             } else {
                 nbSundayEntries += 1;
@@ -234,8 +219,15 @@ function submitAll() {
         }
     });
 
-    if (nbSaturdayEntries > actualMaxEntriesPerDay || nbSundayEntries > actualMaxEntriesPerDay) {
-        window.alert("Vous ne pouvez pas vous inscrire à plus de " + actualMaxEntriesPerDay + " tableaux par jour.");
+    let maxEntriesPerDaySaturday = maxEntriesPerDay + ((playerObject['gender'] === 'F' && womenOnlySaturday.length > 0) ? 1 : 0);
+    let maxEntriesPerDaySunday = maxEntriesPerDay + ((playerObject['gender'] === 'F' && womenOnlySunday.length > 0) ? 1 : 0);
+
+
+    if (nbSaturdayEntries > maxEntriesPerDaySaturday) {
+        window.alert("Vous ne pouvez pas vous inscrire à plus de " + maxEntriesPerDaySaturday + " tableaux pour la journée de samedi.");
+        return;
+    } else if (nbSundayEntries > maxEntriesPerDaySunday) {
+        window.alert("Vous ne pouvez pas vous inscrire à plus de " + maxEntriesPerDaySunday + " tableaux pour la journée de dimanche.");
         return;
     }
 
@@ -243,8 +235,10 @@ function submitAll() {
 }
 
 async function submitPlayer() {
-    let emailField = document.getElementById("email-field");
-    let phoneField = document.getElementById("phone-field");
+    let emailField = document.getElementById("email-cell");
+    let phoneField = document.getElementById("phone-cell");
+    changeRequiredMessage(emailField, "Veuillez entrer votre adresse email.");
+    changeRequiredMessage(phoneField, "Veuillez entrer votre numéro de téléphone.");
     let isValid = emailField.reportValidity() && phoneField.reportValidity();
     if (isValid) {
         let contactPayload = {
@@ -267,6 +261,16 @@ async function submitPlayer() {
     }
 }
 
+function changeRequiredMessage(field, message) {
+    field.addEventListener('invalid', function() {
+    if(field.validity.valueMissing) {
+      field.setCustomValidity(message);
+    } else {
+      field.setCustomValidity('');
+    }
+    });
+}
+
 async function submitEntries() {
     let payload = {
         'categoryIds': [],
@@ -286,7 +290,6 @@ async function submitEntries() {
         body: JSON.stringify(payload)
     })
     if (response.ok) {
-        console.log("Entries successfully added");
         window.location.href = "/public/deja_inscrit/" + licenceNo;
     } else {
         await publicHandleBadResponse(response);
@@ -303,8 +306,6 @@ async function fetchCategoriesAndPlayer() {
         categoriesData = await categoriesResponse.json();
         categoriesData = categoriesData['categories'];
         playerObject = await playerResponse.json();
-        console.log(categoriesData);
-        console.log(playerObject);
         setUpCategoriesTable();
         processPlayer();
         return true;

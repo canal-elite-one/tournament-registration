@@ -3,16 +3,43 @@
 {% block title %}Contact{% endblock %}
 
 {% block content %}
-<p>Vous pouvez contacter les organisateurs du tournoi de la façon suivante :</p>
-<ul>
-    <li>Par mail : <a href="mailto: {{ contact_email }}">{{ contact_email }}</a></li>
-    <li>Par téléphone : {{ contact_phone }}</li>
-    <li><a href="{{ contact_website }}">Site web de l'USKB</a></li>
-</ul>
-
-<img id="categories-recap" src="{{ url_for('static', filename='categories_recap.jpg') }}">
+  <div class="max-w-md mx-auto bg-white rounded-lg shadow-md p-6">
+    <div class="flex items-center mb-4">
+      <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo"
+           class="w-12 h-12 mr-4">
+      <h2 class="text-xl font-bold">Contactez l'USKB</h2>
+    </div>
+    <p class="mb-4">Vous pouvez contacter les organisateurs du tournoi de la façon
+      suivante :</p>
+    <ul class="list-disc pl-6 mb-4">
+      <li class="mb-2">Par mail : <a href="mailto:{{ contact_email }}"
+                                     class="text-blue-500 hover:underline">{{ contact_email }}</a>
+      </li>
+      <li class="mb-2">Par SMS : <span class="text-gray-600">{{ contact_phone }}</span>
+      </li>
+      <li class="mb-2"><a href="{{ contact_website }}"
+                          class="text-blue-500 hover:underline">Site web de l'USKB</a>
+      </li>
+      <!-- Instagram -->
+      <li class="mb-2">
+        Retrouvez nous sur les réseaux sociaux :
+        <a href="https://www.instagram.com/uskb_94" class="text-blue-500 hover:underline">
+          <img src="{{ url_for('static', filename='instagram-logo.png') }}" alt="Instagram Logo"
+               class="w-6 h-6 inline-block align-middle">
+        </a>
+        <a href="https://www.facebook.com/USKBClub" class="text-blue-500 hover:underline">
+          <img src="{{ url_for('static', filename='facebook-logo.png') }}" alt="Facebook Logo"
+               class="w-6 h-6 inline-block align-middle">
+        </a>
+        <a href="https://www.linkedin.com/company/union-sportive-du-kremlin-bic%C3%AAtre/" class="text-blue-500 hover:underline">
+          <img src="{{ url_for('static', filename='linkedin-logo.png') }}" alt="Linkedin Logo"
+               class="w-6 h-6 inline-block align-middle">
+        </a>
+      </li>
+    </ul>
+  </div>
 {% endblock %}
 
 {% block scripts %}
-<script>showContent();</script>
+  <script>showContent();</script>
 {% endblock %}

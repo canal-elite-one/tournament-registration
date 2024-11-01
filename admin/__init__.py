@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, redirect, url_for
 
 from admin.api import api_bp
 from admin.front import front_bp
@@ -11,6 +11,10 @@ def create_app(debug=None):
     app.register_blueprint(api_bp)
     app.register_blueprint(front_bp)
     app.register_error_handler(APIError, handle_api_error)
+
+    @app.route("/", methods=["GET"])
+    def index_page():
+        return redirect(url_for("admin.index"))
 
     app.config.update(get_config_from_env())
 

@@ -82,31 +82,21 @@ function handleCheckbox(categoryId) {
 }
 
 function processPlayerInfo() {
-    let playerInfoTable = document.getElementById('player-info-table');
+    document.getElementById("licence-no-cell").value = playerObject.licenceNo;
+    document.getElementById("first-name-cell").value = playerObject.firstName;
+    document.getElementById("last-name-cell").value = playerObject.lastName;
+    document.getElementById("gender-cell").value = playerObject.gender;
+    document.getElementById("club-cell").value = playerObject.club;
+    document.getElementById("points-cell").value = playerObject.nbPoints;
+    let emailInput = document.getElementById("email-cell")
+    emailInput.value = playerObject.email;
+    emailInput.setAttribute('onchange', 'addExitConfirmation()');
+    let phoneInput = document.getElementById("phone-cell")
+    phoneInput.value = playerObject.phone;
+    phoneInput.setAttribute('onchange', 'addExitConfirmation()');
 
-    relevantPlayerFields.forEach(
-        function(fieldName) {
-            let row = document.createElement('tr');
-            let fieldNameCell = document.createElement('td');
-            fieldNameCell.appendChild(document.createTextNode(enToFr[fieldName]));
-            row.appendChild(fieldNameCell);
-            let fieldValueCell = document.createElement('td');
-            if (playerObject[fieldName] === null) {
-                let fieldInput = document.createElement('input');
-                fieldInput.type = (fieldName == 'email') ? 'email' : ((fieldName == 'phone') ? 'tel' : 'text');
-                fieldInput.id = 'field-input-' + fieldName;
-                fieldInput.value = '';
-                fieldInput.setAttribute('required', '');
-                fieldInput.setAttribute('onchange', 'addExitConfirmation()');
-                fieldValueCell.appendChild(fieldInput);
-            } else {
-                fieldValueCell.appendChild(document.createTextNode(playerObject[fieldName]));
-            }
-            row.appendChild(fieldValueCell);
-            playerInfoTable.appendChild(row);
-        });
     let deleteButtonText;
-    if (playerObject['gender'] == 'F') {
+    if (playerObject['gender'] === 'F') {
         deleteButtonText = document.createTextNode('Supprimer compétitrice \uD83D\uDDD1');
     } else {
         deleteButtonText = document.createTextNode('Supprimer compétiteur \uD83D\uDDD1');
@@ -201,7 +191,7 @@ function createCategoryRow(categoryObject) {
             sameColor[categoryIdByColor[color]] = categoryId;
         } else { categoryIdByColor[color] = categoryId; }
         idCell.style.backgroundColor = color;
-    };
+    }
 
     row.appendChild(createEntryCountCell(categoryObject));
 
@@ -231,7 +221,7 @@ function createCategoryRow(categoryObject) {
     womenOnlyCell.setAttribute('id', 'women-only-cell-' + categoryId);
     womenOnlyCell.appendChild(document.createTextNode(categoryObject['womenOnly'] ? 'Oui' : 'Non'));
     row.appendChild(womenOnlyCell);
-    if (categoryObject['womenOnly'] && playerObject['gender'] == 'M') {
+    if (categoryObject['womenOnly'] && playerObject['gender'] === 'M') {
         womenOnlyCell.style.backgroundColor = 'red';
         registerCell.classList.add('disabled-cell');
         registerCheckbox.setAttribute('disabled', '');
@@ -248,7 +238,7 @@ function setUpCategoriesTable() {
     categoriesData.forEach(function (categoryObject)
     {
         let categoryDay = new Date(categoryObject['startTime']);
-        if (categoryDay.getDate() == 6) {
+        if (categoryDay.getDay() === 6) {
             saturdayCategories.push(categoryObject);
         } else {
             sundayCategories.push(categoryObject);
@@ -274,8 +264,8 @@ function setUpCategoriesTable() {
 
 async function submitPlayer() {
 
-    let emailInput = document.getElementById('field-input-email');
-    let phoneInput = document.getElementById('field-input-phone');
+    let emailInput = document.getElementById('email-cell');
+    let phoneInput = document.getElementById('phone-cell');
     let isValid = emailInput.reportValidity() && phoneInput.reportValidity();
     if (!isValid) {
         return;
@@ -338,7 +328,12 @@ async function submitEntries() {
 
 async function submitAll() {
     removeExitConfirmation();
-    let playerSubmitted = playerObject['email'] === null ? await submitPlayer() : true;
+
+    let emailInput = document.getElementById('email-cell');
+    let phoneInput = document.getElementById('phone-cell');
+
+    console.log(emailInput.value, playerObject['email'], phoneInput.value, playerObject['phone'])
+    let playerSubmitted = (playerObject['email'] !== emailInput.value || playerObject['phone'] !== phoneInput.value) ? await submitPlayer() : true;
 
     if (playerSubmitted) {
         let entriesSubmitted = await submitEntries();

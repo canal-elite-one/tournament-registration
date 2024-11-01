@@ -630,7 +630,16 @@ def api_admin_get_csv_zip():
             for category in session.scalars(
                 select(Category).order_by(Category.start_time),
             ).all():
-                players.append([entry.player for entry in category.entries])
+                players.append(
+                    [
+                        entry.player
+                        for entry in sorted(
+                            category.entries,
+                            key=lambda e: e.registration_time,
+                        )
+                        if entry.marked_as_present is not False
+                    ][: category.max_players],
+                )
                 filenames.append(f"competiteurs_tableau_{category.category_id}.csv")
             zip_name = "competiteurs_par_tableaux"
         else:
@@ -649,17 +658,26 @@ def api_admin_get_csv_zip():
                 select(Player)
                 .distinct()
                 .join(Entry)
-                .where(Entry.category_id.in_(saturday_category_ids)),
+                .where(Entry.category_id.in_(saturday_category_ids))
+                .order_by(Player.bib_no),
             ).all()
             sunday_players = session.scalars(
                 select(Player)
                 .distinct()
                 .join(Entry)
-                .where(Entry.category_id.in_(sunday_category_ids)),
+                .where(Entry.category_id.in_(sunday_category_ids))
+                .order_by(Player.bib_no),
+            ).all()
+            all_players = session.scalars(
+                select(Player).distinct().order_by(Player.bib_no),
             ).all()
 
-            players = [saturday_players, sunday_players]
-            filenames = ["competiteurs_samedi.csv", "competiteurs_dimanche.csv"]
+            players = [saturday_players, sunday_players, all_players]
+            filenames = [
+                "competiteurs_samedi.csv",
+                "competiteurs_dimanche.csv",
+                "competieurs.csv",
+            ]
             zip_name = "competiteurs_samedi_dimanche"
 
         return create_zip_file(filenames, players, zip_name)

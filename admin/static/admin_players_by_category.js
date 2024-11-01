@@ -281,16 +281,16 @@ function showTables(categoryId=null) {
     if (categoryId === null) {
         for (let i=0; i<tables.length; i++) {
             tables[i].style.display = 'block';
-            links[i].classList.remove('navbar-link-current');
+            links[i+1].classList.remove('active');
         }
-        document.getElementById("show-span-all").classList.add('navbar-link-current');
+        document.getElementById("show-span-all").classList.add('active');
     } else {
         for (let i=0; i<tables.length; i++) {
             tables[i].style.display = 'none';
-            links[i+1].classList.remove('navbar-link-current');
+            links[i+1].classList.remove('active');
         }
-        document.getElementById("show-span-all").classList.remove('navbar-link-current');
-        document.getElementById("show-span-" + categoryId).classList.add('navbar-link-current');
+        document.getElementById("show-span-all").classList.remove('active');
+        document.getElementById("show-span-" + categoryId).classList.add('active');
         document.getElementById('category-table-div-' + categoryId).style.display = 'block';
     }
     checkIfResults(categoryId);
@@ -345,17 +345,13 @@ function processData() {
     data.forEach(categoryObject=> {
         let categoryId = categoryObject['categoryId'];
 
-        let listElement = document.createElement('li');
-        listElement.setAttribute('class', 'navbar-element');
-
-        let linkElement = document.createElement('span');
-        linkElement.setAttribute('class', 'navbar-link');
+        let linkElement = document.createElement('button');
+        linkElement.setAttribute('class', 'tab-btn');
         linkElement.classList.add('show-table-span');
         linkElement.setAttribute('id', 'show-span-' + categoryId);
         linkElement.setAttribute('onclick', 'showTables("' + categoryId + '")');
         linkElement.innerHTML = categoryId;
-        listElement.appendChild(linkElement);
-        categoriesNavbar.appendChild(listElement);
+        categoriesNavbar.appendChild(linkElement);
 
         createOneTable(categoryObject);
     });
@@ -376,8 +372,6 @@ async function fetchData() {
 }
 
 document.getElementById('players-by-category-search').value = "";
-
-document.getElementById('players-by-categories-navbar-link').setAttribute('class', 'navbar-link-current');
 
 fetchData().then(() => {
     showContent();

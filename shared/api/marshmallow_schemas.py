@@ -235,6 +235,11 @@ class PlayerSchema(SchemaWithReset):
         if self.context.get("include_payment_status", False):
             del data["totalActualPaid"]
             if not is_before_cutoff():
+                data["wasRegisteredBeforeCutoff"] = bool(
+                    original.entries,
+                ) and is_before_cutoff(
+                    min(entry.registration_time for entry in original.entries),
+                )
                 data["paymentStatus"] = original.payment_status()
                 data["leftToPay"] = original.left_to_pay()
         return data
@@ -317,6 +322,8 @@ class EntrySchema(SchemaWithReset):
             category = original.category
             data["startTime"] = category.start_time.isoformat()
             data["alternateName"] = category.alternate_name
+            data["maxPlayers"] = category.max_players
+            data["overbookingPercentage"] = category.overbooking_percentage
         return data
 
     @post_dump(pass_many=True)

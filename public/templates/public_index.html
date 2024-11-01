@@ -3,15 +3,93 @@
 {% block title %}Inscription{% endblock %}
 
 {% block content %}
-<label>Entrez votre numéro de licence :
-    <input type="text" id="licence-no-field" maxlength="12" autofocus>
-    <button id="search-licence-no" onclick="findPlayer()">Recherche</button>
-</label>
+  <div class="md:container md:mx-auto">
+    <div class="max-w-md mx-auto bg-white p-8 rounded-md shadow-md">
+      <h2 class="text-2xl font-bold mb-4">Inscrivez vous !</h2>
+      <form class="w-full pb-6"> <!-- Added pb-6 class to add padding at the bottom -->
+        <div class="mb-4 flex items-center">
+          <label for="licence-no-field" class="text-gray-700 font-bold mr-4">Numéro de
+            licence</label>
+          <input type="text" id="licence-no-field" name="licenceNo"
+                 class="form-input flex-1 border border-gray-300 rounded-md px-4 py-2 focus:border-blue-500 focus:ring focus:ring-blue-500"
+                 required autofocus>
+        </div>
 
-<img id="categories-recap" src="{{ url_for('static', filename='categories_recap.jpg') }}">
+      </form>
+      <div class="flex justify-end">
+        <!-- Changed button container to flex and added justify-end -->
+        <button type="submit" id="search-licence-no"
+                class="bg-blue-950 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-800 focus:outline-none focus:bg-blue-800"
+                onclick="findPlayer()">Rechercher
+        </button>
+      </div>
+
+    </div>
+  <div class="mt-8">
+      <table class="w-full border mb-4">
+        <!-- Table content for Saturday -->
+        <thead class="bg-blue-950 rounded-t-lg">
+        <tr>
+          <th colspan="7" class="text-white">Samedi {{ saturday_date }}</th>
+        </tr>
+        <tr>
+          <th colspan="2" class="text-white">Tableau</th>
+          <th class="text-white">Tarif</th>
+          <th class="text-white">Fin de pointage</th>
+          <th class="text-white">Vainqueur</th>
+          <th class="text-white">Finaliste</th>
+          <th class="text-white">1/2 Finaliste</th>
+        </tr>
+        </thead>
+        <tbody id="saturday-table-body">
+        {% for item in saturday_categories %}
+          <tr>
+            <td>{{ item.category_id }}</td>
+            <td>{{ item.alternate_name }}</td>
+            <td>{{ item.base_registration_fee }} &euro;</td>
+            <td>{{  item.start_time.strftime('%Hh%M') }}</td>
+            <td>{{ item.reward_first }} &euro;</td>
+            <td>{{ item.reward_second }} &euro;</td>
+            <td>{{ item.reward_semi }} &euro;</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+      <table class="w-full border mb-4">
+        <!-- Table content for Sunday -->
+        <thead class="bg-blue-950 rounded-t-lg">
+        <tr>
+          <th colspan="7" class="text-white">Dimanche {{ sunday_date }}</th>
+        </tr>
+        <tr>
+          <th colspan="2" class="text-white">Tableau</th>
+          <th class="text-white">Tarif</th>
+          <th class="text-white">Fin de pointage</th>
+          <th class="text-white">Vainqueur</th>
+          <th class="text-white">Finaliste</th>
+          <th class="text-white">1/2 Finaliste</th>
+        </tr>
+        </thead>
+        <tbody id="saturday-table-body">
+        {% for item in sunday_categories %}
+          <tr>
+            <td>{{ item.category_id }}</td>
+            <td>{{ item.alternate_name }}</td>
+            <td>{{ item.base_registration_fee }} &euro;</td>
+            <td>{{  item.start_time.strftime('%Hh%M') }}</td>
+            <td>{{ item.reward_first }} &euro;</td>
+            <td>{{ item.reward_second }} &euro;</td>
+            <td>{{ item.reward_semi }} &euro;</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
 {% endblock %}
 
 {% block scripts %}
-<script src="{{ url_for('static', filename='public_index.js') }}"></script>
-<script>showContent();</script>
+  <script src="{{ url_for('static', filename='public_index.js') }}"></script>
+  <script>showContent();</script>
 {% endblock %}

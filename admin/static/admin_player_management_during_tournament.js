@@ -43,12 +43,12 @@ function handleCheckbox(checkboxId, fromClick=false, targetChecked=null, targetE
     } else {
         targetChecked = (targetChecked === null) ? (initialChecked(checkbox)) : targetChecked;
         targetEnabled = (targetEnabled === null) ? !checkbox.disabled : targetEnabled;
-        if (checkbox.checked != targetChecked) {
+        if (checkbox.checked !== targetChecked) {
             checkbox.checked = targetChecked;
             stateChangeFlag = true;
         }
         console.log('checkbox.disabled: ' + checkbox.disabled);
-        if (checkbox.disabled == targetEnabled) {
+        if (checkbox.disabled === targetEnabled) {
             if (targetEnabled) {
                 checkbox.removeAttribute('disabled');
                 checkbox.parentElement.classList.remove('disabled-cell');
@@ -64,7 +64,7 @@ function handleCheckbox(checkboxId, fromClick=false, targetChecked=null, targetE
     if (stateChangeFlag) {
         for (const i in checkboxLinks[checkboxId]) {
             let checkboxLink = checkboxLinks[checkboxId][i];
-            if (checkboxLink['parentState'] == checkbox.checked) {
+            if (checkboxLink['parentState'] === checkbox.checked) {
                 handleCheckbox(checkboxLink['checkboxId'], false, checkboxLink['checked'], checkboxLink['enabled']);
             }
         }
@@ -75,11 +75,11 @@ function handleCheckbox(checkboxId, fromClick=false, targetChecked=null, targetE
 function initialChecked(checkbox) {
     let categoryId = checkbox.id.slice(-1);
     if (initiallyRegistered(categoryId)) {
-        if (checkbox.getAttribute('data-checkbox-type') == 'register') {
+        if (checkbox.getAttribute('data-checkbox-type') === 'register') {
             return true;
-        } else if (checkbox.getAttribute('data-checkbox-type') == 'present') {
+        } else if (checkbox.getAttribute('data-checkbox-type') === 'present') {
             return playerObject['registeredEntries'][categoryId]['markedAsPresent'];
-        } else if (checkbox.getAttribute('data-checkbox-type') == 'absent') {
+        } else if (checkbox.getAttribute('data-checkbox-type') === 'absent') {
             return playerObject['registeredEntries'][categoryId]['markedAsPresent'] === false;
         } else {
             return playerObject['registeredEntries'][categoryId]['markedAsPaid'];
@@ -90,12 +90,8 @@ function initialChecked(checkbox) {
 }
 
 function currentFee(categoryId) {
-    if (initiallyRegistered(categoryId)) {
-        return playerObject['registeredEntries'][categoryId]['entryFee'];
-    } else {
-        let categoryObject = categoriesData.find(category => category['categoryId'] == categoryId);
-        return categoryObject['currentFee'];
-    }
+    let categoryObject = categoriesData.find(category => category['categoryId'] === categoryId);
+    return categoryObject["baseRegistrationFee"] + (playerObject["wasRegisteredBeforeCutoff"] ? 0 : categoryObject["lateRegistrationFee"]);
 }
 
 function recomputePaymentStatus() {
@@ -122,12 +118,12 @@ function recomputePaymentStatus() {
         paymentStatus['currentActualTotal'] = paymentStatus['paidTotal'] - playerObject['paymentStatus']['totalActualPaid'];
     });
 
-    document.getElementById('register-total').firstChild.nodeValue = paymentStatus['registerTotal'];
-    document.getElementById('present-total').firstChild.nodeValue = paymentStatus['presentTotal'];
-    document.getElementById('paid-total').firstChild.nodeValue = paymentStatus['paidTotal'];
+    document.getElementById('register-total').value = paymentStatus['registerTotal'];
+    document.getElementById('present-total').value = paymentStatus['presentTotal'];
+    document.getElementById('paid-total').value = paymentStatus['paidTotal'];
     let dueTotalValue = paymentStatus['presentTotal'] - playerObject['paymentStatus']['totalActualPaid'];
     let dueTotalCell = document.getElementById('due-total');
-    dueTotalCell.firstChild.nodeValue = dueTotalValue;
+    dueTotalCell.value = dueTotalValue;
     dueTotalCell.style.backgroundColor = dueTotalValue > 0 ? 'hsl(25, 100%, 80%)' : 'hsl(140, 100%, 80%)';
 
     document.getElementById('actual-total-field').value = paymentStatus['currentActualTotal'];
@@ -153,7 +149,18 @@ async function generateBibNo() {
 }
 
 function processPlayerInfo() {
-    let playerInfoTable = document.getElementById('player-info-table');
+    document.getElementById("licence-no-cell").value = playerObject.licenceNo;
+    document.getElementById("first-name-cell").value = playerObject.firstName;
+    document.getElementById("last-name-cell").value = playerObject.lastName;
+    document.getElementById("gender-cell").value = playerObject.gender;
+    document.getElementById("club-cell").value = playerObject.club;
+    document.getElementById("points-cell").value = playerObject.nbPoints;
+    let emailInput = document.getElementById("email-cell")
+    emailInput.value = playerObject.email;
+    emailInput.setAttribute('onchange', 'addExitConfirmation()');
+    let phoneInput = document.getElementById("phone-cell")
+    phoneInput.value = playerObject.phone;
+    phoneInput.setAttribute('onchange', 'addExitConfirmation()');
 
     takeCheckboxStateSnapshot();
 
@@ -167,22 +174,7 @@ function processPlayerInfo() {
     recomputePaymentStatus();
 
     if (showBib) {
-        let row = document.createElement('tr');
-        row.appendChild(document.createElement('td').appendChild(document.createTextNode('N° dossard')));
-        let bibNoCell = document.createElement('td');
-        bibNoCell.setAttribute('id', 'bib-no-cell');
-
-        if (playerObject['bibNo'] === null) {
-            let generateBibNoButton = document.createElement('button');
-            generateBibNoButton.setAttribute('onclick', 'generateBibNo()');
-            generateBibNoButton.appendChild(document.createTextNode('Générer N° dossard'));
-            bibNoCell.appendChild(generateBibNoButton);
-            bibNoCell.style.backgroundColor = 'red';
-        } else {
-            bibNoCell.appendChild(document.createTextNode(playerObject['bibNo']));
-        }
-        row.appendChild(bibNoCell);
-        playerInfoTable.appendChild(row);
+        document.getElementById("bib-no-cell").value = playerObject.bibNo;
     }
 
     relevantPlayerFields.forEach(
@@ -192,21 +184,12 @@ function processPlayerInfo() {
             fieldNameCell.appendChild(document.createTextNode(enToFr[fieldName]));
             row.appendChild(fieldNameCell);
             let fieldValueCell = document.createElement('td');
-            let fieldString = playerObject[fieldName] || (fieldName == 'email' ? `${playerObject['firstName'].toLowerCase()}@samplehost.com` : '+33000000000');
+            let fieldString = playerObject[fieldName] || (fieldName === 'email' ? `${playerObject['firstName'].toLowerCase()}@samplehost.com` : '+33000000000');
             fieldValueCell.appendChild(document.createTextNode(fieldString));
             row.appendChild(fieldValueCell);
-            playerInfoTable.appendChild(row);
         });
-    let deleteButtonText;
-    if (playerObject['gender'] == 'F') {
-        deleteButtonText = document.createTextNode('Supprimer compétitrice \uD83D\uDDD1');
-    } else {
-        deleteButtonText = document.createTextNode('Supprimer compétiteur \uD83D\uDDD1');
-    }
 
-    document.getElementById('previous-actual-total').firstChild.nodeValue = playerObject['paymentStatus']['totalActualPaid'];
-
-    document.getElementById('delete-player-button').appendChild(deleteButtonText);
+    document.getElementById('previous-actual-total').value = playerObject['paymentStatus']['totalActualPaid'];
 }
 
 function createCheckboxCell(categoryId, checkboxType) {
@@ -224,12 +207,12 @@ function createCheckboxCell(categoryId, checkboxType) {
     label.appendChild(document.createTextNode(' '));
     cell.appendChild(label);
 
-    if (checkboxType != 'register') {
+    if (checkboxType !== 'register') {
         cell.classList.add('disabled-cell');
         checkbox.setAttribute('disabled', '');
     }
 
-    if (checkboxType == 'register') {
+    if (checkboxType === 'register') {
         const shortLinkArray = [['present', true], ['present', false], ['absent', true], ['absent', false]];
         shortLinkArray.forEach(function (shortLink) {
             let [childCheckboxType, flag] = shortLink;
@@ -238,7 +221,7 @@ function createCheckboxCell(categoryId, checkboxType) {
                 {'parentState': flag, 'checkboxId': childCheckboxType + '-checkbox-' + categoryId, 'checked': flag ? null : false, 'enabled': flag}
             );
         });
-    } else if (checkboxType == 'present') {
+    } else if (checkboxType === 'present') {
         addLink(
             checkbox.id,
             {'parentState': true, 'checkboxId': 'paid-checkbox-' + categoryId, 'checked': null, 'enabled': true}
@@ -251,7 +234,7 @@ function createCheckboxCell(categoryId, checkboxType) {
             checkbox.id,
             {'parentState': true, 'checkboxId': 'absent-checkbox-' + categoryId, 'checked': false, 'enabled': true}
         );
-    } else if (checkboxType == 'absent') {
+    } else if (checkboxType === 'absent') {
         addLink(
             checkbox.id,
             {'parentState': true, 'checkboxId': 'present-checkbox-' + categoryId, 'checked': false, 'enabled': true}
@@ -360,7 +343,7 @@ function createCategoryRow(categoryObject) {
     womenOnlyCell.setAttribute('id', 'women-only-cell-' + categoryId);
     womenOnlyCell.appendChild(document.createTextNode(categoryObject['womenOnly'] ? 'Oui' : 'Non'));
     row.appendChild(womenOnlyCell);
-    if (categoryObject['womenOnly'] && playerObject['gender'] == 'M') {
+    if (categoryObject['womenOnly'] && playerObject['gender'] === 'M') {
         womenOnlyCell.style.backgroundColor = 'red';
         registerCell.classList.add('disabled-cell');
         registerCell.firstChild.setAttribute('disabled', '');
@@ -380,7 +363,7 @@ function setUpCategoriesTable() {
     categoriesData.forEach(function (categoryObject)
     {
         let categoryDay = new Date(categoryObject['startTime']);
-        if (categoryDay.getDate() == 6) {
+        if (categoryDay.getDay() === 6) {
             saturdayCategories.push(categoryObject);
         } else {
             sundayCategories.push(categoryObject);

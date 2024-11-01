@@ -3,12 +3,39 @@
 {% block title %}Clotûre{% endblock %}
 
 {% block content %}
-<p>Les inscriptions en ligne ne sont plus ouvertes pour ce tournoi. Veuillez contacter les organisateurs :
-    <a href="{{ url_for('public.contact_page') }}">Contact</a></p>
+  <div class="md:container md:mx-auto">
+  <h3 class="text-xl font-bold mb-4">Les inscriptions en ligne sont closes. Veuillez <a href="mailto:{{ contact_email }}"
+                  class="font-bold text-blue-500 hover:underline">envoyer un e-mail</a>
+      aux organisateurs : <a href="mailto:{{ contact_email }}"
+                             class="text-blue-500 hover:underline">{{ contact_email }}</a></h3>
+    <div class="max-w-lg  mx-auto bg-white p-6 rounded-md shadow-md mt-12">
 
-<img id="categories-recap" src="{{ url_for('static', filename='categories_recap.jpg') }}">
+      <h2 class="text-2xl font-bold mb-4">Retrouvez vos tableaux et position !</h2>
+      <form class="w-full pb-6"> <!-- Added pb-6 class to add padding at the bottom -->
+        <div class="mb-4 flex items-center">
+          <label for="licence-no-field" class="text-gray-700 font-bold mr-4">Numéro de
+            licence</label>
+          <input type="text" id="licence-no-field" name="licenceNo"
+                 class="form-input flex-1 border border-gray-300 rounded-md px-4 py-2 focus:border-blue-500 focus:ring focus:ring-blue-500"
+                 required autofocus>
+        </div>
+
+      </form>
+      <div class="flex justify-end">
+        <!-- Changed button container to flex and added justify-end -->
+        <button type="submit" id="search-licence-no"
+                class="bg-blue-950 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-800 focus:outline-none focus:bg-blue-800"
+                onclick="findPlayer()">Rechercher
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+
 {% endblock %}
 
 {% block scripts %}
-<script>showContent();</script>
+  <script src="{{ url_for('static', filename='public_late_index.js') }}"></script>
+  <script>showContent();</script>
 {% endblock %}

@@ -3,78 +3,135 @@
 {% block title %}Inscription{% endblock %}
 
 {% block content %}
-<table id="player-info-table">
-    <tr>
-        <th>N° licence</th>
-        <td id="licence-no-cell"></td>
-    </tr>
-    <tr>
-        <th>Prénom</th>
-        <td id="first-name-cell"></td>
-    </tr>
-    <tr>
-        <th>Nom de famille</th>
-        <td id="last-name-cell"></td>
-    </tr>
-    <tr>
-        <th>Genre</th>
-        <td id="gender-cell"></td>
-    </tr>
-    <tr>
-        <th>Club</th>
-        <td id="club-cell"></td>
-    </tr>
-    <tr>
-        <th>Classement</th>
-        <td id="points-cell"></td>
-    </tr>
-    <tr>
-        <th>Addresse courriel</th>
-        <td id="email-cell"></td>
-    </tr>
-    <tr>
-        <th>Numéro de téléphone</th>
-        <td id="phone-cell"></td>
-    </tr>
-</table>
+  <div class="flex justify-between">
+    <!-- Left Column -->
+    <div class="w-1/2 p-4">
+      <div class="w-full mx-auto bg-white shadow-md rounded-md overflow-hidden">
+        <div class="px-6 py-4">
+          <div class="font-bold text-xl mb-2">Inscription</div>
+          <div class="mb-4 flex">
+            <div class="w-1/2 pr-2">
+              <label class="block text-gray-700 text-sm font-bold mb-2"
+                     for="first-name-cell">
+                Prénom
+              </label>
+              <input disabled
+                     class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                     id="first-name-cell" type="text">
+            </div>
+            <div class="w-1/2 pl-2">
+              <label class="block text-gray-700 text-sm font-bold mb-2"
+                     for="last-name-cell">
+                Nom
+              </label>
+              <input disabled
+                     class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                     id="last-name-cell" type="text">
+            </div>
+          </div>
+          <div class="mb-4 flex">
+            <div class="w-1/3 pr-2">
+              <label class="block text-gray-700 text-sm font-bold mb-2"
+                     for="licence-no-cell">
+                Numéro de licence
+              </label>
+              <input disabled
+                     class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                     id="licence-no-cell" type="text">
+            </div>
+            <div class="w-1/3 px-2">
+              <label class="block text-gray-700 text-sm font-bold mb-2"
+                     for="points-cell">
+                Classement
+              </label>
+              <input disabled
+                     class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                     id="points-cell" type="text">
+            </div>
+            <div class="w-1/3 pl-2">
+              <label class="block text-gray-700 text-sm font-bold mb-2"
+                     for="gender-cell">
+                Sexe
+              </label>
+              <input disabled
+                     class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                     id="gender-cell" type="text">
+            </div>
+          </div>
+          <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="club-cell">
+              Club
+            </label>
+            <input disabled
+                   class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                   id="club-cell" type="text">
+          </div>
+          <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="email-cell">
+              Adresse email
+            </label>
+            <input
+                required
+                class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                id="email-cell" type="email" placeholder="Votre adresse courriel">
+          </div>
+          <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="phone-cell">
+              Numéro de téléphone
+            </label>
+            <input
+                required
+                class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                id="phone-cell" type="tel" placeholder="Votre numéro de téléphone">
+          </div>
+          <div class="flex mt-auto">
+            <button id="submit-button" onclick="submitAll()"
+                    class="bg-blue-950 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4 ml-auto"
+                    disabled title="Vous devez vous inscrire à au moins un tableau."
+                    style="cursor: not-allowed;">S'inscrire
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
 
-<div id="public-entry-management">
-    <table id="saturday-table">
-        <thead>
-            <tr>
-                <th colspan="5">Samedi</th>
-            </tr>
-            <tr>
-                <th>Tableau</th>
-                <th>Liste d'attente ?</th>
-                <th>Limite de points</th>
-                <th>Féminin ?</th>
-                <th>Inscription</th>
-            </tr>
+    <!-- Right Column -->
+    <div class="w-1/2 p-4 relative">
+      <h2 class="text-lg font-bold mb-4">Tableaux</h2>
+      <table class="w-full border mb-4">
+        <!-- Table content for Saturday -->
+        <thead class="bg-blue-950 rounded-t-lg">
+        <tr>
+          <th colspan="4" class="text-white">Samedi</th>
+        </tr>
+        <tr>
+          <th colspan="2" class="text-white">Tableau</th>
+          <th class="text-white">Disponibilité</th>
+          <th class="text-white">Inscription</th>
+        </tr>
         </thead>
         <tbody id="saturday-table-body"></tbody>
-    </table>
-    <table id="sunday-table">
-        <thead>
-            <tr>
-                <th colspan="5">Dimanche</th>
-            </tr>
-            <tr>
-                <th>Tableau</th>
-                <th>Liste d'attente ?</th>
-                <th>Limite de points</th>
-                <th>Féminin ?</th>
-                <th>Inscription</th>
-            </tr>
+      </table>
+      <table class="w-full border mb-4">
+        <!-- Table content for Sunday -->
+        <thead class="bg-blue-950 rounded-t-lg">
+        <tr>
+          <th colspan="4" class="text-white">Dimanche</th>
+        </tr>
+        <tr>
+          <th colspan="2" class="text-white">Tableau</th>
+          <th class="text-white">Disponibilité</th>
+          <th class="text-white">Inscription</th>
+        </tr>
         </thead>
         <tbody id="sunday-table-body"></tbody>
-    </table>
-</div>
-<button id="submit-button" onclick="submitAll()" disabled title="Vous devez vous inscrire à au moins un tableau." style="cursor: disabled;">S'inscrire</button>
+      </table>
+    </div>
+  </div>
 {% endblock %}
 
 {% block scripts %}
-<script>const licenceNo="{{ licence_no }}"</script>
-<script>const maxEntriesPerDay={{ max_entries_per_day }}</script>
-<script src="{{ url_for('static', filename='public_player.js') }}"></script>
+  <script>const licenceNo = "{{ licence_no }}"</script>
+  <script>const maxEntriesPerDay ={{ max_entries_per_day }}</script>
+  <script src="{{ url_for('static', filename='public_player.js') }}"></script>
 {% endblock %}

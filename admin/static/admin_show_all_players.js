@@ -46,7 +46,7 @@ function setAllBibs() {
 
 function resetAllBibs() {
     let confirmationMessage = window.prompt('Etes vous sûr de vouloir supprimer les n° de dossards existants ? Avez-vous appelé Céline avant de cliquer sur ce bouton ? Si oui, ou si vous êtes Céline, tapez "Je suis sur! J\'ai appelé Céline!" et validez.')
-    if (confirmationMessage == "Je suis sur! J'ai appelé Céline!") {
+    if (confirmationMessage === "Je suis sur! J'ai appelé Céline!") {
         fetch('/api/admin/bibs', {
             method: 'DELETE',
             headers: {
@@ -55,7 +55,7 @@ function resetAllBibs() {
             body: JSON.stringify({'confirmation': confirmationMessage}),
         }).then((response) => [response.json(), response.status])
         .then((data) => {
-            if (data[1] != 204) {
+            if (data[1] !== 204) {
                 console.error('Could not reset bibs: ' + data[0].error);
             } else {
                 console.log('Successfully reset bibs');
@@ -89,12 +89,12 @@ function putDataInTable(data, elementId) {
         row.setAttribute("class", "players-table-row")
         columns.forEach(function(colName) {
             let dataCell = document.createElement('td');
-            if (colName == 'Tableaux') {;
+            if (colName === 'Tableaux') {
                 dataCell.appendChild(document.createTextNode(playerObject["registeredEntries"]));
             } else {
                 let cellString = playerObject[frToEn[colName]] === null ? '-' : playerObject[frToEn[colName]].toString();
                 dataCell.appendChild(document.createTextNode(cellString));
-                if (colName == 'Montant dû (€)' && playerObject['leftToPay'] > 0) {
+                if (colName === 'Montant dû (€)' && playerObject['leftToPay'] > 0) {
                     dataCell.style.color = "red";
                 }
             }
@@ -144,11 +144,11 @@ function numericCompare(colName) {
 
 
 function sortByColumn(colName) {
-    if (dontSort.includes(colName) || (colName == "bibNo" && !bibsSet)) {
+    if (dontSort.includes(colName) || (colName === "bibNo" && !bibsSet)) {
         return null;
     }
 
-    currentSort["ascending"] = (colName == currentSort["colName"]) ? (!(currentSort["ascending"])) : true;
+    currentSort["ascending"] = (colName === currentSort["colName"]) ? (!(currentSort["ascending"])) : true;
     currentSort["colName"] = colName;
     let compareFunction = (numericCols.includes(colName) ? numericCompare(colName) : strCompare(colName));
 
@@ -191,7 +191,7 @@ function filterData() {
 
 function onEnterSearch() {
     let searchString = document.getElementById("players-table-search").value;
-    if (filteredArray.length == 1) {
+    if (filteredArray.length === 1) {
         goToPlayerPage(filteredArray[0]["licenceNo"]);
     } else if (searchString.length > 0 && !isNaN(searchString)) {
         goToPlayerPage(searchString);
@@ -209,11 +209,6 @@ searchField.addEventListener("keypress", function(event) {
 searchField.value = "";
 document.getElementById("search-fftt-button").setAttribute("disabled", "");
 
-document.getElementById('all-players-navbar-link').setAttribute('class', 'navbar-link-current');
-if (!hasRegistrationEnded) {
-    document.getElementById("csv-export-button").style.display = "none";
-}
-
 function areBibsSet() {
     let result = false;
     filteredArray.forEach(function(playerObject) {
@@ -223,11 +218,11 @@ function areBibsSet() {
     });
     if (result) {
         document.getElementById("set-all-bibs-button").style.display = "none";
-        document.getElementById("reset-all-bibs-button").style.display = "inline-block";
+        document.getElementById("reset-all-bibs-button").style.display = "none";
         searchCols.push("bibNo");
         numericCols.push("bibNo");
     } else {
-        document.getElementById("set-all-bibs-button").style.display = "inline-block";
+        document.getElementById("set-all-bibs-button").style.display = "none";
         document.getElementById("reset-all-bibs-button").style.display = "none";
     }
     return result;
