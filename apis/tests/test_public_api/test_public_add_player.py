@@ -4,9 +4,9 @@ import pytest
 import requests_mock
 from freezegun import freeze_time
 
-import apis.shared.api.api_errors as ae
+import apis.shared.api_errors as ae
 
-from apis.public import BaseTest, SampleDates
+from conftest import BaseTest, SampleDates
 
 origin = "api_public_add_player"
 

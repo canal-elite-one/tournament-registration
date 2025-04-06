@@ -7,16 +7,16 @@ from starlette.middleware.cors import CORSMiddleware
 from sqlalchemy import select, text, orm
 from sqlalchemy.exc import DBAPIError
 
-from apis.shared.api.dependencies import get_ro_session, get_rw_session
+from apis.shared.dependencies import get_ro_session, get_rw_session
 from apis.email_sender import EmailSender
-from apis.shared.api.db import CategoryInDB, PlayerInDB
-from apis.shared.api.fftt_api import get_player_fftt
+from apis.shared.db import CategoryInDB, PlayerInDB
+from apis.shared.fftt_api import get_player_fftt
 
 # from apis.shared.api.custom_decorators import (
 #     during_registration,
 #     after_registration_start,
 # )
-import apis.shared.api.api_errors as ae
+import apis.shared.api_errors as ae
 from apis.shared.models import Category, ContactInfo, Player, FfttPlayer, Entry
 
 app = FastAPI()

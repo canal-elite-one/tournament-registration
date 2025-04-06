@@ -6,33 +6,42 @@ from zipfile import ZipFile
 from typing import Annotated
 
 
-from fastapi import APIRouter, Depends, Response
+from fastapi import FastAPI, Depends, Response
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import select, delete, distinct, func, update, text
 from sqlalchemy import orm
 from sqlalchemy.exc import DBAPIError
 
-from shared.api.fftt_api import get_player_fftt
-from shared.api.db import (
+from apis.shared.fftt_api import get_player_fftt
+from apis.shared.db import (
     CategoryInDB,
     PlayerInDB,
     EntryInDB,
     is_before_cutoff,
 )
-import shared.api.api_errors as ae
-from shared.api.custom_decorators import after_cutoff
-from shared.models import (
+import apis.shared.api_errors as ae
+from apis.shared.custom_decorators import after_cutoff
+from apis.shared.models import (
     Category,
     Player,
     AliasedBase,
     EntryWithPlayer,
     ContactInfo,
 )
-from shared.api.dependencies import get_rw_session, get_ro_session, GenSession
+from apis.shared.dependencies import get_rw_session, get_ro_session, GenSession
 
-admin_router = APIRouter(prefix="/admin")
+app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
-@admin_router.post("/categories")
+@app.post("/categories")
 async def api_admin_set_categories(
     categories: list[Category],
     session: Annotated[orm.Session, Depends(get_rw_session)],
@@ -72,7 +81,7 @@ async def api_admin_set_categories(
         )
 
 
-@admin_router.get("/categories")
+@app.get("/categories")
 def api_admin_get_categories(
     session: Annotated[orm.Session, Depends(get_ro_session)],
 ) -> list[Category]:
@@ -84,7 +93,7 @@ def api_admin_get_categories(
     return [Category.model_validate(category) for category in all_categories]
 
 
-@admin_router.route("/players/<licence_no>")
+@app.route("/players/<licence_no>")
 def api_admin_get_player(licence_no: str, db_only: bool = False) -> Player:
     origin = api_admin_get_player.__name__
     with GenSession() as session:
@@ -123,7 +132,7 @@ def api_admin_get_player(licence_no: str, db_only: bool = False) -> Player:
     return Player.model_validate(player)
 
 
-@admin_router.post("/players/<licence_no>")
+@app.post("/players/<licence_no>")
 def api_admin_add_player(
     licence_no: str,
     contact_info: ContactInfo,
@@ -167,7 +176,7 @@ class EntryInfo(AliasedBase):
     marked_as_paid: bool
 
 
-@admin_router.post("/entries/<licence_no>")
+@app.post("/entries/<licence_no>")
 def api_admin_register_entries(
     licence_no: str,
     entries: list[EntryInfo],
@@ -351,7 +360,7 @@ def api_admin_register_entries(
     return player
 
 
-@admin_router.delete("/players/<licence_no>")
+@app.delete("/players/<licence_no>")
 def api_admin_delete_player(
     licence_no: str,
     session: Annotated[orm.Session, Depends(get_rw_session)],
@@ -381,7 +390,7 @@ class BibNumber(AliasedBase):
     bib_no: int
 
 
-@admin_router.post("/bibs")
+@app.post("/bibs")
 @after_cutoff
 def api_admin_assign_all_bibs(session: Annotated[orm.Session, Depends(get_rw_session)]):
     origin = api_admin_assign_all_bibs.__name__
@@ -418,7 +427,7 @@ def api_admin_assign_all_bibs(session: Annotated[orm.Session, Depends(get_rw_ses
     return assigned_bib_nos
 
 
-@admin_router.put("/bibs/<licence_no>")
+@app.put("/bibs/<licence_no>")
 @after_cutoff
 def api_admin_assign_one_bib(
     licence_no: str,
@@ -465,7 +474,7 @@ def api_admin_assign_one_bib(
     return Player.model_validate(session.get(PlayerInDB, licence_no))
 
 
-@admin_router.delete("/bibs")
+@app.delete("/bibs")
 @after_cutoff
 def api_admin_reset_bibs(
     confirmation: str,
@@ -490,7 +499,7 @@ def api_admin_reset_bibs(
     return Response(status_code=HTTPStatus.NO_CONTENT)
 
 
-@admin_router.get("/by_category")
+@app.get("/by_category")
 def api_admin_get_players_by_category(
     present_only: bool,
     session: Annotated[orm.Session, Depends(get_ro_session)],
@@ -512,7 +521,7 @@ def api_admin_get_players_by_category(
     }
 
 
-@admin_router.get("/players/all")
+@app.get("/players/all")
 def api_admin_get_all_players(
     present_only: bool,
     session: Annotated[orm.Session, Depends(get_ro_session)],
@@ -533,7 +542,7 @@ def api_admin_get_all_players(
     ]
 
 
-@admin_router.get("/csv")
+@app.get("/csv")
 def api_admin_get_csv_zip(
     by_category: bool,
     session: Annotated[orm.Session, Depends(get_ro_session)],

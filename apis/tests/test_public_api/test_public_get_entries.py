@@ -3,7 +3,7 @@ from freezegun import freeze_time
 
 import pytest
 
-import apis.shared.api.api_errors as ae
+import apis.shared.api_errors as ae
 
 from apis.public import BaseTest, SampleDates
 

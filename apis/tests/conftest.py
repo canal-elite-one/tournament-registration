@@ -4,9 +4,10 @@ from enum import StrEnum
 
 from pytest import fixture
 from sqlalchemy import text
+from fastapi.testclient import TestClient
 
 from apis import public, admin
-from apis.shared import Session, execute_dbmate
+from apis.shared.db import Session, execute_dbmate
 
 SAMPLE_DATA_PATH = "./tests/sample_data/"
 
@@ -44,24 +45,12 @@ def drop_presence_payment():
 
 class BaseTest:
     @fixture(scope="session")
-    def public_app(self):
-        app = public.create_app(debug=True)
-        app.config.update(config)
-        return app
+    def public_client(self):
+        return TestClient(public.app)
 
     @fixture(scope="session")
-    def admin_app(self):
-        app = admin.create_app(debug=True)
-        app.config.update(config)
-        return app
-
-    @fixture(scope="session")
-    def public_client(self, public_app):
-        return public_app.test_client()
-
-    @fixture(scope="session")
-    def admin_client(self, admin_app):
-        return admin_app.test_client()
+    def admin_client(self):
+        return TestClient(admin.app)
 
     @fixture
     def reset_db(self, request):

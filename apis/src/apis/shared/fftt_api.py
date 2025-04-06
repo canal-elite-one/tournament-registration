@@ -13,7 +13,7 @@ from xml.etree import ElementTree
 from pydantic import ValidationError
 from dotenv import load_dotenv
 
-from apis.shared.api.api_errors import (
+from apis.shared.api_errors import (
     FFTTAPIError,
     FFTT_DATA_PARSE_MESSAGE,
     FFTT_BAD_RESPONSE_MESSAGE,
