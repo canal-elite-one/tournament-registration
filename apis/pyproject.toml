@@ -18,3 +18,10 @@ dependencies = [
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[dependency-groups]
+test = [
+    "freezegun>=1.5.1",
+    "pytest>=8.3.5",
+    "requests-mock>=1.12.1",
+]

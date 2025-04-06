@@ -23,7 +23,7 @@ app = FastAPI()
 config = {}
 
 
-@app.get("/categories")
+@app.get("/categories", operation_id="get_categories")
 # @during_registration
 async def api_public_get_categories(
     session: Annotated[orm.Session, Depends(get_ro_session)],
@@ -36,7 +36,7 @@ async def api_public_get_categories(
     ]
 
 
-@app.post("/players/<licence_no>")
+@app.post("/players/<licence_no>", operation_id="add_player")
 # @during_registration
 async def api_public_add_player(
     licence_no: str,
@@ -77,7 +77,7 @@ async def api_public_add_player(
         )
 
 
-@app.get("/players/<licence_no>")
+@app.get("/players/<licence_no>", operation_id="get_player")
 # @during_registration
 async def api_public_get_player(
     licence_no: str,
@@ -106,7 +106,7 @@ async def api_public_get_player(
     return fftt_player
 
 
-@app.get("/entries/<licence_no>")
+@app.get("/entries/<licence_no>", operation_id="get_entries")
 # @after_registration_start
 async def api_public_get_entries(
     licence_no: str,
@@ -123,7 +123,7 @@ async def api_public_get_entries(
     return [Entry.model_validate(entry_in_db) for entry_in_db in player_in_db.entries]
 
 
-@app.post("/entries/<licence_no>")
+@app.post("/entries/<licence_no>", operation_id="register_entries")
 # @during_registration
 async def api_public_register_entries(
     licence_no: str,
