@@ -1,0 +1,20 @@
+version: "3"
+
+tasks:
+  api-generate-openapi:
+    desc: Generate OpenAPI schema
+    dir: apis
+    env:
+      PYTHONPATH: "{{ .PYTHONPATH }}:."
+    cmds:
+      - uv run ./src/generate_openapi.py > ./openapi.json
+
+  api-generate-sdk:
+    desc: Generate SDK for frontend
+    deps:
+      - api-generate-openapi
+    cmds:
+      - '[ -d "./front/backend_api/backend" ] || exit 0; rm -rf "./front/backend_api/backend"'
+      - docker run --rm -v .:/local openapitools/openapi-generator-cli generate -i /local/apis/openapi.json -g typescript-axios -o /local/front/backend_api/backend
+      - rm ./apis/openapi.json
+
