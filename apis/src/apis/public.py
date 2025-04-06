@@ -2,7 +2,7 @@ from collections import Counter
 from datetime import datetime
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import FastAPI, Depends
 from sqlalchemy import select, text, orm
 from sqlalchemy.exc import DBAPIError
 
@@ -17,12 +17,12 @@ from shared.api.custom_decorators import (
 import apis.shared.api.api_errors as ae
 from apis.shared.models import Category, ContactInfo, Player, FfttPlayer, Entry
 
-public_router = APIRouter(prefix="/public", tags=["public"])
+app = FastAPI()
 
 config = {}
 
 
-@public_router.get("/categories")
+@app.get("/categories")
 @during_registration
 async def api_public_get_categories(
     session: Annotated[orm.Session, Depends(get_ro_session)],
@@ -35,7 +35,7 @@ async def api_public_get_categories(
     ]
 
 
-@public_router.post("/players/<licence_no>")
+@app.post("/players/<licence_no>")
 @during_registration
 async def api_public_add_player(
     licence_no: str,
@@ -76,7 +76,7 @@ async def api_public_add_player(
         )
 
 
-@public_router.get("/players/<licence_no>")
+@app.get("/players/<licence_no>")
 @during_registration
 async def api_public_get_player(
     licence_no: str,
@@ -105,7 +105,7 @@ async def api_public_get_player(
     return fftt_player
 
 
-@public_router.get("/entries/<licence_no>")
+@app.get("/entries/<licence_no>")
 @after_registration_start
 async def api_public_get_entries(
     licence_no: str,
@@ -122,7 +122,7 @@ async def api_public_get_entries(
     return [Entry.model_validate(entry_in_db) for entry_in_db in player_in_db.entries]
 
 
-@public_router.post("/entries/<licence_no>")
+@app.post("/entries/<licence_no>")
 @during_registration
 async def api_public_register_entries(
     licence_no: str,
