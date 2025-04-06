@@ -1,17 +1,30 @@
 'use client';
 
-import {AppShell, Group, Image, Anchor, Text, Container} from '@mantine/core';
+import {
+  AppShell,
+  Group,
+  Image,
+  Anchor,
+  Text,
+  Container,
+  Burger,
+  Drawer,
+  ScrollArea
+} from '@mantine/core';
+import {useDisclosure} from '@mantine/hooks';
 import {SidebarLinks} from './SidebarLinks';
 
 export default function AppLayout({children}: { children: React.ReactNode }) {
+  const [mobileMenuOpened, {toggle, close}] = useDisclosure(false);
+
   return (
-      <AppShell header={{height: 60}} padding={0} >
+      <AppShell header={{height: 60}} padding={0}>
         {/* HEADER */}
         <AppShell.Header className="bg-white shadow sticky top-0 z-50">
           <Group justify="space-between" align="center" h="100%" px="md">
             {/* Left: Logo and Title */}
             <Anchor href="/" className="flex items-center no-underline"
-                    style={{textDecoration: 'none', textDecorationLine: 'none'}}>
+                    style={{textDecoration: 'none'}}>
               <Image
                   src="/static/logo-48x48.png"
                   alt="USKB Logo"
@@ -24,12 +37,42 @@ export default function AppLayout({children}: { children: React.ReactNode }) {
               </h1>
             </Anchor>
 
-            {/* Right: Navigation and Actions */}
-            <Group>
+            {/* Right: Desktop Navigation */}
+            <Group className="hidden md:flex">
               <SidebarLinks/>
             </Group>
+
+            {/* Mobile Burger */}
+            <Burger
+                opened={mobileMenuOpened}
+                onClick={toggle}
+                className="md:hidden"
+                size="sm"
+                aria-label="Toggle navigation"
+            />
           </Group>
         </AppShell.Header>
+
+        {/* Mobile Drawer */}
+        <Drawer
+            opened={mobileMenuOpened}
+            onClose={close}
+            position="top" // 👈 Add this for top-down panel
+            padding="md"
+            size="auto" // 👈 Adjust height as needed: "auto", "content", or e.g., 300
+            title={null} // Optional: remove title if you want
+            className="md:hidden"
+            zIndex={1001}
+            withCloseButton={false} // Optional: cleaner look, you already have the burger
+            transitionProps={{
+              transition: 'slide-down',
+              duration: 250
+            }} // Smooth animation
+        >
+          <ScrollArea>
+            <SidebarLinks onClickLink={close}/>
+          </ScrollArea>
+        </Drawer>
 
         {/* MAIN CONTENT */}
         <AppShell.Main className="p-0 m-0">{children}</AppShell.Main>
