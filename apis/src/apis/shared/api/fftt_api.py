@@ -1,3 +1,5 @@
+import os
+
 import requests
 from http import HTTPStatus
 
@@ -9,7 +11,7 @@ from datetime import datetime
 from xml.etree import ElementTree
 
 from pydantic import ValidationError
-
+from dotenv import load_dotenv
 
 from apis.shared.api.api_errors import (
     FFTTAPIError,
@@ -18,7 +20,7 @@ from apis.shared.api.api_errors import (
 )
 from apis.shared.models import FfttPlayer
 
-config = {}
+load_dotenv()
 
 
 def get_current_formatted_timestamp() -> str:
@@ -37,13 +39,13 @@ def get_encrypted_timestamp(pwd: str, timestamp: str) -> str:
 
 
 def get_player_fftt(licence_no) -> FfttPlayer:
-    url = config.get("FFTT_API_URL") + "/xml_licence.php"
+    url = os.environ.get("FFTT_API_URL") + "/xml_licence.php"
 
     tm = get_current_formatted_timestamp()
 
-    serial_no = config["FFTT_SERIAL_NO"]
-    app_id = config["FFTT_APP_ID"]
-    password = config["FFTT_PASSWORD"]
+    serial_no = os.environ["FFTT_SERIAL_NO"]
+    app_id = os.environ["FFTT_APP_ID"]
+    password = os.environ["FFTT_PASSWORD"]
 
     tmc = get_encrypted_timestamp(password, tm)
     params = {
