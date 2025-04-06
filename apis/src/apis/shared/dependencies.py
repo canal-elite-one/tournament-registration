@@ -1,19 +1,8 @@
-import os
-
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from dotenv import load_dotenv
-
-load_dotenv()
-
-db_url = os.environ["DATABASE_URL"]
-
-engine = create_engine(db_url)
-GenSession = sessionmaker(engine)
+from apis.shared.db import Session
 
 
 def get_rw_session():
-    with GenSession() as session, session.begin():
+    with Session() as session, session.begin():
         yield session
         # try:
         #     yield session
@@ -24,5 +13,5 @@ def get_rw_session():
 
 
 def get_ro_session():
-    with GenSession() as session:
+    with Session() as session:
         yield session

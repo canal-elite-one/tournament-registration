@@ -5,14 +5,7 @@ from datetime import datetime
 from sqlalchemy import create_engine, Table, select, func, not_
 from sqlalchemy.orm import DeclarativeBase, sessionmaker, Mapped, relationship
 
-from dotenv import load_dotenv
-
-load_dotenv()
-
-db_url = os.environ.get("DATABASE_URL")
-migration_directory = os.environ.get("MIGRATION_DIR")
-
-config = {}
+import apis.shared.config as cfg
 
 
 def execute_dbmate(command):
@@ -20,17 +13,17 @@ def execute_dbmate(command):
         [
             "dbmate",
             "-d",
-            migration_directory,
+            cfg.MIGRATION_DIR,
             "--no-dump-schema",
             "--url",
-            db_url,
+            cfg.DATABASE_URL,
             command,
         ],
         env=os.environ.copy(),
     )
 
 
-engine = create_engine(db_url)
+engine = create_engine(cfg.DATABASE_URL)
 
 Session = sessionmaker(engine)
 
@@ -38,13 +31,13 @@ Session = sessionmaker(engine)
 def is_before_cutoff(dt=None):
     if dt is None:
         dt = datetime.now()
-    return dt < config["TOURNAMENT_REGISTRATION_CUTOFF"]
+    return dt < cfg.TOURNAMENT_REGISTRATION_CUTOFF
 
 
 def is_before_start(dt=None):
     if dt is None:
         dt = datetime.now()
-    return dt < config["TOURNAMENT_REGISTRATION_START"]
+    return dt < cfg.TOURNAMENT_REGISTRATION_START
 
 
 class Base(DeclarativeBase):

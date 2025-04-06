@@ -12,10 +12,7 @@ from apis.email_sender import EmailSender
 from apis.shared.db import CategoryInDB, PlayerInDB
 from apis.shared.fftt_api import get_player_fftt
 
-# from apis.shared.api.custom_decorators import (
-#     during_registration,
-#     after_registration_start,
-# )
+import apis.shared.config as cfg
 import apis.shared.api_errors as ae
 from apis.shared.models import Category, ContactInfo, Player, FfttPlayer, Entry
 
@@ -28,8 +25,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-config = {}
 
 
 @app.get("/categories", operation_id="get_categories")
@@ -218,7 +213,7 @@ async def api_public_register_entries(
         Counter(
             [category.start_time.date() for category in potential_categories],
         ).values(),
-    ) > config["MAX_ENTRIES_PER_DAY"] + (player_in_db.gender == "F"):
+    ) > cfg.MAX_ENTRIES_PER_DAY + (player_in_db.gender == "F"):
         raise ae.InvalidDataError(
             origin=origin,
             error_message=ae.MAX_ENTRIES_PER_DAY_MESSAGE,
@@ -255,16 +250,16 @@ async def api_public_register_entries(
         )
 
         EmailSender(
-            sender_email=config["USKB_EMAIL"],
-            password=config["USKB_EMAIL_PASSWORD"],
+            sender_email=cfg.USKB_EMAIL,
+            password=cfg.USKB_EMAIL_PASSWORD,
         ).send_email(
             recipient=player_in_db.email,
-            bcc=config["ADMIN_EMAILS"],
+            bcc=cfg.ADMIN_EMAILS,
             body=f"Bonjour {player_in_db.first_name},<br><br>"
             f"Votre inscription a bien été prise en compte.<br><br>"
             f"Pour consulter les tableaux dans lesquels vous êtes inscrit(e) "
             f"""{"ou trouver votre position sur liste d'attente " if is_on_waiting_list else ""}"""  # noqa: E501
-            f""": <a href="{config["TOURNAMENT_URL"]}/public/deja_inscrit/{licence_no}">cliquer ici</a>.<br><br>"""  # noqa: E501
+            f""": <a href="{cfg.TOURNAMENT_URL}/public/deja_inscrit/{licence_no}">cliquer ici</a>.<br><br>"""  # noqa: E501
             f"Merci de votre participation et à bientôt !<br><br>"
             f"L'équipe USKB",
             subject="Confirmation Inscription Tournoi USKB",
