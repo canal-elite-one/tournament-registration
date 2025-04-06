@@ -4,7 +4,7 @@ from http import HTTPStatus
 from flask import Blueprint, redirect, render_template, current_app, url_for
 from sqlalchemy import select
 
-from api.shared.api.db import Session, is_before_cutoff, is_before_start, Category
+from api.shared.api.db import Session, is_before_cutoff, is_before_start, CategoryInDB
 
 public_bp = Blueprint(
     "public",
@@ -28,7 +28,7 @@ def index_page():
         )
     with Session() as session:
         all_categories = session.scalars(
-            select(Category).order_by(Category.start_time),
+            select(CategoryInDB).order_by(CategoryInDB.start_time),
         ).all()
 
         saturday_categories = [c for c in all_categories if c.start_time.weekday() == 5]

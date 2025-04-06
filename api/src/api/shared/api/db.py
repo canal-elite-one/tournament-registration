@@ -2,12 +2,13 @@ import os
 import subprocess
 from datetime import datetime
 
-from flask import current_app
 from sqlalchemy import create_engine, Table, select, func, not_
 from sqlalchemy.orm import DeclarativeBase, sessionmaker, Mapped, relationship
 
 db_url = os.environ.get("DATABASE_URL")
 migration_directory = os.environ.get("MIGRATION_DIR")
+
+config = {}
 
 
 def execute_dbmate(command):
@@ -33,20 +34,20 @@ Session = sessionmaker(engine)
 def is_before_cutoff(dt=None):
     if dt is None:
         dt = datetime.now()
-    return dt < current_app.config["TOURNAMENT_REGISTRATION_CUTOFF"]
+    return dt < config["TOURNAMENT_REGISTRATION_CUTOFF"]
 
 
 def is_before_start(dt=None):
     if dt is None:
         dt = datetime.now()
-    return dt < current_app.config["TOURNAMENT_REGISTRATION_START"]
+    return dt < config["TOURNAMENT_REGISTRATION_START"]
 
 
 class Base(DeclarativeBase):
     pass
 
 
-class Category(Base):
+class CategoryInDB(Base):
     women_only: Mapped[bool]
     start_time: Mapped[datetime]
     base_registration_fee: Mapped[int]
@@ -71,7 +72,7 @@ class Category(Base):
         return f"<Category {self.category_id}>"
 
 
-class Player(Base):
+class PlayerInDB(Base):
     licence_no: Mapped[str]
     bib_no: Mapped[int]
     total_actual_paid: Mapped[int]
@@ -125,7 +126,7 @@ class Player(Base):
         return min(entry.registration_time for entry in self.entries)
 
 
-class Entry(Base):
+class EntryInDB(Base):
     entry_id: Mapped[int]
     marked_as_present: Mapped[bool]
     category_id: Mapped[str]
@@ -148,11 +149,11 @@ class Entry(Base):
         with Session() as session:
             return session.scalar(
                 select(func.count())
-                .select_from(Entry)
+                .select_from(EntryInDB)
                 .where(
-                    Entry.category_id == self.category_id,
-                    Entry.registration_time < self.registration_time,
-                    not_(Entry.marked_as_present.is_(False)),
+                    EntryInDB.category_id == self.category_id,
+                    EntryInDB.registration_time < self.registration_time,
+                    not_(EntryInDB.marked_as_present.is_(False)),
                 ),
             )
 

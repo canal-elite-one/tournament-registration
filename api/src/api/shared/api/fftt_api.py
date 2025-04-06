@@ -8,15 +8,15 @@ from datetime import datetime
 
 from xml.etree import ElementTree
 
-from flask import current_app
-from marshmallow import ValidationError
+from pydantic import ValidationError
+
 
 from api.shared.api.api_errors import (
     FFTTAPIError,
     FFTT_DATA_PARSE_MESSAGE,
     FFTT_BAD_RESPONSE_MESSAGE,
 )
-from api.shared.api.marshmallow_schemas import PlayerSchema
+from api.shared.models import FfttPlayer
 
 
 def get_current_formatted_timestamp() -> str:
@@ -34,7 +34,7 @@ def get_encrypted_timestamp(pwd: str, timestamp: str) -> str:
     ).hexdigest()
 
 
-def get_player_fftt(licence_no):
+def get_player_fftt(licence_no) -> FfttPlayer:
     url = current_app.config.get("FFTT_API_URL") + "/xml_licence.php"
 
     tm = get_current_formatted_timestamp()
@@ -65,20 +65,16 @@ def get_player_fftt(licence_no):
     if root is None:
         return None
 
-    p_schema = PlayerSchema()
-
     try:
-        return p_schema.load(
-            {
-                "licenceNo": root.find("licence").text,
-                "firstName": root.find("prenom").text,
-                "lastName": root.find("nom").text,
-                "club": root.find("nomclub").text,
-                "gender": root.find("sexe").text,
-                "nbPoints": int(root.find("point").text),
-            },
+        return FfttPlayer(
+            licence_no=root.find("licence").text,
+            first_name=root.find("prenom").text,
+            last_name=root.find("nom").text,
+            club=root.find("nomclub").text,
+            gender=root.find("sexe").text,
+            nb_points=int(root.find("point").text),
         )
-    except (ValidationError, AttributeError) as e:
+    except AttributeError | ValidationError as e:
         message = e.messages if isinstance(e, ValidationError) else str(e)
         raise FFTTAPIError(
             message=FFTT_DATA_PARSE_MESSAGE,

@@ -7,7 +7,7 @@ from marshmallow import (
     post_load,
     post_dump,
 )
-from api.shared.api.db import Category, Player, Entry, is_before_cutoff
+from api.shared.api.db import CategoryInDB, PlayerInDB, EntryInDB, is_before_cutoff
 
 
 class SchemaWithReset(Schema):
@@ -74,7 +74,7 @@ class CategorySchema(SchemaWithReset):
 
     @post_load
     def make_object(self, data, **kwargs):
-        return Category(**data)
+        return CategoryInDB(**data)
 
     # add_entry_count_current_fee & add_players_info are called first (they commute),
     # either on the one serialized object being dumped,
@@ -208,7 +208,7 @@ class PlayerSchema(SchemaWithReset):
 
     @post_load
     def make_object(self, data, **kwargs):
-        return Player(**data)
+        return PlayerInDB(**data)
 
     @post_dump(pass_original=True)
     def add_entries_info(self, data, original, **kwargs):
@@ -288,7 +288,7 @@ class EntrySchema(SchemaWithReset):
 
     @post_load
     def make_entry(self, data, **kwargs):
-        return Entry(**data)
+        return EntryInDB(**data)
 
     # the two post_dump functions commute.
 
