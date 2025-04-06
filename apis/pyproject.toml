@@ -6,7 +6,7 @@ readme = "README.md"
 authors = [
     { name = "anatole", email = "anatole.gosset@eficia.com" }
 ]
-requires-python = ">=3.13"
+requires-python = ">=3.12"
 dependencies = [
     "dotenv>=0.9.9",
     "fastapi[standard]>=0.115.12",
