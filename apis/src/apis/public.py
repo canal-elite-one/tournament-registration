@@ -10,10 +10,11 @@ from apis.shared.api.dependencies import get_ro_session, get_rw_session
 from apis.email_sender import EmailSender
 from apis.shared.api.db import CategoryInDB, PlayerInDB
 from apis.shared.api.fftt_api import get_player_fftt
-from apis.shared.api.custom_decorators import (
-    during_registration,
-    after_registration_start,
-)
+
+# from apis.shared.api.custom_decorators import (
+#     during_registration,
+#     after_registration_start,
+# )
 import apis.shared.api.api_errors as ae
 from apis.shared.models import Category, ContactInfo, Player, FfttPlayer, Entry
 
@@ -23,7 +24,7 @@ config = {}
 
 
 @app.get("/categories")
-@during_registration
+# @during_registration
 async def api_public_get_categories(
     session: Annotated[orm.Session, Depends(get_ro_session)],
 ) -> list[Category]:
@@ -36,7 +37,7 @@ async def api_public_get_categories(
 
 
 @app.post("/players/<licence_no>")
-@during_registration
+# @during_registration
 async def api_public_add_player(
     licence_no: str,
     contact_info: ContactInfo,
@@ -77,7 +78,7 @@ async def api_public_add_player(
 
 
 @app.get("/players/<licence_no>")
-@during_registration
+# @during_registration
 async def api_public_get_player(
     licence_no: str,
     session: Annotated[orm.Session, Depends(get_ro_session)],
@@ -106,7 +107,7 @@ async def api_public_get_player(
 
 
 @app.get("/entries/<licence_no>")
-@after_registration_start
+# @after_registration_start
 async def api_public_get_entries(
     licence_no: str,
     session: Annotated[orm.Session, Depends(get_ro_session)],
@@ -123,7 +124,7 @@ async def api_public_get_entries(
 
 
 @app.post("/entries/<licence_no>")
-@during_registration
+# @during_registration
 async def api_public_register_entries(
     licence_no: str,
     category_ids: list[str],

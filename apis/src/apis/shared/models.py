@@ -12,7 +12,9 @@ from apis.shared.api.db import EntryInDB
 
 
 def snake_case_to_camel_case(snake: str) -> str:
-    return "".join(x.capitalize() for x in snake.split("_"))
+    words = snake.split("_")
+    to_join = [words[0]] + [x.capitalize() for x in words[1:]]
+    return "".join(to_join)
 
 
 class AliasedBase(BaseModel):
