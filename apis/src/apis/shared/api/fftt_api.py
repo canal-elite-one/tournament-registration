@@ -18,6 +18,8 @@ from apis.shared.api.api_errors import (
 )
 from apis.shared.models import FfttPlayer
 
+config = {}
+
 
 def get_current_formatted_timestamp() -> str:
     return datetime.now().strftime("%Y%m%d%H%M%S%f")[:-3]
@@ -35,13 +37,13 @@ def get_encrypted_timestamp(pwd: str, timestamp: str) -> str:
 
 
 def get_player_fftt(licence_no) -> FfttPlayer:
-    url = current_app.config.get("FFTT_API_URL") + "/xml_licence.php"
+    url = config.get("FFTT_API_URL") + "/xml_licence.php"
 
     tm = get_current_formatted_timestamp()
 
-    serial_no = current_app.config["FFTT_SERIAL_NO"]
-    app_id = current_app.config["FFTT_APP_ID"]
-    password = current_app.config["FFTT_PASSWORD"]
+    serial_no = config["FFTT_SERIAL_NO"]
+    app_id = config["FFTT_APP_ID"]
+    password = config["FFTT_PASSWORD"]
 
     tmc = get_encrypted_timestamp(password, tm)
     params = {
