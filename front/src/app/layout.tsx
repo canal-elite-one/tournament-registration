@@ -5,6 +5,7 @@ import {
   MantineProvider,
 } from "@mantine/core";
 import AppLayout from "@/components/AppLayout";
+import { StripeProvider } from "@/components/StripeProvider";
 import "./globals.css";
 
 
@@ -21,9 +22,11 @@ export default async function RootLayout({
       </head>
       <body>
       <MantineProvider>
-        <AppLayout>
-          {children}
-        </AppLayout>
+        <StripeProvider>
+          <AppLayout>
+            {children}
+          </AppLayout>
+        </StripeProvider>
       </MantineProvider>
       </body>
       </html>
