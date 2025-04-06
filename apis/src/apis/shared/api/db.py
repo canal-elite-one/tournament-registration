@@ -5,6 +5,10 @@ from datetime import datetime
 from sqlalchemy import create_engine, Table, select, func, not_
 from sqlalchemy.orm import DeclarativeBase, sessionmaker, Mapped, relationship
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 db_url = os.environ.get("DATABASE_URL")
 migration_directory = os.environ.get("MIGRATION_DIR")
 
@@ -55,7 +59,7 @@ class CategoryInDB(Base):
     late_registration_fee: Mapped[int]
     max_players: Mapped[int]
 
-    entries = relationship("Entry", back_populates="category")
+    entries = relationship("EntryInDB", back_populates="category")
 
     __table__ = Table("categories", Base.metadata, autoload_with=engine)
 
@@ -80,7 +84,7 @@ class PlayerInDB(Base):
     nb_points: Mapped[int]
 
     entries = relationship(
-        "Entry",
+        "EntryInDB",
         back_populates="player",
         cascade="all, delete, delete-orphan",
         passive_deletes=True,
@@ -134,8 +138,8 @@ class EntryInDB(Base):
     marked_as_paid: Mapped[bool]
     registration_time: Mapped[datetime]
 
-    player = relationship("Player", back_populates="entries")
-    category = relationship("Category", back_populates="entries")
+    player = relationship("PlayerInDB", back_populates="entries")
+    category = relationship("CategoryInDB", back_populates="entries")
 
     __table__ = Table("entries", Base.metadata, autoload_with=engine)
 
