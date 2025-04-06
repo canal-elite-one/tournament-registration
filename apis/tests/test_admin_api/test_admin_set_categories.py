@@ -4,9 +4,9 @@ from http import HTTPStatus
 import pytest
 from freezegun import freeze_time
 
-import shared.api.api_errors as ae
+import apis.shared.api.api_errors as ae
 
-from api.tests.conftest import BaseTest, SampleDates
+from apis.public import BaseTest, SampleDates
 
 origin = "api_admin_set_categories"
 

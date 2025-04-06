@@ -1,5 +1,5 @@
-from shared.api.api_errors import RegistrationCutoffError, RegistrationMessages
-from shared.api.db import is_before_cutoff, is_before_start
+from apis.shared.api.api_errors import RegistrationCutoffError, RegistrationMessages
+from apis.shared.api.db import is_before_cutoff, is_before_start
 
 
 def during_registration(endpoint):

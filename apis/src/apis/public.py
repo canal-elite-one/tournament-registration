@@ -6,16 +6,16 @@ from fastapi import APIRouter, Depends
 from sqlalchemy import select, text, orm
 from sqlalchemy.exc import DBAPIError
 
-from shared.api.dependencies import get_ro_session, get_rw_session
-from email_sender import EmailSender
-from shared.api.db import CategoryInDB, PlayerInDB
-from shared.api.fftt_api import get_player_fftt
+from apis.shared.api.dependencies import get_ro_session, get_rw_session
+from apis.email_sender import EmailSender
+from apis.shared.api.db import CategoryInDB, PlayerInDB
+from apis.shared.api.fftt_api import get_player_fftt
 from shared.api.custom_decorators import (
     during_registration,
     after_registration_start,
 )
-import shared.api.api_errors as ae
-from shared.models import Category, ContactInfo, Player, FfttPlayer, Entry
+import apis.shared.api.api_errors as ae
+from apis.shared.models import Category, ContactInfo, Player, FfttPlayer, Entry
 
 public_router = APIRouter(prefix="/public", tags=["public"])
 

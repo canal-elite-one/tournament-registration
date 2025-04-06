@@ -5,9 +5,8 @@ from enum import StrEnum
 from pytest import fixture
 from sqlalchemy import text
 
-import public
-import admin
-from shared import Session, execute_dbmate
+from apis import public, admin
+from apis.shared import Session, execute_dbmate
 
 SAMPLE_DATA_PATH = "./tests/sample_data/"
 
@@ -80,13 +79,13 @@ class BaseTest:
         with (
             Session() as session,
             open(
-                os.path.join(SAMPLE_DATA_PATH, "categories.sql"),
+                os.path.join(SAMPLE_DATA_PATH, "categories.db"),
             ) as categories_sql,
             open(
-                os.path.join(SAMPLE_DATA_PATH, "players.sql"),
+                os.path.join(SAMPLE_DATA_PATH, "players.db"),
             ) as players_sql,
             open(
-                os.path.join(SAMPLE_DATA_PATH, "entries.sql"),
+                os.path.join(SAMPLE_DATA_PATH, "entries.db"),
             ) as entries_sql,
         ):
             session.execute(text(categories_sql.read()))

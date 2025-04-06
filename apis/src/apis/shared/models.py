@@ -8,7 +8,7 @@ from enum import StrEnum
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from shared.api.db import EntryInDB
+from apis.shared.api.db import EntryInDB
 
 
 def snake_case_to_camel_case(snake: str) -> str:

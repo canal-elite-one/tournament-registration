@@ -7,7 +7,7 @@ from marshmallow import (
     post_load,
     post_dump,
 )
-from shared.api.db import CategoryInDB, PlayerInDB, EntryInDB, is_before_cutoff
+from apis.shared.api.db import CategoryInDB, PlayerInDB, EntryInDB, is_before_cutoff
 
 
 class SchemaWithReset(Schema):

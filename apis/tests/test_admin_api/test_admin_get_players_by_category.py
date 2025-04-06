@@ -4,7 +4,7 @@ from http import HTTPStatus
 from freezegun import freeze_time
 import pytest
 
-from api.tests.conftest import BaseTest, SampleDates
+from apis.public import BaseTest, SampleDates
 
 
 with open("./tests/test_admin_api/by_category.json") as f:

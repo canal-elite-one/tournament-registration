@@ -4,7 +4,7 @@ from json import loads
 from freezegun import freeze_time
 import pytest
 
-from api.tests.conftest import BaseTest, SampleDates
+from apis.public import BaseTest, SampleDates
 
 with open("./tests/test_admin_api/all_players.json") as f:
     all_players_data = loads(f.read())

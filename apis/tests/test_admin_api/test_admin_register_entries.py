@@ -3,9 +3,9 @@ from http import HTTPStatus
 from freezegun import freeze_time
 import pytest
 
-import shared.api.api_errors as ae
+import apis.shared.api.api_errors as ae
 
-from api.tests.conftest import BaseTest, SampleDates
+from apis.public import BaseTest, SampleDates
 
 overall_correct_licence = "722370"
 no_entries_licence = "7897897"

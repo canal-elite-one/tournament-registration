@@ -11,12 +11,12 @@ from xml.etree import ElementTree
 from pydantic import ValidationError
 
 
-from shared.api.api_errors import (
+from apis.shared.api.api_errors import (
     FFTTAPIError,
     FFTT_DATA_PARSE_MESSAGE,
     FFTT_BAD_RESPONSE_MESSAGE,
 )
-from shared.models import FfttPlayer
+from apis.shared.models import FfttPlayer
 
 
 def get_current_formatted_timestamp() -> str:

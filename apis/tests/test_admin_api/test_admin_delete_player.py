@@ -1,8 +1,8 @@
 from http import HTTPStatus
 
-import shared.api.api_errors as ae
+import apis.shared.api.api_errors as ae
 
-from api.tests.conftest import BaseTest
+from apis.public import BaseTest
 
 
 overall_correct_licence = "722370"

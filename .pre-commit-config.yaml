@@ -39,4 +39,4 @@ repos:
     hooks:
       - id: sqlfluff-fix
         args: [--dialect, postgres]
-        files: ^shared/sql/migration/
+        files: ^shared/db/migration/

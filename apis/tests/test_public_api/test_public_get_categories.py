@@ -2,8 +2,8 @@ from http import HTTPStatus
 
 from freezegun import freeze_time
 
-from api.tests.conftest import BaseTest, SampleDates
-import shared.api.api_errors as ae
+from apis.public import BaseTest, SampleDates
+import apis.shared.api.api_errors as ae
 
 correct_get_categories_response = {
     "categories": [
