@@ -10,7 +10,7 @@ from apis.shared.api.dependencies import get_ro_session, get_rw_session
 from apis.email_sender import EmailSender
 from apis.shared.api.db import CategoryInDB, PlayerInDB
 from apis.shared.api.fftt_api import get_player_fftt
-from shared.api.custom_decorators import (
+from apis.shared.api.custom_decorators import (
     during_registration,
     after_registration_start,
 )
