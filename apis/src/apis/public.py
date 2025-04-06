@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import Annotated
 
 from fastapi import FastAPI, Depends
+from starlette.middleware.cors import CORSMiddleware
 from sqlalchemy import select, text, orm
 from sqlalchemy.exc import DBAPIError
 
@@ -19,6 +20,14 @@ import apis.shared.api.api_errors as ae
 from apis.shared.models import Category, ContactInfo, Player, FfttPlayer, Entry
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 config = {}
 
