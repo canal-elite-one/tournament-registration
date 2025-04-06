@@ -28,7 +28,7 @@ from apis.shared.models import (
     EntryWithPlayer,
     ContactInfo,
 )
-from apis.shared.dependencies import get_rw_session, get_ro_session, GenSession
+from apis.shared.dependencies import get_rw_session, get_ro_session, Session
 
 app = FastAPI()
 
@@ -93,10 +93,10 @@ def api_admin_get_categories(
     return [Category.model_validate(category) for category in all_categories]
 
 
-@app.route("/players/<licence_no>")
+@app.get("/players/<licence_no>")
 def api_admin_get_player(licence_no: str, db_only: bool = False) -> Player:
     origin = api_admin_get_player.__name__
-    with GenSession() as session:
+    with Session() as session:
         if (player := session.get(PlayerInDB, licence_no)) is not None:
             return Player.model_validate(player)
 

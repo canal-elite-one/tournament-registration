@@ -40,7 +40,7 @@ async def api_public_get_categories(
     ]
 
 
-@app.post("/players/<licence_no>", operation_id="add_player")
+@app.post("/players/{licence_no}", operation_id="add_player", status_code=201)
 # @during_registration
 async def api_public_add_player(
     licence_no: str,
@@ -69,7 +69,7 @@ async def api_public_add_player(
     )
 
     try:
-        session.add(player)
+        session.add(player.to_db())
         session.commit()
         return player
     except DBAPIError:

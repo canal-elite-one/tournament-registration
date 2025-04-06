@@ -8,7 +8,7 @@ from enum import StrEnum
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from apis.shared.db import EntryInDB
+from apis.shared.db import EntryInDB, PlayerInDB
 
 
 def snake_case_to_camel_case(snake: str) -> str:
@@ -63,10 +63,13 @@ class ContactInfo(AliasedBase):
 
 
 class Player(FfttPlayer):
-    bib_no: int | None
+    bib_no: int | None = None
     email: str
     phone: str | None
     total_actual_paid: int | None
+
+    def to_db(self) -> PlayerInDB:
+        return PlayerInDB(**self.model_dump())
 
 
 class Entry(AliasedBase):

@@ -5,6 +5,7 @@ import requests_mock
 from freezegun import freeze_time
 
 import apis.shared.api_errors as ae
+from apis.shared.config import FFTT_API_URL
 
 from conftest import BaseTest, SampleDates
 
@@ -135,7 +136,6 @@ class TestAPIAddPlayer(BaseTest):
     )
     def test_correct_add_player(
         self,
-        public_app,
         public_client,
         reset_db,
         populate,
@@ -147,13 +147,13 @@ class TestAPIAddPlayer(BaseTest):
     ):
         with freeze_time(now), requests_mock.Mocker() as m:
             m.get(
-                f"{public_app.config.get('FFTT_API_URL')}/xml_licence.php",
+                f"{FFTT_API_URL}/xml_licence.php",
                 status_code=HTTPStatus.OK,
                 content=fftt_response,
             )
-            r = public_client.post(f"/api/public/players/{licence_no}", json=payload)
+            r = public_client.post(f"/players/{licence_no}", json=payload)
             assert r.status_code == HTTPStatus.CREATED, r.json
-            assert r.json == response, r.json
+            assert r.json() == response, r.json
 
     @pytest.mark.parametrize(
         "licence_no,payload,now,fftt_response,error",

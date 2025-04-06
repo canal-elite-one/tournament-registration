@@ -11,16 +11,14 @@ from datetime import datetime
 from xml.etree import ElementTree
 
 from pydantic import ValidationError
-from dotenv import load_dotenv
 
 from apis.shared.api_errors import (
     FFTTAPIError,
     FFTT_DATA_PARSE_MESSAGE,
     FFTT_BAD_RESPONSE_MESSAGE,
 )
+from apis.shared.config import FFTT_API_URL
 from apis.shared.models import FfttPlayer
-
-load_dotenv()
 
 
 def get_current_formatted_timestamp() -> str:
@@ -39,7 +37,7 @@ def get_encrypted_timestamp(pwd: str, timestamp: str) -> str:
 
 
 def get_player_fftt(licence_no) -> FfttPlayer:
-    url = os.environ.get("FFTT_API_URL") + "/xml_licence.php"
+    url = FFTT_API_URL + "/xml_licence.php"
 
     tm = get_current_formatted_timestamp()
 

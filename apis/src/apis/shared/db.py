@@ -2,7 +2,7 @@ import os
 import subprocess
 from datetime import datetime
 
-from sqlalchemy import create_engine, Table, select, func, not_
+from sqlalchemy import create_engine, Table, select, func, not_, delete
 from sqlalchemy.orm import DeclarativeBase, sessionmaker, Mapped, relationship
 
 import apis.shared.config as cfg
@@ -159,3 +159,11 @@ class EntryInDB(Base):
             f"<Entry licence_no:{self.licence_no}, category_id:{self.category_id}, "
             f"present:{self.marked_as_present}, paid:{self.marked_as_paid}>"
         )
+
+
+def empty_db():
+    with Session() as session:
+        session.execute(delete(EntryInDB))
+        session.execute(delete(PlayerInDB))
+        session.execute(delete(CategoryInDB))
+        session.commit()

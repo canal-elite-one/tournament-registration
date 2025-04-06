@@ -1,15 +1,16 @@
 import os
 from datetime import datetime
 from enum import StrEnum
+from pathlib import Path
 
 from pytest import fixture
 from sqlalchemy import text
 from fastapi.testclient import TestClient
 
 from apis import public, admin
-from apis.shared.db import Session, execute_dbmate
+from apis.shared.db import Session, empty_db
 
-SAMPLE_DATA_PATH = "./tests/sample_data/"
+SAMPLE_DATA_PATH = Path(__file__).parent / "sample_data"
 
 
 class SampleDates(StrEnum):
@@ -54,12 +55,10 @@ class BaseTest:
 
     @fixture
     def reset_db(self, request):
-        execute_dbmate("up")
+        empty_db()
 
         def tear_down():
-            with Session() as session:
-                session.close_all()
-            execute_dbmate("down")
+            empty_db()
 
         request.addfinalizer(tear_down)
 
@@ -68,13 +67,13 @@ class BaseTest:
         with (
             Session() as session,
             open(
-                os.path.join(SAMPLE_DATA_PATH, "categories.db"),
+                os.path.join(SAMPLE_DATA_PATH, "categories.sql"),
             ) as categories_sql,
             open(
-                os.path.join(SAMPLE_DATA_PATH, "players.db"),
+                os.path.join(SAMPLE_DATA_PATH, "players.sql"),
             ) as players_sql,
             open(
-                os.path.join(SAMPLE_DATA_PATH, "entries.db"),
+                os.path.join(SAMPLE_DATA_PATH, "entries.sql"),
             ) as entries_sql,
         ):
             session.execute(text(categories_sql.read()))
