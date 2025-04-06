@@ -1,12 +1,11 @@
 import traceback
 from enum import StrEnum
 
-from flask import jsonify
 from http import HTTPStatus
 
 
 def handle_api_error(error):
-    return jsonify(error.to_dict()), error.status_code
+    return error.to_dict(), error.status_code
 
 
 class FFTTAPIError(Exception):
