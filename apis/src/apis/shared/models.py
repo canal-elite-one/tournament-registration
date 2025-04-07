@@ -40,6 +40,7 @@ class Category(AliasedBase):
     reward_semi: int
     reward_quarter: int | None
     max_players: int
+    overbooking_percentage: int
 
 
 class Gender(StrEnum):

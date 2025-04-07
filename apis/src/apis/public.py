@@ -29,17 +29,21 @@ app.add_middleware(
 
 class CategoryResult(Category):
     entry_count: int
+    present_entry_count: int
+    current_fee: int
 
 
 @app.get("/categories", operation_id="get_categories")
 # @during_registration
 async def api_public_get_categories(
     session: Annotated[orm.Session, Depends(get_ro_session)],
-) -> list[Category]:
+) -> list[CategoryResult]:
     return [
         CategoryResult(
             **Category.model_validate(category_in_db).model_dump(),
             entry_count=len(category_in_db.entries),
+            present_entry_count=len(category_in_db.present_entries()),
+            current_fee=category_in_db.current_fee(),
         )
         for category_in_db in session.scalars(
             select(CategoryInDB).order_by(CategoryInDB.start_time),
