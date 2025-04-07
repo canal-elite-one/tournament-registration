@@ -28,9 +28,9 @@ class AliasedBase(BaseModel):
 class Category(AliasedBase):
     category_id: str = Field(min_length=1, max_length=1)
     alternate_name: str = Field(max_length=64)
-    color: str = Field(min_length=7, max_length=7)
-    min_points: int
-    max_points: int
+    color: str = Field(max_length=7)
+    min_points: int = Field(lt=4000)
+    max_points: int = Field(lt=4000)
     start_time: datetime
     women_only: bool
     base_registration_fee: int

@@ -2,7 +2,7 @@ from http import HTTPStatus
 
 from freezegun import freeze_time
 
-from apis.public import BaseTest, SampleDates
+from conftest import BaseTest, SampleDates
 import apis.shared.api_errors as ae
 
 correct_get_categories_response = {
@@ -294,7 +294,7 @@ correct_get_categories_response = {
 class TestAPIGetCategories(BaseTest):
     def test_get(self, public_client, reset_db, populate):
         with freeze_time(SampleDates.BEFORE_CUTOFF):
-            r = public_client.get("/apis/public/categories")
+            r = public_client.get("/categories")
             assert r.status_code == HTTPStatus.OK, r.json
             assert r.json == correct_get_categories_response, r.json
 
