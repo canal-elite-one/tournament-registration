@@ -1,5 +1,8 @@
 import os
 from datetime import datetime
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 MAX_ENTRIES_PER_DAY = (int(os.environ.get("MAX_ENTRIES_PER_DAY", 2)),)
