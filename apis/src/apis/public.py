@@ -27,13 +27,20 @@ app.add_middleware(
 )
 
 
+class CategoryResult(Category):
+    entry_count: int
+
+
 @app.get("/categories", operation_id="get_categories")
 # @during_registration
 async def api_public_get_categories(
     session: Annotated[orm.Session, Depends(get_ro_session)],
 ) -> list[Category]:
     return [
-        Category.model_validate(category_in_db)
+        CategoryResult(
+            **Category.model_validate(category_in_db).model_dump(),
+            entry_count=len(category_in_db.entries),
+        )
         for category_in_db in session.scalars(
             select(CategoryInDB).order_by(CategoryInDB.start_time),
         )
@@ -72,8 +79,7 @@ async def api_public_add_player(
         session.add(player.to_db())
         session.commit()
         return player
-    except DBAPIError as e:
-        print(e)
+    except DBAPIError:
         session.rollback()
         raise ae.InvalidDataError(
             origin=origin,
