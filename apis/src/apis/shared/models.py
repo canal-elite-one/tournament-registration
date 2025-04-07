@@ -28,7 +28,7 @@ class AliasedBase(BaseModel):
 class Category(AliasedBase):
     category_id: str = Field(min_length=1, max_length=1)
     alternate_name: str | None = Field(max_length=64)
-    color: str = Field(max_length=7)
+    color: str | None = Field(max_length=7)
     min_points: int = Field(le=4000)
     max_points: int = Field(le=4000)
     start_time: datetime
