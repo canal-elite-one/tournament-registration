@@ -228,6 +228,17 @@ NO_BIBS_ASSIGNED_MESSAGE = (
 
 
 """
+----------------  422  ----------------
+"""
+
+
+class APIUnprocessableEntityError(APIError):
+    """Base class for 422 errors"""
+
+    status_code = HTTPStatus.UNPROCESSABLE_ENTITY
+
+
+"""
 ----------------  500  ----------------
 """
 

@@ -72,7 +72,8 @@ async def api_public_add_player(
         session.add(player.to_db())
         session.commit()
         return player
-    except DBAPIError:
+    except DBAPIError as e:
+        print(e)
         session.rollback()
         raise ae.InvalidDataError(
             origin=origin,

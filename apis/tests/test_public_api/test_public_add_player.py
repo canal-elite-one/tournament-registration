@@ -49,7 +49,7 @@ incorrect_player_missing_badly_formatted_data = (
     },
     SampleDates.BEFORE_CUTOFF,
     b"",
-    ae.InvalidDataError(
+    ae.APIUnprocessableEntityError(
         origin=origin,
         error_message=ae.PLAYER_CONTACT_FORMAT_MESSAGE,
         payload={
@@ -152,8 +152,8 @@ class TestAPIAddPlayer(BaseTest):
                 content=fftt_response,
             )
             r = public_client.post(f"/players/{licence_no}", json=payload)
-            assert r.status_code == HTTPStatus.CREATED, r.json
-            assert r.json() == response, r.json
+            assert r.status_code == HTTPStatus.CREATED, r.json()
+            assert r.json() == response, r.json()
 
     @pytest.mark.parametrize(
         "licence_no,payload,now,fftt_response,error",
@@ -161,7 +161,6 @@ class TestAPIAddPlayer(BaseTest):
     )
     def test_incorrect_add_player(
         self,
-        public_app,
         public_client,
         reset_db,
         populate,
@@ -173,10 +172,10 @@ class TestAPIAddPlayer(BaseTest):
     ):
         with freeze_time(now), requests_mock.Mocker() as m:
             m.get(
-                f"{public_app.config.get('FFTT_API_URL')}/xml_licence.php",
+                f"{FFTT_API_URL}/xml_licence.php",
                 status_code=HTTPStatus.OK,
                 content=fftt_response,
             )
-            r = public_client.post(f"/api/public/players/{licence_no}", json=payload)
-            assert r.status_code == error.status_code, r.json
-            assert r.json == error.to_dict(), r.json
+            r = public_client.post(f"players/{licence_no}", json=payload)
+            assert r.status_code == error.status_code, r.json()
+            assert r.json() == error.to_dict(), r.json()
