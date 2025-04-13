@@ -65,7 +65,7 @@ export default function HomePage() {
                 className="bg-white/30 backdrop-blur rounded-xl p-5 space-y-4 text-center"
             >
               <TextInput
-                  placeholder="Enter your licence number"
+                  placeholder="Numéro de licence"
                   value={licenceNumber}
                   onChange={(event) => setLicenceNumber(event.currentTarget.value)}
                   onKeyDown={(event) => {
@@ -75,8 +75,8 @@ export default function HomePage() {
                     }
                   }}
               />
-              <Button type="submit" fullWidth>
-                Submit
+              <Button type="submit" className={"bg-blue-950 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"} fullWidth>
+                Rechercher
               </Button>
             </form>
         ) : (
