@@ -1,11 +1,10 @@
 import {DefaultApi} from "@/backend_api/backend";
+import EntriesSummary from "@/app/joueur/[licenceNo]/inscription/EntriesSummary";
 
-export default async function Page({
-                                     params,
-                                   }: {
-  params: Promise<{ licenceNo: string }>;
+export default async function Page({params}: {
+  params: { licenceNo: string };
 }) {
-  const {licenceNo} = await params;
+  const { licenceNo } = await params;
   const api = new DefaultApi();
   const entries = await api.getEntries({licenceNo: licenceNo})
 
@@ -30,25 +29,5 @@ export default async function Page({
     };
   });
 
-  const emailContact = process.env.USKB_CONTACT_EMAIL;
-  return (
-    <div>
-      <h2>Vous êtes inscrit(s) aux tableaux suivants :</h2>
-      <ul>
-        {formattedEntries.map((entry) => (
-            <li key={entry.id}>
-              {entry.label}
-            </li>
-        ))}
-      </ul>
-      <p className="mb-4">Si vous souhaitez modifier vos informations ou vos
-        inscriptions,
-        veuillez <a href={`mailto:${emailContact}`}
-                    className="font-bold text-blue-500 hover:underline">envoyer un
-          mail</a> aux organisateurs :
-        <a href={`mailto:${emailContact}`}
-           className="font-bold text-blue-500 hover:underline"> {emailContact}</a>.
-      </p>
-    </div>
-  );
+  return <EntriesSummary licenceNo={licenceNo} entries={formattedEntries} emailContact={process.env.USKB_CONTACT_EMAIL}></EntriesSummary>
 };
