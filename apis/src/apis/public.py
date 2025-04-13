@@ -236,7 +236,7 @@ async def api_public_register_entries(
         Counter(
             [category.start_time.date() for category in potential_categories],
         ).values()
-    ) > cfg.MAX_ENTRIES_PER_DAY + (player_in_db.gender == "F"):
+    ) > (cfg.MAX_ENTRIES_PER_DAY + (player_in_db.gender == "F")):
         raise ae.InvalidDataError(
             origin=origin,
             error_message=ae.MAX_ENTRIES_PER_DAY_MESSAGE,
