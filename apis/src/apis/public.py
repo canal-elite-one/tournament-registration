@@ -102,8 +102,6 @@ async def api_public_add_player(
 @app.get(
     "/players/<licence_no>",
     operation_id="get_player",
-    response_model=FfttPlayer,
-    responses={404: {"detail": "test detail", "description": "test description"}},
 )
 # @during_registration
 async def api_public_get_player(
