@@ -91,10 +91,16 @@ class EntryWithPlayer(Player, Entry):
 
 
 class EntryWithCategory(Category, Entry):
+    rank: int
+
     @classmethod
     def from_entry_in_db(cls, entry_in_db: EntryInDB) -> Self:
         category_in_db = entry_in_db.category
         temp_dict = Entry.model_validate(entry_in_db).model_dump()
         del temp_dict["category_id"]
         del temp_dict["color"]
-        return cls(**temp_dict, **Category.model_validate(category_in_db).model_dump())
+        return cls(
+            **temp_dict,
+            **Category.model_validate(category_in_db).model_dump(),
+            rank=entry_in_db.rank(),
+        )
