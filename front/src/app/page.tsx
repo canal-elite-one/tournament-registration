@@ -41,7 +41,7 @@ export default function HomePage() {
     return () => clearInterval(interval);
   }, []);
 
-  const handleLicenceSubmit = async () => {
+  const handleLicenceSubmit = () => {
     router.push(`/joueur/${licenceNumber}`);
   };
 

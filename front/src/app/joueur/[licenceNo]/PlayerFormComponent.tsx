@@ -1,17 +1,24 @@
 "use client";
 
-import { CategoryResult, Player } from "@/backend_api/backend";
+import {
+  AddPlayerRequest,
+  CategoryResult,
+  DefaultApi, FfttPlayer,
+  RegisterEntriesRequest
+} from "@/backend_api/backend";
 import { useState } from "react";
+import {Table, Text, Checkbox, Group} from "@mantine/core";
 
 export default function PlayerFormComponent({
                                               player,
                                               categories,
                                             }: {
-  player: Player;
+  player: FfttPlayer;
   categories: CategoryResult[];
 }) {
-  const [email, setEmail] = useState(player.email);
-  const [phone, setPhone] = useState(player.phone || "");
+
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
 
 
@@ -34,23 +41,26 @@ export default function PlayerFormComponent({
 
   const generateCategoriesTable = (categories: CategoryResult[], day: string) => {
     return (
-        <table className="w-full border mb-4">
-          <thead className="bg-blue-950 rounded-t-lg">
+        <Table withColumnBorders withRowBorders highlightOnHover>
+          <thead>
           <tr>
-            <th colSpan={6} className="text-white">${day}</th>
+            <th colSpan={4}>
+              <Text c="white" fw={700} bg="blue.9" p="sm" ta="center">
+                {day}
+              </Text>
+            </th>
           </tr>
           <tr>
-            <th className="text-white">ID</th>
-            <th className="text-white">Nom</th>
-            <th className="text-white">Nombre de place restantes</th>
-            <th className="text-white">Inscription</th>
+            <th>ID</th>
+            <th>Nom</th>
+            <th>Nombre de places restantes</th>
+            <th>Inscription</th>
           </tr>
           </thead>
           <tbody>
-          {categories.map(category => {
+          {categories.map((category) => {
             const categoryId = category.categoryId;
             const maxOverbooked = Math.floor(category.maxPlayers * (1 + (category.overbookingPercentage ?? 0) / 100.0));
-            // FixME when entryCount in category
             const entryCount = category.entryCount ?? 0;
 
             const isFull = entryCount > maxOverbooked + 40;
@@ -60,65 +70,81 @@ export default function PlayerFormComponent({
 
             const disabled = isFull || isOutOfPointsRange || isGenderMismatch;
 
-            let availabilityText = "Oui";
-            let availabilityClass = "text-green-600";
+            const availableSpots = maxOverbooked - entryCount;
 
-            if (isOutOfPointsRange) {
-              availabilityText = "Non éligible (points)";
-              availabilityClass = "text-red-600";
-            } else if (isGenderMismatch) {
-              availabilityText = "Non éligible (genre)";
-              availabilityClass = "text-red-600";
-            } else if (isFull) {
+            let availabilityText = availableSpots <= category.maxPlayers ? `${availableSpots}` : `${category.maxPlayers}`;
+            let availabilityColor: string = "green";
+
+            if (isFull) {
               availabilityText = "Complet";
-              availabilityClass = "text-red-600";
+              availabilityColor = "red";
             } else if (isInWaitingList) {
-              availabilityText = `Position ${entryCount - maxOverbooked + 1} en liste d'attente`;
-              availabilityClass = "text-yellow-600";
+              availabilityText = `Liste d'attente : ${entryCount - maxOverbooked + 1}e`;
+              availabilityColor = "yellow";
             }
 
             return (
                 <tr key={categoryId}>
                   {/* ID */}
-                  <td
-                      className="border px-4 py-2"
-                      style={{ backgroundColor: category.color ?? undefined }}
-                  >
+                  <td style={{ backgroundColor: category.color ?? undefined }}>
                     {categoryId}
                   </td>
 
                   {/* Name */}
-                  <td className="border px-4 py-2">{category.alternateName}</td>
+                  <td>{category.alternateName}</td>
 
                   {/* Availability */}
-                  <td className={`border px-4 py-2 ${availabilityClass}`}>
-                    {availabilityText}
+                  <td>
+                    <Text c={availabilityColor}>{availabilityText}</Text>
                   </td>
 
                   {/* Registration Checkbox */}
-                  <td className={`border px-4 py-2 ${disabled ? "opacity-50" : ""}`}>
-                    <input
-                        type="checkbox"
-                        id={`register-checkbox-${categoryId}`}
-                        disabled={disabled}
-                        checked={selectedCategories.includes(categoryId)}
-                        onChange={() => toggleCategorySelection(categoryId)}
-                    />
-                    <label htmlFor={`register-checkbox-${categoryId}`}> </label>
+                  <td>
+                    <Group justify="center">
+                      <Checkbox
+                          id={`register-checkbox-${categoryId}`}
+                          disabled={disabled}
+                          checked={selectedCategories.includes(categoryId)}
+                          onChange={() => toggleCategorySelection(categoryId)}
+                      />
+                    </Group>
                   </td>
                 </tr>
             );
           })}
-
           </tbody>
-        </table>
-    )};
+        </Table>
+    );
+  };
 
 
-  const handleSubmit = (event: React.FormEvent) => {
+
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     console.log("Submitting form with:", { email, phone });
     // TODO: connect with your API for submission
+    const api = new DefaultApi();
+
+    const addPlayerRequest: AddPlayerRequest = {
+      licenceNo: player.licenceNo,
+      contactInfo: {
+        email: email,
+        phone: phone,
+      },
+    };
+
+    const registrationRequest: RegisterEntriesRequest = {
+      licenceNo: player.licenceNo,
+      registerEntriesBody: {
+        categoryIds: selectedCategories
+      },
+    }
+
+
+    await api.addPlayer(addPlayerRequest);
+    await api.registerEntries(registrationRequest);
+
+    // TODO redirect to payment page
   };
 
   return (
