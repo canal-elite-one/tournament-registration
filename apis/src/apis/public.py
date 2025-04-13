@@ -6,6 +6,7 @@ from fastapi import FastAPI, Depends
 from starlette.middleware.cors import CORSMiddleware
 from sqlalchemy import select, text, orm
 from sqlalchemy.exc import DBAPIError
+from pydantic import Field
 
 from apis.shared.dependencies import get_ro_session, get_rw_session
 from apis.email_sender import EmailSender
@@ -157,14 +158,28 @@ async def api_public_get_entries(
 
 
 class RegisterEntriesBody(AliasedBase):
-    category_ids: list[str]
+    category_ids: list[str] = Field(min_length=1)
 
 
 class RegisterEntriesResponse(AliasedBase):
     amount_to_pay: int
 
 
-@app.post("/entries/<licence_no>", operation_id="register_entries")
+@app.post(
+    "/entries/<licence_no>",
+    operation_id="register_entries",
+    response_model=RegisterEntriesResponse,
+    status_code=201,
+    responses={
+        400: {
+            "model": ae.APIErrorModel,
+            "description": "Invalid category IDs or constraint violation",
+        },
+        403: {"model": ae.APIErrorModel, "description": "Player not found"},
+        404: {"model": ae.APIErrorModel, "description": "Player already registered"},
+        500: {"model": ae.APIErrorModel, "description": "Unexpected FFTT API error"},
+    },
+)
 # @during_registration
 async def api_public_register_entries(
     licence_no: str,
@@ -174,12 +189,6 @@ async def api_public_register_entries(
     category_ids = category_ids.category_ids
 
     with Session() as session:
-        if not category_ids:
-            raise ae.InvalidDataError(
-                origin=origin,
-                error_message=ae.REGISTRATION_MISSING_IDS_MESSAGE,
-            )
-
         player_in_db = session.get(PlayerInDB, licence_no)
         if player_in_db is None:
             raise ae.PlayerNotFoundError(
