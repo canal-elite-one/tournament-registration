@@ -17,7 +17,7 @@ import * as runtime from '../runtime';
 import type {
   APIErrorModel,
   CategoryResult,
-  Entry,
+  EntryWithCategory,
   FfttPlayer,
   HTTPValidationError,
   PayBody,
@@ -30,8 +30,8 @@ import {
     APIErrorModelToJSON,
     CategoryResultFromJSON,
     CategoryResultToJSON,
-    EntryFromJSON,
-    EntryToJSON,
+    EntryWithCategoryFromJSON,
+    EntryWithCategoryToJSON,
     FfttPlayerFromJSON,
     FfttPlayerToJSON,
     HTTPValidationErrorFromJSON,
@@ -98,7 +98,7 @@ export class DefaultApi extends runtime.BaseAPI {
     /**
      * Api Public Get Entries
      */
-    async getEntriesRaw(requestParameters: GetEntriesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<Entry>>> {
+    async getEntriesRaw(requestParameters: GetEntriesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<EntryWithCategory>>> {
         if (requestParameters['licenceNo'] == null) {
             throw new runtime.RequiredError(
                 'licenceNo',
@@ -121,13 +121,13 @@ export class DefaultApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(EntryFromJSON));
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(EntryWithCategoryFromJSON));
     }
 
     /**
      * Api Public Get Entries
      */
-    async getEntries(requestParameters: GetEntriesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<Entry>> {
+    async getEntries(requestParameters: GetEntriesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<EntryWithCategory>> {
         const response = await this.getEntriesRaw(requestParameters, initOverrides);
         return await response.value();
     }
