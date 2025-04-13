@@ -197,29 +197,29 @@ async def api_public_register_entries(
         # checks that if the player is female, they have to be registered to all
         # women-only categories on the same day for which they are registered to a
         # category
-        if player_in_db.gender == "F":
-            days_with_entries = {
-                category.start_time.date() for category in potential_categories
-            }
-            women_only_categories = session.scalars(
-                select(CategoryInDB).where(CategoryInDB.women_only.is_(True)),
-            ).all()
-
-            for day in days_with_entries:
-                unregistered_women_only_categories_on_day = [
-                    category.category_id
-                    for category in women_only_categories
-                    if category.start_time.date() == day
-                    and category.category_id not in category_ids
-                ]
-                if unregistered_women_only_categories_on_day:
-                    raise ae.InvalidDataError(
-                        origin=origin,
-                        error_message=ae.MANDATORY_WOMEN_ONLY_REGISTRATION_MESSAGE,
-                        payload={
-                            "categoryIdsShouldRegister": unregistered_women_only_categories_on_day,  # noqa: E501
-                        },
-                    )
+        # if player_in_db.gender == "F":
+        #     days_with_entries = {
+        #         category.start_time.date() for category in potential_categories
+        #     }
+        #     women_only_categories = session.scalars(
+        #         select(CategoryInDB).where(CategoryInDB.women_only.is_(True)),
+        #     ).all()
+        #
+        #     for day in days_with_entries:
+        #         unregistered_women_only_categories_on_day = [
+        #             category.category_id
+        #             for category in women_only_categories
+        #             if category.start_time.date() == day
+        #             and category.category_id not in category_ids
+        #         ]
+        #         if unregistered_women_only_categories_on_day:
+        #             raise ae.InvalidDataError(
+        #                 origin=origin,
+        #                 error_message=ae.MANDATORY_WOMEN_ONLY_REGISTRATION_MESSAGE,
+        #                 payload={
+        #                     "categoryIdsShouldRegister": unregistered_women_only_categories_on_day,  # noqa: E501
+        #                 },
+        #             )
 
         violations = [
             category.category_id
@@ -234,11 +234,15 @@ async def api_public_register_entries(
                 payload={"categoryIds": violations},
             )
 
-        if max(
-            Counter(
-                [category.start_time.date() for category in potential_categories],
-            ).values(),
-        ) > cfg.MAX_ENTRIES_PER_DAY + (player_in_db.gender == "F"):
+        if (
+            max(
+                Counter(
+                    [category.start_time.date() for category in potential_categories],
+                ).values(),
+                # ) > cfg.MAX_ENTRIES_PER_DAY + (player_in_db.gender == "F"):
+            )
+            > cfg.MAX_ENTRIES_PER_DAY
+        ):
             raise ae.InvalidDataError(
                 origin=origin,
                 error_message=ae.MAX_ENTRIES_PER_DAY_MESSAGE,
