@@ -217,19 +217,28 @@ export default function PlayerFormComponent({
   }
 
   return (
-      <div className="flex justify-between">
-        {/* Left Column */}
-        <div className="w-1/2 p-4">
+      <div className="flex flex-col lg:flex-row justify-between gap-4">
+        {/* Left Column (Tables) */}
+        <div className="w-full lg:w-1/2 p-4 relative">
+          <h2 className="text-lg font-bold mb-4">Tableaux</h2>
+
+          {/* Saturday Table */}
+          {saturdayCategories.length > 0 && generateCategoriesTable(saturdayCategories, "Samedi")}
+
+          {/* Sunday Table */}
+          {sundayCategories.length > 0 && generateCategoriesTable(sundayCategories, "Dimanche")}
+        </div>
+
+        {/* Right Column (Form) */}
+        <div className="w-full lg:w-1/2 p-4">
           <div className="w-full mx-auto bg-white shadow-md rounded-md overflow-hidden">
             <form className="px-6 py-4" onSubmit={handleSubmit}>
-              <div className="font-bold text-xl mb-2">Inscription</div>
+              <div className="font-bold text-xl mb-4">Inscription</div>
 
               {/* Name Fields */}
-              <div className="mb-4 flex">
-                <div className="w-1/2 pr-2">
-                  <label className="block text-gray-700 text-sm font-bold mb-2">
-                    Prénom
-                  </label>
+              <div className="mb-4 flex flex-col sm:flex-row gap-4">
+                <div className="w-full sm:w-1/2">
+                  <label className="block text-gray-700 text-sm font-bold mb-2">Prénom</label>
                   <input
                       disabled
                       value={player.firstName}
@@ -237,10 +246,8 @@ export default function PlayerFormComponent({
                       type="text"
                   />
                 </div>
-                <div className="w-1/2 pl-2">
-                  <label className="block text-gray-700 text-sm font-bold mb-2">
-                    Nom
-                  </label>
+                <div className="w-full sm:w-1/2">
+                  <label className="block text-gray-700 text-sm font-bold mb-2">Nom</label>
                   <input
                       disabled
                       value={player.lastName}
@@ -251,11 +258,9 @@ export default function PlayerFormComponent({
               </div>
 
               {/* Licence, Points, Gender */}
-              <div className="mb-4 flex">
-                <div className="w-1/3 pr-2">
-                  <label className="block text-gray-700 text-sm font-bold mb-2">
-                    Numéro de licence
-                  </label>
+              <div className="mb-4 flex flex-col sm:flex-row gap-4">
+                <div className="w-full sm:w-1/3">
+                  <label className="block text-gray-700 text-sm font-bold mb-2">Numéro de licence</label>
                   <input
                       disabled
                       value={player.licenceNo}
@@ -263,10 +268,8 @@ export default function PlayerFormComponent({
                       type="text"
                   />
                 </div>
-                <div className="w-1/3 px-2">
-                  <label className="block text-gray-700 text-sm font-bold mb-2">
-                    Classement
-                  </label>
+                <div className="w-full sm:w-1/3">
+                  <label className="block text-gray-700 text-sm font-bold mb-2">Classement</label>
                   <input
                       disabled
                       value={player.nbPoints}
@@ -274,10 +277,8 @@ export default function PlayerFormComponent({
                       type="text"
                   />
                 </div>
-                <div className="w-1/3 pl-2">
-                  <label className="block text-gray-700 text-sm font-bold mb-2">
-                    Sexe
-                  </label>
+                <div className="w-full sm:w-1/3">
+                  <label className="block text-gray-700 text-sm font-bold mb-2">Sexe</label>
                   <input
                       disabled
                       value={player.gender}
@@ -289,9 +290,7 @@ export default function PlayerFormComponent({
 
               {/* Club */}
               <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2">
-                  Club
-                </label>
+                <label className="block text-gray-700 text-sm font-bold mb-2">Club</label>
                 <input
                     disabled
                     value={player.club}
@@ -302,9 +301,7 @@ export default function PlayerFormComponent({
 
               {/* Email */}
               <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2">
-                  Adresse email
-                </label>
+                <label className="block text-gray-700 text-sm font-bold mb-2">Adresse email</label>
                 <input
                     required
                     value={email}
@@ -317,9 +314,7 @@ export default function PlayerFormComponent({
 
               {/* Phone */}
               <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2">
-                  Numéro de téléphone
-                </label>
+                <label className="block text-gray-700 text-sm font-bold mb-2">Numéro de téléphone</label>
                 <input
                     required
                     value={phone}
@@ -349,20 +344,8 @@ export default function PlayerFormComponent({
                     <p className="text-red-600 text-sm mt-2 text-right">{submitTooltip}</p>
                 )}
               </div>
-
             </form>
           </div>
-        </div>
-
-        {/* Right Column (Tables) */}
-        <div className="w-1/2 p-4 relative">
-          <h2 className="text-lg font-bold mb-4">Tableaux</h2>
-
-          {/* Saturday Table */}
-          {saturdayCategories.length > 0 && generateCategoriesTable(saturdayCategories, "Samedi")}
-
-          {/* Sunday Table */}
-          {sundayCategories.length > 0 && generateCategoriesTable(sundayCategories, "Dimanche")}
         </div>
       </div>
   );
