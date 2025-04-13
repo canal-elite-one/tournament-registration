@@ -103,7 +103,7 @@ async def api_public_add_player(
     "/players/<licence_no>",
     operation_id="get_player",
     response_model=FfttPlayer,
-    responses={404: {"detail": "test detail"}},
+    responses={404: {"detail": "test detail", "description": "test description"}},
 )
 # @during_registration
 async def api_public_get_player(
@@ -303,3 +303,22 @@ async def api_public_register_entries(
         )
 
         return Player.model_validate(player_in_db)
+
+
+@app.post("/pay/<licence_no>")
+async def api_public_pay(
+    licence_no: str,
+    amount: int,
+    session: Annotated[orm.Session, Depends(get_rw_session)],
+):
+    origin = api_public_pay.__name__
+    player_in_db = session.get(PlayerInDB, licence_no)
+    if player_in_db is None:
+        raise ae.PlayerNotFoundError(
+            origin=origin,
+            licence_no=licence_no,
+        )
+
+    player_in_db.total_actual_paid += amount
+    session.commit()
+    return Player.model_validate(player_in_db)
