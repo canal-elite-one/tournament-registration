@@ -25,11 +25,13 @@ export default async function HomePage() {
   });
 
   if (isRegistrationOpen) {
-    return <div>
-      <PlayerSearch />
-      <CategoryTable categories={saturdayCategories} day="Samedi"/>
-      <CategoryTable categories={sundayCategories} day="Dimanche"/>
-    </div>
+    return (
+        <div className="flex flex-col items-center gap-16 pt-8 bg-gray-50 min-h-screen">
+          <PlayerSearch />
+          <CategoryTable categories={saturdayCategories} day="Samedi" />
+          <CategoryTable categories={sundayCategories} day="Dimanche" />
+        </div>
+    );
   } else {
     return <CountDownPage startDate={targetDate}/>
   }
