@@ -1,7 +1,7 @@
 'use client';
 
 import {useEffect, useState} from 'react';
-import {TextInput, Button} from '@mantine/core';
+import {Text, TextInput, Button, Card} from '@mantine/core';
 import {useRouter} from "next/navigation";
 
 export default function HomePage() {
@@ -47,9 +47,7 @@ export default function HomePage() {
 
   return (
       <main
-          className={`h-screen flex justify-center items-center ${
-              !isRegistrationOpen ? 'bg-contain bg-top bg-no-repeat' : ''
-          }`}
+          className={!isRegistrationOpen ? 'h-screen flex justify-center items-center bg-contain bg-top bg-no-repeat' : ''}
           style={
             !isRegistrationOpen
                 ? {backgroundImage: "url('/static/countdown-background.jpg')"}
@@ -57,28 +55,44 @@ export default function HomePage() {
           }
       >
         {isRegistrationOpen ? (
-            <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  handleLicenceSubmit();
-                }}
-                className="bg-white/30 backdrop-blur rounded-xl p-5 space-y-4 text-center"
-            >
+          <Card
+              className="max-w-xl mx-auto mt-8 sm:mt-12"
+              shadow="md"
+              padding="lg"
+              radius="lg"
+              withBorder
+          >
+            <form onSubmit={handleLicenceSubmit} className="space-y-4">
+              <Text size="lg" fw={600} className="mb-4 text-gray-800">
+                Inscrivez vous !
+              </Text>
+
               <TextInput
                   placeholder="Numéro de licence"
                   value={licenceNumber}
                   onChange={(event) => setLicenceNumber(event.currentTarget.value)}
                   onKeyDown={(event) => {
-                    if (event.key === 'Enter') {
+                    if (event.key === "Enter") {
                       event.preventDefault();
                       handleLicenceSubmit();
                     }
                   }}
+                  size="md"
+                  radius="md"
+                  required
               />
-              <Button type="submit" className={"bg-blue-950 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"} fullWidth>
+
+              <Button
+                  type="submit"
+                  fullWidth
+                  radius="md"
+                  size="md"
+                  className="bg-blue-950 hover:bg-blue-700 text-white font-bold"
+              >
                 Rechercher
               </Button>
             </form>
+          </Card>
         ) : (
             <div className="text-center bg-white/30 backdrop-blur rounded-xl p-5">
               <div className="flex justify-center mb-4">
