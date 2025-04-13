@@ -15,7 +15,7 @@ tasks:
       - api-generate-openapi
     cmds:
       - '[ -d "./front/backend_api/backend" ] || exit 0; rm -rf "./front/backend_api/backend"'
-      - docker run --rm -v .:/local openapitools/openapi-generator-cli generate -i /local/apis/openapi.json -g typescript-axios -o /local/front/backend_api/backend
+      - docker run --rm -v .:/local openapitools/openapi-generator-cli generate -i /local/apis/openapi.json -g typescript-axios -o /local/front/src/backend_api/backend
       - rm ./apis/openapi.json
 
   api-generate-seeds:
