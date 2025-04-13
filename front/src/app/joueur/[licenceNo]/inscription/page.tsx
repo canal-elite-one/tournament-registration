@@ -4,5 +4,5 @@ export default async function Page({
   params: Promise<{ licenceNo: string }>;
 }) {
   const {licenceNo} = await params;
-  return <div>${licenceNo}</div>
+  return <div>{licenceNo}</div>
 };

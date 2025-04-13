@@ -44,79 +44,90 @@ export default function PlayerFormComponent({
 
   const generateCategoriesTable = (categories: CategoryResult[], day: string) => {
     return (
-        <Table withColumnBorders withRowBorders highlightOnHover>
-          <thead>
-          <tr>
-            <th colSpan={4}>
-              <Text c="white" fw={700} bg="blue.9" p="sm" ta="center">
-                {day}
-              </Text>
-            </th>
-          </tr>
-          <tr>
-            <th>ID</th>
-            <th>Nom</th>
-            <th>Nombre de places restantes</th>
-            <th>Inscription</th>
-          </tr>
-          </thead>
-          <tbody>
-          {categories.map((category) => {
-            const categoryId = category.categoryId;
-            const maxOverbooked = Math.floor(category.maxPlayers * (1 + (category.overbookingPercentage ?? 0) / 100.0));
-            const entryCount = category.entryCount ?? 0;
+      <div className="rounded-lg overflow-hidden shadow-md mb-4">
+        <Table.ScrollContainer minWidth={500}>
+          <Table withColumnBorders withRowBorders highlightOnHover>
+            <Table.Thead>
+              <Table.Tr>
+                <Table.Th colSpan={4} className="bg-blue-950">
+                  <Text c="white" fw={700} p="sm" ta="center">
+                    {day}
+                  </Text>
+                </Table.Th>
+              </Table.Tr>
+              <Table.Tr>
+                <Table.Th ta="center">ID</Table.Th>
+                <Table.Th ta="center">Nom</Table.Th>
+                <Table.Th ta="center">Nombre de places restantes</Table.Th>
+                <Table.Th ta="center">Inscription</Table.Th>
+              </Table.Tr>
+            </Table.Thead>
 
-            const isFull = entryCount > maxOverbooked + 40;
-            const isInWaitingList = entryCount > maxOverbooked && entryCount <= maxOverbooked + 40;
-            const isOutOfPointsRange = player.nbPoints < category.minPoints || player.nbPoints > category.maxPoints;
-            const isGenderMismatch = category.womenOnly && player.gender === "M";
+            <Table.Tbody>
+              {categories.map((category) => {
+                const categoryId = category.categoryId;
+                const maxOverbooked = Math.floor(
+                    category.maxPlayers * (1 + (category.overbookingPercentage ?? 0) / 100.0)
+                );
+                const entryCount = category.entryCount ?? 0;
 
-            const disabled = isFull || isOutOfPointsRange || isGenderMismatch;
+                const isFull = entryCount > maxOverbooked + 40;
+                const isInWaitingList = entryCount > maxOverbooked && entryCount <= maxOverbooked + 40;
+                const isOutOfPointsRange =
+                    player.nbPoints < category.minPoints || player.nbPoints > category.maxPoints;
+                const isGenderMismatch = category.womenOnly && player.gender === "M";
 
-            const availableSpots = maxOverbooked - entryCount;
+                const disabled = isFull || isOutOfPointsRange || isGenderMismatch;
 
-            let availabilityText = availableSpots <= category.maxPlayers ? `${availableSpots}` : `${category.maxPlayers}`;
-            let availabilityColor: string = "green";
+                const availableSpots = maxOverbooked - entryCount;
 
-            if (isFull) {
-              availabilityText = "Complet";
-              availabilityColor = "red";
-            } else if (isInWaitingList) {
-              availabilityText = `Liste d'attente : ${entryCount - maxOverbooked + 1}e`;
-              availabilityColor = "yellow";
-            }
+                let availabilityText =
+                    availableSpots <= category.maxPlayers
+                        ? `${availableSpots}`
+                        : `${category.maxPlayers}`;
+                let availabilityColor: string = "green";
 
-            return (
-                <tr key={categoryId}>
-                  {/* ID */}
-                  <td style={{ backgroundColor: category.color ?? undefined }}>
-                    {categoryId}
-                  </td>
+                if (isFull) {
+                  availabilityText = "Complet";
+                  availabilityColor = "red";
+                } else if (isInWaitingList) {
+                  availabilityText = `Liste d'attente : ${entryCount - maxOverbooked + 1}e`;
+                  availabilityColor = "yellow";
+                }
 
-                  {/* Name */}
-                  <td>{category.alternateName}</td>
+                return (
+                  <Table.Tr key={categoryId}>
+                    {/* ID */}
+                    <Table.Td style={{ backgroundColor: category.color ?? undefined }}>
+                      {categoryId}
+                    </Table.Td>
 
-                  {/* Availability */}
-                  <td>
-                    <Text c={availabilityColor}>{availabilityText}</Text>
-                  </td>
+                    {/* Name */}
+                    <Table.Td>{category.alternateName}</Table.Td>
 
-                  {/* Registration Checkbox */}
-                  <td>
-                    <Group justify="center">
-                      <Checkbox
+                    {/* Availability */}
+                    <Table.Td>
+                      <Text c={availabilityColor}>{availabilityText}</Text>
+                    </Table.Td>
+
+                    {/* Registration Checkbox */}
+                    <Table.Td>
+                      <Group justify="center">
+                        <Checkbox
                           id={`register-checkbox-${categoryId}`}
                           disabled={disabled}
                           checked={selectedCategories.includes(categoryId)}
                           onChange={() => toggleCategorySelection(categoryId)}
-                      />
-                    </Group>
-                  </td>
-                </tr>
-            );
-          })}
-          </tbody>
-        </Table>
+                        />
+                      </Group>
+                    </Table.Td>
+                  </Table.Tr>
+                );
+              })}
+            </Table.Tbody>
+          </Table>
+        </Table.ScrollContainer>
+      </div>
     );
   };
 
@@ -204,7 +215,6 @@ export default function PlayerFormComponent({
     isSubmitDisabled = true;
     submitTooltip = "Vous devez vous inscrire à au moins un tableau.";
   }
-
 
   return (
       <div className="flex justify-between">
