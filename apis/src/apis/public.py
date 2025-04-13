@@ -14,7 +14,14 @@ from apis.shared.fftt_api import get_player_fftt
 
 import apis.shared.config as cfg
 import apis.shared.api_errors as ae
-from apis.shared.models import Category, ContactInfo, Player, FfttPlayer, Entry
+from apis.shared.models import (
+    Category,
+    ContactInfo,
+    Player,
+    FfttPlayer,
+    Entry,
+    AliasedBase,
+)
 
 app = FastAPI()
 
@@ -138,11 +145,15 @@ async def api_public_get_entries(
     return [Entry.model_validate(entry_in_db) for entry_in_db in player_in_db.entries]
 
 
+class RegisterEntriesBody(AliasedBase):
+    category_ids: list[str]
+
+
 @app.post("/entries/<licence_no>", operation_id="register_entries")
 # @during_registration
 async def api_public_register_entries(
     licence_no: str,
-    category_ids: list[str],
+    category_ids: RegisterEntriesBody,
     session: Annotated[orm.Session, Depends(get_rw_session)],
 ) -> Player:
     origin = api_public_register_entries.__name__
