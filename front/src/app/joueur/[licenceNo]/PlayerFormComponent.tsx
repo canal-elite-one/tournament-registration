@@ -1,13 +1,14 @@
 "use client";
 
 import {
-  AddPlayerRequest,
   CategoryResult,
   DefaultApi, FfttPlayer,
   RegisterEntriesRequest
 } from "@/backend_api/backend";
 import { useState } from "react";
 import {Table, Text, Checkbox, Group} from "@mantine/core";
+import {notifications} from "@mantine/notifications";
+import {useRouter} from "next/navigation";
 
 export default function PlayerFormComponent({
                                               player,
@@ -20,6 +21,8 @@ export default function PlayerFormComponent({
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const router = useRouter();
+
 
 
   // Split categories by day
@@ -117,34 +120,61 @@ export default function PlayerFormComponent({
     );
   };
 
+  const handleCheckout = async (licenceNo: string, amount: number, email: string) => {
+    try {
+      const response = await fetch("/api/create-checkout-session", {
+        method: "POST",
+        body: JSON.stringify({
+          licenceNumber: licenceNo,
+          amount: amount,
+          customerEmail: email,
+        }),
+      });
 
+      const data = await response.json();
+
+      if (data.url) {
+        router.push(data.url);
+        window.location.href = data.url;
+      } else {
+        notifications.show({
+          title: "Error",
+          message: "Could not create checkout session",
+          color: "red",
+        });
+      }
+    } catch (error: any) {
+      notifications.show({
+        title: "Error",
+        message: error.message,
+        color: "red",
+      });
+    }
+  };
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    console.log("Submitting form with:", { email, phone });
-    // TODO: connect with your API for submission
     const api = new DefaultApi();
-
-    const addPlayerRequest: AddPlayerRequest = {
-      licenceNo: player.licenceNo,
-      contactInfo: {
-        email: email,
-        phone: phone,
-      },
-    };
 
     const registrationRequest: RegisterEntriesRequest = {
       licenceNo: player.licenceNo,
       registerEntriesBody: {
+        contactInfo: {
+          email: email,
+          phone: phone,
+        },
         categoryIds: selectedCategories
       },
     }
 
-
-    await api.addPlayer(addPlayerRequest);
-    await api.registerEntries(registrationRequest);
-
-    // TODO redirect to payment page
+    try {
+      const registeredEntries = await api.registerEntries(registrationRequest);
+      await handleCheckout(player.licenceNo, registeredEntries.amountToPay, email);
+    } catch(error) {
+      const response = error.response;
+      const body = await response?.json();
+      console.error(body);
+    }
   };
 
   return (

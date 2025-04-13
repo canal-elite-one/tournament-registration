@@ -13,6 +13,14 @@
  */
 
 import { mapValues } from '../runtime';
+import type { ContactInfo } from './ContactInfo';
+import {
+    ContactInfoFromJSON,
+    ContactInfoFromJSONTyped,
+    ContactInfoToJSON,
+    ContactInfoToJSONTyped,
+} from './ContactInfo';
+
 /**
  * 
  * @export
@@ -25,6 +33,12 @@ export interface RegisterEntriesBody {
      * @memberof RegisterEntriesBody
      */
     categoryIds: Array<string>;
+    /**
+     * 
+     * @type {ContactInfo}
+     * @memberof RegisterEntriesBody
+     */
+    contactInfo: ContactInfo;
 }
 
 /**
@@ -32,6 +46,7 @@ export interface RegisterEntriesBody {
  */
 export function instanceOfRegisterEntriesBody(value: object): value is RegisterEntriesBody {
     if (!('categoryIds' in value) || value['categoryIds'] === undefined) return false;
+    if (!('contactInfo' in value) || value['contactInfo'] === undefined) return false;
     return true;
 }
 
@@ -46,6 +61,7 @@ export function RegisterEntriesBodyFromJSONTyped(json: any, ignoreDiscriminator:
     return {
         
         'categoryIds': json['categoryIds'],
+        'contactInfo': ContactInfoFromJSON(json['contactInfo']),
     };
 }
 
@@ -61,6 +77,7 @@ export function RegisterEntriesBodyToJSONTyped(value?: RegisterEntriesBody | nul
     return {
         
         'categoryIds': value['categoryIds'],
+        'contactInfo': ContactInfoToJSON(value['contactInfo']),
     };
 }
 

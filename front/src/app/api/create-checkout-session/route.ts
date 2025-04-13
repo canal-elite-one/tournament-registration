@@ -9,7 +9,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 
 export async function POST(req: Request) {
   try {
-    const {licenceNumber} = await req.json();
+    const {licenceNumber, amount, customerEmail} = await req.json();
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       mode: 'payment',
@@ -18,13 +18,14 @@ export async function POST(req: Request) {
           price_data: {
             currency: 'eur', // Change to your currency
             product_data: {
-              name: 'Inscription tournoi USKB',
+              name: 'Inscription tournoi USKB 06/2025',
             },
-            unit_amount: 2000, // Amount in cents (20€)
+            unit_amount: amount * 100, // Amount in cents
           },
           quantity: 1,
         },
       ],
+      customer_email: customerEmail,
       success_url: `${process.env.NEXT_PUBLIC_SITE_URL}/payment/success`,
       cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL}/payment/cancel`,
       metadata: {

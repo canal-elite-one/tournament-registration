@@ -15,35 +15,36 @@
 
 import * as runtime from '../runtime';
 import type {
+  APIErrorModel,
   CategoryResult,
-  ContactInfo,
   Entry,
   FfttPlayer,
   HTTPValidationError,
+  PayBody,
   Player,
   RegisterEntriesBody,
+  RegisterEntriesResponse,
 } from '../models/index';
 import {
+    APIErrorModelFromJSON,
+    APIErrorModelToJSON,
     CategoryResultFromJSON,
     CategoryResultToJSON,
-    ContactInfoFromJSON,
-    ContactInfoToJSON,
     EntryFromJSON,
     EntryToJSON,
     FfttPlayerFromJSON,
     FfttPlayerToJSON,
     HTTPValidationErrorFromJSON,
     HTTPValidationErrorToJSON,
+    PayBodyFromJSON,
+    PayBodyToJSON,
     PlayerFromJSON,
     PlayerToJSON,
     RegisterEntriesBodyFromJSON,
     RegisterEntriesBodyToJSON,
+    RegisterEntriesResponseFromJSON,
+    RegisterEntriesResponseToJSON,
 } from '../models/index';
-
-export interface AddPlayerRequest {
-    licenceNo: string;
-    contactInfo: ContactInfo;
-}
 
 export interface GetEntriesRequest {
     licenceNo: string;
@@ -51,6 +52,11 @@ export interface GetEntriesRequest {
 
 export interface GetPlayerRequest {
     licenceNo: string;
+}
+
+export interface PayRequest {
+    licenceNo: string;
+    payBody: PayBody;
 }
 
 export interface RegisterEntriesRequest {
@@ -62,49 +68,6 @@ export interface RegisterEntriesRequest {
  * 
  */
 export class DefaultApi extends runtime.BaseAPI {
-
-    /**
-     * Api Public Add Player
-     */
-    async addPlayerRaw(requestParameters: AddPlayerRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Player>> {
-        if (requestParameters['licenceNo'] == null) {
-            throw new runtime.RequiredError(
-                'licenceNo',
-                'Required parameter "licenceNo" was null or undefined when calling addPlayer().'
-            );
-        }
-
-        if (requestParameters['contactInfo'] == null) {
-            throw new runtime.RequiredError(
-                'contactInfo',
-                'Required parameter "contactInfo" was null or undefined when calling addPlayer().'
-            );
-        }
-
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        headerParameters['Content-Type'] = 'application/json';
-
-        const response = await this.request({
-            path: `/players/{licence_no}`.replace(`{${"licence_no"}}`, encodeURIComponent(String(requestParameters['licenceNo']))),
-            method: 'POST',
-            headers: headerParameters,
-            query: queryParameters,
-            body: ContactInfoToJSON(requestParameters['contactInfo']),
-        }, initOverrides);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => PlayerFromJSON(jsonValue));
-    }
-
-    /**
-     * Api Public Add Player
-     */
-    async addPlayer(requestParameters: AddPlayerRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Player> {
-        const response = await this.addPlayerRaw(requestParameters, initOverrides);
-        return await response.value();
-    }
 
     /**
      * Api Public Get Categories
@@ -207,9 +170,56 @@ export class DefaultApi extends runtime.BaseAPI {
     }
 
     /**
+     * Api Public Pay
+     */
+    async payRaw(requestParameters: PayRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Player>> {
+        if (requestParameters['licenceNo'] == null) {
+            throw new runtime.RequiredError(
+                'licenceNo',
+                'Required parameter "licenceNo" was null or undefined when calling pay().'
+            );
+        }
+
+        if (requestParameters['payBody'] == null) {
+            throw new runtime.RequiredError(
+                'payBody',
+                'Required parameter "payBody" was null or undefined when calling pay().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        if (requestParameters['licenceNo'] != null) {
+            queryParameters['licence_no'] = requestParameters['licenceNo'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        const response = await this.request({
+            path: `/pay/<licence_no>`,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: PayBodyToJSON(requestParameters['payBody']),
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => PlayerFromJSON(jsonValue));
+    }
+
+    /**
+     * Api Public Pay
+     */
+    async pay(requestParameters: PayRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Player> {
+        const response = await this.payRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
      * Api Public Register Entries
      */
-    async registerEntriesRaw(requestParameters: RegisterEntriesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Player>> {
+    async registerEntriesRaw(requestParameters: RegisterEntriesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<RegisterEntriesResponse>> {
         if (requestParameters['licenceNo'] == null) {
             throw new runtime.RequiredError(
                 'licenceNo',
@@ -242,13 +252,13 @@ export class DefaultApi extends runtime.BaseAPI {
             body: RegisterEntriesBodyToJSON(requestParameters['registerEntriesBody']),
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => PlayerFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => RegisterEntriesResponseFromJSON(jsonValue));
     }
 
     /**
      * Api Public Register Entries
      */
-    async registerEntries(requestParameters: RegisterEntriesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Player> {
+    async registerEntries(requestParameters: RegisterEntriesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<RegisterEntriesResponse> {
         const response = await this.registerEntriesRaw(requestParameters, initOverrides);
         return await response.value();
     }
