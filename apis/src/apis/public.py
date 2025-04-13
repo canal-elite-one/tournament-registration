@@ -152,12 +152,16 @@ class RegisterEntriesBody(AliasedBase):
     category_ids: list[str]
 
 
+class RegisterEntriesResponse(AliasedBase):
+    amount_to_pay: int
+
+
 @app.post("/entries/<licence_no>", operation_id="register_entries")
 # @during_registration
 async def api_public_register_entries(
     licence_no: str,
     category_ids: RegisterEntriesBody,
-) -> Player:
+) -> RegisterEntriesResponse:
     origin = api_public_register_entries.__name__
     category_ids = category_ids.category_ids
 
@@ -300,7 +304,11 @@ async def api_public_register_entries(
             subject="Confirmation Inscription Tournoi USKB",
         )
 
-        return Player.model_validate(player_in_db)
+        return RegisterEntriesResponse(
+            amount_to_pay=sum(
+                entry.category.current_fee() for entry in player_in_db.entries
+            )
+        )
 
 
 @app.post("/pay/<licence_no>", operation_id="pay")
