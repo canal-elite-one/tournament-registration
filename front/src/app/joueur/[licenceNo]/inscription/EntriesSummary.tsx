@@ -1,5 +1,7 @@
 "use client";
 
+import { Card, Text, List, Anchor, Group } from "@mantine/core";
+
 export default function EntriesSummary({
                                          entries,
                                          emailContact,
@@ -10,40 +12,52 @@ export default function EntriesSummary({
   licenceNo: string;
 }) {
   return (
-      <div className="flex justify-center items-center min-h-screen bg-gray-50 px-4 sm:px-6 overflow-y-auto font-sans antialiased">
-        <div className="bg-white rounded-lg shadow-md w-full max-w-xl p-6 sm:p-8 space-y-6">
-          <div className="text-center space-y-2">
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-800">
-              Bonjour {licenceNo} !
-            </h2>
-            <h3 className="text-base sm:text-lg font-semibold text-gray-700">
-              Vous êtes inscrit(s) aux tableaux suivants :
-            </h3>
-          </div>
+    <Card
+        className="max-w-xl mx-auto mt-8 sm:mt-12"
+        shadow="md"
+        padding="lg"
+        radius="lg"
+        withBorder
+    >
+      <Group mb="xl" className="text-center space-y-2">
+        <Text size="xl" fw={700} className="text-gray-800">
+          Bonjour {licenceNo} !
+        </Text>
+        <Text size="lg" fw={600} className="text-gray-700">
+          Vous êtes inscrit(s) aux tableaux suivants :
+        </Text>
+      </Group>
 
-          <ul className="list-disc list-inside space-y-2 text-gray-700 text-sm sm:text-base leading-relaxed">
-            {entries.map((entry) => (
-                <li key={entry.id}>{entry.label}</li>
-            ))}
-          </ul>
+      <List
+          spacing="sm"
+          listStyleType="disc"
+          className="pl-6 mb-6 text-gray-700 text-sm sm:text-base leading-relaxed"
+      >
+        {entries.map((entry) => (
+            <List.Item key={entry.id}>{entry.label}</List.Item>
+        ))}
+      </List>
 
-          <p className="text-gray-600 text-sm sm:text-base text-center leading-relaxed">
-            Si vous souhaitez modifier vos informations ou vos inscriptions, veuillez{" "}
-            <a
-                href={`mailto:${emailContact}`}
-                className="font-bold text-blue-600 hover:underline"
-            >
-              envoyer un mail
-            </a>{" "}
-            aux organisateurs à l&apos;adresse suivante :{" "}
-            <a
-                href={`mailto:${emailContact}`}
-                className="font-bold text-blue-600 hover:underline"
-            >
-              {emailContact}
-            </a>.
-          </p>
-        </div>
-      </div>
+      <Text c="gray.6" size="sm" className="leading-relaxed">
+        Si vous souhaitez modifier vos informations ou vos inscriptions, veuillez{" "}
+        <Anchor
+            href={`mailto:${emailContact}`}
+            c="blue.5"
+            underline="hover"
+            fw={700}
+        >
+          envoyer un mail
+        </Anchor>{" "}
+        aux organisateurs à l&apos;adresse suivante :{" "}
+        <Anchor
+            href={`mailto:${emailContact}`}
+            c="blue.5"
+            underline="hover"
+            fw={700}
+        >
+          {emailContact}
+        </Anchor>.
+      </Text>
+    </Card>
   );
 }
