@@ -263,6 +263,8 @@ async def api_public_register_entries(
         session.execute(stmt, temp_dicts)
         session.commit()
 
+        player_in_db = session.get(PlayerInDB, licence_no)
+
         is_on_waiting_list = any(
             entry.rank()
             > int(
