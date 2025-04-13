@@ -6,7 +6,7 @@ import {
   RegisterEntriesRequest
 } from "@/backend_api/backend";
 import { useState } from "react";
-import {Table, Text, Checkbox, Group} from "@mantine/core";
+import {Table, Text, Checkbox, Group, Tooltip} from "@mantine/core";
 import {notifications} from "@mantine/notifications";
 import {useRouter} from "next/navigation";
 
@@ -177,6 +177,35 @@ export default function PlayerFormComponent({
     }
   };
 
+  // Calculate the number of selected entries per day
+  const nbEntriesSaturday = selectedCategories.filter(categoryId =>
+      saturdayCategories.some(category => category.categoryId === categoryId)
+  ).length;
+
+  const nbEntriesSunday = selectedCategories.filter(categoryId =>
+      sundayCategories.some(category => category.categoryId === categoryId)
+  ).length;
+
+  // Define your limits
+  const maxEntriesPerDaySaturday = 2; // replace with your actual limit
+  const maxEntriesPerDaySunday = 2; // replace with your actual limit
+
+  // Determine button state and tooltip
+  let isSubmitDisabled = false;
+  let submitTooltip = "";
+
+  if (nbEntriesSaturday > maxEntriesPerDaySaturday) {
+    isSubmitDisabled = true;
+    submitTooltip = `Vous ne pouvez pas vous inscrire à plus de ${maxEntriesPerDaySaturday} tableaux pour la journée de samedi.`;
+  } else if (nbEntriesSunday > maxEntriesPerDaySunday) {
+    isSubmitDisabled = true;
+    submitTooltip = `Vous ne pouvez pas vous inscrire à plus de ${maxEntriesPerDaySunday} tableaux pour la journée de dimanche.`;
+  } else if (nbEntriesSaturday + nbEntriesSunday === 0) {
+    isSubmitDisabled = true;
+    submitTooltip = "Vous devez vous inscrire à au moins un tableau.";
+  }
+
+
   return (
       <div className="flex justify-between">
         {/* Left Column */}
@@ -292,18 +321,25 @@ export default function PlayerFormComponent({
               </div>
 
               {/* Submit Button */}
-              <div className="flex mt-auto">
-                <button
-                    type="submit"
-                    className={`bg-blue-950 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4 ml-auto ${
-                        selectedCategories.length === 0 ? "opacity-50 cursor-not-allowed" : ""
-                    }`}
-                    disabled={selectedCategories.length === 0}
-                >
-                  S&lsquo;inscrire
-                </button>
+              <div className="flex flex-col items-end mt-auto">
+                <Tooltip label={submitTooltip} disabled={!isSubmitDisabled} withArrow position="top">
+                  <button
+                      id="submit-button"
+                      type="submit"
+                      className={`transition-all duration-300 ease-in-out bg-blue-950 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ${
+                          isSubmitDisabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+                      }`}
+                      disabled={isSubmitDisabled}
+                  >
+                    S&rsquo;inscrire
+                  </button>
+                </Tooltip>
 
+                {isSubmitDisabled && (
+                    <p className="text-red-600 text-sm mt-2 text-right">{submitTooltip}</p>
+                )}
               </div>
+
             </form>
           </div>
         </div>
