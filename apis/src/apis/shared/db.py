@@ -51,6 +51,7 @@ class CategoryInDB(Base):
     category_id: Mapped[str]
     late_registration_fee: Mapped[int]
     max_players: Mapped[int]
+    color: Mapped[str]
 
     entries = relationship("EntryInDB", back_populates="category")
 

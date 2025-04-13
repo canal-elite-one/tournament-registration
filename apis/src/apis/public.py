@@ -157,6 +157,7 @@ async def api_public_register_entries(
     session: Annotated[orm.Session, Depends(get_rw_session)],
 ) -> Player:
     origin = api_public_register_entries.__name__
+    category_ids = category_ids.category_ids
 
     if not category_ids:
         raise ae.InvalidDataError(
