@@ -61,47 +61,6 @@ async def api_public_get_categories(
     ]
 
 
-@app.post("/players/{licence_no}", operation_id="add_player", status_code=201)
-# @during_registration
-async def api_public_add_player(
-    licence_no: str,
-    contact_info: ContactInfo,
-    session: Annotated[orm.Session, Depends(get_rw_session)],
-) -> Player:
-    origin = api_public_add_player.__name__
-
-    try:
-        fftt_player = get_player_fftt(licence_no)
-    except ae.FFTTAPIError as e:
-        raise ae.UnexpectedFFTTError(
-            origin=origin,
-            message=e.message,
-            payload=e.payload,
-        )
-
-    if fftt_player is None:
-        raise ae.FFTTPlayerNotFoundError(origin=origin, licence_no=licence_no)
-
-    player = Player(
-        **fftt_player.model_dump(),
-        email=contact_info.email,
-        phone=contact_info.phone,
-        total_actual_paid=0,
-    )
-
-    try:
-        session.add(player.to_db())
-        session.commit()
-        return player
-    except DBAPIError:
-        session.rollback()
-        raise ae.InvalidDataError(
-            origin=origin,
-            error_message=ae.DUPLICATE_PLAYER_MESSAGE,
-            payload={"licenceNo": player.licence_no},
-        )
-
-
 @app.get(
     "/players/<licence_no>",
     operation_id="get_player",
@@ -159,6 +118,7 @@ async def api_public_get_entries(
 
 class RegisterEntriesBody(AliasedBase):
     category_ids: list[str] = Field(min_length=1)
+    contact_info: ContactInfo
 
 
 class RegisterEntriesResponse(AliasedBase):
@@ -176,25 +136,50 @@ class RegisterEntriesResponse(AliasedBase):
             "description": "Invalid category IDs or constraint violation",
         },
         403: {"model": ae.APIErrorModel, "description": "Player not found"},
-        404: {"model": ae.APIErrorModel, "description": "Player already registered"},
+        404: {"model": ae.APIErrorModel, "description": "Player does not exist"},
         500: {"model": ae.APIErrorModel, "description": "Unexpected FFTT API error"},
     },
 )
 # @during_registration
 async def api_public_register_entries(
     licence_no: str,
-    category_ids: RegisterEntriesBody,
+    register_body: RegisterEntriesBody,
 ) -> RegisterEntriesResponse:
     origin = api_public_register_entries.__name__
-    category_ids = category_ids.category_ids
+    category_ids = register_body.category_ids
+    contact_info = register_body.contact_info
 
     with Session() as session:
         player_in_db = session.get(PlayerInDB, licence_no)
-        if player_in_db is None:
-            raise ae.PlayerNotFoundError(
+        if player_in_db is not None:
+            raise ae.PlayerAlreadyRegisteredError(
                 origin=origin,
-                licence_no=licence_no,
+                error_message=ae.PLAYER_ALREADY_REGISTERED_MESSAGE,
+                payload={"licenceNo": licence_no},
             )
+
+        try:
+            fftt_player = get_player_fftt(licence_no)
+        except ae.FFTTAPIError as e:
+            raise ae.UnexpectedFFTTError(
+                origin=origin,
+                message=e.message,
+                payload=e.payload,
+            )
+
+        if fftt_player is None:
+            raise ae.FFTTPlayerNotFoundError(origin=origin, licence_no=licence_no)
+
+        player = Player(
+            **fftt_player.model_dump(),
+            email=contact_info.email,
+            phone=contact_info.phone,
+            total_actual_paid=0,
+        )
+
+        player_in_db = player.to_db()
+
+        session.add(player_in_db)
 
         if nonexisting_category_ids := set(category_ids).difference(
             session.scalars(select(CategoryInDB.category_id)),
@@ -203,13 +188,6 @@ async def api_public_register_entries(
                 origin=origin,
                 error_message=ae.INVALID_CATEGORY_ID_MESSAGES["registration"],
                 payload={"categoryIds": sorted(nonexisting_category_ids)},
-            )
-
-        if player_in_db.entries:
-            raise ae.PlayerAlreadyRegisteredError(
-                origin=origin,
-                error_message=ae.PLAYER_ALREADY_REGISTERED_MESSAGE,
-                payload={"licenceNo": licence_no},
             )
 
         potential_categories = session.scalars(
