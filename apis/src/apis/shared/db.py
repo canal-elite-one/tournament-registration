@@ -76,6 +76,8 @@ class PlayerInDB(Base):
     total_actual_paid: Mapped[int]
     gender: Mapped[str]
     nb_points: Mapped[int]
+    first_name: Mapped[str]
+    email: Mapped[str]
 
     entries = relationship(
         "EntryInDB",
