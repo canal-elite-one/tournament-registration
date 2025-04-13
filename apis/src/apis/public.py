@@ -2,7 +2,7 @@ from collections import Counter
 from datetime import datetime
 from typing import Annotated
 
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, Body
 from starlette.middleware.cors import CORSMiddleware
 from sqlalchemy import select, text, orm
 from sqlalchemy.exc import DBAPIError
@@ -32,6 +32,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.add_exception_handler(ae.APIError)
 
 
 class CategoryResult(Category):
@@ -314,7 +316,7 @@ async def api_public_register_entries(
 @app.post("/pay/<licence_no>", operation_id="pay")
 async def api_public_pay(
     licence_no: str,
-    amount: int,
+    amount: Annotated[int, Body(gt=0)],
     session: Annotated[orm.Session, Depends(get_rw_session)],
 ) -> Player:
     origin = api_public_pay.__name__
