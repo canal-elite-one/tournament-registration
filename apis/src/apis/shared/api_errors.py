@@ -2,6 +2,7 @@ import traceback
 from enum import StrEnum
 
 from http import HTTPStatus
+from fastapi import HTTPException
 
 
 def handle_api_error(error):
@@ -19,14 +20,14 @@ FFTT_BAD_RESPONSE_MESSAGE = "The FFTT API returned an unexpected response"
 FFTT_DATA_PARSE_MESSAGE = "An error occurred while parsing FFTT data"
 
 
-class APIError(Exception):
+class APIError(HTTPException):
     """Base class for API errors"""
 
     status_code: int
     error_type: str
 
     def __init__(self, origin=None, error_message=None, payload=None):
-        super().__init__()
+        super().__init__(status_code=self.status_code, detail=error_message)
         self.error_message = error_message
         self.origin = origin
         self.payload = payload
