@@ -75,7 +75,7 @@ class Player(FfttPlayer):
 class Entry(AliasedBase):
     category_id: str = Field(min_length=1, max_length=1)
     licence_no: str
-    color: str = Field(min_length=1, max_length=7) | None
+    color: str | None = Field(min_length=1, max_length=7)
     registration_time: datetime | None
     marked_as_present: bool | None
     marked_as_paid: bool
