@@ -26,99 +26,117 @@ import { BASE_PATH, COLLECTION_FORMATS, BaseAPI, RequiredError, operationServerM
 /**
  * 
  * @export
- * @interface Category
+ * @interface CategoryResult
  */
-export interface Category {
+export interface CategoryResult {
     /**
      * 
      * @type {string}
-     * @memberof Category
+     * @memberof CategoryResult
      */
     'categoryId': string;
     /**
      * 
      * @type {string}
-     * @memberof Category
+     * @memberof CategoryResult
      */
-    'alternateName': string;
+    'alternateName': string | null;
     /**
      * 
      * @type {string}
-     * @memberof Category
+     * @memberof CategoryResult
      */
-    'color': string;
+    'color': string | null;
     /**
      * 
      * @type {number}
-     * @memberof Category
+     * @memberof CategoryResult
      */
     'minPoints': number;
     /**
      * 
      * @type {number}
-     * @memberof Category
+     * @memberof CategoryResult
      */
     'maxPoints': number;
     /**
      * 
      * @type {string}
-     * @memberof Category
+     * @memberof CategoryResult
      */
     'startTime': string;
     /**
      * 
      * @type {boolean}
-     * @memberof Category
+     * @memberof CategoryResult
      */
     'womenOnly': boolean;
     /**
      * 
      * @type {number}
-     * @memberof Category
+     * @memberof CategoryResult
      */
     'baseRegistrationFee': number;
     /**
      * 
      * @type {number}
-     * @memberof Category
+     * @memberof CategoryResult
      */
     'lateRegistrationFee': number;
     /**
      * 
      * @type {number}
-     * @memberof Category
+     * @memberof CategoryResult
      */
     'rewardFirst': number;
     /**
      * 
      * @type {number}
-     * @memberof Category
+     * @memberof CategoryResult
      */
     'rewardSecond': number;
     /**
      * 
      * @type {number}
-     * @memberof Category
+     * @memberof CategoryResult
      */
     'rewardSemi': number;
     /**
      * 
      * @type {number}
-     * @memberof Category
+     * @memberof CategoryResult
      */
     'rewardQuarter': number | null;
     /**
      * 
      * @type {number}
-     * @memberof Category
+     * @memberof CategoryResult
      */
     'maxPlayers': number;
     /**
      * 
      * @type {number}
-     * @memberof Category
+     * @memberof CategoryResult
      */
-    'overbookingPercentage': number | null;
+    'overbookingPercentage': number;
+    /**
+     * 
+     * @type {number}
+     * @memberof CategoryResult
+     */
+    'entryCount': number;
+    /**
+     * 
+     * @type {number}
+     * @memberof CategoryResult
+     */
+    'presentEntryCount': number;
+    /**
+     * 
+     * @type {number}
+     * @memberof CategoryResult
+     */
+    'currentFee': number;
 }
 /**
  * 
@@ -301,7 +319,7 @@ export interface Player {
      * @type {number}
      * @memberof Player
      */
-    'bibNo': number | null;
+    'bibNo'?: number | null;
     /**
      * 
      * @type {string}
@@ -370,12 +388,13 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiPublicAddPlayerPlayersLicenceNoPost: async (licenceNo: string, contactInfo: ContactInfo, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        addPlayer: async (licenceNo: string, contactInfo: ContactInfo, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'licenceNo' is not null or undefined
-            assertParamExists('apiPublicAddPlayerPlayersLicenceNoPost', 'licenceNo', licenceNo)
+            assertParamExists('addPlayer', 'licenceNo', licenceNo)
             // verify required parameter 'contactInfo' is not null or undefined
-            assertParamExists('apiPublicAddPlayerPlayersLicenceNoPost', 'contactInfo', contactInfo)
-            const localVarPath = `/players/<licence_no>`;
+            assertParamExists('addPlayer', 'contactInfo', contactInfo)
+            const localVarPath = `/players/{licence_no}`
+                .replace(`{${"licence_no"}}`, encodeURIComponent(String(licenceNo)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -386,10 +405,6 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
-            if (licenceNo !== undefined) {
-                localVarQueryParameter['licence_no'] = licenceNo;
-            }
 
 
     
@@ -411,7 +426,7 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiPublicGetCategoriesCategoriesGet: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getCategories: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/categories`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -442,9 +457,9 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiPublicGetEntriesEntriesLicenceNoGet: async (licenceNo: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getEntries: async (licenceNo: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'licenceNo' is not null or undefined
-            assertParamExists('apiPublicGetEntriesEntriesLicenceNoGet', 'licenceNo', licenceNo)
+            assertParamExists('getEntries', 'licenceNo', licenceNo)
             const localVarPath = `/entries/<licence_no>`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -479,9 +494,9 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiPublicGetPlayerPlayersLicenceNoGet: async (licenceNo: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getPlayer: async (licenceNo: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'licenceNo' is not null or undefined
-            assertParamExists('apiPublicGetPlayerPlayersLicenceNoGet', 'licenceNo', licenceNo)
+            assertParamExists('getPlayer', 'licenceNo', licenceNo)
             const localVarPath = `/players/<licence_no>`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -517,11 +532,11 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiPublicRegisterEntriesEntriesLicenceNoPost: async (licenceNo: string, requestBody: Array<string>, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        registerEntries: async (licenceNo: string, requestBody: Array<string>, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'licenceNo' is not null or undefined
-            assertParamExists('apiPublicRegisterEntriesEntriesLicenceNoPost', 'licenceNo', licenceNo)
+            assertParamExists('registerEntries', 'licenceNo', licenceNo)
             // verify required parameter 'requestBody' is not null or undefined
-            assertParamExists('apiPublicRegisterEntriesEntriesLicenceNoPost', 'requestBody', requestBody)
+            assertParamExists('registerEntries', 'requestBody', requestBody)
             const localVarPath = `/entries/<licence_no>`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -570,10 +585,10 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiPublicAddPlayerPlayersLicenceNoPost(licenceNo: string, contactInfo: ContactInfo, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Player>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiPublicAddPlayerPlayersLicenceNoPost(licenceNo, contactInfo, options);
+        async addPlayer(licenceNo: string, contactInfo: ContactInfo, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Player>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.addPlayer(licenceNo, contactInfo, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['DefaultApi.apiPublicAddPlayerPlayersLicenceNoPost']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.addPlayer']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -582,10 +597,10 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiPublicGetCategoriesCategoriesGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<Category>>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiPublicGetCategoriesCategoriesGet(options);
+        async getCategories(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<CategoryResult>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getCategories(options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['DefaultApi.apiPublicGetCategoriesCategoriesGet']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.getCategories']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -595,10 +610,10 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiPublicGetEntriesEntriesLicenceNoGet(licenceNo: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<Entry>>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiPublicGetEntriesEntriesLicenceNoGet(licenceNo, options);
+        async getEntries(licenceNo: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<Entry>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getEntries(licenceNo, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['DefaultApi.apiPublicGetEntriesEntriesLicenceNoGet']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.getEntries']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -608,10 +623,10 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiPublicGetPlayerPlayersLicenceNoGet(licenceNo: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<FfttPlayer>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiPublicGetPlayerPlayersLicenceNoGet(licenceNo, options);
+        async getPlayer(licenceNo: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<FfttPlayer>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getPlayer(licenceNo, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['DefaultApi.apiPublicGetPlayerPlayersLicenceNoGet']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.getPlayer']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -622,10 +637,10 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiPublicRegisterEntriesEntriesLicenceNoPost(licenceNo: string, requestBody: Array<string>, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Player>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiPublicRegisterEntriesEntriesLicenceNoPost(licenceNo, requestBody, options);
+        async registerEntries(licenceNo: string, requestBody: Array<string>, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Player>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.registerEntries(licenceNo, requestBody, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['DefaultApi.apiPublicRegisterEntriesEntriesLicenceNoPost']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.registerEntries']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
     }
@@ -646,8 +661,8 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiPublicAddPlayerPlayersLicenceNoPost(licenceNo: string, contactInfo: ContactInfo, options?: RawAxiosRequestConfig): AxiosPromise<Player> {
-            return localVarFp.apiPublicAddPlayerPlayersLicenceNoPost(licenceNo, contactInfo, options).then((request) => request(axios, basePath));
+        addPlayer(licenceNo: string, contactInfo: ContactInfo, options?: RawAxiosRequestConfig): AxiosPromise<Player> {
+            return localVarFp.addPlayer(licenceNo, contactInfo, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -655,8 +670,8 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiPublicGetCategoriesCategoriesGet(options?: RawAxiosRequestConfig): AxiosPromise<Array<Category>> {
-            return localVarFp.apiPublicGetCategoriesCategoriesGet(options).then((request) => request(axios, basePath));
+        getCategories(options?: RawAxiosRequestConfig): AxiosPromise<Array<CategoryResult>> {
+            return localVarFp.getCategories(options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -665,8 +680,8 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiPublicGetEntriesEntriesLicenceNoGet(licenceNo: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<Entry>> {
-            return localVarFp.apiPublicGetEntriesEntriesLicenceNoGet(licenceNo, options).then((request) => request(axios, basePath));
+        getEntries(licenceNo: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<Entry>> {
+            return localVarFp.getEntries(licenceNo, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -675,8 +690,8 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiPublicGetPlayerPlayersLicenceNoGet(licenceNo: string, options?: RawAxiosRequestConfig): AxiosPromise<FfttPlayer> {
-            return localVarFp.apiPublicGetPlayerPlayersLicenceNoGet(licenceNo, options).then((request) => request(axios, basePath));
+        getPlayer(licenceNo: string, options?: RawAxiosRequestConfig): AxiosPromise<FfttPlayer> {
+            return localVarFp.getPlayer(licenceNo, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -686,8 +701,8 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiPublicRegisterEntriesEntriesLicenceNoPost(licenceNo: string, requestBody: Array<string>, options?: RawAxiosRequestConfig): AxiosPromise<Player> {
-            return localVarFp.apiPublicRegisterEntriesEntriesLicenceNoPost(licenceNo, requestBody, options).then((request) => request(axios, basePath));
+        registerEntries(licenceNo: string, requestBody: Array<string>, options?: RawAxiosRequestConfig): AxiosPromise<Player> {
+            return localVarFp.registerEntries(licenceNo, requestBody, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -708,8 +723,8 @@ export class DefaultApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof DefaultApi
      */
-    public apiPublicAddPlayerPlayersLicenceNoPost(licenceNo: string, contactInfo: ContactInfo, options?: RawAxiosRequestConfig) {
-        return DefaultApiFp(this.configuration).apiPublicAddPlayerPlayersLicenceNoPost(licenceNo, contactInfo, options).then((request) => request(this.axios, this.basePath));
+    public addPlayer(licenceNo: string, contactInfo: ContactInfo, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).addPlayer(licenceNo, contactInfo, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -719,8 +734,8 @@ export class DefaultApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof DefaultApi
      */
-    public apiPublicGetCategoriesCategoriesGet(options?: RawAxiosRequestConfig) {
-        return DefaultApiFp(this.configuration).apiPublicGetCategoriesCategoriesGet(options).then((request) => request(this.axios, this.basePath));
+    public getCategories(options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getCategories(options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -731,8 +746,8 @@ export class DefaultApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof DefaultApi
      */
-    public apiPublicGetEntriesEntriesLicenceNoGet(licenceNo: string, options?: RawAxiosRequestConfig) {
-        return DefaultApiFp(this.configuration).apiPublicGetEntriesEntriesLicenceNoGet(licenceNo, options).then((request) => request(this.axios, this.basePath));
+    public getEntries(licenceNo: string, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getEntries(licenceNo, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -743,8 +758,8 @@ export class DefaultApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof DefaultApi
      */
-    public apiPublicGetPlayerPlayersLicenceNoGet(licenceNo: string, options?: RawAxiosRequestConfig) {
-        return DefaultApiFp(this.configuration).apiPublicGetPlayerPlayersLicenceNoGet(licenceNo, options).then((request) => request(this.axios, this.basePath));
+    public getPlayer(licenceNo: string, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getPlayer(licenceNo, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -756,8 +771,8 @@ export class DefaultApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof DefaultApi
      */
-    public apiPublicRegisterEntriesEntriesLicenceNoPost(licenceNo: string, requestBody: Array<string>, options?: RawAxiosRequestConfig) {
-        return DefaultApiFp(this.configuration).apiPublicRegisterEntriesEntriesLicenceNoPost(licenceNo, requestBody, options).then((request) => request(this.axios, this.basePath));
+    public registerEntries(licenceNo: string, requestBody: Array<string>, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).registerEntries(licenceNo, requestBody, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
