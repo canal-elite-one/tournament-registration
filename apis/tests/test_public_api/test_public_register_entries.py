@@ -5,7 +5,7 @@ from freezegun import freeze_time
 
 import apis.shared.api_errors as ae
 
-from apis.public import BaseTest, SampleDates
+from conftest import BaseTest, SampleDates
 
 overall_correct_licence = "722370"
 overall_incorrect_licence = "555555"
@@ -289,7 +289,7 @@ class TestRegisterEntries(BaseTest):
         response,
     ):
         with freeze_time(now):
-            r = public_client.post(f"/api/public/entries/{licence_no}", json=payload)
+            r = public_client.post(f"/entries/{licence_no}", json=payload)
             assert r.status_code == HTTPStatus.CREATED, r.json
             assert "registeredEntries" in r.json, r.json
             assert r.json["registeredEntries"] == response, r.json
