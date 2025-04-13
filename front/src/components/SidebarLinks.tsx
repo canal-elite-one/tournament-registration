@@ -1,7 +1,7 @@
 "use client";
 
 import {Group} from "@mantine/core";
-import {IconHome, IconContract} from "@tabler/icons-react";
+import {IconHome, IconContract, IconMail} from "@tabler/icons-react";
 import {usePathname} from "next/navigation";
 
 function getNavLinks() {
@@ -16,6 +16,11 @@ function getNavLinks() {
       icon: <IconContract size={16}/>,
       link: `/reglement`,
     },
+    {
+      label: "Contact",
+      icon: <IconMail size={16}/>,
+      link: `/contact`,
+    }
   ];
 }
 
