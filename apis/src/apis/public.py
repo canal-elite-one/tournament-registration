@@ -260,14 +260,14 @@ async def api_public_register_entries(
             )
             session.add(entry)
 
-    try:
-        session.commit()
-    except DBAPIError:
-        session.rollback()
-        raise ae.InvalidDataError(
-            origin=origin,
-            error_message=ae.COLOR_VIOLATION_MESSAGE,
-        )
+        try:
+            session.commit()
+        except DBAPIError:
+            session.rollback()
+            raise ae.InvalidDataError(
+                origin=origin,
+                error_message=ae.COLOR_VIOLATION_MESSAGE,
+            )
 
     with Session() as session:
         player_in_db = session.get(PlayerInDB, licence_no)
