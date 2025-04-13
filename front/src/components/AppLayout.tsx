@@ -63,7 +63,7 @@ export default function AppLayout({children}: { children: React.ReactNode }) {
             title={null} // Optional: remove title if you want
             className="md:hidden"
             zIndex={1001}
-            withCloseButton={false} // Optional: cleaner look, you already have the burger
+            withCloseButton={true}
             transitionProps={{
               transition: 'slide-down',
               duration: 250
