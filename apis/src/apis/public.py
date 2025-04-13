@@ -303,7 +303,7 @@ async def api_public_register_entries(
         return Player.model_validate(player_in_db)
 
 
-@app.post("/pay/<licence_no>")
+@app.post("/pay/<licence_no>", operation_id="pay")
 async def api_public_pay(
     licence_no: str,
     amount: int,
