@@ -307,7 +307,7 @@ async def api_public_register_entries(
         return RegisterEntriesResponse(
             amount_to_pay=sum(
                 entry.category.current_fee() for entry in player_in_db.entries
-            )
+            ),
         )
 
 
@@ -326,5 +326,6 @@ async def api_public_pay(
         )
 
     player_in_db.total_actual_paid += amount
+    player = Player.model_validate(player_in_db)
     session.commit()
-    return Player.model_validate(player_in_db)
+    return player
