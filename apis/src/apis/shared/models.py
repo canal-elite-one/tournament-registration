@@ -88,3 +88,13 @@ class EntryWithPlayer(Player, Entry):
         temp_dict = Entry.model_validate(entry_in_db).model_dump()
         del temp_dict["licence_no"]
         return cls(**temp_dict, **Player.model_validate(player_in_db).model_dump())
+
+
+class EntryWithCategory(Category, Entry):
+    @classmethod
+    def from_entry_in_db(cls, entry_in_db: EntryInDB) -> Self:
+        category_in_db = entry_in_db.category
+        temp_dict = Entry.model_validate(entry_in_db).model_dump()
+        del temp_dict["category_id"]
+        del temp_dict["color"]
+        return cls(**temp_dict, **Category.model_validate(category_in_db).model_dump())

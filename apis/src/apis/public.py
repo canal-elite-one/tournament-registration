@@ -20,8 +20,8 @@ from apis.shared.models import (
     ContactInfo,
     Player,
     FfttPlayer,
-    Entry,
     AliasedBase,
+    EntryWithCategory,
 )
 
 app = FastAPI()
@@ -104,7 +104,7 @@ async def api_public_get_player(
 async def api_public_get_entries(
     licence_no: str,
     session: Annotated[orm.Session, Depends(get_ro_session)],
-) -> list[Entry]:
+) -> list[EntryWithCategory]:
     origin = api_public_get_entries.__name__
     player_in_db = session.get(PlayerInDB, licence_no)
     if player_in_db is None:
@@ -113,7 +113,10 @@ async def api_public_get_entries(
             licence_no=licence_no,
         )
 
-    return [Entry.model_validate(entry_in_db) for entry_in_db in player_in_db.entries]
+    return [
+        EntryWithCategory.from_entry_in_db(entry_in_db)
+        for entry_in_db in player_in_db.entries
+    ]
 
 
 class RegisterEntriesBody(AliasedBase):
