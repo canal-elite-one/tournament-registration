@@ -3,6 +3,7 @@
 import {Card, Text, TextInput, Button} from "@mantine/core";
 import {useState} from "react";
 import {useRouter} from "next/navigation";
+import Image from "next/image";
 
 export default function PlayerSearch() {
   const [licenceNo, setLicenceNumber] = useState<string>("");
@@ -20,6 +21,17 @@ export default function PlayerSearch() {
           radius="lg"
           withBorder
       >
+        {/* Logo in top right */}
+        <div className="absolute top-4 right-4">
+          <Image
+              src="/static/logo.png"
+              alt="USKB Logo"
+              width={40}
+              height={40}
+              priority
+          />
+        </div>
+
         <form onSubmit={handleLicenceSubmit} className="space-y-4">
           <Text size="lg" fw={600} className="mb-4 text-gray-800">
             Inscrivez vous !

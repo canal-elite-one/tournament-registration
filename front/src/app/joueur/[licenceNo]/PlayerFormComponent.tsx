@@ -56,10 +56,10 @@ export default function PlayerFormComponent({
                 </Table.Th>
               </Table.Tr>
               <Table.Tr>
-                <Table.Th ta="center">ID</Table.Th>
-                <Table.Th ta="center">Nom</Table.Th>
-                <Table.Th ta="center">Nombre de places restantes</Table.Th>
-                <Table.Th ta="center">Inscription</Table.Th>
+                <Table.Th ta="center" className="w-1/12">Tableau</Table.Th>
+                <Table.Th ta="center" className="w-1/3">Classement</Table.Th>
+                <Table.Th ta="center" className="w-1/6">Nombre de places restantes</Table.Th>
+                <Table.Th ta="center" className="w-1/6">Inscription</Table.Th>
               </Table.Tr>
             </Table.Thead>
 
@@ -98,20 +98,20 @@ export default function PlayerFormComponent({
                 return (
                   <Table.Tr key={categoryId}>
                     {/* ID */}
-                    <Table.Td style={{ backgroundColor: category.color ?? undefined }}>
+                    <Table.Td ta="center" className="w-1/12" style={{ backgroundColor: category.color ?? undefined }}>
                       {categoryId}
                     </Table.Td>
 
                     {/* Name */}
-                    <Table.Td>{category.alternateName}</Table.Td>
+                    <Table.Td ta="center" className="w-1/3">{category.alternateName}</Table.Td>
 
                     {/* Availability */}
-                    <Table.Td>
+                    <Table.Td ta="center" className="w-1/6">
                       <Text c={availabilityColor}>{availabilityText}</Text>
                     </Table.Td>
 
                     {/* Registration Checkbox */}
-                    <Table.Td>
+                    <Table.Td className="w-1/6">
                       <Group justify="center">
                         <Checkbox
                           id={`register-checkbox-${categoryId}`}
