@@ -1,4 +1,4 @@
-import { CategoryResult, DefaultApi, Player } from "@/backend_api/backend";
+import { DefaultApi } from "@/backend_api/backend";
 import PlayerFormComponent from "@/app/joueur/[licenceNo]/PlayerFormComponent";
 
 export default async function Page({
@@ -9,17 +9,19 @@ export default async function Page({
   const { licenceNo } = await params;
 
   const api = new DefaultApi();
-  const playerResponse = await api.getPlayer(licenceNo);
-  const player = playerResponse.data as Player;
 
-  const categoriesResponse = await api.getCategories();
-  const categories = categoriesResponse.data as CategoryResult[];
 
-  if (!player) {
+  const ffttPlayer = await api.getPlayer({
+    licenceNo: licenceNo,
+  });
+
+  if (!ffttPlayer) {
     return <div>Joueur non trouvé</div>;
   }
 
+  const categories = await api.getCategories();
+
   return (
-      <PlayerFormComponent player={player} categories={categories} />
+      <PlayerFormComponent player={ffttPlayer} categories={categories} />
   );
 }
