@@ -2,11 +2,12 @@ import traceback
 from enum import StrEnum
 
 from http import HTTPStatus
-from fastapi import HTTPException
+from typing import Any
 
+from fastapi.responses import JSONResponse
+from fastapi import Request
 
-def handle_api_error(error):
-    return error.to_dict(), error.status_code
+from apis.shared.models import AliasedBase
 
 
 class FFTTAPIError(Exception):
@@ -20,14 +21,14 @@ FFTT_BAD_RESPONSE_MESSAGE = "The FFTT API returned an unexpected response"
 FFTT_DATA_PARSE_MESSAGE = "An error occurred while parsing FFTT data"
 
 
-class APIError(HTTPException):
+class APIError(Exception):
     """Base class for API errors"""
 
     status_code: int
     error_type: str
 
     def __init__(self, origin=None, error_message=None, payload=None):
-        super().__init__(status_code=self.status_code, detail=error_message)
+        super().__init__()
         self.error_message = error_message
         self.origin = origin
         self.payload = payload
@@ -39,6 +40,25 @@ class APIError(HTTPException):
             "errorMessage": self.error_message,
             "payload": self.payload,
         }
+
+
+class APIErrorModel(AliasedBase):
+    error_type: str
+    origin: str
+    error_message: str
+    payload: Any
+
+
+async def handle_api_error(request: Request, exc: APIError):
+    return JSONResponse(
+        content=APIErrorModel(
+            error_type=exc.error_type,
+            origin=exc.origin,
+            error_message=exc.error_message,
+            payload=exc.payload,
+        ).model_dump(),
+        status_code=exc.status_code,
+    )
 
 
 """

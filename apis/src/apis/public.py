@@ -33,7 +33,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# app.add_exception_handler(ae.APIError)
+app.add_exception_handler(ae.APIError, ae.handle_api_error)
 
 
 class CategoryResult(Category):
@@ -104,6 +104,12 @@ async def api_public_add_player(
 @app.get(
     "/players/<licence_no>",
     operation_id="get_player",
+    response_model=FfttPlayer,
+    responses={
+        404: {"model": ae.APIErrorModel, "description": "Player not found in FFTT API"},
+        403: {"model": ae.APIErrorModel, "description": "Player already registered"},
+        500: {"model": ae.APIErrorModel, "description": "Unexpected FFTT API error"},
+    },
 )
 # @during_registration
 async def api_public_get_player(
