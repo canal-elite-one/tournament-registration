@@ -316,7 +316,7 @@ async def api_public_pay(
     licence_no: str,
     amount: int,
     session: Annotated[orm.Session, Depends(get_rw_session)],
-):
+) -> Player:
     origin = api_public_pay.__name__
     player_in_db = session.get(PlayerInDB, licence_no)
     if player_in_db is None:
