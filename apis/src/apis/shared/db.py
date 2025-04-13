@@ -131,6 +131,7 @@ class EntryInDB(Base):
     marked_as_present: Mapped[bool]
     category_id: Mapped[str]
     licence_no: Mapped[str]
+    color: Mapped[str]
     marked_as_paid: Mapped[bool]
     registration_time: Mapped[datetime]
 

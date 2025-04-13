@@ -4,13 +4,13 @@ from typing import Annotated
 
 from fastapi import FastAPI, Depends
 from starlette.middleware.cors import CORSMiddleware
-from sqlalchemy import select, text, orm
+from sqlalchemy import select, orm
 from sqlalchemy.exc import DBAPIError
 from pydantic import Field
 
 from apis.shared.dependencies import get_ro_session, get_rw_session
 from apis.email_sender import EmailSender
-from apis.shared.db import CategoryInDB, PlayerInDB, Session
+from apis.shared.db import CategoryInDB, PlayerInDB, Session, EntryInDB
 from apis.shared.fftt_api import get_player_fftt
 
 import apis.shared.config as cfg
@@ -243,26 +243,24 @@ async def api_public_register_entries(
                 origin=origin,
                 error_message=ae.MAX_ENTRIES_PER_DAY_MESSAGE,
             )
-        temp_dicts = [
-            {
-                "categoryId": category_id,
-                "licenceNo": licence_no,
-                "registrationTime": datetime.now().isoformat(),
-            }
-            for category_id in category_ids
-        ]
 
-        query_str = (
-            "INSERT INTO entries (category_id, licence_no, color, registration_time) "
-            "VALUES (:categoryId, :licenceNo, "
-            "(SELECT color FROM categories WHERE category_id = :categoryId),"
-            ":registrationTime) "
-            "ON CONFLICT (category_id, licence_no) DO NOTHING;"
-        )
-        stmt = text(query_str)
+        for category_id in category_ids:
+            category = session.get(CategoryInDB, category_id)
+            if category is None:
+                raise ae.InvalidDataError(
+                    origin=origin,
+                    error_message=ae.INVALID_CATEGORY_ID_MESSAGES["registration"],
+                    payload={"categoryIds": [category_id]},
+                )
+            entry = EntryInDB(
+                category_id=category_id,
+                licence_no=licence_no,
+                color=category.color,
+                registration_time=datetime.now(),
+            )
+            session.add(entry)
 
     try:
-        session.execute(stmt, temp_dicts)
         session.commit()
     except DBAPIError:
         session.rollback()
