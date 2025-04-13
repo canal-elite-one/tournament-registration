@@ -9,7 +9,7 @@ from sqlalchemy.exc import DBAPIError
 
 from apis.shared.dependencies import get_ro_session, get_rw_session
 from apis.email_sender import EmailSender
-from apis.shared.db import CategoryInDB, PlayerInDB
+from apis.shared.db import CategoryInDB, PlayerInDB, Session
 from apis.shared.fftt_api import get_player_fftt
 
 import apis.shared.config as cfg
@@ -154,115 +154,122 @@ class RegisterEntriesBody(AliasedBase):
 async def api_public_register_entries(
     licence_no: str,
     category_ids: RegisterEntriesBody,
-    session: Annotated[orm.Session, Depends(get_rw_session)],
 ) -> Player:
     origin = api_public_register_entries.__name__
     category_ids = category_ids.category_ids
 
-    if not category_ids:
-        raise ae.InvalidDataError(
-            origin=origin,
-            error_message=ae.REGISTRATION_MISSING_IDS_MESSAGE,
-        )
+    with Session() as session:
+        if not category_ids:
+            raise ae.InvalidDataError(
+                origin=origin,
+                error_message=ae.REGISTRATION_MISSING_IDS_MESSAGE,
+            )
 
-    player_in_db = session.get(PlayerInDB, licence_no)
-    if player_in_db is None:
-        raise ae.PlayerNotFoundError(
-            origin=origin,
-            licence_no=licence_no,
-        )
+        player_in_db = session.get(PlayerInDB, licence_no)
+        if player_in_db is None:
+            raise ae.PlayerNotFoundError(
+                origin=origin,
+                licence_no=licence_no,
+            )
 
-    if nonexisting_category_ids := set(category_ids).difference(
-        session.scalars(select(CategoryInDB.category_id)),
-    ):
-        raise ae.InvalidDataError(
-            origin=origin,
-            error_message=ae.INVALID_CATEGORY_ID_MESSAGES["registration"],
-            payload={"categoryIds": sorted(nonexisting_category_ids)},
-        )
+        if nonexisting_category_ids := set(category_ids).difference(
+            session.scalars(select(CategoryInDB.category_id)),
+        ):
+            raise ae.InvalidDataError(
+                origin=origin,
+                error_message=ae.INVALID_CATEGORY_ID_MESSAGES["registration"],
+                payload={"categoryIds": sorted(nonexisting_category_ids)},
+            )
 
-    if player_in_db.entries:
-        raise ae.PlayerAlreadyRegisteredError(
-            origin=origin,
-            error_message=ae.PLAYER_ALREADY_REGISTERED_MESSAGE,
-            payload={"licenceNo": licence_no},
-        )
+        if player_in_db.entries:
+            raise ae.PlayerAlreadyRegisteredError(
+                origin=origin,
+                error_message=ae.PLAYER_ALREADY_REGISTERED_MESSAGE,
+                payload={"licenceNo": licence_no},
+            )
 
-    potential_categories = session.scalars(
-        select(CategoryInDB).where(CategoryInDB.category_id.in_(category_ids)),
-    ).all()
-
-    # checks that if the player is female, they have to be registered to all
-    # women-only categories on the same day for which they are registered to a
-    # category
-    if player_in_db.gender == "F":
-        days_with_entries = {
-            category.start_time.date() for category in potential_categories
-        }
-        women_only_categories = session.scalars(
-            select(CategoryInDB).where(CategoryInDB.women_only.is_(True)),
+        potential_categories = session.scalars(
+            select(CategoryInDB).where(CategoryInDB.category_id.in_(category_ids)),
         ).all()
 
-        for day in days_with_entries:
-            unregistered_women_only_categories_on_day = [
-                category.category_id
-                for category in women_only_categories
-                if category.start_time.date() == day
-                and category.category_id not in category_ids
-            ]
-            if unregistered_women_only_categories_on_day:
-                raise ae.InvalidDataError(
-                    origin=origin,
-                    error_message=ae.MANDATORY_WOMEN_ONLY_REGISTRATION_MESSAGE,
-                    payload={
-                        "categoryIdsShouldRegister": unregistered_women_only_categories_on_day,  # noqa: E501
-                    },
-                )
+        # checks that if the player is female, they have to be registered to all
+        # women-only categories on the same day for which they are registered to a
+        # category
+        if player_in_db.gender == "F":
+            days_with_entries = {
+                category.start_time.date() for category in potential_categories
+            }
+            women_only_categories = session.scalars(
+                select(CategoryInDB).where(CategoryInDB.women_only.is_(True)),
+            ).all()
 
-    violations = [
-        category.category_id
-        for category in potential_categories
-        if not player_in_db.respects_gender_points_constraints(category)
-    ]
+            for day in days_with_entries:
+                unregistered_women_only_categories_on_day = [
+                    category.category_id
+                    for category in women_only_categories
+                    if category.start_time.date() == day
+                    and category.category_id not in category_ids
+                ]
+                if unregistered_women_only_categories_on_day:
+                    raise ae.InvalidDataError(
+                        origin=origin,
+                        error_message=ae.MANDATORY_WOMEN_ONLY_REGISTRATION_MESSAGE,
+                        payload={
+                            "categoryIdsShouldRegister": unregistered_women_only_categories_on_day,  # noqa: E501
+                        },
+                    )
 
-    if violations:
-        raise ae.InvalidDataError(
-            origin=origin,
-            error_message=ae.GENDER_POINTS_VIOLATION_MESSAGE,
-            payload={"categoryIds": violations},
+        violations = [
+            category.category_id
+            for category in potential_categories
+            if not player_in_db.respects_gender_points_constraints(category)
+        ]
+
+        if violations:
+            raise ae.InvalidDataError(
+                origin=origin,
+                error_message=ae.GENDER_POINTS_VIOLATION_MESSAGE,
+                payload={"categoryIds": violations},
+            )
+
+        if max(
+            Counter(
+                [category.start_time.date() for category in potential_categories],
+            ).values(),
+        ) > cfg.MAX_ENTRIES_PER_DAY + (player_in_db.gender == "F"):
+            raise ae.InvalidDataError(
+                origin=origin,
+                error_message=ae.MAX_ENTRIES_PER_DAY_MESSAGE,
+            )
+        temp_dicts = [
+            {
+                "categoryId": category_id,
+                "licenceNo": licence_no,
+                "registrationTime": datetime.now().isoformat(),
+            }
+            for category_id in category_ids
+        ]
+
+        query_str = (
+            "INSERT INTO entries (category_id, licence_no, color, registration_time) "
+            "VALUES (:categoryId, :licenceNo, "
+            "(SELECT color FROM categories WHERE category_id = :categoryId),"
+            ":registrationTime) "
+            "ON CONFLICT (category_id, licence_no) DO NOTHING;"
         )
-
-    if max(
-        Counter(
-            [category.start_time.date() for category in potential_categories],
-        ).values(),
-    ) > cfg.MAX_ENTRIES_PER_DAY + (player_in_db.gender == "F"):
-        raise ae.InvalidDataError(
-            origin=origin,
-            error_message=ae.MAX_ENTRIES_PER_DAY_MESSAGE,
-        )
-    temp_dicts = [
-        {
-            "categoryId": category_id,
-            "licenceNo": licence_no,
-            "registrationTime": datetime.now().isoformat(),
-        }
-        for category_id in category_ids
-    ]
-
-    query_str = (
-        "INSERT INTO entries (category_id, licence_no, color, registration_time) "
-        "VALUES (:categoryId, :licenceNo, "
-        "(SELECT color FROM categories WHERE category_id = :categoryId),"
-        ":registrationTime) "
-        "ON CONFLICT (category_id, licence_no) DO NOTHING;"
-    )
-    stmt = text(query_str)
+        stmt = text(query_str)
 
     try:
         session.execute(stmt, temp_dicts)
         session.commit()
+    except DBAPIError:
+        session.rollback()
+        raise ae.InvalidDataError(
+            origin=origin,
+            error_message=ae.COLOR_VIOLATION_MESSAGE,
+        )
 
+    with Session() as session:
         player_in_db = session.get(PlayerInDB, licence_no)
 
         is_on_waiting_list = any(
@@ -291,9 +298,3 @@ async def api_public_register_entries(
         )
 
         return Player.model_validate(player_in_db)
-    except DBAPIError:
-        session.rollback()
-        raise ae.InvalidDataError(
-            origin=origin,
-            error_message=ae.COLOR_VIOLATION_MESSAGE,
-        )
