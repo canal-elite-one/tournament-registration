@@ -1,0 +1,30 @@
+version: "3"
+
+tasks:
+  api-generate-openapi:
+    desc: Generate OpenAPI schema
+    dir: apis
+    env:
+      PYTHONPATH: "{{ .PYTHONPATH }}:."
+    cmds:
+      - uv run ./src/generate_openapi.py > ./openapi.json
+
+  api-generate-sdk:
+    desc: Generate SDK for frontend
+    deps:
+      - api-generate-openapi
+    cmds:
+      - '[ -d "./front/backend_api/backend" ] || exit 0; rm -rf "./front/backend_api/backend"'
+      - docker run --rm -v .:/local openapitools/openapi-generator-cli generate -i /local/apis/openapi.json -g typescript-fetch -o /local/front/src/backend_api/backend
+      - rm ./apis/openapi.json
+
+  api-generate-seeds:
+    desc: Migrate to latest dbmate schema and insert data
+    dir: apis
+    dotenv: [".env"]
+    cmds:
+      - dbmate drop
+      - dbmate up
+      - psql ${DATABASE_URL} -f ./tests/sample_data/categories.sql 
+      - psql ${DATABASE_URL} -f ./tests/sample_data/players.sql 
+      - psql ${DATABASE_URL} -f ./tests/sample_data/entries.sql 

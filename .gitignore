@@ -5,6 +5,8 @@
 **/.pytest_cache/
 .env
 /.flaskenv
+/apis/.venv
+/apis/temp.py
 
 
 .DS_Store

@@ -1,0 +1,27 @@
+[project]
+name = "apis"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "anatole", email = "anatole.gosset@eficia.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "dotenv>=0.9.9",
+    "fastapi[standard]>=0.115.12",
+    "psycopg2-binary>=2.9.10",
+    "requests>=2.32.3",
+    "sqlalchemy>=2.0.40",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+test = [
+    "freezegun>=1.5.1",
+    "pytest>=8.3.5",
+    "requests-mock>=1.12.1",
+]
