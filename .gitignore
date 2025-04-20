@@ -10,3 +10,6 @@
 
 
 .DS_Store
+
+
+front/src/backend_api/backend/.openapi-generator/
