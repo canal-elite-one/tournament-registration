@@ -1,70 +1,38 @@
-'use client';
+import {DefaultApi} from "@/backend_api/backend";
+import PlayerSearch from "@/components/PlayerSearch";
+import CategoryTable from "@/components/CategoryTable";
+import CountDownPage from "@/components/CountDownPage";
 
-import {useEffect, useState} from 'react';
+export default async function HomePage() {
 
-export default function HomePage() {
-  const [timeLeft, setTimeLeft] = useState<{
-    days: number;
-    hours: number;
-    minutes: number;
-    seconds: number;
-  }>({days: 0, hours: 0, minutes: 0, seconds: 0});
+  const startDate = process.env.REGISTRATION_START_DATE || new Date();
+  const targetDate = new Date(startDate);
+  const now = new Date();
 
-  useEffect(() => {
-    const targetDate = new Date('2025-05-01T10:00:00');
+  const isRegistrationOpen = (targetDate.getTime() - now.getTime()) <= 0;
 
-    const updateCountdown = () => {
-      const now = new Date();
-      const difference = targetDate.getTime() - now.getTime();
+  const api = new DefaultApi();
+  const categories = await api.getCategories();
 
-      if (difference > 0) {
-        const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((difference / (1000 * 60 * 60)) % 24);
-        const minutes = Math.floor((difference / (1000 * 60)) % 60);
-        const seconds = Math.floor((difference / 1000) % 60);
+  const saturdayCategories = categories.filter((category) => {
+    const startTime = new Date(category.startTime);
+    return startTime.getDay() === 6; // 6 corresponds to Saturday
+  });
 
-        setTimeLeft({days, hours, minutes, seconds});
-      } else {
-        setTimeLeft({days: 0, hours: 0, minutes: 0, seconds: 0});
-      }
-    };
+  const sundayCategories = categories.filter((category) => {
+    const startTime = new Date(category.startTime);
+    return startTime.getDay() === 0; // 0 corresponds to Sunday
+  });
 
-    updateCountdown();
-    const interval = setInterval(updateCountdown, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
-  return (
-      <main
-          className="h-screen bg-contain bg-top bg-no-repeat flex justify-center items-center"
-          style={{backgroundImage: "url('/static/countdown-background.jpg')"}}
-      >
-        <div
-            className="
-          text-center
-          bg-white/30
-          backdrop-blur
-          rounded-xl
-          p-5
-        "
-        >
-          {/* Days */}
-          <div className="flex justify-center mb-4">
-          <span className="text-[3rem] mx-2 text-[#1836a9]">
-            J - {timeLeft.days}
-          </span>
-          </div>
-
-          {/* Countdown Digits */}
-          <div className="flex justify-center space-x-4">
-            <span
-                className="text-[3rem] text-[#1836a9]">{timeLeft.hours}h</span>
-            <span
-                className="text-[3rem] text-[#1836a9]">{timeLeft.minutes}m</span>
-            <span
-                className="text-[3rem] text-[#1836a9]">{timeLeft.seconds}s</span>
-          </div>
+  if (isRegistrationOpen) {
+    return (
+        <div className="flex flex-col items-center gap-16 pt-8 bg-gray-50 min-h-screen">
+          <PlayerSearch />
+          <CategoryTable categories={saturdayCategories} day="Samedi" />
+          <CategoryTable categories={sundayCategories} day="Dimanche" />
         </div>
-      </main>
-  );
+    );
+  } else {
+    return <CountDownPage startDate={targetDate}/>
+  }
 }
