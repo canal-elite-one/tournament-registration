@@ -26,7 +26,7 @@ export async function POST(req: Request) {
         },
       ],
       customer_email: customerEmail,
-      success_url: `${process.env.NEXT_PUBLIC_SITE_URL}/payment/success`,
+      success_url: `${process.env.NEXT_PUBLIC_SITE_URL}/joueur/${licenceNumber}/inscription`,
       cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL}/payment/cancel`,
       metadata: {
         licence_number: licenceNumber,
