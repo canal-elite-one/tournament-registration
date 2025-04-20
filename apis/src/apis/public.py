@@ -197,33 +197,6 @@ async def api_public_register_entries(
             select(CategoryInDB).where(CategoryInDB.category_id.in_(category_ids)),
         ).all()
 
-        # checks that if the player is female, they have to be registered to all
-        # women-only categories on the same day for which they are registered to a
-        # category
-        # if player_in_db.gender == "F":
-        #     days_with_entries = {
-        #         category.start_time.date() for category in potential_categories
-        #     }
-        #     women_only_categories = session.scalars(
-        #         select(CategoryInDB).where(CategoryInDB.women_only.is_(True)),
-        #     ).all()
-        #
-        #     for day in days_with_entries:
-        #         unregistered_women_only_categories_on_day = [
-        #             category.category_id
-        #             for category in women_only_categories
-        #             if category.start_time.date() == day
-        #             and category.category_id not in category_ids
-        #         ]
-        #         if unregistered_women_only_categories_on_day:
-        #             raise ae.InvalidDataError(
-        #                 origin=origin,
-        #                 error_message=ae.MANDATORY_WOMEN_ONLY_REGISTRATION_MESSAGE,
-        #                 payload={
-        #                     "categoryIdsShouldRegister": unregistered_women_only_categories_on_day,  # noqa: E501
-        #                 },
-        #             )
-
         violations = [
             category.category_id
             for category in potential_categories
@@ -305,7 +278,13 @@ async def api_public_register_entries(
 
         return RegisterEntriesResponse(
             amount_to_pay=sum(
-                entry.category.current_fee() for entry in player_in_db.entries
+                entry.category.current_fee()
+                for entry in player_in_db.entries
+                if entry.rank()
+                <= int(
+                    entry.category.max_players
+                    * (1 + entry.category.overbooking_percentage / 100),
+                )
             ),
         )
 
