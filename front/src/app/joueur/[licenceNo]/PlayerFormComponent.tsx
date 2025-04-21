@@ -181,7 +181,11 @@ export default function PlayerFormComponent({
 
     try {
       const registeredEntries = await api.registerEntries(registrationRequest);
-      await handleCheckout(player.licenceNo, registeredEntries.amountToPay, email);
+      if (registeredEntries.amountToPay > 0) {
+        await handleCheckout(player.licenceNo, registeredEntries.amountToPay, email);
+      } else {
+        router.push(`/joueur/${player.licenceNo}/inscription`)
+      }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch(error: any) {
       const response = error.response;

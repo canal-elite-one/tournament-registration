@@ -158,6 +158,9 @@ class EntryInDB(Base):
                 ),
             )
 
+    def is_in_waiting_list(self):
+        return self.rank() >= self.category.max_players * (1 + self.category.overbooking_percentage / 100)
+
     def __repr__(self):
         return (
             f"<Entry licence_no:{self.licence_no}, category_id:{self.category_id}, "
