@@ -154,6 +154,7 @@ export default function PlayerFormComponent({
           color: "red",
         });
       }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       notifications.show({
         title: "Error",
@@ -181,7 +182,8 @@ export default function PlayerFormComponent({
     try {
       const registeredEntries = await api.registerEntries(registrationRequest);
       await handleCheckout(player.licenceNo, registeredEntries.amountToPay, email);
-    } catch(error) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch(error: any) {
       const response = error.response;
       const body = await response?.json();
       console.error(body);

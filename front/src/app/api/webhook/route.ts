@@ -19,6 +19,7 @@ export async function POST(req: Request) {
         signature,
         process.env.STRIPE_WEBHOOK_SECRET!
     );
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (err: any) {
     console.error("❌ Webhook signature verification failed.", err.message);
     return NextResponse.json({error: "Invalid signature"}, {status: 400});

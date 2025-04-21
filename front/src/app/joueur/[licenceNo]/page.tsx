@@ -21,6 +21,7 @@ export default async function Page({
     return (
         <PlayerFormComponent player={ffttPlayer} categories={categories} />
     );
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     const statusCode = error.response?.status;
 

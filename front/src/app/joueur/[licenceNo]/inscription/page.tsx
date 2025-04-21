@@ -2,7 +2,7 @@ import {DefaultApi} from "@/backend_api/backend";
 import EntriesSummary from "@/app/joueur/[licenceNo]/inscription/EntriesSummary";
 
 export default async function Page({params}: {
-  params: { licenceNo: string };
+  params: Promise<{ licenceNo: string }>;
 }) {
   const { licenceNo } = await params;
   const api = new DefaultApi();
