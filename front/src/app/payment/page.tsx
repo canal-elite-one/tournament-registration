@@ -26,6 +26,7 @@ export default function PaymentPage() {
           color: "red",
         });
       }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       notifications.show({
         title: "Error",

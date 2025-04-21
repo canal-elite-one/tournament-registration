@@ -33,7 +33,7 @@ export default function CountDownPage({startDate}: { startDate: Date }) {
     updateCountdown();
     const interval = setInterval(updateCountdown, 1000);
     return () => clearInterval(interval);
-  }, []);
+  }, [startDate]);
 
   return (
       <main
