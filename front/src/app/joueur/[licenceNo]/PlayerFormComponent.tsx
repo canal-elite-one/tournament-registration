@@ -2,8 +2,7 @@
 
 import {
   CategoryResult,
-  DefaultApi, FfttPlayer,
-  RegisterEntriesRequest
+  FfttPlayer,
 } from "@/backend_api/backend";
 import { useState } from "react";
 import {Table, Text, Checkbox, Group, Tooltip} from "@mantine/core";
@@ -166,31 +165,28 @@ export default function PlayerFormComponent({
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    const api = new DefaultApi();
 
-    const registrationRequest: RegisterEntriesRequest = {
-      licenceNo: player.licenceNo,
-      registerEntriesBody: {
-        contactInfo: {
-          email: email,
-          phone: phone,
-        },
-        categoryIds: selectedCategories
-      },
-    }
+    const response = await fetch("/api/player/register", {
+      method: "POST",
+      body: JSON.stringify({
+        licenceNumber: player.licenceNo,
+        email: email,
+        phone: phone,
+        selectedCategories: selectedCategories
+      }),
+    });
 
-    try {
-      const registeredEntries = await api.registerEntries(registrationRequest);
-      if (registeredEntries.amountToPay > 0) {
-        await handleCheckout(player.licenceNo, registeredEntries.amountToPay, email);
+    if (response.ok) {
+      const {amountToPay} = await response.json();
+      if (amountToPay > 0) {
+        await handleCheckout(player.licenceNo, amountToPay, email);
       } else {
         router.push(`/joueur/${player.licenceNo}/inscription`)
       }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch(error: any) {
-      const response = error.response;
-      const body = await response?.json();
-      console.error(body);
+    } else {
+      const {error} = await response.json();
+      console.log(`Error during ${player.licenceNo} registration:`, response.status, error);
+      router.push("/error")
     }
   };
 
