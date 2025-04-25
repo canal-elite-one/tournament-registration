@@ -1,3 +1,4 @@
+import logging
 from collections import Counter
 from datetime import datetime
 from typing import Annotated
@@ -197,33 +198,6 @@ async def api_public_register_entries(
             select(CategoryInDB).where(CategoryInDB.category_id.in_(category_ids)),
         ).all()
 
-        # checks that if the player is female, they have to be registered to all
-        # women-only categories on the same day for which they are registered to a
-        # category
-        # if player_in_db.gender == "F":
-        #     days_with_entries = {
-        #         category.start_time.date() for category in potential_categories
-        #     }
-        #     women_only_categories = session.scalars(
-        #         select(CategoryInDB).where(CategoryInDB.women_only.is_(True)),
-        #     ).all()
-        #
-        #     for day in days_with_entries:
-        #         unregistered_women_only_categories_on_day = [
-        #             category.category_id
-        #             for category in women_only_categories
-        #             if category.start_time.date() == day
-        #             and category.category_id not in category_ids
-        #         ]
-        #         if unregistered_women_only_categories_on_day:
-        #             raise ae.InvalidDataError(
-        #                 origin=origin,
-        #                 error_message=ae.MANDATORY_WOMEN_ONLY_REGISTRATION_MESSAGE,
-        #                 payload={
-        #                     "categoryIdsShouldRegister": unregistered_women_only_categories_on_day,  # noqa: E501
-        #                 },
-        #             )
-
         violations = [
             category.category_id
             for category in potential_categories
@@ -242,7 +216,6 @@ async def api_public_register_entries(
                 Counter(
                     [category.start_time.date() for category in potential_categories],
                 ).values(),
-                # ) > cfg.MAX_ENTRIES_PER_DAY + (player_in_db.gender == "F"):
             )
             > cfg.MAX_ENTRIES_PER_DAY
         ):
@@ -277,36 +250,40 @@ async def api_public_register_entries(
             )
 
     with Session() as session:
-        player_in_db = session.get(PlayerInDB, licence_no)
+        player_in_db: PlayerInDB = session.get(PlayerInDB, licence_no)
 
-        is_on_waiting_list = any(
+        if all(
             entry.rank()
             > int(
                 entry.category.max_players
                 * (1 + entry.category.overbooking_percentage / 100),
             )
             for entry in player_in_db.entries
-        )
-
-        EmailSender(
-            sender_email=cfg.USKB_EMAIL,
-            password=cfg.USKB_EMAIL_PASSWORD,
-        ).send_email(
-            recipient=player_in_db.email,
-            bcc=cfg.ADMIN_EMAILS,
-            body=f"Bonjour {player_in_db.first_name},<br><br>"
-            f"Votre inscription a bien été prise en compte.<br><br>"
-            f"Pour consulter les tableaux dans lesquels vous êtes inscrit(e) "
-            f"""{"ou trouver votre position sur liste d'attente " if is_on_waiting_list else ""}"""  # noqa: E501
-            f""": <a href="{cfg.TOURNAMENT_URL}/public/deja_inscrit/{licence_no}">cliquer ici</a>.<br><br>"""  # noqa: E501
-            f"Merci de votre participation et à bientôt !<br><br>"
-            f"L'équipe USKB",
-            subject="Confirmation Inscription Tournoi USKB",
-        )
+        ):
+            EmailSender(
+                sender_email=cfg.USKB_EMAIL,
+                password=cfg.USKB_EMAIL_PASSWORD,
+            ).send_email(
+                recipient=player_in_db.email,
+                bcc=cfg.ADMIN_EMAILS,
+                body=f"Bonjour {player_in_db.first_name},<br><br>"
+                f"Votre inscription sur liste d'attente a bien été prise en compte.<br><br>"
+                f"Pour trouver votre position sur liste d'attente "
+                f""": <a href="{cfg.TOURNAMENT_URL}/joueur/{licence_no}/inscription">cliquer ici</a>.<br><br>"""  # noqa: E501
+                f"Merci de votre inscription et à bientôt !<br><br>"
+                f"L'équipe USKB",
+                subject="Confirmation liste d'attente Tournoi USKB 2025",
+            )
 
         return RegisterEntriesResponse(
             amount_to_pay=sum(
-                entry.category.current_fee() for entry in player_in_db.entries
+                entry.category.current_fee()
+                for entry in player_in_db.entries
+                if not entry.marked_as_paid and entry.rank()
+                <= int(
+                    entry.category.max_players
+                    * (1 + entry.category.overbooking_percentage / 100),
+                )
             ),
         )
 
@@ -331,5 +308,37 @@ async def api_public_pay(
 
     player_in_db.total_actual_paid += pay_body.amount
     player = Player.model_validate(player_in_db)
+
+    marked_as_paid_amount = 0
+    for entry in player_in_db.entries:
+        if not entry.is_in_waiting_list() and not entry.marked_as_paid:
+            marked_as_paid_amount += entry.fee()
+            entry.marked_as_paid = True
+
+    if (pay_body.amount - marked_as_paid_amount) != 0:
+        entries_total_not_in_waiting_list = sum(
+            entry.fee()
+            for entry in player_in_db.entries
+            if not entry.is_in_waiting_list()
+        )
+
+        error_message = (
+            f"Montant payé incohérent pour {player.licence_no}.<br>"
+            f"Montant payé cette fois-ci: {pay_body.amount}<br>"
+            f"Somme des inscriptions payées cette fois-ci: {marked_as_paid_amount}"
+            f"Montant total payé: {player.total_actual_paid}<br>"
+            f"Coût total des tableaux principaux: {entries_total_not_in_waiting_list}<br>"
+        )
+
+        logging.error(f"Mark as paid error for {licence_no}:" + error_message)
+
+        EmailSender(
+            sender_email=cfg.USKB_EMAIL,
+            password=cfg.USKB_EMAIL_PASSWORD,
+        ).send_email(
+            recipient=cfg.ADMIN_EMAILS[0],
+            body=error_message,
+            subject=f"Mark as paid error for {licence_no}",
+        )
     session.commit()
     return player

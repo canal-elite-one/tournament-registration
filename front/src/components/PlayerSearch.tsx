@@ -1,15 +1,16 @@
 "use client";
 
-import {Card, Text, TextInput, Button} from "@mantine/core";
-import {useState} from "react";
-import {useRouter} from "next/navigation";
+import { Card, Text, TextInput, Button } from "@mantine/core";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 
 export default function PlayerSearch() {
   const [licenceNo, setLicenceNumber] = useState<string>("");
   const router = useRouter();
 
-  const handleLicenceSubmit = () => {
+  const handleLicenceSubmit = (event: React.FormEvent) => {
+    event.preventDefault(); // 👈 prevents full page reload
     router.push(`/joueur/${licenceNo}`);
   };
 
@@ -41,12 +42,6 @@ export default function PlayerSearch() {
               placeholder="Numéro de licence"
               value={licenceNo}
               onChange={(event) => setLicenceNumber(event.currentTarget.value)}
-              onKeyDown={(event) => {
-                if (event.key === "Enter") {
-                  event.preventDefault();
-                  handleLicenceSubmit();
-                }
-              }}
               size="md"
               radius="md"
               required
