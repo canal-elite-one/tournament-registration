@@ -21,6 +21,7 @@ import apis.shared.api_errors as ae
 from apis.shared.models import (
     Category,
     ContactInfo,
+    EntryWithPlayer,
     Player,
     FfttPlayer,
     AliasedBase,
@@ -401,7 +402,7 @@ async def api_admin_set_categories(
     origin = api_admin_set_categories.__name__
     try:
         session.execute(delete(CategoryInDB))
-    except DBAPIError as e:
+    except DBAPIError:
         session.rollback()
         raise ae.RegistrationCutoffError(
             origin=origin,
@@ -420,3 +421,59 @@ async def api_admin_set_categories(
             origin=origin,
             exception=e,
         )
+
+
+class GetAllPlayersResponse(AliasedBase):
+    players: list[Player]
+
+@app.get(
+    "/players/all",
+    operation_id="get_all_players",
+    response_model=GetAllPlayersResponse,
+)
+def api_admin_get_all_players(
+    present_only: bool,
+    session: Annotated[orm.Session, Depends(get_ro_session)],
+) -> GetAllPlayersResponse:
+    if present_only:
+        query = (
+            select(PlayerInDB)
+            .distinct()
+            .join(EntryInDB)
+            .where(EntryInDB.marked_as_present.is_(True))
+        )
+    else:
+        query = select(PlayerInDB)
+
+    return GetAllPlayersResponse(players=[
+        Player.model_validate(player)
+        for player in session.scalars(query.order_by(PlayerInDB.licence_no)).all()
+    ])
+
+class GetEntriesByCategoryResponse(AliasedBase):
+    entries_by_category: dict[str, list[EntryWithPlayer]]
+
+@app.get(
+    "/by_category",
+    operation_id="get_entries_by_category",
+    response_model=GetEntriesByCategoryResponse,
+)
+def api_admin_get_players_by_category(
+    present_only: bool,
+    session: Annotated[orm.Session, Depends(get_ro_session)],
+) -> GetEntriesByCategoryResponse:
+    categories = session.scalars(
+        select(CategoryInDB).order_by(CategoryInDB.start_time),
+    ).all()
+    return GetEntriesByCategoryResponse(entries_by_category={
+        category.category_id: [
+            EntryWithPlayer.from_entry_in_db(entry)
+            for entry in sorted(
+                category.entries,
+                key=lambda e: e.registration_time,
+            )
+            if (present_only is False or entry.marked_as_present is True)
+            and entry.marked_as_present is not False
+        ]
+        for category in categories
+    })

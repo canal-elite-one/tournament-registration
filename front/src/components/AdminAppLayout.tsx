@@ -53,7 +53,7 @@ export default function AdminAppLayout({
         </AppShell.Navbar>
 
         {/* MAIN CONTENT */}
-        <AppShell.Main>{children}</AppShell.Main>
+        <AppShell.Main className="pt-8">{children}</AppShell.Main>
       </AppShell>
   );
 }

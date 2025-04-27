@@ -105,10 +105,10 @@ export default function AdminSetCategoriesPage() {
   };
 
   return (
-      <div className="flex justify-center bg-gray-50 px-4 sm:px-6 min-h-screen py-10 font-sans antialiased">
+      // <div className="flex justify-center bg-gray-50 px-4 sm:px-6 min-h-screen py-10 font-sans antialiased">
         <div className="bg-white rounded-lg shadow-md w-full p-4 sm:p-6 space-y-6">
           <Text size="xl" fw={700} className="text-center text-gray-800 mb-6">
-            Saisir Tableaux
+            Tableaux
           </Text>
 
           <div className="overflow-x-auto rounded-lg">
@@ -271,7 +271,7 @@ export default function AdminSetCategoriesPage() {
               Enregistrer les catégories
             </Button>
           </Group>
-        </div>
+        {/*</div>*/}
 
         {/* Confirmation Modal */}
         <Modal

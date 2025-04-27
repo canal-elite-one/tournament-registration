@@ -19,6 +19,8 @@ import type {
   CategoryResult,
   EntryWithCategory,
   FfttPlayer,
+  GetAllPlayersResponse,
+  GetEntriesByCategoryResponse,
   HTTPValidationError,
   PayBody,
   Player,
@@ -36,6 +38,10 @@ import {
     EntryWithCategoryToJSON,
     FfttPlayerFromJSON,
     FfttPlayerToJSON,
+    GetAllPlayersResponseFromJSON,
+    GetAllPlayersResponseToJSON,
+    GetEntriesByCategoryResponseFromJSON,
+    GetEntriesByCategoryResponseToJSON,
     HTTPValidationErrorFromJSON,
     HTTPValidationErrorToJSON,
     PayBodyFromJSON,
@@ -52,8 +58,16 @@ import {
     SetCategoryResponseToJSON,
 } from '../models/index';
 
+export interface GetAllPlayersRequest {
+    presentOnly: boolean;
+}
+
 export interface GetEntriesRequest {
     licenceNo: string;
+}
+
+export interface GetEntriesByCategoryRequest {
+    presentOnly: boolean;
 }
 
 export interface GetPlayerRequest {
@@ -78,6 +92,43 @@ export interface SetCategoriesRequest {
  * 
  */
 export class DefaultApi extends runtime.BaseAPI {
+
+    /**
+     * Api Admin Get All Players
+     */
+    async getAllPlayersRaw(requestParameters: GetAllPlayersRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<GetAllPlayersResponse>> {
+        if (requestParameters['presentOnly'] == null) {
+            throw new runtime.RequiredError(
+                'presentOnly',
+                'Required parameter "presentOnly" was null or undefined when calling getAllPlayers().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        if (requestParameters['presentOnly'] != null) {
+            queryParameters['present_only'] = requestParameters['presentOnly'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        const response = await this.request({
+            path: `/players/all`,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => GetAllPlayersResponseFromJSON(jsonValue));
+    }
+
+    /**
+     * Api Admin Get All Players
+     */
+    async getAllPlayers(requestParameters: GetAllPlayersRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<GetAllPlayersResponse> {
+        const response = await this.getAllPlayersRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
 
     /**
      * Api Public Get Categories
@@ -139,6 +190,43 @@ export class DefaultApi extends runtime.BaseAPI {
      */
     async getEntries(requestParameters: GetEntriesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<EntryWithCategory>> {
         const response = await this.getEntriesRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Api Admin Get Players By Category
+     */
+    async getEntriesByCategoryRaw(requestParameters: GetEntriesByCategoryRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<GetEntriesByCategoryResponse>> {
+        if (requestParameters['presentOnly'] == null) {
+            throw new runtime.RequiredError(
+                'presentOnly',
+                'Required parameter "presentOnly" was null or undefined when calling getEntriesByCategory().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        if (requestParameters['presentOnly'] != null) {
+            queryParameters['present_only'] = requestParameters['presentOnly'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        const response = await this.request({
+            path: `/by_category`,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => GetEntriesByCategoryResponseFromJSON(jsonValue));
+    }
+
+    /**
+     * Api Admin Get Players By Category
+     */
+    async getEntriesByCategory(requestParameters: GetEntriesByCategoryRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<GetEntriesByCategoryResponse> {
+        const response = await this.getEntriesByCategoryRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

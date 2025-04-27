@@ -22,7 +22,6 @@ from apis.shared.db import (
 import apis.shared.api_errors as ae
 from apis.shared.custom_decorators import after_cutoff
 from apis.shared.models import (
-    Category,
     Player,
     AliasedBase,
     EntryWithPlayer,
@@ -39,59 +38,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-
-@app.post("/categories")
-async def api_admin_set_categories(
-    categories: list[Category],
-    session: Annotated[orm.Session, Depends(get_rw_session)],
-) -> list[Category]:
-    """
-    Expects a jsonified list of dicts in the "categories" field of the json that can be
-    passed unpacked to the category constructor. Don't forget to cast datetime types
-    to some parsable string.
-    """
-    origin = api_admin_set_categories.__name__
-    try:
-        session.execute(delete(CategoryInDB))
-    except DBAPIError:
-        session.rollback()
-        raise ae.RegistrationCutoffError(
-            origin=origin,
-            error_message=ae.RegistrationMessages.STARTED,
-        )
-
-    try:
-        for category in categories:
-            session.add(category)
-        session.commit()
-
-        all_categories = (
-            session.scalars(
-                select(CategoryInDB).order_by(CategoryInDB.start_time),
-            ).all(),
-        )
-
-        return [Category.model_validate(category) for category in all_categories]
-    except DBAPIError as e:
-        session.rollback()
-        raise ae.UnexpectedDBError(
-            origin=origin,
-            exception=e,
-        )
-
-
-@app.get("/categories")
-def api_admin_get_categories(
-    session: Annotated[orm.Session, Depends(get_ro_session)],
-) -> list[Category]:
-    all_categories = (
-        session.scalars(
-            select(CategoryInDB).order_by(CategoryInDB.start_time),
-        ).all(),
-    )
-    return [Category.model_validate(category) for category in all_categories]
-
 
 @app.get("/players/<licence_no>")
 def api_admin_get_player(licence_no: str, db_only: bool = False) -> Player:
@@ -123,12 +69,6 @@ def api_admin_get_player(licence_no: str, db_only: bool = False) -> Player:
 
     player.total_actual_paid = 0
 
-    # include_entries_info = not is_before_cutoff()
-    # p_schema.reset(
-    #     include_entries=include_entries_info,
-    #     include_payment_status=include_entries_info,
-    # )
-    # return jsonify(p_schema.dump(player)), HTTPStatus.OK
     return Player.model_validate(player)
 
 

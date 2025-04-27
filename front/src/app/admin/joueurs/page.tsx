@@ -1,5 +1,16 @@
-export default function AdminPlayersPage() {
+import {DefaultApi} from "@/backend_api/backend";
+import EntriesByCategoryTabs from "@/components/EntriesByCategoryTabs";
+
+
+export default async function AdminPlayersPage() {
+
+  const api = new DefaultApi();
+  const entriesByCategoryResponse = await api.getEntriesByCategory({presentOnly: false});
+
   return (
-      <div><h1 className="text-2xl font-semibold">Admin Players</h1></div>
+    <div>
+      <h1 className="text-2xl font-semibold">Dashboard</h1>
+      <EntriesByCategoryTabs entriesByCategory={entriesByCategoryResponse.entriesByCategory} />
+    </div>
   );
-}
+};
