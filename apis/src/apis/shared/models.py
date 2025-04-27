@@ -8,7 +8,7 @@ from enum import StrEnum
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from apis.shared.db import EntryInDB, PlayerInDB
+from apis.shared.db import CategoryInDB, EntryInDB, PlayerInDB
 
 
 def snake_case_to_camel_case(snake: str) -> str:
@@ -41,6 +41,9 @@ class Category(AliasedBase):
     reward_quarter: int | None
     max_players: int
     overbooking_percentage: int
+
+    def to_category_in_db(self) -> CategoryInDB:
+        return CategoryInDB(**self.model_dump())
 
 
 class Gender(StrEnum):

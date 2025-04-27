@@ -4,10 +4,12 @@ from datetime import datetime
 from typing import Annotated
 
 from fastapi import FastAPI, Depends
+from fastapi.exceptions import RequestValidationError
 from starlette.middleware.cors import CORSMiddleware
-from sqlalchemy import select, orm
+from sqlalchemy import delete, select, orm
 from sqlalchemy.exc import DBAPIError
 from pydantic import Field
+from starlette.responses import PlainTextResponse
 
 from apis.shared.dependencies import get_ro_session, get_rw_session
 from apis.email_sender import EmailSender
@@ -36,6 +38,11 @@ app.add_middleware(
 )
 
 app.add_exception_handler(ae.APIError, ae.handle_api_error)
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request, exc):
+    logging.error(f"Validation error: {exc}")
+    return PlainTextResponse(str(exc), status_code=400)
 
 
 class CategoryResult(Category):
@@ -339,6 +346,60 @@ async def api_public_pay(
             recipient=cfg.ADMIN_EMAILS[0],
             body=error_message,
             subject=f"Mark as paid error for {licence_no}",
+            bcc=[],
         )
     session.commit()
     return player
+
+
+class SetCategoryInput(AliasedBase):
+    categories: list[Category]
+
+
+class SetCategoryResponse(AliasedBase):
+    message: str
+
+@app.post(
+    "/admin/categories",
+    operation_id="set_categories",
+    response_model=SetCategoryResponse,
+    status_code=201,
+    responses={
+        400: {
+            "model": ae.APIErrorModel,
+            "description": "Invalid category data",
+        },
+        500: {"model": ae.APIErrorModel, "description": "Unexpected error"},
+    },
+)
+async def api_admin_set_categories(
+    params: SetCategoryInput,
+    session: Annotated[orm.Session, Depends(get_rw_session)],
+) -> SetCategoryResponse:
+    """
+    Expects a jsonified list of dicts in the "categories" field of the json that can be
+    passed unpacked to the category constructor. Don't forget to cast datetime types
+    to some parsable string.
+    """
+    origin = api_admin_set_categories.__name__
+    try:
+        session.execute(delete(CategoryInDB))
+    except DBAPIError as e:
+        session.rollback()
+        raise ae.RegistrationCutoffError(
+            origin=origin,
+            error_message=ae.RegistrationMessages.STARTED,
+        )
+
+    try:
+        for category in params.categories:
+            session.add(category.to_category_in_db())
+        session.commit()
+
+        return SetCategoryResponse(message="Successfully set categories")
+    except DBAPIError as e:
+        session.rollback()
+        raise ae.UnexpectedDBError(
+            origin=origin,
+            exception=e,
+        )

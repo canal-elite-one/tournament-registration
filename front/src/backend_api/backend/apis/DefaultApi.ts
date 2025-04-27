@@ -24,6 +24,8 @@ import type {
   Player,
   RegisterEntriesBody,
   RegisterEntriesResponse,
+  SetCategoryInput,
+  SetCategoryResponse,
 } from '../models/index';
 import {
     APIErrorModelFromJSON,
@@ -44,6 +46,10 @@ import {
     RegisterEntriesBodyToJSON,
     RegisterEntriesResponseFromJSON,
     RegisterEntriesResponseToJSON,
+    SetCategoryInputFromJSON,
+    SetCategoryInputToJSON,
+    SetCategoryResponseFromJSON,
+    SetCategoryResponseToJSON,
 } from '../models/index';
 
 export interface GetEntriesRequest {
@@ -62,6 +68,10 @@ export interface PayRequest {
 export interface RegisterEntriesRequest {
     licenceNo: string;
     registerEntriesBody: RegisterEntriesBody;
+}
+
+export interface SetCategoriesRequest {
+    setCategoryInput: SetCategoryInput;
 }
 
 /**
@@ -260,6 +270,44 @@ export class DefaultApi extends runtime.BaseAPI {
      */
     async registerEntries(requestParameters: RegisterEntriesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<RegisterEntriesResponse> {
         const response = await this.registerEntriesRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Expects a jsonified list of dicts in the \"categories\" field of the json that can be passed unpacked to the category constructor. Don\'t forget to cast datetime types to some parsable string.
+     * Api Admin Set Categories
+     */
+    async setCategoriesRaw(requestParameters: SetCategoriesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SetCategoryResponse>> {
+        if (requestParameters['setCategoryInput'] == null) {
+            throw new runtime.RequiredError(
+                'setCategoryInput',
+                'Required parameter "setCategoryInput" was null or undefined when calling setCategories().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        const response = await this.request({
+            path: `/admin/categories`,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: SetCategoryInputToJSON(requestParameters['setCategoryInput']),
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => SetCategoryResponseFromJSON(jsonValue));
+    }
+
+    /**
+     * Expects a jsonified list of dicts in the \"categories\" field of the json that can be passed unpacked to the category constructor. Don\'t forget to cast datetime types to some parsable string.
+     * Api Admin Set Categories
+     */
+    async setCategories(requestParameters: SetCategoriesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SetCategoryResponse> {
+        const response = await this.setCategoriesRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

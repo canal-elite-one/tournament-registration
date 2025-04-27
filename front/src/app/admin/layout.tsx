@@ -7,6 +7,7 @@ import {
 import SessionWrapper from "@/components/SessionWrapper";
 import "../globals.css";
 import AdminAppLayout from "@/components/AdminAppLayout";
+import {Notifications} from "@mantine/notifications";
 
 export const metadata = {
   title: "Admin Dashboard",
