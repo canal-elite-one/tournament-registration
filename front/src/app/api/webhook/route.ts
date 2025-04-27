@@ -45,7 +45,13 @@ export async function POST(req: Request) {
     } catch (error) {
       console.error("❌ Failed to call Python backend:", error);
     }
-  } else {
+  } else if (event.type === "checkout.session.expired") {
+    const session = event.data.object as Stripe.Checkout.Session;
+    console.log("⚠️ Payment session expired!", session);
+
+    // Handle the expired session (e.g., notify the user)
+  }
+  else {
     console.log(`Unhandled event type: ${event.type}`);
   }
 
