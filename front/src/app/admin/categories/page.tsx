@@ -14,7 +14,7 @@ import { DateTimePicker } from "@mantine/dates";
 import { notifications } from "@mantine/notifications";
 import { useState } from "react";
 
-interface CategoryForm {
+export interface CategoryForm {
   id: string;
   alternateName: string;
   color: string;

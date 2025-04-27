@@ -9,7 +9,7 @@ export default async function AdminPlayersPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold">Dashboard</h1>
+      <h1 className="text-2xl font-semibold">Joueurs par tableaux</h1>
       <EntriesByCategoryTabs entriesByCategory={entriesByCategoryResponse.entriesByCategory} />
     </div>
   );

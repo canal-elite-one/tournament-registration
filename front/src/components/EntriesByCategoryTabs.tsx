@@ -1,8 +1,9 @@
 "use client";
 
-import { Tabs, Table, Badge, TextInput } from "@mantine/core";
+import {Tabs, Table, Badge, TextInput, Button, Modal} from "@mantine/core";
 import { Spotlight, SpotlightActionData, openSpotlight } from "@mantine/spotlight";
 import { useMemo, useState } from "react";
+import {useRouter} from "next/navigation";
 
 interface EntryWithPlayer {
   categoryId: string;
@@ -30,6 +31,7 @@ export default function EntriesByCategoryTabs({ entriesByCategory }: Props) {
   const categoryIds = Object.keys(entriesByCategory);
   const [activeTab, setActiveTab] = useState<string>(categoryIds[0]);
   const [search, setSearch] = useState<string>("");
+  const router = useRouter();
 
   const allEntries = useMemo(() => Object.values(entriesByCategory).flat(), [entriesByCategory]);
 
@@ -42,6 +44,10 @@ export default function EntriesByCategoryTabs({ entriesByCategory }: Props) {
       setSearch(entry.licenceNo); // autofill search to locate player faster
     },
   }));
+
+  function goToPlayer() {
+    router.push(`/admin/joueurs/${search}`);
+  }
 
 
   const filteredEntries = (entries: EntryWithPlayer[]) => {
@@ -74,6 +80,12 @@ export default function EntriesByCategoryTabs({ entriesByCategory }: Props) {
                 onChange={(e) => setSearch(e.currentTarget.value)}
                 className="w-full max-w-md"
             />
+            <button
+                onClick={() => goToPlayer()}
+                className="hidden sm:block bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded"
+            >
+              Ajouter
+            </button>
             <button
                 onClick={openSpotlight}
                 className="hidden sm:block bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
@@ -122,7 +134,10 @@ export default function EntriesByCategoryTabs({ entriesByCategory }: Props) {
 
                       <Table.Tbody>
                         {filteredEntries(entriesByCategory[categoryId]).map((entry) => (
-                            <Table.Tr key={entry.licenceNo}>
+                            <Table.Tr key={entry.licenceNo}
+                                      className="cursor-pointer hover:bg-gray-100 transition"
+                                      onClick={() => router.push(`/admin/joueurs/${entry.licenceNo}`)}
+                            >
                               <Table.Td>{entry.bibNo ?? "-"}</Table.Td>
                               <Table.Td>{entry.licenceNo}</Table.Td>
                               <Table.Td>{entry.lastName}</Table.Td>

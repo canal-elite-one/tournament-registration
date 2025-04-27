@@ -3,6 +3,7 @@ import {
   type SetCategoryInput
 } from "@/backend_api/backend";
 import {NextResponse} from "next/server";
+import {CategoryForm} from "@/app/admin/categories/page";
 
 export async function POST(req: Request) {
   try {
@@ -11,7 +12,7 @@ export async function POST(req: Request) {
     const api = new DefaultApi();
 
     const body: SetCategoryInput = {
-        categories: categories.map(c => {
+        categories: categories.map((c: CategoryForm) => {
           return {
             categoryId: c.id,
             alternateName: c.alternateName,

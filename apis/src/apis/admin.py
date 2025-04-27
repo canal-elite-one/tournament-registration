@@ -39,76 +39,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.get("/players/<licence_no>")
-def api_admin_get_player(licence_no: str, db_only: bool = False) -> Player:
-    origin = api_admin_get_player.__name__
-    with Session() as session:
-        if (player := session.get(PlayerInDB, licence_no)) is not None:
-            return Player.model_validate(player)
-
-    if db_only:
-        raise ae.PlayerNotFoundError(
-            origin=f"{origin}_db_only",
-            licence_no=licence_no,
-        )
-
-    try:
-        player = get_player_fftt(licence_no)
-    except ae.FFTTAPIError as e:
-        raise ae.UnexpectedFFTTError(
-            origin=origin,
-            message=e.message,
-            payload=e.payload,
-        )
-
-    if player is None:
-        raise ae.PlayerNotFoundError(
-            origin=origin,
-            licence_no=licence_no,
-        )
-
-    player.total_actual_paid = 0
-
-    return Player.model_validate(player)
-
-
-@app.post("/players/<licence_no>")
-def api_admin_add_player(
-    licence_no: str,
-    contact_info: ContactInfo,
-    session: Annotated[orm.Session, Depends(get_rw_session)],
-) -> Player:
-    origin = api_admin_add_player.__name__
-
-    try:
-        fftt_player = get_player_fftt(licence_no)
-    except ae.FFTTAPIError as e:
-        raise ae.UnexpectedFFTTError(
-            origin=origin,
-            message=e.message,
-            payload=e.payload,
-        )
-
-    if fftt_player is None:
-        raise ae.FFTTPlayerNotFoundError(origin=origin, licence_no=licence_no)
-
-    player = Player(
-        **fftt_player.model_dump(),
-        **contact_info.model_dump(),
-        total_actual_paid=0,
-    )
-    try:
-        session.add(player)
-        session.commit()
-        return player
-    except DBAPIError:
-        session.rollback()
-        raise ae.InvalidDataError(
-            origin=origin,
-            error_message=ae.DUPLICATE_PLAYER_MESSAGE,
-            payload={"licenceNo": player.licence_no},
-        )
-
 
 class EntryInfo(AliasedBase):
     category_id: str
@@ -438,27 +368,6 @@ def api_admin_reset_bibs(
 
     return Response(status_code=HTTPStatus.NO_CONTENT)
 
-
-@app.get("/by_category")
-def api_admin_get_players_by_category(
-    present_only: bool,
-    session: Annotated[orm.Session, Depends(get_ro_session)],
-) -> dict[str, list[EntryWithPlayer]]:
-    categories = session.scalars(
-        select(CategoryInDB).order_by(CategoryInDB.start_time),
-    ).all()
-    return {
-        category.category_id: [
-            EntryWithPlayer.from_entry_in_db(entry)
-            for entry in sorted(
-                category.entries,
-                key=lambda e: e.registration_time,
-            )
-            if (present_only is False or entry.marked_as_present is True)
-            and entry.marked_as_present is not False
-        ]
-        for category in categories
-    }
 
 
 @app.get("/players/all")

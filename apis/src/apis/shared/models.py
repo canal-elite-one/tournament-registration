@@ -71,6 +71,15 @@ class Player(FfttPlayer):
     phone: str | None
     total_actual_paid: int | None
 
+    @classmethod
+    def from_fftt_player(cls, fftt_player: FfttPlayer) -> Self:
+        return cls(
+            **fftt_player.model_dump(),
+            email="",
+            phone=None,
+            total_actual_paid=0,
+        )
+
     def to_db(self) -> PlayerInDB:
         return PlayerInDB(**self.model_dump())
 
