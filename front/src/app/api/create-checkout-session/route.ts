@@ -31,6 +31,11 @@ export async function POST(req: Request) {
       metadata: {
         licence_number: licenceNumber,
       },
+      payment_intent_data: {
+        metadata: {
+          licence_number: licenceNumber,
+        },
+      }
     });
 
     return NextResponse.json({url: session.url});
