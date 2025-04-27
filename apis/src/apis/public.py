@@ -277,6 +277,7 @@ async def api_public_register_entries(
                 f"Votre inscription sur liste d'attente a bien été prise en compte.<br><br>"
                 f"Pour trouver votre position sur liste d'attente "
                 f""": <a href="{cfg.TOURNAMENT_URL}/joueur/{licence_no}/inscription">cliquer ici</a>.<br><br>"""  # noqa: E501
+                 "Vous recevrez un email pour procéder au paiement des tableaux auxquels vous serez repêché.<br><br>"  # noqa: E501
                 f"Merci de votre inscription et à bientôt !<br><br>"
                 f"L'équipe USKB",
                 subject="Confirmation liste d'attente Tournoi USKB 2025",
@@ -349,6 +350,22 @@ async def api_public_pay(
             bcc=[],
         )
     session.commit()
+
+    if marked_as_paid_amount > 0:
+        EmailSender(
+            sender_email=cfg.USKB_EMAIL,
+            password=cfg.USKB_EMAIL_PASSWORD,
+        ).send_email(
+            recipient=player.email,
+            bcc=cfg.ADMIN_EMAILS,
+            body=f"Bonjour {player.first_name},<br><br>"
+            f"Votre inscription a bien été prise en compte.<br><br>"
+            f"Pour consulter les tableaux dans lesquels vous êtes inscrit(e) "
+            f""": <a href="{cfg.TOURNAMENT_URL}/joueur/{licence_no}/inscription">cliquer ici</a>.<br><br>"""  # noqa: E501
+            f"Merci de votre participation et à bientôt !<br><br>"
+            f"L'équipe USKB",
+            subject="Confirmation Inscription Tournoi USKB 2025",
+        )
     return player
 
 
