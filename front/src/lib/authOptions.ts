@@ -10,7 +10,15 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async signIn({ user }) {
-      const allowedEmails = ["layceline@gmail.com"];
+      if (!user.email) {
+        return false; // no email, reject
+      }
+
+      const allowedEmails = (process.env.ADMIN_ALLOWED_EMAILS ?? '')
+          .split(',')
+          .map((email) => email.trim())
+          .filter((email) => email.length > 0);
+
       return allowedEmails.includes(user.email ?? "");
     },
     async session({ session }) {
