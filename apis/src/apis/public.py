@@ -473,8 +473,7 @@ def api_admin_get_players_by_category(
                 category.entries,
                 key=lambda e: e.registration_time,
             )
-            if (present_only is False or entry.marked_as_present is True)
-            and entry.marked_as_present is not False
+            if present_only is False or entry.marked_as_present is not False
         ]
         for category in categories
     })
@@ -566,6 +565,32 @@ def api_admin_add_player(
             error_message=ae.DUPLICATE_PLAYER_MESSAGE,
             payload={"licenceNo": player.licence_no},
         )
+
+
+@app.patch(
+    "/admin/players/<licence_no>",
+    operation_id="admin_update_player",
+    response_model=Player,
+)
+def api_admin_update_player(
+    licence_no: str,
+    contact_info: ContactInfo,
+    session: Annotated[orm.Session, Depends(get_rw_session)],
+) -> Player:
+    origin = api_admin_add_player.__name__
+
+    player = session.get(PlayerInDB, licence_no)
+    # checks that the player exists in the database (not just in FFTT)
+    if player is None:
+        raise ae.PlayerNotFoundError(
+            origin=origin,
+            licence_no=licence_no,
+        )
+
+    player.email = contact_info.email
+    player.phone = contact_info.phone
+    session.merge(player)
+    return Player.model_validate(player)
 
 
 class EntryInfo(AliasedBase):
