@@ -17,23 +17,40 @@ import * as runtime from '../runtime';
 import type {
   APIErrorModel,
   CategoryResult,
+  ContactInfo,
+  EntryInfo,
   EntryWithCategory,
   FfttPlayer,
+  GetAdminPlayerResponse,
+  GetAllPlayersResponse,
+  GetEntriesByCategoryResponse,
   HTTPValidationError,
   PayBody,
   Player,
   RegisterEntriesBody,
   RegisterEntriesResponse,
+  SetCategoryInput,
+  SetCategoryResponse,
 } from '../models/index';
 import {
     APIErrorModelFromJSON,
     APIErrorModelToJSON,
     CategoryResultFromJSON,
     CategoryResultToJSON,
+    ContactInfoFromJSON,
+    ContactInfoToJSON,
+    EntryInfoFromJSON,
+    EntryInfoToJSON,
     EntryWithCategoryFromJSON,
     EntryWithCategoryToJSON,
     FfttPlayerFromJSON,
     FfttPlayerToJSON,
+    GetAdminPlayerResponseFromJSON,
+    GetAdminPlayerResponseToJSON,
+    GetAllPlayersResponseFromJSON,
+    GetAllPlayersResponseToJSON,
+    GetEntriesByCategoryResponseFromJSON,
+    GetEntriesByCategoryResponseToJSON,
     HTTPValidationErrorFromJSON,
     HTTPValidationErrorToJSON,
     PayBodyFromJSON,
@@ -44,10 +61,38 @@ import {
     RegisterEntriesBodyToJSON,
     RegisterEntriesResponseFromJSON,
     RegisterEntriesResponseToJSON,
+    SetCategoryInputFromJSON,
+    SetCategoryInputToJSON,
+    SetCategoryResponseFromJSON,
+    SetCategoryResponseToJSON,
 } from '../models/index';
+
+export interface AdminAddPlayerRequest {
+    licenceNo: string;
+    contactInfo: ContactInfo;
+}
+
+export interface AdminRegisterEntriesRequest {
+    licenceNo: string;
+    totalActualPaid: number;
+    entryInfo: Array<EntryInfo>;
+}
+
+export interface GetAdminPlayerByLicenceNoRequest {
+    licenceNo: string;
+    dbOnly?: boolean;
+}
+
+export interface GetAllPlayersRequest {
+    presentOnly: boolean;
+}
 
 export interface GetEntriesRequest {
     licenceNo: string;
+}
+
+export interface GetEntriesByCategoryRequest {
+    presentOnly: boolean;
 }
 
 export interface GetPlayerRequest {
@@ -64,10 +109,199 @@ export interface RegisterEntriesRequest {
     registerEntriesBody: RegisterEntriesBody;
 }
 
+export interface SetCategoriesRequest {
+    setCategoryInput: SetCategoryInput;
+}
+
 /**
  * 
  */
 export class DefaultApi extends runtime.BaseAPI {
+
+    /**
+     * Api Admin Add Player
+     */
+    async adminAddPlayerRaw(requestParameters: AdminAddPlayerRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Player>> {
+        if (requestParameters['licenceNo'] == null) {
+            throw new runtime.RequiredError(
+                'licenceNo',
+                'Required parameter "licenceNo" was null or undefined when calling adminAddPlayer().'
+            );
+        }
+
+        if (requestParameters['contactInfo'] == null) {
+            throw new runtime.RequiredError(
+                'contactInfo',
+                'Required parameter "contactInfo" was null or undefined when calling adminAddPlayer().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        if (requestParameters['licenceNo'] != null) {
+            queryParameters['licence_no'] = requestParameters['licenceNo'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        const response = await this.request({
+            path: `/admin/players/<licence_no>`,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: ContactInfoToJSON(requestParameters['contactInfo']),
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => PlayerFromJSON(jsonValue));
+    }
+
+    /**
+     * Api Admin Add Player
+     */
+    async adminAddPlayer(requestParameters: AdminAddPlayerRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Player> {
+        const response = await this.adminAddPlayerRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * expects a json payload of the form: {\"totalActualPaid\": XX, \"entries\": [{...}, ...]} with entries of the form: {\"categoryId\": \"X\", \"markedAsPresent\": true/false/null, \"markedAsPaid\": true/false}  The endpoint considers the payload to represent all the entries for the player after the request. In particular, it deletes all entries for the player that are not in the payload, and updates the other entries with the information in the payload. The endpoint also updates the totalActualPaid field of the player with the value in the payload. The endpoint preserves the registration_time of the entries that are not deleted.  Note that the endpoint consciously does not enforce the following constraints, allowing the admin to override them if need be: - the player must not register to more than MAX_ENTRIES_PER_DAY categories per day - if female, the player must register to the women_only category of the day if she     registers to any category of the day  Enforced format/logic constraints: - totalActualPaid field must be present and not null - the licence_no must correspond to an existing player in the database - the entries must be correctly formatted - the category_ids must correspond to existing categories in the database - the player must be able to register to all categories indicated w.r.t     gender/points constraints - the request must not try to register to more than one category of the same color - the request must not try to mark entries as present before cutoff - the request must not try to mark entries as present for categories that have     already max_players present players - the totalActualPaid field must not be higher than the total fees for all entries
+     * Api Admin Register Entries
+     */
+    async adminRegisterEntriesRaw(requestParameters: AdminRegisterEntriesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Player>> {
+        if (requestParameters['licenceNo'] == null) {
+            throw new runtime.RequiredError(
+                'licenceNo',
+                'Required parameter "licenceNo" was null or undefined when calling adminRegisterEntries().'
+            );
+        }
+
+        if (requestParameters['totalActualPaid'] == null) {
+            throw new runtime.RequiredError(
+                'totalActualPaid',
+                'Required parameter "totalActualPaid" was null or undefined when calling adminRegisterEntries().'
+            );
+        }
+
+        if (requestParameters['entryInfo'] == null) {
+            throw new runtime.RequiredError(
+                'entryInfo',
+                'Required parameter "entryInfo" was null or undefined when calling adminRegisterEntries().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        if (requestParameters['licenceNo'] != null) {
+            queryParameters['licence_no'] = requestParameters['licenceNo'];
+        }
+
+        if (requestParameters['totalActualPaid'] != null) {
+            queryParameters['total_actual_paid'] = requestParameters['totalActualPaid'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        const response = await this.request({
+            path: `/admin/entries/<licence_no>`,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: requestParameters['entryInfo']!.map(EntryInfoToJSON),
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => PlayerFromJSON(jsonValue));
+    }
+
+    /**
+     * expects a json payload of the form: {\"totalActualPaid\": XX, \"entries\": [{...}, ...]} with entries of the form: {\"categoryId\": \"X\", \"markedAsPresent\": true/false/null, \"markedAsPaid\": true/false}  The endpoint considers the payload to represent all the entries for the player after the request. In particular, it deletes all entries for the player that are not in the payload, and updates the other entries with the information in the payload. The endpoint also updates the totalActualPaid field of the player with the value in the payload. The endpoint preserves the registration_time of the entries that are not deleted.  Note that the endpoint consciously does not enforce the following constraints, allowing the admin to override them if need be: - the player must not register to more than MAX_ENTRIES_PER_DAY categories per day - if female, the player must register to the women_only category of the day if she     registers to any category of the day  Enforced format/logic constraints: - totalActualPaid field must be present and not null - the licence_no must correspond to an existing player in the database - the entries must be correctly formatted - the category_ids must correspond to existing categories in the database - the player must be able to register to all categories indicated w.r.t     gender/points constraints - the request must not try to register to more than one category of the same color - the request must not try to mark entries as present before cutoff - the request must not try to mark entries as present for categories that have     already max_players present players - the totalActualPaid field must not be higher than the total fees for all entries
+     * Api Admin Register Entries
+     */
+    async adminRegisterEntries(requestParameters: AdminRegisterEntriesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Player> {
+        const response = await this.adminRegisterEntriesRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Api Admin Get Player
+     */
+    async getAdminPlayerByLicenceNoRaw(requestParameters: GetAdminPlayerByLicenceNoRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<GetAdminPlayerResponse>> {
+        if (requestParameters['licenceNo'] == null) {
+            throw new runtime.RequiredError(
+                'licenceNo',
+                'Required parameter "licenceNo" was null or undefined when calling getAdminPlayerByLicenceNo().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        if (requestParameters['licenceNo'] != null) {
+            queryParameters['licence_no'] = requestParameters['licenceNo'];
+        }
+
+        if (requestParameters['dbOnly'] != null) {
+            queryParameters['db_only'] = requestParameters['dbOnly'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        const response = await this.request({
+            path: `/admin/players/<licence_no>`,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => GetAdminPlayerResponseFromJSON(jsonValue));
+    }
+
+    /**
+     * Api Admin Get Player
+     */
+    async getAdminPlayerByLicenceNo(requestParameters: GetAdminPlayerByLicenceNoRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<GetAdminPlayerResponse> {
+        const response = await this.getAdminPlayerByLicenceNoRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Api Admin Get All Players
+     */
+    async getAllPlayersRaw(requestParameters: GetAllPlayersRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<GetAllPlayersResponse>> {
+        if (requestParameters['presentOnly'] == null) {
+            throw new runtime.RequiredError(
+                'presentOnly',
+                'Required parameter "presentOnly" was null or undefined when calling getAllPlayers().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        if (requestParameters['presentOnly'] != null) {
+            queryParameters['present_only'] = requestParameters['presentOnly'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        const response = await this.request({
+            path: `/admin/players/all`,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => GetAllPlayersResponseFromJSON(jsonValue));
+    }
+
+    /**
+     * Api Admin Get All Players
+     */
+    async getAllPlayers(requestParameters: GetAllPlayersRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<GetAllPlayersResponse> {
+        const response = await this.getAllPlayersRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
 
     /**
      * Api Public Get Categories
@@ -129,6 +363,43 @@ export class DefaultApi extends runtime.BaseAPI {
      */
     async getEntries(requestParameters: GetEntriesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<EntryWithCategory>> {
         const response = await this.getEntriesRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Api Admin Get Players By Category
+     */
+    async getEntriesByCategoryRaw(requestParameters: GetEntriesByCategoryRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<GetEntriesByCategoryResponse>> {
+        if (requestParameters['presentOnly'] == null) {
+            throw new runtime.RequiredError(
+                'presentOnly',
+                'Required parameter "presentOnly" was null or undefined when calling getEntriesByCategory().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        if (requestParameters['presentOnly'] != null) {
+            queryParameters['present_only'] = requestParameters['presentOnly'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        const response = await this.request({
+            path: `/admin/by_category`,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => GetEntriesByCategoryResponseFromJSON(jsonValue));
+    }
+
+    /**
+     * Api Admin Get Players By Category
+     */
+    async getEntriesByCategory(requestParameters: GetEntriesByCategoryRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<GetEntriesByCategoryResponse> {
+        const response = await this.getEntriesByCategoryRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
@@ -260,6 +531,44 @@ export class DefaultApi extends runtime.BaseAPI {
      */
     async registerEntries(requestParameters: RegisterEntriesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<RegisterEntriesResponse> {
         const response = await this.registerEntriesRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Expects a jsonified list of dicts in the \"categories\" field of the json that can be passed unpacked to the category constructor. Don\'t forget to cast datetime types to some parsable string.
+     * Api Admin Set Categories
+     */
+    async setCategoriesRaw(requestParameters: SetCategoriesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SetCategoryResponse>> {
+        if (requestParameters['setCategoryInput'] == null) {
+            throw new runtime.RequiredError(
+                'setCategoryInput',
+                'Required parameter "setCategoryInput" was null or undefined when calling setCategories().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        const response = await this.request({
+            path: `/admin/categories`,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: SetCategoryInputToJSON(requestParameters['setCategoryInput']),
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => SetCategoryResponseFromJSON(jsonValue));
+    }
+
+    /**
+     * Expects a jsonified list of dicts in the \"categories\" field of the json that can be passed unpacked to the category constructor. Don\'t forget to cast datetime types to some parsable string.
+     * Api Admin Set Categories
+     */
+    async setCategories(requestParameters: SetCategoriesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SetCategoryResponse> {
+        const response = await this.setCategoriesRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

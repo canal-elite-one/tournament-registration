@@ -28,7 +28,14 @@ export async function POST(req: Request) {
   // Handle only successful payments
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session;
-    console.log("✅ Payment succeeded!", session);
+
+    const sessionData = {
+      id: session.id,
+      metadata: session.metadata || {},
+      amount_total: session.amount_total,
+    }
+
+    console.log("✅ Payment succeeded!", sessionData);
 
     const licenceNo = session.metadata?.licence_number;
 
@@ -45,7 +52,31 @@ export async function POST(req: Request) {
     } catch (error) {
       console.error("❌ Failed to call Python backend:", error);
     }
-  } else {
+  } else if (event.type === "checkout.session.expired") {
+    const session = event.data.object as Stripe.Checkout.Session;
+
+    const sessionData = {
+      id: session.id,
+      metadata: session.metadata || {},
+      amount_total: session.amount_total,
+    }
+
+    console.log("⚠️ Payment session expired!", sessionData);
+  }
+   else if (event.type === "payment_intent.payment_failed") {
+     // TODO: if we have time, send this to backend to receive an email
+    const paymentIntent = event.data.object;
+
+    const failureMessage = paymentIntent.last_payment_error?.message;
+    const failureCode = paymentIntent.last_payment_error?.code;
+
+    console.log(`Payment failed for customer ${paymentIntent.metadata?.licence_number}`);
+    console.log(`Failure code: ${failureCode}`);
+    console.log(`Failure message: ${failureMessage}`);
+    console.log(`Amount: ${paymentIntent.amount}`);
+    console.log("❌ Payment failed!", event.data.object);
+  }
+  else {
     console.log(`Unhandled event type: ${event.type}`);
   }
 

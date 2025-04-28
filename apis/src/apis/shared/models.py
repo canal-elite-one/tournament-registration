@@ -8,7 +8,7 @@ from enum import StrEnum
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from apis.shared.db import EntryInDB, PlayerInDB
+from apis.shared.db import CategoryInDB, EntryInDB, PlayerInDB
 
 
 def snake_case_to_camel_case(snake: str) -> str:
@@ -42,6 +42,9 @@ class Category(AliasedBase):
     max_players: int
     overbooking_percentage: int
 
+    def to_category_in_db(self) -> CategoryInDB:
+        return CategoryInDB(**self.model_dump())
+
 
 class Gender(StrEnum):
     M = "M"
@@ -67,6 +70,15 @@ class Player(FfttPlayer):
     email: str
     phone: str | None
     total_actual_paid: int | None
+
+    @classmethod
+    def from_fftt_player(cls, fftt_player: FfttPlayer) -> Self:
+        return cls(
+            **fftt_player.model_dump(),
+            email="",
+            phone=None,
+            total_actual_paid=0,
+        )
 
     def to_db(self) -> PlayerInDB:
         return PlayerInDB(**self.model_dump())

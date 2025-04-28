@@ -3,6 +3,8 @@ import PlayerSearch from "@/components/PlayerSearch";
 import CategoryTable from "@/components/CategoryTable";
 import CountDownPage from "@/components/CountDownPage";
 
+export const dynamic = "force-dynamic";
+
 export default async function HomePage() {
 
   const startDate = process.env.REGISTRATION_START_DATE || new Date();

@@ -22,7 +22,6 @@ from apis.shared.db import (
 import apis.shared.api_errors as ae
 from apis.shared.custom_decorators import after_cutoff
 from apis.shared.models import (
-    Category,
     Player,
     AliasedBase,
     EntryWithPlayer,
@@ -39,135 +38,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-
-@app.post("/categories")
-async def api_admin_set_categories(
-    categories: list[Category],
-    session: Annotated[orm.Session, Depends(get_rw_session)],
-) -> list[Category]:
-    """
-    Expects a jsonified list of dicts in the "categories" field of the json that can be
-    passed unpacked to the category constructor. Don't forget to cast datetime types
-    to some parsable string.
-    """
-    origin = api_admin_set_categories.__name__
-    try:
-        session.execute(delete(CategoryInDB))
-    except DBAPIError:
-        session.rollback()
-        raise ae.RegistrationCutoffError(
-            origin=origin,
-            error_message=ae.RegistrationMessages.STARTED,
-        )
-
-    try:
-        for category in categories:
-            session.add(category)
-        session.commit()
-
-        all_categories = (
-            session.scalars(
-                select(CategoryInDB).order_by(CategoryInDB.start_time),
-            ).all(),
-        )
-
-        return [Category.model_validate(category) for category in all_categories]
-    except DBAPIError as e:
-        session.rollback()
-        raise ae.UnexpectedDBError(
-            origin=origin,
-            exception=e,
-        )
-
-
-@app.get("/categories")
-def api_admin_get_categories(
-    session: Annotated[orm.Session, Depends(get_ro_session)],
-) -> list[Category]:
-    all_categories = (
-        session.scalars(
-            select(CategoryInDB).order_by(CategoryInDB.start_time),
-        ).all(),
-    )
-    return [Category.model_validate(category) for category in all_categories]
-
-
-@app.get("/players/<licence_no>")
-def api_admin_get_player(licence_no: str, db_only: bool = False) -> Player:
-    origin = api_admin_get_player.__name__
-    with Session() as session:
-        if (player := session.get(PlayerInDB, licence_no)) is not None:
-            return Player.model_validate(player)
-
-    if db_only:
-        raise ae.PlayerNotFoundError(
-            origin=f"{origin}_db_only",
-            licence_no=licence_no,
-        )
-
-    try:
-        player = get_player_fftt(licence_no)
-    except ae.FFTTAPIError as e:
-        raise ae.UnexpectedFFTTError(
-            origin=origin,
-            message=e.message,
-            payload=e.payload,
-        )
-
-    if player is None:
-        raise ae.PlayerNotFoundError(
-            origin=origin,
-            licence_no=licence_no,
-        )
-
-    player.total_actual_paid = 0
-
-    # include_entries_info = not is_before_cutoff()
-    # p_schema.reset(
-    #     include_entries=include_entries_info,
-    #     include_payment_status=include_entries_info,
-    # )
-    # return jsonify(p_schema.dump(player)), HTTPStatus.OK
-    return Player.model_validate(player)
-
-
-@app.post("/players/<licence_no>")
-def api_admin_add_player(
-    licence_no: str,
-    contact_info: ContactInfo,
-    session: Annotated[orm.Session, Depends(get_rw_session)],
-) -> Player:
-    origin = api_admin_add_player.__name__
-
-    try:
-        fftt_player = get_player_fftt(licence_no)
-    except ae.FFTTAPIError as e:
-        raise ae.UnexpectedFFTTError(
-            origin=origin,
-            message=e.message,
-            payload=e.payload,
-        )
-
-    if fftt_player is None:
-        raise ae.FFTTPlayerNotFoundError(origin=origin, licence_no=licence_no)
-
-    player = Player(
-        **fftt_player.model_dump(),
-        **contact_info.model_dump(),
-        total_actual_paid=0,
-    )
-    try:
-        session.add(player)
-        session.commit()
-        return player
-    except DBAPIError:
-        session.rollback()
-        raise ae.InvalidDataError(
-            origin=origin,
-            error_message=ae.DUPLICATE_PLAYER_MESSAGE,
-            payload={"licenceNo": player.licence_no},
-        )
 
 
 class EntryInfo(AliasedBase):
@@ -498,27 +368,6 @@ def api_admin_reset_bibs(
 
     return Response(status_code=HTTPStatus.NO_CONTENT)
 
-
-@app.get("/by_category")
-def api_admin_get_players_by_category(
-    present_only: bool,
-    session: Annotated[orm.Session, Depends(get_ro_session)],
-) -> dict[str, list[EntryWithPlayer]]:
-    categories = session.scalars(
-        select(CategoryInDB).order_by(CategoryInDB.start_time),
-    ).all()
-    return {
-        category.category_id: [
-            EntryWithPlayer.from_entry_in_db(entry)
-            for entry in sorted(
-                category.entries,
-                key=lambda e: e.registration_time,
-            )
-            if (present_only is False or entry.marked_as_present is True)
-            and entry.marked_as_present is not False
-        ]
-        for category in categories
-    }
 
 
 @app.get("/players/all")
