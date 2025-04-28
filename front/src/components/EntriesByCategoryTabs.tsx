@@ -1,6 +1,6 @@
 "use client";
 
-import {Tabs, Table, Badge, TextInput, Button, Modal} from "@mantine/core";
+import {Tabs, Table, Badge, TextInput} from "@mantine/core";
 import { Spotlight, SpotlightActionData, openSpotlight } from "@mantine/spotlight";
 import { useMemo, useState } from "react";
 import {useRouter} from "next/navigation";

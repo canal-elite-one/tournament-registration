@@ -2,6 +2,8 @@ import {DefaultApi} from "@/backend_api/backend";
 import {round} from "@floating-ui/utils";
 import CategoryMetricsTable from "@/components/CategoryMetricsTable";
 
+export const dynamic = "force-dynamic";
+
 
 export interface CategoryMetrics {
   categoryId: string;

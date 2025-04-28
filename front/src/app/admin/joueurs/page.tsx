@@ -1,6 +1,8 @@
 import {DefaultApi} from "@/backend_api/backend";
 import EntriesByCategoryTabs from "@/components/EntriesByCategoryTabs";
 
+export const dynamic = "force-dynamic";
+
 
 export default async function AdminPlayersPage() {
 

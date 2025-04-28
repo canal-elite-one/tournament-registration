@@ -10,7 +10,7 @@ import {
   Modal,
   Group,
 } from "@mantine/core";
-import { DateTimePicker } from "@mantine/dates";
+import {DateTimePicker, DateValue} from "@mantine/dates";
 import { notifications } from "@mantine/notifications";
 import { useState } from "react";
 
@@ -69,7 +69,7 @@ export default function AdminSetCategoriesPage() {
     });
   };
 
-  const handleChange = (index: number, field: keyof CategoryForm, value: any) => {
+  const handleChange = (index: number, field: keyof CategoryForm, value: DateValue | string | boolean | number ) => {
     setCategories((prev) => {
       const updated = [...prev];
       updated[index] = {
