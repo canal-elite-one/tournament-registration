@@ -78,6 +78,11 @@ export interface AdminRegisterEntriesRequest {
     entryInfo: Array<EntryInfo>;
 }
 
+export interface AdminUpdatePlayerRequest {
+    licenceNo: string;
+    contactInfo: ContactInfo;
+}
+
 export interface GetAdminPlayerByLicenceNoRequest {
     licenceNo: string;
     dbOnly?: boolean;
@@ -222,6 +227,53 @@ export class DefaultApi extends runtime.BaseAPI {
      */
     async adminRegisterEntries(requestParameters: AdminRegisterEntriesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Player> {
         const response = await this.adminRegisterEntriesRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Api Admin Update Player
+     */
+    async adminUpdatePlayerRaw(requestParameters: AdminUpdatePlayerRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Player>> {
+        if (requestParameters['licenceNo'] == null) {
+            throw new runtime.RequiredError(
+                'licenceNo',
+                'Required parameter "licenceNo" was null or undefined when calling adminUpdatePlayer().'
+            );
+        }
+
+        if (requestParameters['contactInfo'] == null) {
+            throw new runtime.RequiredError(
+                'contactInfo',
+                'Required parameter "contactInfo" was null or undefined when calling adminUpdatePlayer().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        if (requestParameters['licenceNo'] != null) {
+            queryParameters['licence_no'] = requestParameters['licenceNo'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        const response = await this.request({
+            path: `/admin/players/<licence_no>`,
+            method: 'PATCH',
+            headers: headerParameters,
+            query: queryParameters,
+            body: ContactInfoToJSON(requestParameters['contactInfo']),
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => PlayerFromJSON(jsonValue));
+    }
+
+    /**
+     * Api Admin Update Player
+     */
+    async adminUpdatePlayer(requestParameters: AdminUpdatePlayerRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Player> {
+        const response = await this.adminUpdatePlayerRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

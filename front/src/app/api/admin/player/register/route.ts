@@ -10,23 +10,14 @@ export async function POST(req: Request) {
     const api = new DefaultApi();
 
     if (!isPlayerFromDB) {
-      try {
-        await api.adminAddPlayer({licenceNo: licenceNo, contactInfo: {email: email, phone: phone}});
-      } catch (error) {
-        console.error(error);
-        return NextResponse.json(
-            {error: 'An error occurred on player creation.'},
-            {status: 500}
-        );
-      }
+      await api.adminAddPlayer({licenceNo: licenceNo, contactInfo: {email: email, phone: phone}});
+    } else {
+      await api.adminUpdatePlayer({licenceNo: licenceNo, contactInfo: {email: email, phone: phone}});
     }
-
-
     const response = await api.adminRegisterEntries({licenceNo: licenceNo, totalActualPaid: totalActualPaid, entryInfo: entryInfo});
-
     return NextResponse.json({body: response}, {status: 200});
   } catch (error) {
-    console.error(error);
+    console.error(await error.response.json());
     return NextResponse.json(
         {error: 'An error occurred on entries submission.'},
         {status: 500}
