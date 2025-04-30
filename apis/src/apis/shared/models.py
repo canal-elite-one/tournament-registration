@@ -83,6 +83,9 @@ class Player(FfttPlayer):
     def to_db(self) -> PlayerInDB:
         return PlayerInDB(**self.model_dump())
 
+class AdminPlayer(Player):
+    remaining_amount: int
+
 
 class Entry(AliasedBase):
     category_id: str = Field(min_length=1, max_length=1)

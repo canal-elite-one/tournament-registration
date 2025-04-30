@@ -1,6 +1,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export * from './APIErrorModel';
+export * from './AdminPlayer';
 export * from './Category';
 export * from './CategoryResult';
 export * from './ContactInfo';

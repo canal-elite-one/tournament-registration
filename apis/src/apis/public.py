@@ -21,6 +21,7 @@ from apis.shared.fftt_api import get_player_fftt
 import apis.shared.config as cfg
 import apis.shared.api_errors as ae
 from apis.shared.models import (
+    AdminPlayer,
     Category,
     ContactInfo,
     EntryWithPlayer,
@@ -426,7 +427,7 @@ async def api_admin_set_categories(
 
 
 class GetAllPlayersResponse(AliasedBase):
-    players: list[Player]
+    players: list[AdminPlayer]
 
 @app.get(
     "/admin/players/all",
@@ -447,10 +448,15 @@ def api_admin_get_all_players(
     else:
         query = select(PlayerInDB)
 
-    return GetAllPlayersResponse(players=[
-        Player.model_validate(player)
-        for player in session.scalars(query.order_by(PlayerInDB.licence_no)).all()
-    ])
+    results = []
+    for player in session.scalars(query.order_by(PlayerInDB.licence_no)).all():
+        entries_total_not_in_waiting_list = sum(
+            entry.fee() for entry in player.entries if not entry.is_in_waiting_list()
+        )
+        remaining_amount = entries_total_not_in_waiting_list - player.total_actual_paid
+        results.append(AdminPlayer(**Player.model_validate(player).model_dump(), remaining_amount=remaining_amount))
+
+    return GetAllPlayersResponse(players=results)
 
 class GetEntriesByCategoryResponse(AliasedBase):
     entries_by_category: dict[str, list[EntryWithPlayer]]

@@ -30,6 +30,11 @@ function getNavLinks(
         link: `/admin/joueurs`,
       },
       {
+        label: "Tableaux",
+        icon: <IconUser size={16} />,
+        link: `/admin/joueurs/categories`,
+      },
+      {
         label: "Categories",
         icon: <IconUser size={16} />,
         link: `/admin/categories`,
