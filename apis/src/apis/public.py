@@ -1,6 +1,7 @@
 import logging
 from collections import Counter
 from datetime import datetime
+from http import HTTPStatus
 from typing import Annotated
 
 from fastapi import FastAPI, Depends
@@ -9,7 +10,7 @@ from starlette.middleware.cors import CORSMiddleware
 from sqlalchemy import delete, select, orm
 from sqlalchemy.exc import DBAPIError
 from pydantic import Field
-from starlette.responses import PlainTextResponse
+from starlette.responses import PlainTextResponse, Response
 
 from apis.shared.dependencies import get_ro_session, get_rw_session
 from apis.email_sender import EmailSender
@@ -789,3 +790,28 @@ def api_admin_register_entries(
         )
 
     return player_result
+
+
+@app.delete("/players/<licence_no>", operation_id="admin_delete_player", status_code=HTTPStatus.NO_CONTENT)
+def api_admin_delete_player(
+    licence_no: str,
+    session: Annotated[orm.Session, Depends(get_rw_session)],
+):
+    origin = api_admin_delete_player.__name__
+    player_in_db = session.get(PlayerInDB, licence_no)
+    if player_in_db is None:
+        raise ae.PlayerNotFoundError(
+            origin=origin,
+            licence_no=licence_no,
+        )
+
+    try:
+        session.delete(player_in_db)
+        session.commit()
+        return Response(status_code=HTTPStatus.NO_CONTENT)
+    except DBAPIError as e:
+        session.rollback()
+        raise ae.UnexpectedDBError(
+            origin=origin,
+            exception=e,
+        )

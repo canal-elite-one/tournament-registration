@@ -5,7 +5,7 @@ import {
   Player,
 } from "@/backend_api/backend";
 import { useState } from "react";
-import {Table, Text, Checkbox, Group, Tooltip} from "@mantine/core";
+import {Table, Text, Checkbox, Group, Tooltip, Modal} from "@mantine/core";
 import {useRouter} from "next/navigation";
 
 export default function AdminPlayerForm({
@@ -24,6 +24,8 @@ export default function AdminPlayerForm({
   const [phone, setPhone] = useState(player.phone ?? "");
   const [selectedCategories, setSelectedCategories] = useState<string[]>(entries.map(entry => entry.categoryId));
   const [paidCategories, setPaymentSelection] = useState<string[]>(entries.filter(e => e.markedAsPaid).map(entry => entry.categoryId));
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+
   const router = useRouter();
 
   // Split categories by day
@@ -299,26 +301,79 @@ export default function AdminPlayerForm({
 
               {/* Submit Button */}
               <div className="flex flex-col items-end mt-auto">
-                <Tooltip label={submitTooltip} disabled={!isSubmitDisabled} withArrow position="top">
+                <div className="flex justify-end w-full gap-4">
+                  {/* Delete Button */}
                   <button
-                      id="submit-button"
-                      type="submit"
-                      className={`transition-all duration-300 ease-in-out bg-blue-950 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ${
-                          isSubmitDisabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
-                      }`}
-                      disabled={isSubmitDisabled}
+                      type="button"
+                      className="transition-all duration-300 ease-in-out bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+                      onClick={() => setDeleteModalOpen(true)}
                   >
-                    Inscrire
+                    Supprimer
                   </button>
-                </Tooltip>
+
+                  {/* Submit Button */}
+                  <Tooltip label={submitTooltip} disabled={!isSubmitDisabled} withArrow position="top">
+                    <button
+                        id="submit-button"
+                        type="submit"
+                        className={`transition-all duration-300 ease-in-out bg-blue-950 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ${
+                            isSubmitDisabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+                        }`}
+                        disabled={isSubmitDisabled}
+                    >
+                      Inscrire
+                    </button>
+                  </Tooltip>
+                </div>
 
                 {isSubmitDisabled && (
                     <p className="text-red-600 text-sm mt-2 text-right">{submitTooltip}</p>
                 )}
               </div>
+
             </form>
           </div>
         </div>
+
+        <Modal
+            opened={deleteModalOpen}
+            onClose={() => setDeleteModalOpen(false)}
+            title="Confirmer la suppression"
+            centered
+        >
+          <Text>Êtes-vous sûr de vouloir supprimer ce joueur ? Cette action est irréversible.</Text>
+
+          <div className="flex justify-end gap-4 mt-6">
+            <button
+                className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded"
+                onClick={() => setDeleteModalOpen(false)}
+            >
+              Annuler
+            </button>
+            <button
+                className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+                onClick={async () => {
+                  const response = await fetch(`/api/admin/player/delete`, {
+                    method: "DELETE",
+                    body: JSON.stringify({ licenceNo: player.licenceNo }),
+                    headers: {
+                      "Content-Type": "application/json",
+                    },
+                  });
+
+                  if (response.ok) {
+                    router.push("/admin/joueurs");
+                  } else {
+                    console.error("Failed to delete player");
+                    setDeleteModalOpen(false);
+                  }
+                }}
+            >
+              Supprimer
+            </button>
+          </div>
+        </Modal>
+
       </div>
   );
 }

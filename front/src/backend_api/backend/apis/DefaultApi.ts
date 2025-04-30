@@ -72,6 +72,10 @@ export interface AdminAddPlayerRequest {
     contactInfo: ContactInfo;
 }
 
+export interface AdminDeletePlayerRequest {
+    licenceNo: string;
+}
+
 export interface AdminRegisterEntriesRequest {
     licenceNo: string;
     totalActualPaid: number;
@@ -168,6 +172,42 @@ export class DefaultApi extends runtime.BaseAPI {
     async adminAddPlayer(requestParameters: AdminAddPlayerRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Player> {
         const response = await this.adminAddPlayerRaw(requestParameters, initOverrides);
         return await response.value();
+    }
+
+    /**
+     * Api Admin Delete Player
+     */
+    async adminDeletePlayerRaw(requestParameters: AdminDeletePlayerRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+        if (requestParameters['licenceNo'] == null) {
+            throw new runtime.RequiredError(
+                'licenceNo',
+                'Required parameter "licenceNo" was null or undefined when calling adminDeletePlayer().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        if (requestParameters['licenceNo'] != null) {
+            queryParameters['licence_no'] = requestParameters['licenceNo'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        const response = await this.request({
+            path: `/players/<licence_no>`,
+            method: 'DELETE',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.VoidApiResponse(response);
+    }
+
+    /**
+     * Api Admin Delete Player
+     */
+    async adminDeletePlayer(requestParameters: AdminDeletePlayerRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+        await this.adminDeletePlayerRaw(requestParameters, initOverrides);
     }
 
     /**
