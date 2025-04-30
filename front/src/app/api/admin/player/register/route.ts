@@ -16,7 +16,8 @@ export async function POST(req: Request) {
     }
     const response = await api.adminRegisterEntries({licenceNo: licenceNo, totalActualPaid: totalActualPaid, entryInfo: entryInfo});
     return NextResponse.json({body: response}, {status: 200});
-  } catch (error) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: any) {
     console.error(await error.response.json());
     return NextResponse.json(
         {error: 'An error occurred on entries submission.'},
