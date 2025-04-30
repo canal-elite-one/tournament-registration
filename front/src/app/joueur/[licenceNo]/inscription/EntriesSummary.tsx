@@ -13,13 +13,6 @@ export default function EntriesSummary({
 }) {
   if (!entries || entries.length === 0) {
     return (
-      // <Card
-      //     className="max-w-xl mx-auto mt-8 sm:mt-12"
-      //     shadow="md"
-      //     padding="lg"
-      //     radius="lg"
-      //     withBorder
-      // >
         <Card className="max-w-xl mx-auto mt-8 sm:mt-12" shadow="md" padding="lg" radius="lg" withBorder>
           <Stack gap="md">
             <Text size="xl" fw={700} className="text-gray-800">
@@ -56,35 +49,6 @@ export default function EntriesSummary({
               </Anchor> pour procéder au paiement.
             </Text>
           </Stack>
-        {/*</Card>*/}
-
-        {/*<Text size="xl" fw={700} className="text-gray-800">*/}
-        {/*  Bonjour {licenceNo} !*/}
-        {/*</Text>*/}
-        {/*<Text size="md" fw={600} className="text-gray-700">*/}
-        {/*  Vous n&apos;êtes inscrit à aucun tableau. Le paiment est obligatoire pour*/}
-        {/*  valider votre inscription.*/}
-        {/*</Text>*/}
-        {/*<Text c="gray.6" size="sm" className="leading-relaxed">*/}
-        {/*  Pour valider votre inscription, veuillez{" "}*/}
-        {/*  <Anchor*/}
-        {/*      href={`mailto:${emailContact}`}*/}
-        {/*      c="blue.5"*/}
-        {/*      underline="hover"*/}
-        {/*      fw={700}*/}
-        {/*  >*/}
-        {/*    envoyer un mail*/}
-        {/*  </Anchor>{" "}*/}
-        {/*  aux organisateurs à l&apos;adresse suivante :{" "}*/}
-        {/*  <Anchor*/}
-        {/*      href={`mailto:${emailContact}`}*/}
-        {/*      c="blue.5"*/}
-        {/*      underline="hover"*/}
-        {/*      fw={700}*/}
-        {/*  >*/}
-        {/*    {emailContact}*/}
-        {/*  </Anchor> pour procéder au paiement.*/}
-        {/*</Text>*/}
       </Card>
     );
   }
