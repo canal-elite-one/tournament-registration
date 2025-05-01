@@ -162,7 +162,7 @@ class EntryInDB(Base):
             )
 
     def is_in_waiting_list(self):
-        return self.rank() >= self.category.max_players * (
+        return self.rank() > self.category.max_players * (
             1 + self.category.overbooking_percentage / 100
         )
 
