@@ -148,18 +148,23 @@ class EntryInDB(Base):
 
     def rank(self):
         with Session() as session:
-            return session.scalar(
-                select(func.count())
-                .select_from(EntryInDB)
-                .where(
-                    EntryInDB.category_id == self.category_id,
-                    EntryInDB.registration_time < self.registration_time,
-                    not_(EntryInDB.marked_as_present.is_(False)),
-                ),
+            return (
+                session.scalar(
+                    select(func.count())
+                    .select_from(EntryInDB)
+                    .where(
+                        EntryInDB.category_id == self.category_id,
+                        EntryInDB.registration_time < self.registration_time,
+                        not_(EntryInDB.marked_as_present.is_(False)),
+                    ),
+                )
+                + 1
             )
 
     def is_in_waiting_list(self):
-        return self.rank() >= self.category.max_players * (1 + self.category.overbooking_percentage / 100)
+        return self.rank() >= self.category.max_players * (
+            1 + self.category.overbooking_percentage / 100
+        )
 
     def __repr__(self):
         return (
