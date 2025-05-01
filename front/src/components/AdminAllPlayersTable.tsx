@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Table, Text, Badge, SegmentedControl, Group } from "@mantine/core";
+import {Table, Text, Badge, SegmentedControl, Group, Tooltip} from "@mantine/core";
 import { AdminPlayer } from "@/backend_api/backend"; // Adjust import path as needed
 
 export default function AdminPlayersTable({ players }: { players: AdminPlayer[] }) {
@@ -85,6 +85,7 @@ export default function AdminPlayersTable({ players }: { players: AdminPlayer[] 
                 </Table.Th>
                 <Table.Th ta="center"><Text c="white" fw={600}>Payé</Text></Table.Th>
                 <Table.Th ta="center"><Text c="white" fw={600}>Montant restant (€)</Text></Table.Th>
+                <Table.Th ta="center"><Text c="white" fw={600}>Actions</Text></Table.Th>
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
@@ -107,6 +108,46 @@ export default function AdminPlayersTable({ players }: { players: AdminPlayer[] 
                       )}
                     </Table.Td>
                     <Table.Td>{player.remainingAmount.toFixed(2)}</Table.Td>
+                    <Table.Td ta="center">
+                      <Tooltip
+                          label="Le joueur a déjà payé"
+                          disabled={player.remainingAmount !== 0}
+                          withArrow
+                          position="top"
+                      >
+                        <button
+                            onClick={async (e) => {
+                              e.stopPropagation(); // Prevent row click
+                              if (player.remainingAmount === 0) return;
+
+                              const response = await fetch("/api/admin/player/send-payment-link", {
+                                method: "POST",
+                                headers: {
+                                  "Content-Type": "application/json",
+                                },
+                                body: JSON.stringify({ licenceNo: player.licenceNo }),
+                              });
+
+                              if (response.ok) {
+                                alert(`Lien de paiement envoyé à ${player.email}`);
+                              } else {
+                                const errorMessage = `Erreur lors de l'envoi du lien de paiement à ${player.email}`;
+                                console.error(errorMessage);
+                                alert(errorMessage);
+                              }
+                            }}
+                            disabled={player.remainingAmount === 0}
+                            className={`text-white text-sm font-semibold py-1 px-3 rounded transition-colors ${
+                                player.remainingAmount === 0
+                                    ? "bg-gray-400 cursor-not-allowed"
+                                    : "bg-blue-600 hover:bg-blue-700"
+                            }`}
+                        >
+                          Envoyer
+                        </button>
+                      </Tooltip>
+                    </Table.Td>
+
                   </Table.Tr>
               ))}
             </Table.Tbody>
