@@ -1,7 +1,7 @@
 import {NextResponse} from "next/server";
 import {DefaultApi} from "@/backend_api/backend";
-import {createCheckoutSession} from "@/app/api/create-checkout-session/route";
 import {EmailSender} from "@/lib/EmailSender";
+import {createCheckoutSession} from "@/lib/payment";
 
 
 const emailSender = new EmailSender(
