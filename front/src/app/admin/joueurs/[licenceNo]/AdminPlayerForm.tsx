@@ -53,14 +53,14 @@ export default function AdminPlayerForm({
     );
   };
 
-  const generateCategoriesTable = (categories: CategoryResult[], day: string) => {
+  const generateCategoriesTable = (categories: CategoryResult[], entries: EntryWithCategory[], day: string) => {
     return (
         <div className="rounded-lg overflow-hidden shadow-md mb-4">
           <Table.ScrollContainer minWidth={500}>
             <Table withColumnBorders withRowBorders highlightOnHover>
               <Table.Thead>
                 <Table.Tr>
-                  <Table.Th colSpan={5} className="bg-blue-950">
+                  <Table.Th colSpan={6} className="bg-blue-950">
                     <Text c="white" fw={700} p="sm" ta="center">
                       {day}
                     </Text>
@@ -70,8 +70,9 @@ export default function AdminPlayerForm({
                   <Table.Th ta="center" className="w-1/15">Tableau</Table.Th>
                   <Table.Th ta="center" className="w-7/15">Classement</Table.Th>
                   <Table.Th ta="center" className="w-3/15">Nombre de places restantes</Table.Th>
+                  <Table.Th ta="center" className="w-1/15">Rank</Table.Th>
                   <Table.Th ta="center" className="w-2/15">Inscription</Table.Th>
-                  <Table.Th ta="center" className="w-2/15">Payer</Table.Th>
+                  <Table.Th ta="center" className="w-1/15">Payer</Table.Th>
                 </Table.Tr>
               </Table.Thead>
 
@@ -82,6 +83,13 @@ export default function AdminPlayerForm({
                       category.maxPlayers * (1 + (category.overbookingPercentage ?? 0) / 100.0)
                   );
                   const entryCount = category.entryCount ?? 0;
+
+                  const categoryEntry = entries.find(entry => entry.categoryId === categoryId);
+
+                  let rank = entryCount;
+                  if (categoryEntry) {
+                    rank = categoryEntry.rank;
+                  }
 
                   const isFull = entryCount > maxOverbooked + 40;
                   const isInWaitingList = entryCount > maxOverbooked && entryCount <= maxOverbooked + 40;
@@ -122,8 +130,13 @@ export default function AdminPlayerForm({
                           <Text c={availabilityColor}>{availabilityText}</Text>
                         </Table.Td>
 
+                        {/* Rank */}
+                        <Table.Td ta="center" className="w-1/15">
+                          <Text>{rank}</Text>
+                        </Table.Td>
+
                         {/* Registration Checkbox */}
-                        <Table.Td className="w-2/6">
+                        <Table.Td className="w-2/15">
                           <Group justify="center">
                             <Checkbox
                                 id={`register-checkbox-${categoryId}`}
@@ -135,7 +148,7 @@ export default function AdminPlayerForm({
                         </Table.Td>
 
                         {/* Payment Checkbox */}
-                        <Table.Td className="w-2/6">
+                        <Table.Td className="w-1/15">
                           <Group justify="center">
                             <Checkbox
                                 id={`payment-checkbox-${categoryId}`}
@@ -199,10 +212,10 @@ export default function AdminPlayerForm({
           <h2 className="text-lg font-bold mb-4">Tableaux</h2>
 
           {/* Saturday Table */}
-          {saturdayCategories.length > 0 && generateCategoriesTable(saturdayCategories, "Samedi")}
+          {saturdayCategories.length > 0 && generateCategoriesTable(saturdayCategories, entries, "Samedi")}
 
           {/* Sunday Table */}
-          {sundayCategories.length > 0 && generateCategoriesTable(sundayCategories, "Dimanche")}
+          {sundayCategories.length > 0 && generateCategoriesTable(sundayCategories, entries, "Dimanche")}
         </div>
 
         {/* Right Column (Form) */}
