@@ -5,7 +5,7 @@ import {
   Player,
 } from "@/backend_api/backend";
 import { useState } from "react";
-import {Table, Text, Checkbox, Group, Tooltip} from "@mantine/core";
+import {Table, Text, Checkbox, Group, Tooltip, Modal} from "@mantine/core";
 import {useRouter} from "next/navigation";
 
 export default function AdminPlayerForm({
@@ -24,6 +24,8 @@ export default function AdminPlayerForm({
   const [phone, setPhone] = useState(player.phone ?? "");
   const [selectedCategories, setSelectedCategories] = useState<string[]>(entries.map(entry => entry.categoryId));
   const [paidCategories, setPaymentSelection] = useState<string[]>(entries.filter(e => e.markedAsPaid).map(entry => entry.categoryId));
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+
   const router = useRouter();
 
   // Split categories by day
@@ -51,14 +53,14 @@ export default function AdminPlayerForm({
     );
   };
 
-  const generateCategoriesTable = (categories: CategoryResult[], day: string) => {
+  const generateCategoriesTable = (categories: CategoryResult[], entries: EntryWithCategory[], day: string) => {
     return (
         <div className="rounded-lg overflow-hidden shadow-md mb-4">
           <Table.ScrollContainer minWidth={500}>
             <Table withColumnBorders withRowBorders highlightOnHover>
               <Table.Thead>
                 <Table.Tr>
-                  <Table.Th colSpan={5} className="bg-blue-950">
+                  <Table.Th colSpan={6} className="bg-blue-950">
                     <Text c="white" fw={700} p="sm" ta="center">
                       {day}
                     </Text>
@@ -68,8 +70,9 @@ export default function AdminPlayerForm({
                   <Table.Th ta="center" className="w-1/15">Tableau</Table.Th>
                   <Table.Th ta="center" className="w-7/15">Classement</Table.Th>
                   <Table.Th ta="center" className="w-3/15">Nombre de places restantes</Table.Th>
+                  <Table.Th ta="center" className="w-1/15">Rank</Table.Th>
                   <Table.Th ta="center" className="w-2/15">Inscription</Table.Th>
-                  <Table.Th ta="center" className="w-2/15">Payer</Table.Th>
+                  <Table.Th ta="center" className="w-1/15">Payer</Table.Th>
                 </Table.Tr>
               </Table.Thead>
 
@@ -80,6 +83,13 @@ export default function AdminPlayerForm({
                       category.maxPlayers * (1 + (category.overbookingPercentage ?? 0) / 100.0)
                   );
                   const entryCount = category.entryCount ?? 0;
+
+                  const categoryEntry = entries.find(entry => entry.categoryId === categoryId);
+
+                  let rank = entryCount;
+                  if (categoryEntry) {
+                    rank = categoryEntry.rank;
+                  }
 
                   const isFull = entryCount > maxOverbooked + 40;
                   const isInWaitingList = entryCount > maxOverbooked && entryCount <= maxOverbooked + 40;
@@ -120,8 +130,13 @@ export default function AdminPlayerForm({
                           <Text c={availabilityColor}>{availabilityText}</Text>
                         </Table.Td>
 
+                        {/* Rank */}
+                        <Table.Td ta="center" className="w-1/15">
+                          <Text>{rank}</Text>
+                        </Table.Td>
+
                         {/* Registration Checkbox */}
-                        <Table.Td className="w-2/6">
+                        <Table.Td className="w-2/15">
                           <Group justify="center">
                             <Checkbox
                                 id={`register-checkbox-${categoryId}`}
@@ -133,7 +148,7 @@ export default function AdminPlayerForm({
                         </Table.Td>
 
                         {/* Payment Checkbox */}
-                        <Table.Td className="w-2/6">
+                        <Table.Td className="w-1/15">
                           <Group justify="center">
                             <Checkbox
                                 id={`payment-checkbox-${categoryId}`}
@@ -197,10 +212,10 @@ export default function AdminPlayerForm({
           <h2 className="text-lg font-bold mb-4">Tableaux</h2>
 
           {/* Saturday Table */}
-          {saturdayCategories.length > 0 && generateCategoriesTable(saturdayCategories, "Samedi")}
+          {saturdayCategories.length > 0 && generateCategoriesTable(saturdayCategories, entries, "Samedi")}
 
           {/* Sunday Table */}
-          {sundayCategories.length > 0 && generateCategoriesTable(sundayCategories, "Dimanche")}
+          {sundayCategories.length > 0 && generateCategoriesTable(sundayCategories, entries, "Dimanche")}
         </div>
 
         {/* Right Column (Form) */}
@@ -299,26 +314,79 @@ export default function AdminPlayerForm({
 
               {/* Submit Button */}
               <div className="flex flex-col items-end mt-auto">
-                <Tooltip label={submitTooltip} disabled={!isSubmitDisabled} withArrow position="top">
+                <div className="flex justify-end w-full gap-4">
+                  {/* Delete Button */}
                   <button
-                      id="submit-button"
-                      type="submit"
-                      className={`transition-all duration-300 ease-in-out bg-blue-950 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ${
-                          isSubmitDisabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
-                      }`}
-                      disabled={isSubmitDisabled}
+                      type="button"
+                      className="transition-all duration-300 ease-in-out bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+                      onClick={() => setDeleteModalOpen(true)}
                   >
-                    Inscrire
+                    Supprimer
                   </button>
-                </Tooltip>
+
+                  {/* Submit Button */}
+                  <Tooltip label={submitTooltip} disabled={!isSubmitDisabled} withArrow position="top">
+                    <button
+                        id="submit-button"
+                        type="submit"
+                        className={`transition-all duration-300 ease-in-out bg-blue-950 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ${
+                            isSubmitDisabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+                        }`}
+                        disabled={isSubmitDisabled}
+                    >
+                      Inscrire
+                    </button>
+                  </Tooltip>
+                </div>
 
                 {isSubmitDisabled && (
                     <p className="text-red-600 text-sm mt-2 text-right">{submitTooltip}</p>
                 )}
               </div>
+
             </form>
           </div>
         </div>
+
+        <Modal
+            opened={deleteModalOpen}
+            onClose={() => setDeleteModalOpen(false)}
+            title="Confirmer la suppression"
+            centered
+        >
+          <Text>Êtes-vous sûr de vouloir supprimer ce joueur ? Cette action est irréversible.</Text>
+
+          <div className="flex justify-end gap-4 mt-6">
+            <button
+                className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded"
+                onClick={() => setDeleteModalOpen(false)}
+            >
+              Annuler
+            </button>
+            <button
+                className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+                onClick={async () => {
+                  const response = await fetch(`/api/admin/player/delete`, {
+                    method: "DELETE",
+                    body: JSON.stringify({ licenceNo: player.licenceNo }),
+                    headers: {
+                      "Content-Type": "application/json",
+                    },
+                  });
+
+                  if (response.ok) {
+                    router.push("/admin/joueurs");
+                  } else {
+                    console.error("Failed to delete player");
+                    setDeleteModalOpen(false);
+                  }
+                }}
+            >
+              Supprimer
+            </button>
+          </div>
+        </Modal>
+
       </div>
   );
 }

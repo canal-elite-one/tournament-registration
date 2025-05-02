@@ -34,7 +34,7 @@ export default function CategoryMetricsTable({ categoryMetrics }: { categoryMetr
                   <Table.Td className="text-sm text-gray-900">
                     {item.alternateName || item.categoryId}
                   </Table.Td>
-                  <Table.Td className="text-sm text-gray-900">
+                  <Table.Td className="text-sm text-gray-900 text-center">
                     <Badge color={getBadgeColor(item.fillRate)} variant="light">
                       {item.fillRate}%
                     </Badge>

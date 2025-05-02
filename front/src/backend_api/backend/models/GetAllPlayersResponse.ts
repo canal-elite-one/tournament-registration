@@ -13,13 +13,13 @@
  */
 
 import { mapValues } from '../runtime';
-import type { Player } from './Player';
+import type { AdminPlayer } from './AdminPlayer';
 import {
-    PlayerFromJSON,
-    PlayerFromJSONTyped,
-    PlayerToJSON,
-    PlayerToJSONTyped,
-} from './Player';
+    AdminPlayerFromJSON,
+    AdminPlayerFromJSONTyped,
+    AdminPlayerToJSON,
+    AdminPlayerToJSONTyped,
+} from './AdminPlayer';
 
 /**
  * 
@@ -29,10 +29,10 @@ import {
 export interface GetAllPlayersResponse {
     /**
      * 
-     * @type {Array<Player>}
+     * @type {Array<AdminPlayer>}
      * @memberof GetAllPlayersResponse
      */
-    players: Array<Player>;
+    players: Array<AdminPlayer>;
 }
 
 /**
@@ -53,7 +53,7 @@ export function GetAllPlayersResponseFromJSONTyped(json: any, ignoreDiscriminato
     }
     return {
         
-        'players': ((json['players'] as Array<any>).map(PlayerFromJSON)),
+        'players': ((json['players'] as Array<any>).map(AdminPlayerFromJSON)),
     };
 }
 
@@ -68,7 +68,7 @@ export function GetAllPlayersResponseToJSONTyped(value?: GetAllPlayersResponse |
 
     return {
         
-        'players': ((value['players'] as Array<any>).map(PlayerToJSON)),
+        'players': ((value['players'] as Array<any>).map(AdminPlayerToJSON)),
     };
 }
 

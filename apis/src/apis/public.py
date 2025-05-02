@@ -1,6 +1,7 @@
 import logging
 from collections import Counter
 from datetime import datetime
+from http import HTTPStatus
 from typing import Annotated
 
 from fastapi import FastAPI, Depends
@@ -9,7 +10,7 @@ from starlette.middleware.cors import CORSMiddleware
 from sqlalchemy import delete, select, orm
 from sqlalchemy.exc import DBAPIError
 from pydantic import Field
-from starlette.responses import PlainTextResponse
+from starlette.responses import PlainTextResponse, Response
 
 from apis.shared.dependencies import get_ro_session, get_rw_session
 from apis.email_sender import EmailSender
@@ -20,6 +21,7 @@ from apis.shared.fftt_api import get_player_fftt
 import apis.shared.config as cfg
 import apis.shared.api_errors as ae
 from apis.shared.models import (
+    AdminPlayer,
     Category,
     ContactInfo,
     EntryWithPlayer,
@@ -425,7 +427,7 @@ async def api_admin_set_categories(
 
 
 class GetAllPlayersResponse(AliasedBase):
-    players: list[Player]
+    players: list[AdminPlayer]
 
 @app.get(
     "/admin/players/all",
@@ -446,10 +448,15 @@ def api_admin_get_all_players(
     else:
         query = select(PlayerInDB)
 
-    return GetAllPlayersResponse(players=[
-        Player.model_validate(player)
-        for player in session.scalars(query.order_by(PlayerInDB.licence_no)).all()
-    ])
+    results = []
+    for player in session.scalars(query.order_by(PlayerInDB.licence_no)).all():
+        entries_total_not_in_waiting_list = sum(
+            entry.fee() for entry in player.entries if not entry.is_in_waiting_list()
+        )
+        remaining_amount = entries_total_not_in_waiting_list - player.total_actual_paid
+        results.append(AdminPlayer(**Player.model_validate(player).model_dump(), remaining_amount=remaining_amount))
+
+    return GetAllPlayersResponse(players=results)
 
 class GetEntriesByCategoryResponse(AliasedBase):
     entries_by_category: dict[str, list[EntryWithPlayer]]
@@ -789,3 +796,28 @@ def api_admin_register_entries(
         )
 
     return player_result
+
+
+@app.delete("/players/<licence_no>", operation_id="admin_delete_player", status_code=HTTPStatus.NO_CONTENT)
+def api_admin_delete_player(
+    licence_no: str,
+    session: Annotated[orm.Session, Depends(get_rw_session)],
+):
+    origin = api_admin_delete_player.__name__
+    player_in_db = session.get(PlayerInDB, licence_no)
+    if player_in_db is None:
+        raise ae.PlayerNotFoundError(
+            origin=origin,
+            licence_no=licence_no,
+        )
+
+    try:
+        session.delete(player_in_db)
+        session.commit()
+        return Response(status_code=HTTPStatus.NO_CONTENT)
+    except DBAPIError as e:
+        session.rollback()
+        raise ae.UnexpectedDBError(
+            origin=origin,
+            exception=e,
+        )

@@ -1,5 +1,5 @@
 import {DefaultApi} from "@/backend_api/backend";
-import EntriesByCategoryTabs from "@/components/EntriesByCategoryTabs";
+import AdminAllPlayersTable from "@/components/AdminAllPlayersTable";
 
 export const dynamic = "force-dynamic";
 
@@ -7,12 +7,12 @@ export const dynamic = "force-dynamic";
 export default async function AdminPlayersPage() {
 
   const api = new DefaultApi();
-  const entriesByCategoryResponse = await api.getEntriesByCategory({presentOnly: false});
+  const allPlayersResponse = await api.getAllPlayers({presentOnly: false});
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold">Joueurs par tableaux</h1>
-      <EntriesByCategoryTabs entriesByCategory={entriesByCategoryResponse.entriesByCategory} />
+      <h1 className="text-2xl font-semibold">Tous les joueurs</h1>
+      <AdminAllPlayersTable players={allPlayersResponse.players} />
     </div>
   );
 };
