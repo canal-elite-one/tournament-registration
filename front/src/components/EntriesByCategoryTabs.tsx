@@ -119,6 +119,7 @@ export default function EntriesByCategoryTabs({ entriesByCategory }: Props) {
                     >
                       <Table.Thead>
                         <Table.Tr>
+                          <Table.Th>#</Table.Th>
                           <Table.Th>N° Dossard</Table.Th>
                           <Table.Th>Licence</Table.Th>
                           <Table.Th>Nom</Table.Th>
@@ -133,11 +134,13 @@ export default function EntriesByCategoryTabs({ entriesByCategory }: Props) {
                       </Table.Thead>
 
                       <Table.Tbody>
-                        {filteredEntries(entriesByCategory[categoryId]).map((entry) => (
-                            <Table.Tr key={entry.licenceNo}
-                                      className="cursor-pointer hover:bg-gray-100 transition"
-                                      onClick={() => router.push(`/admin/joueurs/${entry.licenceNo}`)}
+                        {filteredEntries(entriesByCategory[categoryId]).map((entry, index) => (
+                            <Table.Tr
+                                key={entry.licenceNo}
+                                className="cursor-pointer hover:bg-gray-100 transition"
+                                onClick={() => router.push(`/admin/joueurs/${entry.licenceNo}`)}
                             >
+                              <Table.Td>{index + 1}</Table.Td>
                               <Table.Td>{entry.bibNo ?? "-"}</Table.Td>
                               <Table.Td>{entry.licenceNo}</Table.Td>
                               <Table.Td>{entry.lastName}</Table.Td>
