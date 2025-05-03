@@ -63,6 +63,9 @@ export default function AdminPlayersTable({ players }: { players: AdminPlayer[] 
           <Table striped withColumnBorders withRowBorders>
             <Table.Thead className="[&>tr:hover]:bg-blue-950">
               <Table.Tr className="bg-blue-950">
+                <Table.Th ta="center">
+                  <Text c="white" fw={600}>#</Text>
+                </Table.Th>
                 <Table.Th ta="center" onClick={() => toggleSort("lastName")} className="cursor-pointer">
                   <Text c="white" fw={600}>
                     Nom {sortBy === "lastName" && (sortDirection === "asc" ? "↑" : "↓")}
@@ -89,14 +92,14 @@ export default function AdminPlayersTable({ players }: { players: AdminPlayer[] 
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
-              {filteredPlayers.map((player) => (
+              {filteredPlayers.map((player, index) => (
                   <Table.Tr
                       key={player.licenceNo}
                       onClick={() => router.push(`/admin/joueurs/${player.licenceNo}`)}
                       className="cursor-pointer hover:bg-gray-100 transition-colors"
                   >
-
-                  <Table.Td>{player.lastName}</Table.Td>
+                    <Table.Td ta="center">{index + 1}</Table.Td>
+                    <Table.Td>{player.lastName}</Table.Td>
                     <Table.Td>{player.firstName}</Table.Td>
                     <Table.Td>{player.licenceNo}</Table.Td>
                     <Table.Td>{player.club}</Table.Td>
@@ -147,12 +150,12 @@ export default function AdminPlayersTable({ players }: { players: AdminPlayer[] 
                         </button>
                       </Tooltip>
                     </Table.Td>
-
                   </Table.Tr>
               ))}
             </Table.Tbody>
           </Table>
         </Table.ScrollContainer>
+
       </div>
   );
 }

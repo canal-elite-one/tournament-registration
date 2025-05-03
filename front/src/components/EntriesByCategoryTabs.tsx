@@ -1,6 +1,13 @@
 "use client";
 
-import {Tabs, Table, Badge, TextInput} from "@mantine/core";
+import {
+  Tabs,
+  Table,
+  Badge,
+  TextInput,
+  Group,
+  SegmentedControl
+} from "@mantine/core";
 import { Spotlight, SpotlightActionData, openSpotlight } from "@mantine/spotlight";
 import { useMemo, useState } from "react";
 import {useRouter} from "next/navigation";
@@ -32,6 +39,8 @@ export default function EntriesByCategoryTabs({ entriesByCategory }: Props) {
   const [activeTab, setActiveTab] = useState<string>(categoryIds[0]);
   const [search, setSearch] = useState<string>("");
   const router = useRouter();
+  const [paymentFilter, setPaymentFilter] = useState<"all" | "paid" | "unpaid">("all");
+
 
   const allEntries = useMemo(() => Object.values(entriesByCategory).flat(), [entriesByCategory]);
 
@@ -108,7 +117,21 @@ export default function EntriesByCategoryTabs({ entriesByCategory }: Props) {
 
           {categoryIds.map((categoryId) => (
               <Tabs.Panel key={categoryId} value={categoryId} pt="md">
-                <div className="overflow-x-auto rounded-lg mt-4">
+                <div className="rounded-lg overflow-hidden shadow-md bg-white p-4">
+
+                  {/* Payment Status Filter */}
+                  <Group justify="end" mb="md">
+                    <SegmentedControl
+                        value={paymentFilter}
+                        onChange={(val) => setPaymentFilter(val as "all" | "paid" | "unpaid")}
+                        data={[
+                          { label: "Tous", value: "all" },
+                          { label: "Payés", value: "paid" },
+                          { label: "Non payés", value: "unpaid" },
+                        ]}
+                    />
+                  </Group>
+
                   <Table.ScrollContainer minWidth={900}>
                     <Table
                         withColumnBorders
@@ -119,6 +142,7 @@ export default function EntriesByCategoryTabs({ entriesByCategory }: Props) {
                     >
                       <Table.Thead>
                         <Table.Tr>
+                          <Table.Th>#</Table.Th>
                           <Table.Th>N° Dossard</Table.Th>
                           <Table.Th>Licence</Table.Th>
                           <Table.Th>Nom</Table.Th>
@@ -133,41 +157,54 @@ export default function EntriesByCategoryTabs({ entriesByCategory }: Props) {
                       </Table.Thead>
 
                       <Table.Tbody>
-                        {filteredEntries(entriesByCategory[categoryId]).map((entry) => (
-                            <Table.Tr key={entry.licenceNo}
-                                      className="cursor-pointer hover:bg-gray-100 transition"
-                                      onClick={() => router.push(`/admin/joueurs/${entry.licenceNo}`)}
-                            >
-                              <Table.Td>{entry.bibNo ?? "-"}</Table.Td>
-                              <Table.Td>{entry.licenceNo}</Table.Td>
-                              <Table.Td>{entry.lastName}</Table.Td>
-                              <Table.Td>{entry.firstName}</Table.Td>
-                              <Table.Td>{entry.club}</Table.Td>
-                              <Table.Td>{entry.nbPoints}</Table.Td>
-                              <Table.Td>{entry.gender}</Table.Td>
-                              <Table.Td className="text-center">
-                                <Badge color={getBadgeColor(entry.markedAsPresent)} variant="light">
-                                  {entry.markedAsPresent ? "Présent" : "Absent"}
-                                </Badge>
-                              </Table.Td>
-                              <Table.Td className="text-center">
-                                <Badge color={getBadgeColor(entry.markedAsPaid)} variant="light">
-                                  {entry.markedAsPaid ? "Payé" : "Non payé"}
-                                </Badge>
-                              </Table.Td>
-                              <Table.Td className="text-center">
-                                {entry.registrationTime
-                                    ? new Date(entry.registrationTime).toLocaleString("fr-FR")
-                                    : "-"}
-                              </Table.Td>
-                            </Table.Tr>
-                        ))}
+                        {filteredEntries(entriesByCategory[categoryId])
+                            .filter((entry) => {
+                              if (paymentFilter === "all") return true;
+                              if (paymentFilter === "paid") return entry.markedAsPaid;
+                              return !entry.markedAsPaid;
+                            })
+                            .map((entry, index) => (
+                                <Table.Tr
+                                    key={entry.licenceNo}
+                                    className="cursor-pointer hover:bg-gray-100 transition"
+                                    onClick={() => router.push(`/admin/joueurs/${entry.licenceNo}`)}
+                                >
+                                  <Table.Td>{index + 1}</Table.Td>
+                                  <Table.Td>{entry.bibNo ?? "-"}</Table.Td>
+                                  <Table.Td>{entry.licenceNo}</Table.Td>
+                                  <Table.Td>{entry.lastName}</Table.Td>
+                                  <Table.Td>{entry.firstName}</Table.Td>
+                                  <Table.Td>{entry.club}</Table.Td>
+                                  <Table.Td>{entry.nbPoints}</Table.Td>
+                                  <Table.Td>{entry.gender}</Table.Td>
+                                  <Table.Td className="text-center">
+                                    {entry.markedAsPresent === true ? (
+                                        <Badge color="green" variant="light">Présent</Badge>
+                                    ) : entry.markedAsPresent === false ? (
+                                        <Badge color="red" variant="light">Absent</Badge>
+                                    ) : (
+                                        <Badge color="gray" variant="light">–</Badge>
+                                    )}
+                                  </Table.Td>
+                                  <Table.Td className="text-center">
+                                    <Badge color={getBadgeColor(entry.markedAsPaid)} variant="light">
+                                      {entry.markedAsPaid ? "Payé" : "Non payé"}
+                                    </Badge>
+                                  </Table.Td>
+                                  <Table.Td className="text-center">
+                                    {entry.registrationTime
+                                        ? new Date(entry.registrationTime).toLocaleString("fr-FR")
+                                        : "-"}
+                                  </Table.Td>
+                                </Table.Tr>
+                            ))}
                       </Table.Tbody>
                     </Table>
                   </Table.ScrollContainer>
                 </div>
               </Tabs.Panel>
           ))}
+
         </Tabs>
 
         {/* Spotlight Component */}

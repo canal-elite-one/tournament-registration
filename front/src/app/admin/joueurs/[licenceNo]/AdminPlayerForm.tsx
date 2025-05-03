@@ -5,7 +5,17 @@ import {
   Player,
 } from "@/backend_api/backend";
 import { useState } from "react";
-import {Table, Text, Checkbox, Group, Tooltip, Modal} from "@mantine/core";
+import {
+  Table,
+  Text,
+  Checkbox,
+  Group,
+  Tooltip,
+  Modal,
+  Badge,
+  Menu,
+  Button
+} from "@mantine/core";
 import {useRouter} from "next/navigation";
 
 export default function AdminPlayerForm({
@@ -22,8 +32,13 @@ export default function AdminPlayerForm({
 
   const [email, setEmail] = useState(player.email);
   const [phone, setPhone] = useState(player.phone ?? "");
+  const [totalActualPaid, setTotalActualPaid] = useState(player.totalActualPaid ?? 0);
   const [selectedCategories, setSelectedCategories] = useState<string[]>(entries.map(entry => entry.categoryId));
   const [paidCategories, setPaymentSelection] = useState<string[]>(entries.filter(e => e.markedAsPaid).map(entry => entry.categoryId));
+  const [presenceByCategory, setPresenceByCategory] = useState<Record<string, boolean | null>>(
+      Object.fromEntries(entries.map(entry => [entry.categoryId, entry.markedAsPresent ?? null]))
+  );
+
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
   const router = useRouter();
@@ -45,13 +60,36 @@ export default function AdminPlayerForm({
     );
   };
 
+  const updatePresence = (categoryId: string, value: "true" | "false" | "null") => {
+    setPresenceByCategory(prev => ({
+      ...prev,
+      [categoryId]:
+          value === "true" ? true :
+              value === "false" ? false :
+                  null
+    }));
+  };
+
   const togglePaymentSelection = (categoryId: string) => {
+    const category = categories.find((category) => category.categoryId === categoryId);
+
+    const isSelected = paidCategories.includes(categoryId);
+
     setPaymentSelection((prevSelected) =>
-        prevSelected.includes(categoryId)
+        isSelected
             ? prevSelected.filter((id) => id !== categoryId)
             : [...prevSelected, categoryId]
     );
+
+    if (!category) return;
+
+    setTotalActualPaid((prevTotal) =>
+        isSelected
+            ? prevTotal - category.baseRegistrationFee
+            : prevTotal + category.baseRegistrationFee
+    );
   };
+
 
   const generateCategoriesTable = (categories: CategoryResult[], entries: EntryWithCategory[], day: string) => {
     return (
@@ -60,19 +98,20 @@ export default function AdminPlayerForm({
             <Table withColumnBorders withRowBorders highlightOnHover>
               <Table.Thead>
                 <Table.Tr>
-                  <Table.Th colSpan={6} className="bg-blue-950">
+                  <Table.Th colSpan={7} className="bg-blue-950">
                     <Text c="white" fw={700} p="sm" ta="center">
                       {day}
                     </Text>
                   </Table.Th>
                 </Table.Tr>
                 <Table.Tr>
-                  <Table.Th ta="center" className="w-1/15">Tableau</Table.Th>
-                  <Table.Th ta="center" className="w-7/15">Classement</Table.Th>
-                  <Table.Th ta="center" className="w-3/15">Nombre de places restantes</Table.Th>
-                  <Table.Th ta="center" className="w-1/15">Rank</Table.Th>
-                  <Table.Th ta="center" className="w-2/15">Inscription</Table.Th>
-                  <Table.Th ta="center" className="w-1/15">Payer</Table.Th>
+                  <Table.Th ta="center" className="w-1/12">Tableau</Table.Th>
+                  <Table.Th ta="center" className="w-1/12">Classement</Table.Th>
+                  <Table.Th ta="center" className="w-4/12">Nombre de places restantes</Table.Th>
+                  <Table.Th ta="center" className="w-1/12">Rank</Table.Th>
+                  <Table.Th ta="center" className="w-1/12">Inscription</Table.Th>
+                  <Table.Th ta="center" className="w-3/12">Présence</Table.Th>
+                  <Table.Th ta="center" className="w-1/12">Payer</Table.Th>
                 </Table.Tr>
               </Table.Thead>
 
@@ -83,29 +122,18 @@ export default function AdminPlayerForm({
                       category.maxPlayers * (1 + (category.overbookingPercentage ?? 0) / 100.0)
                   );
                   const entryCount = category.entryCount ?? 0;
-
                   const categoryEntry = entries.find(entry => entry.categoryId === categoryId);
 
-                  let rank = entryCount;
-                  if (categoryEntry) {
-                    rank = categoryEntry.rank;
-                  }
-
+                  const rank = categoryEntry ? categoryEntry.rank : entryCount;
                   const isFull = entryCount > maxOverbooked + 40;
                   const isInWaitingList = entryCount > maxOverbooked && entryCount <= maxOverbooked + 40;
-                  const isOutOfPointsRange =
-                      player.nbPoints < category.minPoints || player.nbPoints > category.maxPoints;
+                  const isOutOfPointsRange = player.nbPoints < category.minPoints || player.nbPoints > category.maxPoints;
                   const isGenderMismatch = category.womenOnly && player.gender === "M";
-
                   const disabled = isOutOfPointsRange || isGenderMismatch;
 
                   const availableSpots = maxOverbooked - entryCount;
-
-                  let availabilityText =
-                      availableSpots <= category.maxPlayers
-                          ? `${availableSpots}`
-                          : `${category.maxPlayers}`;
-                  let availabilityColor: string = "green";
+                  let availabilityText = availableSpots <= category.maxPlayers ? `${availableSpots}` : `${category.maxPlayers}`;
+                  let availabilityColor = "green";
 
                   if (isFull) {
                     availabilityText = "Complet";
@@ -118,25 +146,25 @@ export default function AdminPlayerForm({
                   return (
                       <Table.Tr key={categoryId}>
                         {/* ID */}
-                        <Table.Td ta="center" className="w-1/15" style={{ backgroundColor: category.color ?? undefined }}>
+                        <Table.Td ta="center" className="w-1/12" style={{ backgroundColor: category.color ?? undefined }}>
                           {categoryId}
                         </Table.Td>
 
                         {/* Name */}
-                        <Table.Td ta="center" className="w-7/15">{category.alternateName}</Table.Td>
+                        <Table.Td ta="center" className="w-1/12">{category.alternateName}</Table.Td>
 
                         {/* Availability */}
-                        <Table.Td ta="center" className="w-3/15">
+                        <Table.Td ta="center" className="w-4/12">
                           <Text c={availabilityColor}>{availabilityText}</Text>
                         </Table.Td>
 
                         {/* Rank */}
-                        <Table.Td ta="center" className="w-1/15">
+                        <Table.Td ta="center" className="w-1/12">
                           <Text>{rank}</Text>
                         </Table.Td>
 
                         {/* Registration Checkbox */}
-                        <Table.Td className="w-2/15">
+                        <Table.Td className="w-1/12">
                           <Group justify="center">
                             <Checkbox
                                 id={`register-checkbox-${categoryId}`}
@@ -147,8 +175,42 @@ export default function AdminPlayerForm({
                           </Group>
                         </Table.Td>
 
+                        {/* Presence Select */}
+                        <Table.Td className="w-3/12">
+                          <Menu shadow="md" width={160} position="bottom-end" withinPortal>
+                            <Menu.Target>
+                              <Button
+                                  variant="subtle"
+                                  size="xs"
+                                  className="w-full justify-center"
+                              >
+                                {presenceByCategory[categoryId] === true ? (
+                                    <Badge color="green" variant="light">Présent</Badge>
+                                ) : presenceByCategory[categoryId] === false ? (
+                                    <Badge color="red" variant="light">Absent</Badge>
+                                ) : "-"}
+                              </Button>
+                            </Menu.Target>
+
+                            <Menu.Dropdown>
+                              <Menu.Item
+                                  onClick={() => updatePresence(categoryId, "true")}
+                                  leftSection={<Badge color="green" variant="light">Présent</Badge>}
+                              />
+                              <Menu.Item
+                                  onClick={() => updatePresence(categoryId, "false")}
+                                  leftSection={<Badge color="red" variant="light">Absent</Badge>}
+                              />
+                              <Menu.Item
+                                  onClick={() => updatePresence(categoryId, "null")}
+                                  leftSection={<span className="text-gray-600">Réinitialiser</span>}
+                              />
+                            </Menu.Dropdown>
+                          </Menu>
+                        </Table.Td>
+
                         {/* Payment Checkbox */}
-                        <Table.Td className="w-1/15">
+                        <Table.Td className="w-1/12">
                           <Group justify="center">
                             <Checkbox
                                 id={`payment-checkbox-${categoryId}`}
@@ -167,14 +229,14 @@ export default function AdminPlayerForm({
     );
   };
 
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     const entryInfo = selectedCategories.map((categoryId) => {
-      const entry = entries.find(entry => entry.categoryId === categoryId);
       return {
         categoryId: categoryId,
         markedAsPaid: paidCategories.includes(categoryId),
-        markedAsPresent: entry?.markedAsPresent ?? null,
+        markedAsPresent: presenceByCategory[categoryId] ?? null,
       }
     });
 
@@ -187,7 +249,7 @@ export default function AdminPlayerForm({
         email: email,
         phone: phone,
         isPlayerFromDB: isPlayerFromDB,
-        totalActualPaid: player.totalActualPaid,
+        totalActualPaid: totalActualPaid,
         entryInfo: entryInfo
       }),
     });
@@ -309,6 +371,18 @@ export default function AdminPlayerForm({
                     className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight"
                     type="tel"
                     placeholder="Votre numéro de téléphone"
+                />
+              </div>
+
+              {/* Total Paid */}
+              <div className="mb-4">
+                <label className="block text-gray-700 text-sm font-bold mb-2">Montant total payé</label>
+                <input
+                    value={totalActualPaid}
+                    onChange={(e) => setTotalActualPaid(parseFloat(e.target.value))}
+                    className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight"
+                    type="number"
+                    placeholder="Montant total payé"
                 />
               </div>
 
