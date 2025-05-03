@@ -38,7 +38,7 @@ export async function POST(req: Request) {
 
     const body = `
       <p>Bonjour ${player.firstName},</p>
-
+    
       <p>
         Pour finaliser votre inscription au tournoi, un paiement est nécessaire. Cela peut être dû à l’un des cas suivants :
       </p>
@@ -46,27 +46,34 @@ export async function POST(req: Request) {
         <li>votre précédent paiement a échoué ou n’a pas été validé ;</li>
         <li>vous avez été repêché depuis la liste d’attente et intégré dans le tableau principal.</li>
       </ul>
-
+    
       <p>
         Afin de confirmer votre participation, veuillez effectuer le règlement via le lien ci-dessous :
       </p>
-
+    
       <p style="margin: 16px 0;">
         <a href="${session.url}" style="background-color: #2563eb; color: white; padding: 10px 16px; text-decoration: none; border-radius: 6px;">
           Payer mon inscription
         </a>
       </p>
-
+    
       <p>Voici un récapitulatif des tableaux pour lesquels vous êtes inscrit :</p>
       <ul>${entryListHTML}</ul>
-
+    
       <p>Montant à régler : <strong>${toPay.toFixed(2)} €</strong></p>
-
+    
+      <p style="background-color: #fff3cd; color: #856404; padding: 12px; border-radius: 6px; border: 1px solid #ffeeba;">
+        ⚠️ <strong>Vous disposez de 24h pour effectuer le règlement de votre inscription.</strong> Passé ce délai, les places seront réattribuées aux personnes sur liste d’attente.
+      </p>
+    
       <p>
         Merci de procéder au paiement dès que possible. Votre inscription ne sera prise en compte qu’après validation du paiement.
       </p>
-
+    
       <p>Cordialement,<br>L&apos;équipe USKB</p>
+      <p>
+        <img src="${process.env.NEXT_PUBLIC_SITE_URL}/static/logo.png" alt="Logo USKB" style="margin-top: 8px; width: 120px;" />
+      </p>
     `;
 
     await emailSender.sendEmail(

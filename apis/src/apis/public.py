@@ -337,7 +337,7 @@ async def api_public_pay(
         error_message = (
             f"Montant payé incohérent pour {player.licence_no}.<br>"
             f"Montant payé cette fois-ci: {pay_body.amount}<br>"
-            f"Somme des inscriptions payées cette fois-ci: {marked_as_paid_amount}"
+            f"Somme des inscriptions payées cette fois-ci: {marked_as_paid_amount}<br>"
             f"Montant total payé: {player.total_actual_paid}<br>"
             f"Coût total des tableaux principaux: {entries_total_not_in_waiting_list}<br>"
         )
