@@ -22,6 +22,7 @@ export default function AdminPlayerForm({
 
   const [email, setEmail] = useState(player.email);
   const [phone, setPhone] = useState(player.phone ?? "");
+  const [totalActualPaid, setTotalActualPaid] = useState(player.totalActualPaid ?? 0);
   const [selectedCategories, setSelectedCategories] = useState<string[]>(entries.map(entry => entry.categoryId));
   const [paidCategories, setPaymentSelection] = useState<string[]>(entries.filter(e => e.markedAsPaid).map(entry => entry.categoryId));
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -46,12 +47,25 @@ export default function AdminPlayerForm({
   };
 
   const togglePaymentSelection = (categoryId: string) => {
+    const category = categories.find((category) => category.categoryId === categoryId);
+
+    const isSelected = paidCategories.includes(categoryId);
+
     setPaymentSelection((prevSelected) =>
-        prevSelected.includes(categoryId)
+        isSelected
             ? prevSelected.filter((id) => id !== categoryId)
             : [...prevSelected, categoryId]
     );
+
+    if (!category) return;
+
+    setTotalActualPaid((prevTotal) =>
+        isSelected
+            ? prevTotal - category.baseRegistrationFee
+            : prevTotal + category.baseRegistrationFee
+    );
   };
+
 
   const generateCategoriesTable = (categories: CategoryResult[], entries: EntryWithCategory[], day: string) => {
     return (
@@ -187,7 +201,7 @@ export default function AdminPlayerForm({
         email: email,
         phone: phone,
         isPlayerFromDB: isPlayerFromDB,
-        totalActualPaid: player.totalActualPaid,
+        totalActualPaid: totalActualPaid,
         entryInfo: entryInfo
       }),
     });
@@ -309,6 +323,18 @@ export default function AdminPlayerForm({
                     className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight"
                     type="tel"
                     placeholder="Votre numéro de téléphone"
+                />
+              </div>
+
+              {/* Total Paid */}
+              <div className="mb-4">
+                <label className="block text-gray-700 text-sm font-bold mb-2">Montant total payé</label>
+                <input
+                    value={totalActualPaid}
+                    onChange={(e) => setTotalActualPaid(parseFloat(e.target.value))}
+                    className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight"
+                    type="number"
+                    placeholder="Montant total payé"
                 />
               </div>
 
