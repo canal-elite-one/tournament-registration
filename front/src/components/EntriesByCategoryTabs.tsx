@@ -178,9 +178,13 @@ export default function EntriesByCategoryTabs({ entriesByCategory }: Props) {
                                   <Table.Td>{entry.nbPoints}</Table.Td>
                                   <Table.Td>{entry.gender}</Table.Td>
                                   <Table.Td className="text-center">
-                                    <Badge color={getBadgeColor(entry.markedAsPresent)} variant="light">
-                                      {entry.markedAsPresent ? "Présent" : "Absent"}
-                                    </Badge>
+                                    {entry.markedAsPresent === true ? (
+                                        <Badge color="green" variant="light">Présent</Badge>
+                                    ) : entry.markedAsPresent === false ? (
+                                        <Badge color="red" variant="light">Absent</Badge>
+                                    ) : (
+                                        <Badge color="gray" variant="light">–</Badge>
+                                    )}
                                   </Table.Td>
                                   <Table.Td className="text-center">
                                     <Badge color={getBadgeColor(entry.markedAsPaid)} variant="light">
