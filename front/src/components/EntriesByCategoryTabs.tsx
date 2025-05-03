@@ -5,7 +5,6 @@ import {
   Table,
   Badge,
   TextInput,
-  Select,
   Group,
   SegmentedControl
 } from "@mantine/core";
