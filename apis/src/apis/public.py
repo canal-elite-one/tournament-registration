@@ -451,7 +451,7 @@ def api_admin_get_all_players(
     results = []
     for player in session.scalars(query.order_by(PlayerInDB.licence_no)).all():
         entries_total_not_in_waiting_list = sum(
-            entry.fee() for entry in player.entries if not entry.is_in_waiting_list()
+            entry.fee() for entry in player.entries if not entry.is_in_waiting_list() and entry.marked_as_present is not False
         )
         remaining_amount = entries_total_not_in_waiting_list - player.total_actual_paid
         results.append(AdminPlayer(**Player.model_validate(player).model_dump(), remaining_amount=remaining_amount))
