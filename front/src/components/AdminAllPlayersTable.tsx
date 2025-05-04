@@ -28,7 +28,7 @@ export default function AdminPlayersTable({ players }: { players: AdminPlayer[] 
 
   const filteredPlayers = players
       .filter((player) => {
-        if (filter === "paid") return player.remainingAmount === 0;
+        if (filter === "paid") return player.remainingAmount <= 0;
         if (filter === "unpaid") return player.remainingAmount > 0;
         return true;
       })
@@ -104,7 +104,7 @@ export default function AdminPlayersTable({ players }: { players: AdminPlayer[] 
                     <Table.Td>{player.licenceNo}</Table.Td>
                     <Table.Td>{player.club}</Table.Td>
                     <Table.Td className="text-center">
-                      {player.remainingAmount === 0 ? (
+                      {player.remainingAmount <= 0 ? (
                           <Badge color="green" variant="light">Payé</Badge>
                       ) : (
                           <Badge color="red" variant="light">Non payé</Badge>
