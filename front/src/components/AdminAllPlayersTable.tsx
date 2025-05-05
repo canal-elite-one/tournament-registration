@@ -144,14 +144,14 @@ export default function AdminPlayersTable({ players }: { players: AdminPlayer[] 
                         <Button
                             onClick={(e) => {
                               e.stopPropagation();
-                              if (player.remainingAmount === 0) return;
+                              if (player.remainingAmount <= 0) return;
                               setSelectedPlayer(player);
                               setTemplate(null);
                               setWarningDeadline(null);
                               open();
                             }}
-                            disabled={player.remainingAmount === 0}
-                            color={player.remainingAmount === 0 ? "gray" : "blue"}
+                            disabled={player.remainingAmount <= 0}
+                            color={player.remainingAmount <= 0 ? "gray" : "blue"}
                             variant="filled"
                             size="xs"
                         >
