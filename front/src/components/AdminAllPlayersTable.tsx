@@ -2,10 +2,33 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import {Table, Text, Badge, SegmentedControl, Group, Tooltip} from "@mantine/core";
+import {
+  Button,
+  Modal,
+  Select,
+  Text,
+  Group,
+  Stack,
+  SegmentedControl,
+  Table,
+  Badge,
+  Tooltip
+} from "@mantine/core";
+import { DateTimePicker } from "@mantine/dates";
+import { useDisclosure } from '@mantine/hooks';
+
 import { AdminPlayer } from "@/backend_api/backend"; // Adjust import path as needed
+import { showNotification } from "@mantine/notifications";
+import {IconCheck, IconX} from "@tabler/icons-react";
 
 export default function AdminPlayersTable({ players }: { players: AdminPlayer[] }) {
+  // for modal
+  const [opened, { open, close }] = useDisclosure(false);
+  const [selectedPlayer, setSelectedPlayer] = useState<AdminPlayer | null>(null);
+  const [template, setTemplate] = useState<string | null>(null);
+  const [warningDeadline, setWarningDeadline] = useState<Date | null>(null);
+
+
   const [filter, setFilter] = useState<"all" | "paid" | "unpaid">("all");
 
   const router = useRouter();
@@ -118,36 +141,22 @@ export default function AdminPlayersTable({ players }: { players: AdminPlayer[] 
                           withArrow
                           position="top"
                       >
-                        <button
-                            onClick={async (e) => {
-                              e.stopPropagation(); // Prevent row click
+                        <Button
+                            onClick={(e) => {
+                              e.stopPropagation();
                               if (player.remainingAmount === 0) return;
-
-                              const response = await fetch("/api/admin/player/send-payment-link", {
-                                method: "POST",
-                                headers: {
-                                  "Content-Type": "application/json",
-                                },
-                                body: JSON.stringify({ licenceNo: player.licenceNo }),
-                              });
-
-                              if (response.ok) {
-                                alert(`Lien de paiement envoyé à ${player.email}`);
-                              } else {
-                                const errorMessage = `Erreur lors de l'envoi du lien de paiement à ${player.email}`;
-                                console.error(errorMessage);
-                                alert(errorMessage);
-                              }
+                              setSelectedPlayer(player);
+                              setTemplate(null);
+                              setWarningDeadline(null);
+                              open();
                             }}
                             disabled={player.remainingAmount === 0}
-                            className={`text-white text-sm font-semibold py-1 px-3 rounded transition-colors ${
-                                player.remainingAmount === 0
-                                    ? "bg-gray-400 cursor-not-allowed"
-                                    : "bg-blue-600 hover:bg-blue-700"
-                            }`}
+                            color={player.remainingAmount === 0 ? "gray" : "blue"}
+                            variant="filled"
+                            size="xs"
                         >
-                          Envoyer
-                        </button>
+                          Rappel
+                        </Button>
                       </Tooltip>
                     </Table.Td>
                   </Table.Tr>
@@ -155,6 +164,87 @@ export default function AdminPlayersTable({ players }: { players: AdminPlayer[] 
             </Table.Tbody>
           </Table>
         </Table.ScrollContainer>
+
+        <Modal
+            opened={opened}
+            onClose={close}
+            title={`Envoyer un message à ${selectedPlayer?.firstName} ${selectedPlayer?.lastName}`}
+            centered
+        >
+          <Stack>
+            <Select
+                label="Modèle"
+                placeholder="Choisissez un modèle"
+                data={[
+                  { label: "Lien de paiement", value: "payment-link" },
+                  { label: "Dernier rappel", value: "last-warning" },
+                ]}
+                value={template}
+                onChange={setTemplate}
+            />
+
+            {template === "last-warning" && (
+                <DateTimePicker
+                    label="Date limite de paiement"
+                    value={warningDeadline}
+                    onChange={setWarningDeadline}
+                    placeholder="Sélectionnez une date et une heure"
+                    required
+                />
+            )}
+
+            <Group justify="right" mt="md">
+              <Button
+                  onClick={async () => {
+                    if (!selectedPlayer || !template) return;
+
+                    if (template === "last-warning") {
+                      if (!warningDeadline) {
+                        alert("Veuillez sélectionner une date limite");
+                        return;
+                      }
+                    }
+
+                    const response = await fetch("/api/admin/player/send-payment-link", {
+                      method: "POST",
+                      headers: {
+                        "Content-Type": "application/json",
+                      },
+                      body: JSON.stringify({
+                        licenceNo: selectedPlayer.licenceNo,
+                        template: template,
+                        deadline: warningDeadline ? warningDeadline.toISOString() : null,
+                      }),
+                    });
+
+                    if (response.ok) {
+                      showNotification({
+                        title: 'Message envoyé',
+                        message: `Un email a été envoyé à ${selectedPlayer.email}`,
+                        color: 'green',
+                        icon: <IconCheck size={18} />,
+                        autoClose: 30000,
+                      });
+                    } else {
+                      showNotification({
+                        title: 'Erreur',
+                        message: "Une erreur est survenue lors de l'envoi de l'email",
+                        color: 'red',
+                        icon: <IconX size={18} />,
+                        autoClose: 30000,
+                      });
+                    }
+
+                    close();
+                  }}
+                  disabled={template === "last-warning" && !warningDeadline}
+              >
+                Envoyer
+              </Button>
+            </Group>
+          </Stack>
+        </Modal>
+
 
       </div>
   );
