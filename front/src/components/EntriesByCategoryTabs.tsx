@@ -8,7 +8,7 @@ import {
   Group,
   SegmentedControl
 } from "@mantine/core";
-import { Spotlight, SpotlightActionData, openSpotlight } from "@mantine/spotlight";
+import { Spotlight, SpotlightActionData } from "@mantine/spotlight";
 import { useMemo, useState } from "react";
 import {useRouter} from "next/navigation";
 
@@ -94,12 +94,6 @@ export default function EntriesByCategoryTabs({ entriesByCategory }: Props) {
                 className="hidden sm:block bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded"
             >
               Ajouter
-            </button>
-            <button
-                onClick={openSpotlight}
-                className="hidden sm:block bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-            >
-              🔍 Cmd + K
             </button>
           </div>
         </div>
