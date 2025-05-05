@@ -19,7 +19,7 @@
     "@mantine/spotlight": "^7.17.5",
     "@stripe/react-stripe-js": "^3.6.0",
     "@stripe/stripe-js": "^7.0.0",
-    "@tabler/icons-react": "^3.30.0",
+    "@tabler/icons-react": "^3.31.0",
     "dayjs": "^1.11.13",
     "jose": "^6.0.4",
     "next": "^15.3.1",
