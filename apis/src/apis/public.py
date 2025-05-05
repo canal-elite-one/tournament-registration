@@ -451,10 +451,17 @@ def api_admin_get_all_players(
     results = []
     for player in session.scalars(query.order_by(PlayerInDB.licence_no)).all():
         entries_total_not_in_waiting_list = sum(
-            entry.fee() for entry in player.entries if not entry.is_in_waiting_list() and entry.marked_as_present is not False
+            entry.fee()
+            for entry in player.entries
+            if not entry.is_in_waiting_list() and entry.marked_as_present is not False
         )
         remaining_amount = entries_total_not_in_waiting_list - player.total_actual_paid
-        results.append(AdminPlayer(**Player.model_validate(player).model_dump(), remaining_amount=remaining_amount))
+        results.append(
+            AdminPlayer(
+                **Player.model_validate(player).model_dump(),
+                remaining_amount=remaining_amount,
+            ),
+        )
 
     return GetAllPlayersResponse(players=results)
 
@@ -473,17 +480,19 @@ def api_admin_get_players_by_category(
     categories = session.scalars(
         select(CategoryInDB).order_by(CategoryInDB.start_time),
     ).all()
-    return GetEntriesByCategoryResponse(entries_by_category={
-        category.category_id: [
-            EntryWithPlayer.from_entry_in_db(entry)
-            for entry in sorted(
-                category.entries,
-                key=lambda e: e.registration_time,
-            )
-            if present_only is False or entry.marked_as_present is not False
-        ]
-        for category in categories
-    })
+    return GetEntriesByCategoryResponse(
+        entries_by_category={
+            category.category_id: [
+                EntryWithPlayer.from_entry_in_db(entry)
+                for entry in sorted(
+                    category.entries,
+                    key=lambda e: (e.marked_as_present is False, e.registration_time),
+                )
+                if present_only is False or entry.marked_as_present is not False
+            ]
+            for category in categories
+        },
+    )
 
 class GetAdminPlayerResponse(AliasedBase):
     player: Player
@@ -497,15 +506,19 @@ class GetAdminPlayerResponse(AliasedBase):
     response_model=GetAdminPlayerResponse,
 )
 def api_admin_get_player(
-    licence_no: str, db_only: bool = False
+    licence_no: str, db_only: bool = False,
 ) -> GetAdminPlayerResponse:
     origin = api_admin_get_player.__name__
     with Session() as session:
         if (player := session.get(PlayerInDB, licence_no)) is not None:
-            return GetAdminPlayerResponse(player=Player.model_validate(player), entries=[
-                EntryWithCategory.from_entry_in_db(entry)
-                for entry in player.entries
-            ], is_player_from_db=True)
+            return GetAdminPlayerResponse(
+                player=Player.model_validate(player),
+                entries=[
+                    EntryWithCategory.from_entry_in_db(entry)
+                    for entry in player.entries
+                ],
+                is_player_from_db=True,
+            )
 
     if db_only:
         raise ae.PlayerNotFoundError(
