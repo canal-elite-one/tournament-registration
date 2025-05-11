@@ -20,6 +20,7 @@ import { useDisclosure } from '@mantine/hooks';
 import { AdminPlayer } from "@/backend_api/backend"; // Adjust import path as needed
 import { showNotification } from "@mantine/notifications";
 import {IconCheck, IconX} from "@tabler/icons-react";
+import {Spotlight, SpotlightActionData} from "@mantine/spotlight";
 
 export default function AdminPlayersTable({ players }: { players: AdminPlayer[] }) {
   // for modal
@@ -65,7 +66,12 @@ export default function AdminPlayersTable({ players }: { players: AdminPlayer[] 
         return 0;
       });
 
-
+  const spotlightActions: SpotlightActionData[] = players.map((player) => ({
+    id: `${player.licenceNo}`,
+    label: `${player.firstName} ${player.lastName} (${player.licenceNo})`,
+    description: `${player.club}`,
+    onClick: () => router.push(`/admin/joueurs/${player.licenceNo}`),
+  }));
 
   return (
       <div className="rounded-lg overflow-hidden shadow-md bg-white p-4">
@@ -313,6 +319,15 @@ export default function AdminPlayersTable({ players }: { players: AdminPlayer[] 
             </Button>
           </Group>
         </Modal>
+
+        {/* Spotlight Component */}
+        <Spotlight
+            actions={spotlightActions}
+            nothingFound="Aucun résultat"
+            shortcut="mod + K"
+            highlightQuery
+            scrollable
+        />
       </div>
   );
 }
