@@ -20,6 +20,7 @@ import { useDisclosure } from '@mantine/hooks';
 import { AdminPlayer } from "@/backend_api/backend"; // Adjust import path as needed
 import { showNotification } from "@mantine/notifications";
 import {IconCheck, IconX} from "@tabler/icons-react";
+import {Spotlight, SpotlightActionData} from "@mantine/spotlight";
 
 export default function AdminPlayersTable({ players }: { players: AdminPlayer[] }) {
   // for modal
@@ -27,7 +28,8 @@ export default function AdminPlayersTable({ players }: { players: AdminPlayer[] 
   const [selectedPlayer, setSelectedPlayer] = useState<AdminPlayer | null>(null);
   const [template, setTemplate] = useState<string | null>(null);
   const [warningDeadline, setWarningDeadline] = useState<Date | null>(null);
-
+  const [cancelModalOpened, { open: openCancelModal, close: closeCancelModal }] = useDisclosure(false);
+  const [playerToUnregister, setPlayerToUnregister] = useState<AdminPlayer | null>(null);
 
   const [filter, setFilter] = useState<"all" | "paid" | "unpaid">("all");
 
@@ -64,7 +66,12 @@ export default function AdminPlayersTable({ players }: { players: AdminPlayer[] 
         return 0;
       });
 
-
+  const spotlightActions: SpotlightActionData[] = players.map((player) => ({
+    id: `${player.licenceNo}`,
+    label: `${player.firstName} ${player.lastName} (${player.licenceNo})`,
+    description: `${player.club}`,
+    onClick: () => router.push(`/admin/joueurs/${player.licenceNo}`),
+  }));
 
   return (
       <div className="rounded-lg overflow-hidden shadow-md bg-white p-4">
@@ -158,6 +165,27 @@ export default function AdminPlayersTable({ players }: { players: AdminPlayer[] 
                           Rappel
                         </Button>
                       </Tooltip>
+                      <Tooltip
+                          label="Le joueur a déjà payé"
+                          disabled={player.remainingAmount !== 0}
+                          withArrow
+                          position="top"
+                      >
+                        <Button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setPlayerToUnregister(player);
+                              openCancelModal();
+                            }}
+                            disabled={player.remainingAmount <= 0}
+                            color="red"
+                            variant="filled"
+                            size="xs"
+                            ml="xs"
+                        >
+                          Désinscrire
+                        </Button>
+                      </Tooltip>
                     </Table.Td>
                   </Table.Tr>
               ))}
@@ -244,8 +272,62 @@ export default function AdminPlayersTable({ players }: { players: AdminPlayer[] 
             </Group>
           </Stack>
         </Modal>
+        <Modal
+            opened={cancelModalOpened}
+            onClose={closeCancelModal}
+            title={`Annuler l'inscription de ${playerToUnregister?.firstName} ${playerToUnregister?.lastName} ?`}
+            centered
+        >
+          <Text>Êtes-vous sûr(e) de vouloir annuler cette inscription ? Cette action est irréversible.</Text>
+          <Group justify="right" mt="md">
+            <Button onClick={closeCancelModal} variant="default">Annuler</Button>
+            <Button
+                color="red"
+                onClick={async () => {
+                  if (!playerToUnregister) return;
 
+                  const response = await fetch(`/api/admin/player/unregister`, {
+                    method: "POST",
+                    body: JSON.stringify({
+                      licenceNo: playerToUnregister.licenceNo,
+                    }),
+                  });
 
+                  if (response.ok) {
+                    showNotification({
+                      title: 'Inscription annulée',
+                      message: `Le joueur ${playerToUnregister.firstName} ${playerToUnregister.lastName} a été désinscrit.`,
+                      color: 'green',
+                      icon: <IconCheck size={18} />,
+                      autoClose: 30000,
+                    });
+                    router.refresh();
+                  } else {
+                    showNotification({
+                      title: 'Erreur',
+                      message: "Une erreur est survenue lors de la désinscription",
+                      color: 'red',
+                      icon: <IconX size={18} />,
+                      autoClose: 30000,
+                    });
+                  }
+
+                  closeCancelModal();
+                }}
+            >
+              Confirmer
+            </Button>
+          </Group>
+        </Modal>
+
+        {/* Spotlight Component */}
+        <Spotlight
+            actions={spotlightActions}
+            nothingFound="Aucun résultat"
+            shortcut="mod + K"
+            highlightQuery
+            scrollable
+        />
       </div>
   );
 }
